@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -34,27 +36,18 @@
  */
 class UploaderCore
 {
-    const DEFAULT_MAX_SIZE = 10485760;
+    public const DEFAULT_MAX_SIZE = 10485760;
 
-    /**
-     * @var bool
-     */
-    private $checkFileSize = true;
+    private bool $checkFileSize = true;
 
     /**
      * @var string[]|null
      */
-    private $acceptTypes;
+    private ?array $acceptTypes = null;
 
-    /**
-     * @var array
-     */
-    private $files = [];
+    private array $files = [];
 
-    /**
-     * @var int
-     */
-    private $maxSize = self::DEFAULT_MAX_SIZE;
+    private int $maxSize = self::DEFAULT_MAX_SIZE;
 
     /**
      * @var string|null
@@ -78,10 +71,8 @@ class UploaderCore
 
     /**
      * @param bool $value
-     *
-     * @return static
      */
-    public function setCheckFileSize($value)
+    public function setCheckFileSize($value): static
     {
         $this->checkFileSize = (bool)$value;
 
@@ -135,10 +126,8 @@ class UploaderCore
 
     /**
      * @param string $value
-     *
-     * @return static
      */
-    public function setName($value)
+    public function setName($value): static
     {
         $this->name = $value;
 
@@ -146,12 +135,10 @@ class UploaderCore
     }
 
     /**
-     * @param array $file
      * @param string|null $dest
      *
-     * @return array
      */
-    public function upload($file, $dest = null)
+    public function upload(array $file, $dest = null): array
     {
         if ($this->validate($file)) {
             if (isset($dest) && is_dir($dest)) {
@@ -181,12 +168,7 @@ class UploaderCore
         return $file;
     }
 
-    /**
-     * @param array $file
-     *
-     * @return bool
-     */
-    protected function validate(&$file)
+    protected function validate(array &$file): bool
     {
         $file['error'] = $this->checkUploadError($file['error']);
 
@@ -202,7 +184,7 @@ class UploaderCore
             return false;
         }
 
-        if (preg_match('/%00/', $file['name'])) {
+        if (preg_match('/%00/', (string) $file['name'])) {
             $file['error'] = Tools::displayError('Invalid file name');
 
             return false;
@@ -210,7 +192,7 @@ class UploaderCore
 
         $types = $this->getAcceptTypes();
 
-        if (isset($types) && !in_array(mb_strtolower(pathinfo($file['name'], PATHINFO_EXTENSION)), $types)) {
+        if (isset($types) && !in_array(mb_strtolower(pathinfo((string) $file['name'], PATHINFO_EXTENSION)), $types)) {
             $file['error'] = Tools::displayError('Filetype not allowed');
 
             return false;
@@ -265,22 +247,18 @@ class UploaderCore
     /**
      * @return int PHP setting 'post_max_size', converted to bytes.
      */
-    public function getPostMaxSizeBytes()
+    public function getPostMaxSizeBytes(): int
     {
         $postMaxSize = ini_get('post_max_size');
         $bytes = (int) trim($postMaxSize);
         $last = strtolower(substr($postMaxSize, -1));
 
-        switch ($last) {
-            case 'g':
-                return $bytes * 1024 * 1024 * 1024;
-            case 'm':
-                return $bytes * 1024 * 1024;
-            case 'k':
-                return $bytes * 1024;
-            default:
-                return $bytes;
-        }
+        return match ($last) {
+            'g' => $bytes * 1024 * 1024 * 1024,
+            'm' => $bytes * 1024 * 1024,
+            'k' => $bytes * 1024,
+            default => $bytes,
+        };
 
     }
 
@@ -304,10 +282,8 @@ class UploaderCore
 
     /**
      * @param string[] $value
-     *
-     * @return static
      */
-    public function setAcceptTypes($value)
+    public function setAcceptTypes($value): static
     {
         if (is_array($value) && count($value)) {
             $value = array_map(['Tools', 'strtolower'], $value);
@@ -325,20 +301,15 @@ class UploaderCore
         return $this->checkFileSize;
     }
 
-    /**
-     * @return int
-     */
-    public function getMaxSize()
+    public function getMaxSize(): int
     {
         return (int)$this->maxSize;
     }
 
     /**
      * @param int $value
-     *
-     * @return static
      */
-    public function setMaxSize($value)
+    public function setMaxSize($value): static
     {
         $this->maxSize = (int)$value;
 
@@ -369,21 +340,14 @@ class UploaderCore
 
     /**
      * @param string $value
-     *
-     * @return static
      */
-    public function setSavePath($value)
+    public function setSavePath($value): static
     {
         $this->savePath = $value;
         return $this;
     }
 
-    /**
-     * @param string $directory
-     *
-     * @return string
-     */
-    protected function _normalizeDirectory($directory)
+    protected function _normalizeDirectory(string $directory): string
     {
         $last = $directory[strlen($directory) - 1];
 
@@ -393,17 +357,13 @@ class UploaderCore
             return $directory;
         }
 
-        $directory .= DIRECTORY_SEPARATOR;
-
-        return $directory;
+        return $directory . DIRECTORY_SEPARATOR;
     }
 
     /**
      * @param string $prefix
-     *
-     * @return string
      */
-    public function getUniqueFileName($prefix = 'PS')
+    public function getUniqueFileName($prefix = 'PS'): string
     {
         return uniqid($prefix, true);
     }
@@ -414,7 +374,7 @@ class UploaderCore
      *
      * @return int
      */
-    protected function _getFileSize($filePath, $clearStatCache = false)
+    protected function _getFileSize($filePath, $clearStatCache = false): int|false
     {
         if ($clearStatCache) {
             clearstatcache(true, $filePath);

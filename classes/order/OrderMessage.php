@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -85,7 +87,7 @@ class OrderMessageCore extends ObjectModel
 		SELECT om.id_order_message, oml.name, oml.message
 		FROM '._DB_PREFIX_.'order_message om
 		LEFT JOIN '._DB_PREFIX_.'order_message_lang oml ON (oml.id_order_message = om.id_order_message)
-		WHERE oml.id_lang = '.(int) $idLang.'
+		WHERE oml.id_lang = '.$idLang.'
 		ORDER BY name ASC');
 
         // Replace Shortcodes
@@ -98,10 +100,7 @@ class OrderMessageCore extends ObjectModel
     }
 
     /**
-     * @param Customer|null $customer
-     * @param Order|null $order
      *
-     * @return Customer|null
      * @throws PrestaShopException
      */
     protected static function resolveCustomer(?Customer $customer, ?Order $order): ?Customer
@@ -119,11 +118,6 @@ class OrderMessageCore extends ObjectModel
     }
 
     /**
-     * @param array $orderMessages
-     * @param int $idLang
-     * @param Order|null $order
-     * @param Customer|null $customer
-     * @param bool $returnShortcodeList
      *
      * @return array
      *

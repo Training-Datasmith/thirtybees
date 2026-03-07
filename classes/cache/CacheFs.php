@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -37,7 +39,7 @@ class CacheFsCore extends Cache
     /**
      * @var int Number of subfolders to dispatch cached filenames
      */
-    protected $depth;
+    protected int $depth;
 
     /**
      * CacheFsCore constructor.
@@ -183,10 +185,8 @@ class CacheFsCore extends Cache
 
     /**
      * Delete cache directory
-     *
-     * @return void
      */
-    public static function deleteCacheDirectory()
+    public static function deleteCacheDirectory(): void
     {
         Tools::deleteDirectory(_PS_CACHEFS_DIRECTORY_, false);
     }
@@ -197,7 +197,7 @@ class CacheFsCore extends Cache
      * @param int $levelDepth
      * @param string $directory
      */
-    public static function createCacheDirectories($levelDepth, $directory = false)
+    public static function createCacheDirectories($levelDepth, $directory = false): void
     {
         if (!$directory) {
             $directory = _PS_CACHEFS_DIRECTORY_;

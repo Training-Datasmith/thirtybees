@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -34,7 +36,7 @@
  */
 class PrestaShopLoggerCore extends ObjectModel
 {
-    const MAIL_ERROR = 'INTERNAL_EMAIL_ERROR';
+    public const MAIL_ERROR = 'INTERNAL_EMAIL_ERROR';
 
     /**
      * @var array
@@ -85,7 +87,7 @@ class PrestaShopLoggerCore extends ObjectModel
                     'subParts' => [150],
                 ],
             ],
-        ]
+        ],
     ];
 
     /**
@@ -109,7 +111,7 @@ class PrestaShopLoggerCore extends ObjectModel
         $log = new static();
         $log->severity = (int) $severity;
         $log->error_code = (int) $errorCode;
-        $log->message = $message ? $message : static::getEmptyMessageText();
+        $log->message = $message ?: static::getEmptyMessageText();
         $log->date_add = date('Y-m-d H:i:s');
         $log->date_upd = date('Y-m-d H:i:s');
 
@@ -149,7 +151,7 @@ class PrestaShopLoggerCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function sendByMail($log)
+    public static function sendByMail($log): void
     {
         if ((int) Configuration::get('PS_LOGS_BY_EMAIL') <= (int) $log->severity) {
             Mail::Send(
@@ -228,7 +230,7 @@ class PrestaShopLoggerCore extends ObjectModel
     protected static function getEmptyMessageText()
     {
         foreach (debug_backtrace() as $trace) {
-            if (strpos($trace['file'], __FILE__) === false) {
+            if (!str_contains($trace['file'], __FILE__)) {
                 $file = str_replace(_PS_ROOT_DIR_, '', $trace['file']);
                 $line = $trace['line'];
                 return sprintf(Tools::displayError('Logger::addLog called with empty message at %s on line %s', false), $file, $line);

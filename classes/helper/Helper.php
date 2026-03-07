@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -130,7 +132,6 @@ class HelperCore
     /**
      * @deprecated 2.0.0
      *
-     * @param array $translations
      * @param array $selectedCat
      * @param string $inputName
      * @param bool $useRadio
@@ -142,7 +143,7 @@ class HelperCore
      * @throws PrestaShopException
      */
     public static function renderAdminCategorieTree(
-        $translations,
+        array $translations,
         $selectedCat = [],
         $inputName = 'categoryBox',
         $useRadio = false,
@@ -172,7 +173,6 @@ class HelperCore
      * @param bool $useSearch display a find category search box
      * @param array $disabledCategories
      *
-     * @return string
      *
      * @throws PrestaShopException
      */
@@ -183,7 +183,7 @@ class HelperCore
         $useRadio = false,
         $useSearch = false,
         $disabledCategories = []
-    ) {
+    ): string {
         $translations = [
             'selected'     => $this->l('Selected'),
             'Collapse All' => $this->l('Collapse All'),
@@ -222,15 +222,15 @@ class HelperCore
 			var inputName = \''.addcslashes($inputName, '\'').'\';'."\n";
         if (count($selectedCat) > 0) {
             if (isset($selectedCat[0])) {
-                $html .= '			var selectedCat = "'.implode(',', array_map('intval', $selectedCat)).'";'."\n";
+                $html .= '			var selectedCat = "'.implode(',', array_map(intval(...), $selectedCat)).'";'."\n";
             } else {
-                $html .= '			var selectedCat = "'.implode(',', array_map('intval', array_keys($selectedCat))).'";'."\n";
+                $html .= '			var selectedCat = "'.implode(',', array_map(intval(...), array_keys($selectedCat))).'";'."\n";
             }
         } else {
             $html .= '			var selectedCat = \'\';'."\n";
         }
         $html .= '			var selectedLabel = \''.$translations['selected'].'\';
-			var home = \''.addcslashes($root['name'], '\'').'\';
+			var home = \''.addcslashes((string) $root['name'], '\'').'\';
 			var use_radio = '.(int) $useRadio.';';
         $html .= '</script>';
 
@@ -310,7 +310,7 @@ class HelperCore
      * @deprecated deprecated since 1.0.0 use HelperShop->getRenderedShopList
      * @throws PrestaShopException
      */
-    public static function renderShopList()
+    public static function renderShopList(): ?string
     {
         Tools::displayAsDeprecated();
 
@@ -342,14 +342,14 @@ class HelperCore
 
         foreach ($tree as $groupId => $groupData) {
             if ((!isset($controller->multishop_context) || $controller->multishop_context & Shop::CONTEXT_GROUP)) {
-                $html .= '<option class="group" value="g-'.$groupId.'"'.(((empty($value) && $shopContext == Shop::CONTEXT_GROUP) || $value == 'g-'.$groupId) ? ' selected="selected"' : '').($controller->multishop_context_group == false ? ' disabled="disabled"' : '').'>'.Translate::getAdminTranslation('Group:').' '.htmlspecialchars($groupData['name']).'</option>';
+                $html .= '<option class="group" value="g-'.$groupId.'"'.(((empty($value) && $shopContext == Shop::CONTEXT_GROUP) || $value == 'g-'.$groupId) ? ' selected="selected"' : '').($controller->multishop_context_group == false ? ' disabled="disabled"' : '').'>'.Translate::getAdminTranslation('Group:').' '.htmlspecialchars((string) $groupData['name']).'</option>';
             } else {
-                $html .= '<optgroup class="group" label="'.Translate::getAdminTranslation('Group:').' '.htmlspecialchars($groupData['name']).'"'.($controller->multishop_context_group == false ? ' disabled="disabled"' : '').'>';
+                $html .= '<optgroup class="group" label="'.Translate::getAdminTranslation('Group:').' '.htmlspecialchars((string) $groupData['name']).'"'.($controller->multishop_context_group == false ? ' disabled="disabled"' : '').'>';
             }
             if (!isset($controller->multishop_context) || $controller->multishop_context & Shop::CONTEXT_SHOP) {
                 foreach ($groupData['shops'] as $shopId => $shopData) {
                     if ($shopData['active']) {
-                        $html .= '<option value="s-'.$shopId.'" class="shop"'.(($value == 's-'.$shopId) ? ' selected="selected"' : '').'>'.($controller->multishop_context_group == false ? htmlspecialchars($groupData['name']).' - ' : '').$shopData['name'].'</option>';
+                        $html .= '<option value="s-'.$shopId.'" class="shop"'.(($value == 's-'.$shopId) ? ' selected="selected"' : '').'>'.($controller->multishop_context_group == false ? htmlspecialchars((string) $groupData['name']).' - ' : '').$shopData['name'].'</option>';
                     }
                 }
             }
@@ -357,9 +357,8 @@ class HelperCore
                 $html .= '</optgroup>';
             }
         }
-        $html .= '</select>';
 
-        return $html;
+        return $html . '</select>';
     }
 
     /**
@@ -368,7 +367,7 @@ class HelperCore
      * @throws PrestaShopException
      * @throws SmartyException
      */
-    public function setTpl($tpl)
+    public function setTpl($tpl): void
     {
         $this->tpl = $this->createTemplate($tpl);
     }
@@ -383,7 +382,7 @@ class HelperCore
      * @throws PrestaShopException
      * @throws SmartyException
      */
-    public function createTemplate($tplName)
+    public function createTemplate(string $tplName)
     {
         $overrideTplPath = $this->getOverrideTemplatePath($tplName);
         if ($overrideTplPath) {
@@ -454,10 +453,8 @@ class HelperCore
 
     /**
      * @param array $modulesList
-     *
-     * @return string
      */
-    public function renderModulesList($modulesList)
+    public function renderModulesList($modulesList): string
     {
         Tools::displayAsDeprecated();
         return '';
@@ -481,12 +478,10 @@ class HelperCore
     /**
      * Returns path to override template file, if it exists
      *
-     * @param string $tplName
      * @return string | false
-     *
      * @throws PrestaShopException
      */
-    protected function getOverrideTemplatePath($tplName)
+    protected function getOverrideTemplatePath(string $tplName): string|false
     {
         if ($this->override_folder) {
             $controller = $this->getController();
@@ -529,10 +524,10 @@ class HelperCore
     protected function getController()
     {
         /** @var AdminController $controller */
-       $controller = $this->context->controller;
-       if (! ($controller instanceof AdminController)) {
-           trigger_error('Helper class used outside AdminController context', E_USER_WARNING);
-       }
-       return $controller;
+        $controller = $this->context->controller;
+        if (! ($controller instanceof AdminController)) {
+            trigger_error('Helper class used outside AdminController context', E_USER_WARNING);
+        }
+        return $controller;
     }
 }

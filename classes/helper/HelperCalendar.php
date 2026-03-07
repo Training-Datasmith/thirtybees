@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -34,9 +36,9 @@
  */
 class HelperCalendarCore extends Helper
 {
-    const DEFAULT_DATE_FORMAT    = 'Y-mm-dd';
+    public const DEFAULT_DATE_FORMAT    = 'Y-mm-dd';
 
-    const DEFAULT_COMPARE_OPTION = 1;
+    public const DEFAULT_COMPARE_OPTION = 1;
 
     /**
      * @var array[]
@@ -58,15 +60,9 @@ class HelperCalendarCore extends Helper
      */
     private $_compare_date_to;
 
-    /**
-     * @var int | null
-     */
-    private $_compare_date_option = self::DEFAULT_COMPARE_OPTION;
+    private int $_compare_date_option = self::DEFAULT_COMPARE_OPTION;
 
-    /**
-     * @var string
-     */
-    private $_date_format = self::DEFAULT_DATE_FORMAT;
+    private string $_date_format = self::DEFAULT_DATE_FORMAT;
 
     /**
      * @var string
@@ -78,10 +74,7 @@ class HelperCalendarCore extends Helper
      */
     private $_date_to;
 
-    /**
-     * @var bool
-     */
-    private $_rtl;
+    private bool $_rtl;
 
     /**
      * HelperCalendarCore constructor.
@@ -347,9 +340,7 @@ class HelperCalendarCore extends Helper
             ]
         );
 
-        $html .= parent::generate();
-
-        return $html;
+        return $html . parent::generate();
     }
 
     /**

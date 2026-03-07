@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -128,7 +130,7 @@ abstract class HTMLTemplateCore
      *
      * @throws PrestaShopException
      */
-    public function assignCommonHeaderData()
+    public function assignCommonHeaderData(): void
     {
         $this->setShopId();
         $idShop = (int) $this->shop->id;
@@ -139,7 +141,7 @@ abstract class HTMLTemplateCore
         $width = 0;
         $height = 0;
         if (!empty($pathLogo)) {
-            list($width, $height) = getimagesize($pathLogo);
+            [$width, $height] = getimagesize($pathLogo);
         }
 
         // Limit the height of the logo for the PDF render
@@ -171,9 +173,9 @@ abstract class HTMLTemplateCore
      * @param ObjectModel $object generally the object used in the constructor
      * @throws PrestaShopException
      */
-    public function assignHookData($object)
+    public function assignHookData($object): void
     {
-        $template = ucfirst(str_replace('HTMLTemplate', '', get_class($this)));
+        $template = ucfirst(str_replace('HTMLTemplate', '', static::class));
         $hookName = 'displayPDF'.$template;
 
         $this->smarty->assign(
@@ -208,11 +210,10 @@ abstract class HTMLTemplateCore
      * If the template is not present in the theme directory, it will return the default template
      * in _PS_PDF_DIR_ directory
      *
-     * @param string $templateName
      *
      * @return string
      */
-    protected function getTemplate($templateName)
+    protected function getTemplate(string $templateName)
     {
         $template = false;
         $defaultTemplate = rtrim(_PS_PDF_DIR_, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.$templateName.'.tpl';

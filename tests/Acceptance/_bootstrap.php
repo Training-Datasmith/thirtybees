@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /** @noinspection PhpUnhandledExceptionInspection */
 // Enable Friendly URLs
 require_once __DIR__.'/../../config/config.inc.php';

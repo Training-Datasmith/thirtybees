@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Integration;
 
 use Codeception\Test\Unit;
@@ -38,7 +40,7 @@ class ObjectModelTest extends Unit
                 $prop = $reflection->getProperty($property);
                 self::assertTrue(!$prop->isStatic(), "Property $className::\$$property is static");
                 $visibility = ($prop->isPublic() ? 'public' : ($prop->isPrivate() ? 'private' : 'protected'));
-                self::assertEquals('public', $visibility,  "Incorrect property visibility: $visibility $className::\$$property");
+                self::assertEquals('public', $visibility, "Incorrect property visibility: $visibility $className::\$$property");
                 $phpdoc = $prop->getDocComment();
                 self::assertTrue($phpdoc !== false, "Property $className::\$$property is missing PHPDoc");
                 if (preg_match("#@var\s+([a-zA-Z0-9_\[\]|]+)#", $phpdoc, $matches)) {

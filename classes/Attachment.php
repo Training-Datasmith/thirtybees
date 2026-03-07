@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -174,7 +176,8 @@ class AttachmentCore extends ObjectModel
      */
     public static function getAttachments($idLang, $idProduct, $include = true)
     {
-        return Db::readOnly()->getArray('
+        return Db::readOnly()->getArray(
+            '
             SELECT *
             FROM '._DB_PREFIX_.'attachment a
             LEFT JOIN '._DB_PREFIX_.'attachment_lang al
@@ -293,7 +296,7 @@ class AttachmentCore extends ObjectModel
                     ->select('*')
                     ->from('product_attachment', 'pa')
                     ->leftJoin('product_lang', 'pl', 'pa.`id_product` = pl.`id_product`')
-                    ->where('pa.`id_attachment` IN ('.implode(',', array_map('intval', $idAttachments)).')')
+                    ->where('pa.`id_attachment` IN ('.implode(',', array_map(intval(...), $idAttachments)).')')
                     ->where('pl.`id_shop` = '.(int) Context::getContext()->shop->id)
                     ->where('pl.`id_lang` = '.(int) $idLang)
             );
@@ -303,9 +306,8 @@ class AttachmentCore extends ObjectModel
             }
 
             return $productAttachments;
-        } else {
-            return false;
         }
+        return false;
     }
 
     /**
@@ -322,18 +324,11 @@ class AttachmentCore extends ObjectModel
         return $filename;
     }
 
-
-    /**
-     * @return string
-     */
     public function getFilePath(): string
     {
         return _PS_DOWNLOAD_DIR_ . basename($this->file);
     }
 
-    /**
-     * @return bool
-     */
     public function fileExists(): bool
     {
         return (
@@ -342,9 +337,6 @@ class AttachmentCore extends ObjectModel
         );
     }
 
-    /**
-     * @return int
-     */
     protected function getFileSize(): int
     {
         if ($this->fileExists()) {

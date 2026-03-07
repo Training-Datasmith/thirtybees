@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -59,7 +61,7 @@ abstract class ObjectModel extends ObjectModelCore
             'ObjectModel',
             'ObjectModelCore',
             $classname,
-            $classname.'Core'
+            $classname.'Core',
         ];
         $backtrace = debug_backtrace();
         if ($backtrace) {

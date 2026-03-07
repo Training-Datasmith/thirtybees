@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -23,20 +25,15 @@ interface ImportEntityType
 {
     /**
      * Return plural name of imported entities, ie. 'Products'
-     *
-     * @return string
      */
-    public function getName():string;
+    public function getName(): string;
 
     /**
      * @return array[]
      */
-    public function getAvailableFields():array;
+    public function getAvailableFields(): array;
 
-    /**
-     * @return boolean
-     */
-    public function supportTruncate():bool;
+    public function supportTruncate(): bool;
 
     /**
      * @return true|string[]
@@ -44,8 +41,6 @@ interface ImportEntityType
     public function truncate();
 
     /**
-     * @param array $data
-     * @param bool $validateOnly
      *
      * @return array ['errors' => [], 'warnings' => []]
      */

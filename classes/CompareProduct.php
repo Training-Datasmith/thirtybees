@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -120,7 +122,7 @@ class CompareProductCore extends ObjectModel
             $context = Context::getContext();
             $customer = $context->customer;
             $idCustomer  = Validate::isLoadedObject($customer) ? (int)$customer->id : 0;
-            if (! $conn->insert('compare', [ 'id_customer' => (int) $idCustomer ])) {
+            if (! $conn->insert('compare', [ 'id_customer' => $idCustomer ])) {
                 return false;
             }
             $idCompare = (int)$conn->Insert_ID();
@@ -188,11 +190,10 @@ class CompareProductCore extends ObjectModel
      *
      * @param string $period
      *
-     * @return void
      *
      * @throws PrestaShopException
      */
-    public static function cleanCompareProducts($period = null)
+    public static function cleanCompareProducts($period = null): void
     {
         if ($period !== null) {
             Tools::displayParameterAsDeprecated('period');

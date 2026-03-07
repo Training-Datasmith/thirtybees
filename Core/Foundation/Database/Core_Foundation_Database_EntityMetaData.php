@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -34,7 +36,6 @@
  */
 class Core_Foundation_Database_EntityMetaData
 {
-
     /**
      * @var string
      */

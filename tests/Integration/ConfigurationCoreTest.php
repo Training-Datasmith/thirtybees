@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Integration;
 
 use Codeception\Test\Unit;
@@ -27,7 +29,7 @@ class ConfigurationCoreTest extends Unit
             [ false, 'html &gt; entities > test', 'html &gt; entities > test'],
             [ false, '{ "json": true }', '{ "json": true }' ],
             [ false, "multi\nline\ntext", "multi\nline\ntext" ],
-            //
+
             [ true, 'simple string' , 'simple string' ],
             [ true, "string with ' apostrophe", "string with ' apostrophe"],
             [ true, 'string with <a>html</a> tags', 'string with <a>html</a> tags'],
@@ -56,15 +58,14 @@ class ConfigurationCoreTest extends Unit
 
         // delete data
         Configuration::deleteByName($key);
-        static::assertEquals(false, Configuration::get($key), "Key does not exists yet");
+        static::assertEquals(false, Configuration::get($key), 'Key does not exists yet');
 
         // update value
         Configuration::updateValue($key, $input, $allowHtml);
 
         // test that values in cache matches expectation
-        static::assertEquals($expected, Configuration::get($key), "Value matches immediately after update");
+        static::assertEquals($expected, Configuration::get($key), 'Value matches immediately after update');
     }
-
 
     /**
      * This tests verifies that data stored into database during Configuration::updateValue contains
@@ -85,7 +86,7 @@ class ConfigurationCoreTest extends Unit
 
         // delete data
         Configuration::deleteByName($key);
-        static::assertEquals(false, Configuration::get($key), "Key does not exists yet");
+        static::assertEquals(false, Configuration::get($key), 'Key does not exists yet');
 
         // update value
         Configuration::updateValue($key, $input, $allowHtml);
@@ -94,6 +95,6 @@ class ConfigurationCoreTest extends Unit
         Configuration::clearConfigurationCacheForTesting();
 
         // test that value read from db matches expectation
-        static::assertEquals($expected, Configuration::get($key), "Value matches when re-loaded from db");
+        static::assertEquals($expected, Configuration::get($key), 'Value matches when re-loaded from db');
     }
 }

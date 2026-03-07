@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -123,16 +125,16 @@ class ShopCore extends ObjectModel
     /**
      * There are 3 kinds of shop context : shop, group shop and general
      */
-    const CONTEXT_SHOP = 1;
-    const CONTEXT_GROUP = 2;
-    const CONTEXT_ALL = 4;
+    public const CONTEXT_SHOP = 1;
+    public const CONTEXT_GROUP = 2;
+    public const CONTEXT_ALL = 4;
 
     /**
      * Some data can be shared between shops, like customers or orders
      */
-    const SHARE_CUSTOMER = 'share_customer';
-    const SHARE_ORDER = 'share_order';
-    const SHARE_STOCK = 'share_stock';
+    public const SHARE_CUSTOMER = 'share_customer';
+    public const SHARE_ORDER = 'share_order';
+    public const SHARE_STOCK = 'share_stock';
 
     /**
      * On shop instance, get its theme and URL data too
@@ -207,12 +209,12 @@ class ShopCore extends ObjectModel
         $res = parent::add($autoDate, $nullValues);
         // Set default language routes
         $langs = Language::getLanguages(false, $this->id, true);
-        Configuration::updateValue('PS_ROUTE_product_rule', array_map(function() {return '{categories:/}{rewrite}';}, $langs));
-        Configuration::updateValue('PS_ROUTE_category_rule', array_map(function() {return '{rewrite}';}, $langs));
-        Configuration::updateValue('PS_ROUTE_supplier_rule', array_map(function() {return '{rewrite}';}, $langs));
-        Configuration::updateValue('PS_ROUTE_manufacturer_rule', array_map(function() {return '{rewrite}';}, $langs));
-        Configuration::updateValue('PS_ROUTE_cms_rule', array_map(function() {return '{categories:/}{rewrite}';}, $langs));
-        Configuration::updateValue('PS_ROUTE_cms_category_rule', array_map(function() {return '{categories:/}{rewrite}';}, $langs));
+        Configuration::updateValue('PS_ROUTE_product_rule', array_map(fn () => '{categories:/}{rewrite}', $langs));
+        Configuration::updateValue('PS_ROUTE_category_rule', array_map(fn () => '{rewrite}', $langs));
+        Configuration::updateValue('PS_ROUTE_supplier_rule', array_map(fn () => '{rewrite}', $langs));
+        Configuration::updateValue('PS_ROUTE_manufacturer_rule', array_map(fn () => '{rewrite}', $langs));
+        Configuration::updateValue('PS_ROUTE_cms_rule', array_map(fn () => '{categories:/}{rewrite}', $langs));
+        Configuration::updateValue('PS_ROUTE_cms_category_rule', array_map(fn () => '{categories:/}{rewrite}', $langs));
 
         static::cacheShops(true);
 
@@ -222,7 +224,7 @@ class ShopCore extends ObjectModel
     /**
      * @throws PrestaShopException
      */
-    public function associateSuperAdmins()
+    public function associateSuperAdmins(): void
     {
         $superAdmins = Employee::getEmployeesByProfile(_PS_ADMIN_PROFILE_);
         foreach ($superAdmins as $superAdmin) {
@@ -329,7 +331,7 @@ class ShopCore extends ObjectModel
             $foundUri = '';
             $isMainUri = false;
             $host = Tools::getHttpHost();
-            $requestUri = rawurldecode($_SERVER['REQUEST_URI']);
+            $requestUri = rawurldecode((string) $_SERVER['REQUEST_URI']);
 
             $result = Db::readOnly()->getArray(
                 (new DbQuery())
@@ -345,7 +347,7 @@ class ShopCore extends ObjectModel
             $through = false;
             foreach ($result as $row) {
                 // An URL matching current shop was found
-                if (preg_match('#^'.preg_quote($row['uri'], '#').'#i', $requestUri)) {
+                if (preg_match('#^'.preg_quote((string) $row['uri'], '#').'#i', $requestUri)) {
                     $through = true;
                     $idShop = $row['id_shop'];
                     $foundUri = $row['uri'];
@@ -360,7 +362,7 @@ class ShopCore extends ObjectModel
             if ($through && $idShop && !$isMainUri) {
                 foreach ($result as $row) {
                     if ($row['id_shop'] == $idShop && $row['main']) {
-                        $requestUri = substr($requestUri, strlen($foundUri));
+                        $requestUri = substr($requestUri, strlen((string) $foundUri));
                         $url = str_replace('//', '/', $row['domain'].$row['uri'].$requestUri);
                         $redirectType = Configuration::get('PS_CANONICAL_REDIRECT');
                         $redirectCode = ($redirectType == 1 ? '302' : '301');
@@ -407,12 +409,10 @@ class ShopCore extends ObjectModel
             if (!Validate::isLoadedObject($shop) || !$shop->active) {
                 // No shop found ... too bad, let's redirect to default shop
                 $defaultShop = new Shop(Configuration::get('PS_SHOP_DEFAULT'));
-
                 // Hmm there is something really bad in your Prestashop !
                 if (!Validate::isLoadedObject($defaultShop)) {
                     throw new PrestaShopException('Shop not found');
                 }
-
                 $params = $_GET;
                 unset($params['id_shop']);
                 $url = $defaultShop->domain;
@@ -420,7 +420,7 @@ class ShopCore extends ObjectModel
                     $url .= $defaultShop->getBaseURI().'index.php?'.http_build_query($params);
                 } else {
                     // Catch url with subdomain "www"
-                    if (strpos($url, 'www.') === 0 && 'www.'.$_SERVER['HTTP_HOST'] === $url || $_SERVER['HTTP_HOST'] === 'www.'.$url) {
+                    if (str_starts_with($url, 'www.') && 'www.'.$_SERVER['HTTP_HOST'] === $url || $_SERVER['HTTP_HOST'] === 'www.'.$url) {
                         $url .= $_SERVER['REQUEST_URI'];
                     } else {
                         $url .= $defaultShop->getBaseURI();
@@ -430,14 +430,14 @@ class ShopCore extends ObjectModel
                         $url .= '?'.http_build_query($params);
                     }
                 }
-
                 $redirectType = Configuration::get('PS_CANONICAL_REDIRECT');
                 $redirectCode = ($redirectType == 1 ? '302' : '301');
                 $redirectHeader = ($redirectType == 1 ? 'Found' : 'Moved Permanently');
                 header('HTTP/1.0 '.$redirectCode.' '.$redirectHeader);
                 header('Location: '.Tools::getShopProtocol().$url);
                 exit;
-            } elseif (defined('_PS_ADMIN_DIR_') && empty($shop->physical_uri)) {
+            }
+            if (defined('_PS_ADMIN_DIR_') && empty($shop->physical_uri)) {
                 $shopDefault = new Shop((int) Configuration::get('PS_SHOP_DEFAULT'));
                 $shop->physical_uri = $shopDefault->physical_uri;
                 $shop->virtual_uri = $shopDefault->virtual_uri;
@@ -472,9 +472,7 @@ class ShopCore extends ObjectModel
     {
         $address = new Address();
         $address->company = Configuration::get('PS_SHOP_NAME', null, null, $shopId);
-        $address->id_country = Configuration::get('PS_SHOP_COUNTRY_ID', null, null, $shopId)
-            ? Configuration::get('PS_SHOP_COUNTRY_ID', null, null, $shopId)
-            : Configuration::get('PS_COUNTRY_DEFAULT', null, null, $shopId);
+        $address->id_country = Configuration::get('PS_SHOP_COUNTRY_ID', null, null, $shopId) ?: Configuration::get('PS_COUNTRY_DEFAULT', null, null, $shopId);
         $address->id_state = Configuration::get('PS_SHOP_STATE_ID', null, null, $shopId);
         $address->address1 = Configuration::get('PS_SHOP_ADDR1', null, null, $shopId);
         $address->address2 = Configuration::get('PS_SHOP_ADDR2', null, null, $shopId);
@@ -554,7 +552,7 @@ class ShopCore extends ObjectModel
      */
     public function getCategory()
     {
-        return (int) ($this->id_category ? $this->id_category : Configuration::get('PS_ROOT_CATEGORY'));
+        return (int) ($this->id_category ?: Configuration::get('PS_ROOT_CATEGORY'));
     }
 
     /**
@@ -677,7 +675,7 @@ class ShopCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function cacheShops($refresh = false)
+    public static function cacheShops($refresh = false): void
     {
         if (!is_null(static::$shops) && !$refresh) {
             return;
@@ -804,7 +802,7 @@ class ShopCore extends ObjectModel
         $query->from('shop_url');
         $query->where('main = 1');
         $query->where('active = 1');
-        $query .= $this->addSqlRestriction(self::SHARE_ORDER);
+        $query .= static::addSqlRestriction(self::SHARE_ORDER);
         $domains = [];
         foreach (Db::readOnly()->getArray($query) as $row) {
             $domains[] = $row['domain'];
@@ -874,7 +872,7 @@ class ShopCore extends ObjectModel
         static::cacheShops();
         foreach (static::$shops as $groupData) {
             foreach ($groupData['shops'] as $idShop => $shopData) {
-                if (mb_strtolower($shopData['name']) == mb_strtolower($name)) {
+                if (mb_strtolower((string) $shopData['name']) == mb_strtolower($name)) {
                     return $idShop;
                 }
             }
@@ -997,25 +995,25 @@ class ShopCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function setContext($type, $id = null)
+    public static function setContext($type, $id = null): void
     {
         switch ($type) {
-            case static::CONTEXT_ALL :
+            case static::CONTEXT_ALL:
                 static::$context_id_shop = null;
                 static::$context_id_shop_group = null;
                 break;
 
-            case static::CONTEXT_GROUP :
+            case static::CONTEXT_GROUP:
                 static::$context_id_shop = null;
                 static::$context_id_shop_group = (int) $id;
                 break;
 
-            case static::CONTEXT_SHOP :
+            case static::CONTEXT_SHOP:
                 static::$context_id_shop = (int) $id;
                 static::$context_id_shop_group = static::getGroupFromShop($id);
                 break;
 
-            default :
+            default:
                 throw new PrestaShopException('Unknown context for shop');
         }
 
@@ -1116,16 +1114,13 @@ class ShopCore extends ObjectModel
         $group = static::getGroupFromShop(static::getContextShopID(), false);
         if ($share == self::SHARE_CUSTOMER && static::getContext() == self::CONTEXT_SHOP && $group['share_customer']) {
             return $alias.'id_shop_group = '.(int) static::getContextShopGroupID();
-        } else {
-            $shopIds = static::getContextListShopID($share);
-            if ($shopIds && count($shopIds) == 1) {
-                return $alias.'`id_shop` = ' . (int)reset($shopIds);
-            } else {
-                return $alias.'`id_shop` IN ('.implode(', ', static::getContextListShopID($share)).')';
-            }
         }
+        $shopIds = static::getContextListShopID($share);
+        if ($shopIds && count($shopIds) == 1) {
+            return $alias.'`id_shop` = ' . (int)reset($shopIds);
+        }
+        return $alias.'`id_shop` IN ('.implode(', ', static::getContextListShopID($share)).')';
     }
-
 
     /**
      * Add an SQL JOIN in query between a table and its associated table in multishop
@@ -1143,8 +1138,8 @@ class ShopCore extends ObjectModel
     public static function addSqlAssociation($table, $alias, $innerJoin = true, $on = null, $forceNotDefault = false)
     {
         $tableAlias = $table.'_shop';
-        if (strpos($table, '.') !== false) {
-            list($tableAlias, $table) = explode('.', $table);
+        if (str_contains($table, '.')) {
+            [$tableAlias, $table] = explode('.', $table);
         }
 
         $assoTable = static::getAssoTable($table);
@@ -1161,9 +1156,8 @@ class ShopCore extends ObjectModel
         } else {
             $sql .= ' AND '.$tableAlias.'.id_shop IN ('.implode(', ', static::getContextListShopID()).')';
         }
-        $sql .= (($on) ? ' AND '.$on : '').')';
 
-        return $sql;
+        return $sql . (($on) ? ' AND '.$on : '' . ')');
     }
 
     /**
@@ -1231,7 +1225,7 @@ class ShopCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function copyShopData($oldId, $tablesImport = [], $deleted = false)
+    public function copyShopData($oldId, $tablesImport = [], $deleted = false): void
     {
         // If we duplicate some specific data, automatically duplicate other data linked to the first
         // E.g. if carriers are duplicated for the shop, duplicate carriers langs too
@@ -1325,7 +1319,7 @@ class ShopCore extends ObjectModel
         $modulesList = Hook::getHookModuleExecList('actionShopDataDuplication');
         if (is_array($modulesList) && count($modulesList) > 0) {
             foreach ($modulesList as $m) {
-                if (!$tablesImport || isset($tablesImport['Module'.ucfirst($m['module'])])) {
+                if (isset($tablesImport['Module'.ucfirst((string) $m['module'])])) {
                     Hook::triggerEvent(
                         'actionShopDataDuplication',
                         [

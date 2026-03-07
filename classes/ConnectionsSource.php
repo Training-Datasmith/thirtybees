@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -86,7 +88,6 @@ class ConnectionsSourceCore extends ObjectModel
     ];
 
     /**
-     * @param Cookie|null $cookie
      *
      * @return bool
      *

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -37,19 +39,19 @@ use Thirtybees\Core\Module\MobileDetectHelper;
 class ContextCore
 {
     /** @var int */
-    const DEVICE_COMPUTER = 1;
+    public const DEVICE_COMPUTER = 1;
     /** @var int */
-    const DEVICE_TABLET = 2;
+    public const DEVICE_TABLET = 2;
     /** @var int */
-    const DEVICE_MOBILE = 4;
+    public const DEVICE_MOBILE = 4;
     /** @var int */
-    const MODE_STD = 1;
+    public const MODE_STD = 1;
     /** @var int */
-    const MODE_STD_CONTRIB = 2;
+    public const MODE_STD_CONTRIB = 2;
     /** @var int */
-    const MODE_HOST_CONTRIB = 4;
+    public const MODE_HOST_CONTRIB = 4;
     /** @var int */
-    const MODE_HOST = 8;
+    public const MODE_HOST = 8;
     /* @var Context */
     protected static $instance;
     /** @var Cart */
@@ -89,26 +91,24 @@ class ContextCore
      *
      * @var bool|null
      */
-    protected $mobile_device = null;
+    protected $mobile_device;
     /** @var bool|null */
-    protected $is_mobile = null;
+    protected $is_mobile;
     /** @var bool|null */
-    protected $is_tablet = null;
+    protected $is_tablet;
 
     /**
      * @param Context $testInstance Unit testing purpose only
      */
-    public static function setInstanceForTesting($testInstance)
+    public static function setInstanceForTesting($testInstance): void
     {
         static::$instance = $testInstance;
     }
 
     /**
      * Unit testing purpose only
-     *
-     * @return void
      */
-    public static function deleteTestingInstance()
+    public static function deleteTestingInstance(): void
     {
         static::$instance = null;
     }
@@ -176,7 +176,7 @@ class ContextCore
         if ($this->is_mobile === null) {
             try {
                 $this->is_mobile = $this->getMobileDetect()->isMobile();
-            } catch (Throwable $e) {
+            } catch (Throwable) {
                 $this->is_mobile = false;
             }
         }
@@ -208,7 +208,7 @@ class ContextCore
         if ($this->is_tablet === null) {
             try {
                 $this->is_tablet = $this->getMobileDetect()->isTablet();
-            } catch (Throwable $e) {
+            } catch (Throwable) {
                 $this->is_tablet = false;
             }
         }
@@ -243,7 +243,7 @@ class ContextCore
      *
      * @return Context
      */
-    public function cloneContext()
+    public function cloneContext(): static
     {
         /** @var Context $this */
         return clone($this);
@@ -255,13 +255,11 @@ class ContextCore
      * Returns true, if current theme supports dedicated mobile variant, and user did not
      * opt out from using it
      *
-     * @return bool
      * @throws PrestaShopException
      */
-    protected function checkMobileContext()
+    protected function checkMobileContext(): bool
     {
         return $this->theme->supportsMobileVariant() && !$this->cookie->no_mobile;
     }
-
 
 }

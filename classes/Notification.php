@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -36,20 +38,14 @@ use Thirtybees\Core\Notification\SystemNotification;
  */
 class NotificationCore
 {
-    /**
-     * @var array
-     */
-    protected $types;
+    protected array $types;
 
-    /**
-     * @var int
-     */
-    protected $employeeId;
+    protected int $employeeId;
 
     /**
      * @var array
      */
-    protected $lastSeenIds = null;
+    protected $lastSeenIds;
 
     /**
      * @var array
@@ -79,7 +75,7 @@ class NotificationCore
         // register build in notification types
         if (Configuration::get('PS_SHOW_NEW_ORDERS')) {
             $this->registerType('order', [
-                'getNotifications' => [$this, 'getNewOrders'],
+                'getNotifications' => $this->getNewOrders(...),
                 'renderer' => 'renderOrderNotification',
                 'rendererData' => [
                     'orderNumber' => $this->l('Order number:'),
@@ -96,7 +92,7 @@ class NotificationCore
 
         if (Configuration::get('PS_SHOW_NEW_CUSTOMERS')) {
             $this->registerType('customer', [
-                'getNotifications' => [$this, 'getNewCustomers'],
+                'getNotifications' => $this->getNewCustomers(...),
                 'renderer' => 'renderCustomerNotification',
                 'rendererData' => [
                     'customerName' => $this->l('Customer name:'),
@@ -111,7 +107,7 @@ class NotificationCore
 
         if (Configuration::get('PS_SHOW_NEW_MESSAGES')) {
             $this->registerType('customer_message', [
-                'getNotifications' => [$this, 'getNewCustomerMessages'],
+                'getNotifications' => $this->getNewCustomerMessages(...),
                 'renderer' => 'renderCustomerMessageNotification',
                 'rendererData' => [
                     'from' => $this->l('From:'),
@@ -126,7 +122,7 @@ class NotificationCore
 
         if (Configuration::get(Configuration::SHOW_NEW_SYSTEM_NOTIFICATIONS)) {
             $this->registerType('system_notification', [
-                'getNotifications' => [$this, 'getNewSystemNotifications'],
+                'getNotifications' => $this->getNewSystemNotifications(...),
                 'renderer' => 'renderSystemNotification',
                 'rendererData' => [
                     SystemNotification::IMPORTANCE_LOW => $this->l('Low'),
@@ -165,10 +161,9 @@ class NotificationCore
     /**
      * Returns notification types defined by modules
      *
-     * @return array
      * @throws PrestaShopException
      */
-    protected static function resolveModuleNotificationTypes()
+    protected static function resolveModuleNotificationTypes(): array
     {
         $moduleTypes = [];
         $result = Hook::getResponses('actionGetNotificationType');
@@ -176,7 +171,7 @@ class NotificationCore
             if (is_array($definitions)) {
                 foreach ($definitions as $type => $definition) {
                     $fullType = $moduleName . '_' . $type;
-                    $fullType = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $fullType));
+                    $fullType = strtolower((string) preg_replace('/(?<!^)[A-Z]/', '_$0', $fullType));
                     $moduleTypes[$fullType] = $definition;
                 }
             }
@@ -187,10 +182,9 @@ class NotificationCore
     /**
      * Returns enabled notification types
      *
-     * @return array
      * @throws PrestaShopException
      */
-    public function getTypes()
+    public function getTypes(): array
     {
         $ret = [];
         $link = Context::getContext()->link;
@@ -201,8 +195,9 @@ class NotificationCore
                 'header' => $description['header'],
                 'emptyMessage' => $description['emptyMessage'],
                 'showAll' => $description['showAll'],
-                'showAllLink' => ($description['showAllLink'] ?? $link->getAdminLink($description['controller'])
-                )
+                'showAllLink' => (
+                    $description['showAllLink'] ?? $link->getAdminLink($description['controller'])
+                ),
             ];
         }
         return $ret;
@@ -214,7 +209,7 @@ class NotificationCore
      *
      * @throws PrestaShopException
      */
-    public function initialize()
+    public function initialize(): void
     {
         foreach ($this->getNotifications() as $notification) {
             $type = $notification['type'];
@@ -227,9 +222,8 @@ class NotificationCore
      * Returns true, if $type is supported
      *
      * @param string $type
-     * @return bool
      */
-    public function hasType($type)
+    public function hasType($type): bool
     {
         return isset($this->types[$type]);
     }
@@ -245,7 +239,7 @@ class NotificationCore
     {
         if (is_null($this->lastSeenIds)) {
             $this->lastSeenIds = [];
-            $types = "'" . implode("', '", array_map('pSql', array_keys($this->types))) . "'";
+            $types = "'" . implode("', '", array_map(pSql(...), array_keys($this->types))) . "'";
             $sql = (new DbQuery())
                 ->select('type, last_id')
                 ->from('employee_notification')
@@ -268,7 +262,7 @@ class NotificationCore
      *
      * @throws PrestaShopException
      */
-    public function getNotifications($typeFilter = null)
+    public function getNotifications($typeFilter = null): array
     {
         $notifications = [];
         foreach ($this->types as $type => $description) {
@@ -316,7 +310,7 @@ class NotificationCore
             [
                 'id_employee' => $this->employeeId,
                 'type' => pSQL($type),
-                'last_id' => $lastId
+                'last_id' => $lastId,
             ],
             false,
             false,
@@ -330,10 +324,9 @@ class NotificationCore
      * @param int $lastId order id
      * @param int $limit number of detail rows to return
      *
-     * @return array
      * @throws PrestaShopException
      */
-    protected function getNewOrders($lastId, $limit)
+    protected function getNewOrders($lastId, $limit): array
     {
         $link = Context::getContext()->link;
 
@@ -365,14 +358,14 @@ class NotificationCore
                 'id' => $id,
                 'total' => Tools::displayPrice((float) $row['total_paid'], (int) $row['id_currency']),
                 'customerName' => $row['name'],
-                'ts' => (int)strtotime($row['date_add'])
+                'ts' => (int)strtotime((string) $row['date_add']),
             ];
         }
 
         return [
             'total' => $total,
             'lastId' => $lastId,
-            'results' => $results
+            'results' => $results,
         ];
     }
 
@@ -382,10 +375,9 @@ class NotificationCore
      * @param int $lastId order id
      * @param int $limit number of detail rows to return
      *
-     * @return array
      * @throws PrestaShopException
      */
-    protected function getNewCustomers($lastId, $limit)
+    protected function getNewCustomers($lastId, $limit): array
     {
         $lastId = (int)$lastId;
         $link = Context::getContext()->link;
@@ -417,14 +409,14 @@ class NotificationCore
                 'link' => $link->getAdminLink('AdminCustomers', true, ['viewcustomer' => 1, 'id_customer' => $id]),
                 'id' => $id,
                 'customerName' => $row['name'],
-                'ts' => (int)strtotime($row['date_add'])
+                'ts' => (int)strtotime((string) $row['date_add']),
             ];
         }
 
         return [
             'total' => $total,
             'lastId' => $lastId,
-            'results' => $results
+            'results' => $results,
         ];
     }
 
@@ -434,10 +426,9 @@ class NotificationCore
      * @param int $lastId order id
      * @param int $limit number of detail rows to return
      *
-     * @return array
      * @throws PrestaShopException
      */
-    protected function getNewCustomerMessages($lastId, $limit)
+    protected function getNewCustomerMessages($lastId, $limit): array
     {
         $lastId = (int)$lastId;
         $link = Context::getContext()->link;
@@ -472,7 +463,7 @@ class NotificationCore
             $lastId = max($id, $lastId);
             $customerId = (int)$row['id_customer'];
             if ($customerId) {
-                $email = $row['customerEmail'] ? $row['customerEmail'] : $row['email'];
+                $email = $row['customerEmail'] ?: $row['email'];
                 $from = $row['firstname'] . ' ' . $row['lastname'] . ' - ' . $email;
             } else {
                 $from = $row['email'];
@@ -481,14 +472,14 @@ class NotificationCore
                 'link' => $link->getAdminLink('AdminCustomerThreads', true, ['viewcustomer_thread' => 1, 'id_customer_thread' => $threadId]),
                 'id' => $id,
                 'from' => $from,
-                'ts' => (int)strtotime($row['date_add'])
+                'ts' => (int)strtotime((string) $row['date_add']),
             ];
         }
 
         return [
             'total' => $total,
             'lastId' => $lastId,
-            'results' => $results
+            'results' => $results,
         ];
     }
 
@@ -498,11 +489,10 @@ class NotificationCore
      * @param int $lastId order id
      * @param int $limit number of detail rows to return
      *
-     * @return array
      *
      * @throws PrestaShopException
      */
-    protected function getNewSystemNotifications($lastId, $limit)
+    protected function getNewSystemNotifications($lastId, $limit): array
     {
         $lastId = (int)$lastId;
         $link = Context::getContext()->link;
@@ -534,27 +524,23 @@ class NotificationCore
                 'importance' => $row['importance'],
                 'badgeClass' => SystemNotification::getBadgeClass($row['importance']),
                 'title' => $row['title'],
-                'ts' => (int)strtotime($row['date_add'])
+                'ts' => (int)strtotime((string) $row['date_add']),
             ];
         }
 
         return [
             'total' => $total,
             'lastId' => $lastId,
-            'results' => $results
+            'results' => $results,
         ];
     }
-
 
     /**
      * Registers new notification type
      *
-     * @param string $type
-     * @param array $definition
-     * @return bool
      * @throws PrestaShopException
      */
-    protected function registerType($type, $definition)
+    protected function registerType(string $type, array $definition): bool
     {
         // validate $definition
         $required = ['getNotifications', 'renderer', 'icon', 'header', 'emptyMessage', 'showAll'];
@@ -584,7 +570,6 @@ class NotificationCore
         $this->types[$type] = $definition;
         return true;
     }
-
 
     /**
      * Translate method

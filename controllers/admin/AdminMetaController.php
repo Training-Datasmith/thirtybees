@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -170,15 +172,15 @@ class AdminMetaControllerCore extends AdminController
                 'list' => [
                     [
                         'value' => Language::LANG_CODE_IN_URL_WHEN_MULTI_LANGUAGES,
-                        'name' => $this->l('When multiple languages exists')
+                        'name' => $this->l('When multiple languages exists'),
                     ],
                     [
                         'value' => Language::LANG_CODE_IN_URL_ALWAYS,
-                        'name' => $this->l('Always, even if only one language exists')
+                        'name' => $this->l('Always, even if only one language exists'),
                     ],
                     [
                         'value' => Language::LANG_CODE_IN_URL_FOR_NON_DEFAULT_LANGUAGES,
-                        'name' => $this->l('Only for non-default languages')
+                        'name' => $this->l('Only for non-default languages'),
                     ],
                 ],
                 'identifier' => 'value',

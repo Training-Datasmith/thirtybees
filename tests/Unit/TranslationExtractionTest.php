@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use PHPUnit\Framework\TestCase;
 
 if (!defined('_PS_DEFAULT_THEME_NAME_')) {

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -38,7 +40,7 @@ class TriggerControllerCore extends FrontController
         $method = Tools::getRequestMethod();
 
         // Allow CORS requests
-        header("Access-Control-Allow-Origin: *");
+        header('Access-Control-Allow-Origin: *');
         if ($method === 'OPTIONS') {
             exit;
         }
@@ -47,7 +49,7 @@ class TriggerControllerCore extends FrontController
         header('Content-Type: application/json;charset=UTF-8');
         if ($method === 'POST') {
             if (Tools::getValue('secret')) {
-                $secret = Tools::getValue("secret");
+                $secret = Tools::getValue('secret');
                 $scheduler = ServiceLocator::getInstance()->getScheduler();
 
                 if ($secret == $scheduler->getSyntheticEventSecret()) {
@@ -55,13 +57,13 @@ class TriggerControllerCore extends FrontController
                         $scheduler->deleteSyntheticEventSecret();
                         $scheduler->run();
                         $this->ajaxDie(json_encode([
-                            'status' => 'success'
+                            'status' => 'success',
                         ]));
                     } catch (Exception $e) {
-                        PrestaShopLogger::addLog("Scheduler failed: " . $e);
+                        PrestaShopLogger::addLog('Scheduler failed: ' . $e);
                         $this->ajaxDie(json_encode([
                             'status' => 'failed',
-                            'error' => 'Internal server error'
+                            'error' => 'Internal server error',
                         ]));
                     }
                 }
@@ -70,7 +72,7 @@ class TriggerControllerCore extends FrontController
 
         $this->ajaxDie(json_encode([
             'status' => 'failed',
-            'error' => 'Forbidden'
+            'error' => 'Forbidden',
         ]));
     }
 

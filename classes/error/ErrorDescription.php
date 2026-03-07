@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -19,7 +21,6 @@
 
 namespace Thirtybees\Core\Error;
 
-
 use Encryptor;
 use PrestaShopException;
 
@@ -28,22 +29,11 @@ use PrestaShopException;
  */
 class ErrorDescriptionCore
 {
-    /**
-     * @var string
-     */
-    private $phpVersion;
+    private string $phpVersion;
 
+    private string $codeBuildFor;
 
-    /**
-     * @var string
-     */
-    private $codeBuildFor;
-
-    /**
-     * @var string
-     */
-    private $codeRevision;
-
+    private string $codeRevision;
 
     /**
      * @var string
@@ -115,46 +105,27 @@ class ErrorDescriptionCore
         $this->codeRevision = static::resolveCodeRevision();
     }
 
-    /**
-     * @param string $errorName
-     */
-    public function setErrorName(string $errorName)
+    public function setErrorName(string $errorName): void
     {
         $this->errorName = $errorName;
     }
 
-    /**
-     * @param string $message
-     */
-    public function setMessage(string $message)
+    public function setMessage(string $message): void
     {
         $this->message = $message;
     }
 
-    /**
-     * @return string
-     */
     public function getErrorName(): string
     {
         return $this->errorName;
     }
 
-    /**
-     * @return string
-     */
     public function getMessage(): string
     {
         return $this->message;
     }
 
-    /**
-     * @param string $sourceType
-     * @param string $file
-     * @param int $line
-     * @param array $content
-     * @return void
-     */
-    public function setSource(string $sourceType, string $file, int $line, array $content)
+    public function setSource(string $sourceType, string $file, int $line, array $content): void
     {
         $this->sourceType = $sourceType;
         $this->sourceFile = $file;
@@ -162,115 +133,69 @@ class ErrorDescriptionCore
         $this->sourceFileContent = $content;
     }
 
-    /**
-     * @param string $file
-     * @param int $line
-     * @param array $content
-     *
-     * @return void
-     */
-    public function setRealSource(string $file, int $line, array $content)
+    public function setRealSource(string $file, int $line, array $content): void
     {
         $this->realSourceFile = $file;
         $this->realSourceLine = $line;
         $this->realSourceContent = $content;
     }
 
-    /**
-     * @return string
-     */
     public function getSourceType(): string
     {
         return $this->sourceType;
     }
 
-    /**
-     * @return string
-     */
     public function getSourceFile(): string
     {
         return $this->sourceFile;
     }
 
-    /**
-     * @return int
-     */
     public function getSourceLine(): int
     {
         return (int)$this->sourceLine;
     }
 
-    /**
-     * @return array
-     */
     public function getSourceFileContent(): array
     {
         return $this->sourceFileContent;
     }
 
-    /**
-     * @return bool
-     */
     public function hasSourceFileContent(): bool
     {
         return !!$this->sourceFileContent;
     }
 
-    /**
-     * @return array
-     */
     public function getRealSourceFileContent(): array
     {
         return $this->realSourceContent;
     }
 
-    /**
-     * @return bool
-     */
     public function hasRealSourceFileContent(): bool
     {
         return !!$this->realSourceContent;
     }
 
-    /**
-     * @param array $extraSections
-     * @return void
-     */
-    public function setExtraSections(array $extraSections)
+    public function setExtraSections(array $extraSections): void
     {
         $this->extraSections = $extraSections;
     }
 
-    /**
-     * @return array
-     */
     public function getExtraSections(): array
     {
         return $this->extraSections;
     }
 
-    /**
-     * @param array $stacktrace
-     * @return void
-     */
-    public function setStackTrace(array $stacktrace)
+    public function setStackTrace(array $stacktrace): void
     {
         $this->stackTrace = $stacktrace;
     }
 
-    /**
-     * @return array
-     */
     public function getStackTrace(): array
     {
         return $this->stackTrace;
     }
 
-    /**
-     * @param ErrorDescription $errorDescription
-     * @return void
-     */
-    public function setCause(ErrorDescription $errorDescription)
+    public function setCause(ErrorDescription $errorDescription): void
     {
         $this->cause = $errorDescription;
     }
@@ -283,10 +208,7 @@ class ErrorDescriptionCore
         return $this->cause;
     }
 
-    /**
-     * @return bool
-     */
-    public function hasCause()
+    public function hasCause(): bool
     {
         return !is_null($this->cause);
     }
@@ -295,19 +217,15 @@ class ErrorDescriptionCore
      * Return the content of the Exception
      * @return string content of the exception.
      */
-    public function getExtendedMessage()
+    public function getExtendedMessage(): string
     {
         if ($this->getSourceType() === 'smarty') {
             return $this->getErrorName() . ': ' . $this->getMessage() . ' in template file ' . ErrorUtils::getRelativeFile($this->getSourceFile());
-        } else {
-            return $this->getErrorName() . ': ' . $this->getMessage() . ' at line ' . $this->getSourceLine() . ' in file ' . ErrorUtils::getRelativeFile($this->getSourceFile());
         }
+        return $this->getErrorName() . ': ' . $this->getMessage() . ' at line ' . $this->getSourceLine() . ' in file ' . ErrorUtils::getRelativeFile($this->getSourceFile());
     }
 
-    /**
-     * @return string
-     */
-    public function getTraceAsString()
+    public function getTraceAsString(): string
     {
         $result = '';
         $stackTrace = $this->getStackTrace();
@@ -323,9 +241,7 @@ class ErrorDescriptionCore
                 $result .= '#' . $cnt . $separator . $trace['fileName'] . '(' . $trace['line'] . '): ';
                 $result .= $trace['class'] . $trace['type'] . $trace['function'] . '(';
                 if ($trace['args']) {
-                    $args = array_map(function($param) {
-                        return strtok($param, "\n");
-                    }, $trace['args']);
+                    $args = array_map(fn ($param) => strtok($param, "\n"), $trace['args']);
                     $result .= implode(', ', $args);
                 }
                 $result .= ')';
@@ -347,81 +263,52 @@ class ErrorDescriptionCore
     /**
      * @param string $phpVersion
      */
-    public function setPhpVersion($phpVersion)
+    public function setPhpVersion($phpVersion): void
     {
         $this->phpVersion = $phpVersion;
     }
 
-    /**
-     * @return string
-     */
     public function getCodeBuildFor(): string
     {
         return $this->codeBuildFor;
     }
 
-    /**
-     * @param string $codeBuildFor
-     */
-    public function setCodeBuildFor(string $codeBuildFor)
+    public function setCodeBuildFor(string $codeBuildFor): void
     {
         $this->codeBuildFor = $codeBuildFor;
     }
 
-    /**
-     * @return string
-     */
     public function getCodeRevision(): string
     {
         return $this->codeRevision;
     }
 
-    /**
-     * @param string $codeRevision
-     */
-    public function setCodeRevision(string $codeRevision)
+    public function setCodeRevision(string $codeRevision): void
     {
         $this->codeRevision = $codeRevision;
     }
 
-    /**
-     * @return string
-     */
     public function getRealSourceFile(): string
     {
         return $this->realSourceFile;
     }
 
-    /**
-     * @param string $realSourceFile
-     */
-    public function setRealSourceFile(string $realSourceFile)
+    public function setRealSourceFile(string $realSourceFile): void
     {
         $this->realSourceFile = $realSourceFile;
     }
 
-    /**
-     * @return int
-     */
     public function getRealSourceLine(): int
     {
         return $this->realSourceLine;
     }
 
-    /**
-     * @param int $realSourceLine
-     */
-    public function setRealSourceLine(int $realSourceLine)
+    public function setRealSourceLine(int $realSourceLine): void
     {
         $this->realSourceLine = $realSourceLine;
     }
 
-
-
-    /**
-     * @return array
-     */
-    public function toArray()
+    public function toArray(): array
     {
         $source = [
             'type' => $this->getSourceType(),
@@ -476,25 +363,24 @@ class ErrorDescriptionCore
     {
         $decrypted = Encryptor::getInstance()->decrypt($encrypted);
         if (!$decrypted) {
-            throw new PrestaShopException("Failed to decrypt content");
+            throw new PrestaShopException('Failed to decrypt content');
         }
-        $array = json_decode($decrypted, true);
+        $array = json_decode((string) $decrypted, true);
         if (!is_array($array) || !$array) {
-            throw new PrestaShopException("Failed to parse content");
+            throw new PrestaShopException('Failed to parse content');
         }
         return static::deserialize($array);
     }
 
     /**
      * @param array $array
-     * @return ErrorDescription
      * @throws PrestaShopException
      */
-    public static function deserialize($array)
+    public static function deserialize($array): \Thirtybees\Core\Error\ErrorDescription
     {
         $description = new ErrorDescription();
         $description->setPhpVersion(static::getProperty('phpVersion', $array, false, 'unknown'));
-        $description->setCodeBuildFor(static::getProperty('codeBuildFor', $array,false, 'unknown'));
+        $description->setCodeBuildFor(static::getProperty('codeBuildFor', $array, false, 'unknown'));
         $description->setCodeRevision(static::getProperty('codeRevision', $array, false, 'unknown'));
 
         $description->setErrorName(static::getProperty('errorName', $array));
@@ -524,12 +410,11 @@ class ErrorDescriptionCore
 
     /**
      * @param string $name
-     * @param array $array
      * @param boolean $required
      * @return mixed
      * @throws PrestaShopException
      */
-    protected static function getProperty($name, $array, $required = true, $default = '')
+    protected static function getProperty($name, array $array, $required = true, $default = '')
     {
         if (array_key_exists($name, $array)) {
             return $array[$name];

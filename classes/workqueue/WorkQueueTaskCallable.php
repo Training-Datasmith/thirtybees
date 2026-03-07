@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -27,8 +29,6 @@ use Throwable;
 interface WorkQueueTaskCallable
 {
     /**
-     * @param WorkQueueContext $context
-     * @param array $parameters
      *
      * @return mixed
      *

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -178,7 +180,8 @@ class AdminScenesControllerCore extends AdminController
             . (Tools::getMaxUploadSize() / 1024) . $this->l('Kb max.') . ' '
             . sprintf(
                 $this->l('If an image is too large, it will be reduced to %1$d x %2$dpx (width x height).'),
-                $largeSceneImageType['width'], $largeSceneImageType['height']
+                $largeSceneImageType['width'],
+                $largeSceneImageType['height']
             )
             . $this->l('If an image is deemed too small, a white background will be added in order to achieve the correct image size.') . '<br />' .
             $this->l('Note: To change image dimensions, please change the \'large_scene\' image type settings to the desired size (in Back Office > Preferences > Images).')
@@ -220,7 +223,8 @@ class AdminScenesControllerCore extends AdminController
                 . $this->l('File size:') . ' ' . (Tools::getMaxUploadSize() / 1024) . $this->l('Kb max.') . ' '
                 . sprintf(
                     $this->l('Automatically resized to %1$d x %2$dpx (width x height).'),
-                    $thumbSceneImageType['width'], $thumbSceneImageType['height']
+                    $thumbSceneImageType['width'],
+                    $thumbSceneImageType['height']
                 ) . '.<br />'
                 . $this->l('Note: To change image dimensions, please change the \'m_scene\' image type settings to the desired size (in Back Office > Preferences > Images).');
 

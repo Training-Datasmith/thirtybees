@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -55,7 +57,7 @@ class GetFileControllerCore extends FrontController
             // Admin can directly access to file
             $filename = Tools::getValue('file');
             if (!Validate::isSha1($filename)) {
-                throw new PrestaShopException(sprintf(Tools::displayError("Invalid filename [%s] - not a valid sha1"), Tools::safeOutput($filename)));
+                throw new PrestaShopException(sprintf(Tools::displayError('Invalid filename [%s] - not a valid sha1'), Tools::safeOutput($filename)));
             }
             $file = _PS_DOWNLOAD_DIR_. preg_replace('/\.{2,}/', '.', $filename);
             $filename = ProductDownload::getFilenameFromFilename(Tools::getValue('file'));

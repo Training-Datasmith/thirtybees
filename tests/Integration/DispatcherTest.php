@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Integration;
 
 use Codeception\Test\Unit;
@@ -11,7 +13,6 @@ use Tests\Support\UnitTester;
 
 class DispatcherTest extends Unit
 {
-
     /**
      * @var UnitTester
      */
@@ -167,7 +168,7 @@ class DispatcherTest extends Unit
                     'module' => 'samplemodule',
                     'controller' => 'controllername',
                 ],
-            ]
+            ],
         ];
     }
 
@@ -209,7 +210,7 @@ class DispatcherTest extends Unit
     {
         $dispatcher = $this->getDispatcher(true, '', $this->getCustomRoutes());
         $actualUrl = $dispatcher->createUrl($routeId, 1, $params);
-        static::assertEquals($expectedUrl, $actualUrl, "createURL does not match");
+        static::assertEquals($expectedUrl, $actualUrl, 'createURL does not match');
     }
 
     /**
@@ -266,13 +267,13 @@ class DispatcherTest extends Unit
                         'required' => true,
                         'regexp' => '[a-z-]*',
                         'param' => 'rewrite',
-                    ]
+                    ],
                 ],
                 'params' => [
                     'fc' => 'module',
                     'module' => 'mod',
-                ]
-            ]
+                ],
+            ],
         ]);
         static::assertEquals('category', $dispatcher->getController(), "URI $uri should be resolved as category controller");
     }

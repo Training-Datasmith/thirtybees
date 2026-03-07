@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -58,7 +60,7 @@ class AdminStatusesControllerCore extends AdminController
                 'dir'  => _PS_ORDER_STATE_IMG_DIR_,
                 'width' => 32,
                 'height' => 32,
-            ]
+            ],
         ];
 
         parent::__construct();
@@ -540,7 +542,7 @@ class AdminStatusesControllerCore extends AdminController
                     'name'     => 'email_subject',
                     'lang'     => true,
                     'hint'     => [
-                        $this->l('You can specify custom emails subject. If empty, status name will be used')
+                        $this->l('You can specify custom emails subject. If empty, status name will be used'),
                     ],
                 ],
                 [
@@ -646,7 +648,7 @@ class AdminStatusesControllerCore extends AdminController
         if ($this->getFieldValue($obj, 'color') !== false) {
             $this->fields_value['color'] = $this->getFieldValue($obj, 'color');
         } else {
-            $this->fields_value['color'] = "#ffffff";
+            $this->fields_value['color'] = '#ffffff';
         }
 
         return parent::renderForm();
@@ -750,7 +752,7 @@ class AdminStatusesControllerCore extends AdminController
         } else {
             $helper->fields_value = [
                 'name'      => $this->getFieldValue($orderReturnState, 'name'),
-                'color'     => "#ffffff",
+                'color'     => '#ffffff',
                 'active_on' => $this->getFieldValue($orderReturnState, 'active'),
             ];
         }

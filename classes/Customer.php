@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -84,7 +86,7 @@ class CustomerCore extends ObjectModel
         ],
     ];
 
-    const DEFAULT_MERGE_OPERATIONS = [
+    public const DEFAULT_MERGE_OPERATIONS = [
         'customer' => 'delete',
         'address' => 'update',
         'cart' => 'update',
@@ -97,7 +99,7 @@ class CustomerCore extends ObjectModel
         'specific_price' => 'update',
         'cart_rule' => 'delete',
         'compare' => 'delete',
-        'customer_group' => 'delete'
+        'customer_group' => 'delete',
     ];
 
     /**
@@ -134,7 +136,7 @@ class CustomerCore extends ObjectModel
     /** @var string Firstname */
     public $firstname;
     /** @var string Birthday (yyyy-mm-dd) */
-    public $birthday = null;
+    public $birthday;
     /** @var string e-mail */
     public $email;
     /** @var bool Newsletter subscription */
@@ -305,7 +307,7 @@ class CustomerCore extends ObjectModel
             $sql->where('`id_customer` = '.(int) $idCustomer);
             $sql->where('`active` = 1');
             $sql->where('`deleted` = 0');
-            $result = (bool) !Db::readOnly()->getRow($sql);
+            $result = !Db::readOnly()->getRow($sql);
             Cache::store($cacheId, $result);
 
             return $result;
@@ -373,7 +375,7 @@ class CustomerCore extends ObjectModel
      * @param int $idCustomer
      * @param int $idAddress
      */
-    public static function resetAddressCache($idCustomer, $idAddress)
+    public static function resetAddressCache($idCustomer, $idAddress): void
     {
         $key = (int) $idCustomer.'-'.(int) $idAddress;
         if (array_key_exists($key, static::$_customerHasAddress)) {
@@ -481,7 +483,6 @@ class CustomerCore extends ObjectModel
 
     /**
      * @param int $idCustomer
-     * @param Cart|null $cart
      *
      * @return int
      *
@@ -525,11 +526,11 @@ class CustomerCore extends ObjectModel
      */
     public function add($autoDate = true, $nullValues = true)
     {
-        $this->id_shop = ($this->id_shop) ? $this->id_shop : Context::getContext()->shop->id;
-        $this->id_shop_group = ($this->id_shop_group) ? $this->id_shop_group : Context::getContext()->shop->id_shop_group;
-        $this->id_lang = ($this->id_lang) ? $this->id_lang : Context::getContext()->language->id;
+        $this->id_shop = $this->id_shop ?: Context::getContext()->shop->id;
+        $this->id_shop_group = $this->id_shop_group ?: Context::getContext()->shop->id_shop_group;
+        $this->id_lang = $this->id_lang ?: Context::getContext()->language->id;
         $this->birthday = (empty($this->years) ? $this->birthday : (int) $this->years.'-'.(int) $this->months.'-'.(int) $this->days);
-        $this->secure_key = md5(uniqid(rand(), true));
+        $this->secure_key = md5(uniqid(random_int(0, mt_getrandmax()), true));
         $this->last_passwd_gen = date('Y-m-d H:i:s', strtotime('-'.Configuration::get('PS_PASSWD_TIME_FRONT').'minutes'));
 
         if ($this->newsletter && !Validate::isDate($this->newsletter_date_add)) {
@@ -562,7 +563,7 @@ class CustomerCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function updateGroup($list)
+    public function updateGroup($list): void
     {
         if (!empty($list)) {
             $this->cleanGroups();
@@ -589,7 +590,7 @@ class CustomerCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function addGroups($groups)
+    public function addGroups($groups): void
     {
         foreach ($groups as $group) {
             $row = ['id_customer' => (int) $this->id, 'id_group' => (int) $group];
@@ -691,7 +692,7 @@ class CustomerCore extends ObjectModel
     public function getByEmail($email, $plainTextPassword = null, $ignoreGuest = true)
     {
         if (! Validate::isEmail($email)) {
-            throw new PrestaShopException(Tools::displayError("Invalid email address"));
+            throw new PrestaShopException(Tools::displayError('Invalid email address'));
         }
 
         $sql = new DbQuery();
@@ -709,7 +710,7 @@ class CustomerCore extends ObjectModel
         }
 
         // If password is provided but doesn't match.
-        if ($plainTextPassword && !password_verify($plainTextPassword, $result['passwd'])) {
+        if ($plainTextPassword && !password_verify($plainTextPassword, (string) $result['passwd'])) {
             // Check if it matches the legacy md5 hashing and, if it does, rehash it.
             if (Validate::isMd5($result['passwd']) && $result['passwd'] === md5(_COOKIE_KEY_.$plainTextPassword)) {
                 $newHash = Tools::hash($plainTextPassword);
@@ -751,7 +752,7 @@ class CustomerCore extends ObjectModel
             'nb_orders' => 0,
             'total_orders' => 0,
             'last_visit' => null,
-            'age' => '--'
+            'age' => '--',
         ];
 
         if ($id) {
@@ -1121,22 +1122,17 @@ class CustomerCore extends ObjectModel
             $hashedPassword = $plaintextOrHashedPassword;
 
             return static::checkPasswordInDatabase($idCustomer, $hashedPassword);
-        } else {
-            $hashedPassword = Tools::encrypt($plaintextOrHashedPassword);
-
-            if (static::checkPasswordInDatabase($idCustomer, $hashedPassword)) {
-                return true;
-            }
-
-            $sql = new DbQuery();
-            $sql->select('`passwd`');
-            $sql->from(bqSQL(static::$definition['table']));
-            $sql->where('`id_customer` = '.(int) $idCustomer);
-
-            $hashedPassword = Db::readOnly()->getValue($sql);
-
-            return password_verify($plaintextOrHashedPassword, $hashedPassword);
         }
+        $hashedPassword = Tools::encrypt($plaintextOrHashedPassword);
+        if (static::checkPasswordInDatabase($idCustomer, $hashedPassword)) {
+            return true;
+        }
+        $sql = new DbQuery();
+        $sql->select('`passwd`');
+        $sql->from(bqSQL(static::$definition['table']));
+        $sql->where('`id_customer` = '.(int) $idCustomer);
+        $hashedPassword = Db::readOnly()->getValue($sql);
+        return password_verify($plaintextOrHashedPassword, $hashedPassword);
     }
 
     /**
@@ -1172,7 +1168,7 @@ class CustomerCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public function logout()
+    public function logout(): void
     {
         Hook::triggerEvent('actionCustomerLogoutBefore', ['customer' => $this]);
 
@@ -1191,7 +1187,7 @@ class CustomerCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public function mylogout()
+    public function mylogout(): void
     {
         Hook::triggerEvent('actionCustomerLogoutBefore', ['customer' => $this]);
 
@@ -1350,13 +1346,10 @@ class CustomerCore extends ObjectModel
     /**
      * Methods merges two customer accounts, and deletes the $other account from the database
      *
-     * @param Customer $target
-     * @param Customer $source
-     * @param array $tablesOperations
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function mergeAccounts(Customer $target, Customer $source, array $tablesOperations)
+    public static function mergeAccounts(Customer $target, Customer $source, array $tablesOperations): void
     {
         $targetId = (int)$target->id;
         $sourceId = (int)$source->id;
@@ -1370,7 +1363,6 @@ class CustomerCore extends ObjectModel
         $tables = array_merge(static::DEFAULT_MERGE_OPERATIONS, $tablesOperations);
 
         $conn = Db::getInstance();
-
 
         // re-associate data
         unset($tables['customer']);

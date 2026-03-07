@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -74,7 +76,7 @@ abstract class ModuleGraphCore extends Module
      *
      * @throws PrestaShopException
      */
-    public function setEmployee($idEmployee)
+    public function setEmployee($idEmployee): void
     {
         $this->_employee = new Employee((int)$idEmployee);
     }
@@ -82,7 +84,7 @@ abstract class ModuleGraphCore extends Module
     /**
      * @param int $idLang
      */
-    public function setLang($idLang)
+    public function setLang($idLang): void
     {
         $this->_id_lang = (int)$idLang;
     }
@@ -94,8 +96,8 @@ abstract class ModuleGraphCore extends Module
     protected function setDateGraph($layers, $legend = false)
     {
         // Get dates in a manageable format
-        $fromArray = getdate(strtotime($this->_employee->stats_date_from));
-        $toArray = getdate(strtotime($this->_employee->stats_date_to));
+        $fromArray = getdate(strtotime((string) $this->_employee->stats_date_from));
+        $toArray = getdate(strtotime((string) $this->_employee->stats_date_to));
 
         // If the granularity is inferior to 1 day
         if ($this->_employee->stats_date_from == $this->_employee->stats_date_to) {
@@ -114,7 +116,7 @@ abstract class ModuleGraphCore extends Module
             if (is_callable([$this, 'setDayValues'])) {
                 $this->setDayValues($layers);
             }
-        } elseif (strtotime($this->_employee->stats_date_to) - strtotime($this->_employee->stats_date_from) <= 2678400) {
+        } elseif (strtotime((string) $this->_employee->stats_date_to) - strtotime((string) $this->_employee->stats_date_from) <= 2678400) {
             // If the granularity is inferior to 1 month
             // @TODO : change to manage 28 to 31 days
             if ($legend) {
@@ -146,7 +148,7 @@ abstract class ModuleGraphCore extends Module
             if (is_callable([$this, 'setMonthValues'])) {
                 $this->setMonthValues($layers);
             }
-        } elseif (strtotime('-1 year', strtotime($this->_employee->stats_date_to)) < strtotime($this->_employee->stats_date_from)) {
+        } elseif (strtotime('-1 year', strtotime((string) $this->_employee->stats_date_to)) < strtotime((string) $this->_employee->stats_date_from)) {
             // If the granularity is less than 1 year
             if ($legend) {
                 $months = [];
@@ -238,7 +240,7 @@ abstract class ModuleGraphCore extends Module
             if ($datas['type'] == 'pie') {
                 foreach ($this->_legend as $key => $legend) {
                     for ($i = 0, $totalMain = (is_array($this->_titles['main']) ? count($this->_values) : 1); $i < $totalMain; ++$i) {
-                        $total += (is_array($this->_values[$i])  ? $this->_values[$i][$key] : $this->_values[$key]);
+                        $total += (is_array($this->_values[$i]) ? $this->_values[$i][$key] : $this->_values[$key]);
                     }
                 }
             }
@@ -295,13 +297,13 @@ abstract class ModuleGraphCore extends Module
      *
      * @throws PrestaShopException
      */
-    public function create($render, $type, $width, $height, $layers)
+    public function create($render, $type, $width, $height, $layers): void
     {
         if (!Validate::isModuleName($render)) {
-            throw new PrestaShopException("Failed to resolve renderer module");
+            throw new PrestaShopException('Failed to resolve renderer module');
         }
         if (!file_exists($file = _PS_ROOT_DIR_.'/modules/'.$render.'/'.$render.'.php')) {
-            throw new PrestaShopException("Invalid renderer module: " . $render);
+            throw new PrestaShopException('Invalid renderer module: ' . $render);
         }
         require_once($file);
         $this->_render = new $render($type);
@@ -313,10 +315,7 @@ abstract class ModuleGraphCore extends Module
         $this->_render->setTitles($this->_titles);
     }
 
-    /**
-     * @return void
-     */
-    public function draw()
+    public function draw(): void
     {
         $this->_render->draw();
     }
@@ -361,20 +360,18 @@ abstract class ModuleGraphCore extends Module
         $urlParams['module'] = Tools::getValue('module');
         $urlParams['id_employee'] = $idEmployee;
         $urlParams['id_lang'] = $idLang;
-        $drawer = 'drawer.php?'.http_build_query(array_map('Tools::safeOutput', $urlParams), '', '&');
+        $drawer = 'drawer.php?'.http_build_query(array_map(Tools::safeOutput(...), $urlParams), '', '&');
 
         if (file_exists(_PS_ROOT_DIR_.'/modules/'.$render.'/'.$render.'.php')) {
             require_once(_PS_ROOT_DIR_.'/modules/'.$render.'/'.$render.'.php');
 
             return call_user_func([$render, 'hookGraphEngine'], $params, $drawer);
-        } else {
-            return call_user_func(['ModuleGraphEngine', 'hookGraphEngine'], $params, $drawer);
         }
+        return call_user_func(['ModuleGraphEngine', 'hookGraphEngine'], $params, $drawer);
     }
 
     /**
      * @param Employee|null $employee
-     * @param Context|null $context
      *
      * @return Employee | false
      *

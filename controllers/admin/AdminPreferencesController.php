@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -224,7 +226,7 @@ class AdminPreferencesControllerCore extends AdminController
                         'cast'         => 'strval',
                         'type'         => 'text',
                         'class'        => 'fixed-width-sm',
-                        'defaultValue' => ','
+                        'defaultValue' => ',',
                     ],
                 ]
             );

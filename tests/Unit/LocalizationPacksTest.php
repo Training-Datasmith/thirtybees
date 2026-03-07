@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Unit;
 
 use Codeception\Test\Unit;
@@ -12,7 +14,6 @@ class LocalizationPacksTest extends Unit
      * @var UnitTester
      */
     protected UnitTester $tester;
-
 
     /**
      * This tests verifies that EU Tax Group is the same in all localization packs
@@ -55,7 +56,7 @@ class LocalizationPacksTest extends Unit
         foreach ($euLocalizationFiles as $filepath => $localizationPack) {
             $euLocalRates = [];
             foreach ($localizationPack->taxes->tax as $tax) {
-                if ((string)$tax['eu-tax-group'] === 'virtual' || ((string)$tax['auto-generated'] === "1" && (string)$tax['from-eu-tax-group'] === 'virtual')) {
+                if ((string)$tax['eu-tax-group'] === 'virtual' || ((string)$tax['auto-generated'] === '1' && (string)$tax['from-eu-tax-group'] === 'virtual')) {
                     $name = (string)$tax['name'];
                     $rate = (float)$tax['rate'];
                     $euLocalRates[$name] = $rate;

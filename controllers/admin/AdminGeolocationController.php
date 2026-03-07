@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -50,7 +52,8 @@ class AdminGeolocationControllerCore extends AdminController
             'geolocationConfiguration' => [
                 'title'  => $this->l('Geolocation service'),
                 'icon'   => 'icon-map-marker',
-                'description' => ($hasServices
+                'description' => (
+                    $hasServices
                     ? $this->l('Enable geolocation feature by choosing service')
                     : Translate::ppTags(
                         $this->l('No geolocation service was found in the system. Please go to [1]Modules and Services[/1] to install service you want to use'),
@@ -63,8 +66,8 @@ class AdminGeolocationControllerCore extends AdminController
                         'hint'       => $this->l('Choose module that provides geolocation services'),
                         'type'       => 'select',
                         'identifier' => 'key',
-                        'list'       => $services
-                    ]
+                        'list'       => $services,
+                    ],
                 ],
                 'submit' => ['title' => $this->l('Save')],
             ],
@@ -221,7 +224,7 @@ class AdminGeolocationControllerCore extends AdminController
     protected function getGeolocationServices()
     {
         $services = [
-            ['key' => '', 'name' => $this->l('- No service selected -') ]
+            ['key' => '', 'name' => $this->l('- No service selected -') ],
         ];
         $moduleList = Hook::getHookModuleExecList('actionGeoLocation');
         if ($moduleList) {

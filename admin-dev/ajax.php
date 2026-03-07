@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -56,7 +58,8 @@ if (Tools::isSubmit('ajaxReferrers')) {
     } else {
         if (Tools::isSubmit('ajaxFillProducts')) {
             $jsonArray = [];
-            $result = $conn->getArray('
+            $result = $conn->getArray(
+                '
 			SELECT p.id_product, pl.name
 			FROM ' . _DB_PREFIX_ . 'product p
 			LEFT JOIN ' . _DB_PREFIX_ . 'product_lang pl
@@ -69,7 +72,7 @@ if (Tools::isSubmit('ajaxReferrers')) {
                     . ',name:\'' . addslashes($row['name']) . '\'}';
             }
 
-            die ('[' . implode(',', $jsonArray) . ']');
+            die('[' . implode(',', $jsonArray) . ']');
         }
     }
 }

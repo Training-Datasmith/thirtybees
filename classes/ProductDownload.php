@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -34,7 +36,6 @@
  */
 class ProductDownloadCore extends ObjectModel
 {
-
     /** @deprecated 1.0.2 This cache is no longer used. */
     protected static $_productIds = [];
 
@@ -325,9 +326,8 @@ class ProductDownloadCore extends ObjectModel
         if ($class) {
             $html .= ' class="'.$class.'"';
         }
-        $html .= '>'.$this->display_filename.'</a>';
 
-        return $html;
+        return $html . ('>' . $this->display_filename . '</a>');
     }
 
     /**
@@ -343,13 +343,11 @@ class ProductDownloadCore extends ObjectModel
     public function getTextLink($admin = true, $hash = false, $params = [])
     {
         if ($admin) {
-            $link = 'get-file-admin.php?file='.$this->filename;
-        } else {
-            $params['key'] = $this->filename.'-'.($hash ? $hash : 'orderdetail');
-            $link = Context::getContext()->link->getPageLink('get-file', null, null, $params);
+            return 'get-file-admin.php?file='.$this->filename;
         }
+        $params['key'] = $this->filename.'-'.($hash ?: 'orderdetail');
 
-        return $link;
+        return Context::getContext()->link->getPageLink('get-file', null, null, $params);
     }
 
     /**

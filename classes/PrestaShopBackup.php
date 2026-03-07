@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -41,7 +43,7 @@ class PrestaShopBackupCore
     /** @var string Last error messages */
     public $error;
     /** @var string custom backup directory. */
-    public $customBackupDir = null;
+    public $customBackupDir;
     /** @var bool|string $psBackupAll */
     public $psBackupAll = true;
     /** @var bool|string $psBackupDropTable */
@@ -102,7 +104,7 @@ class PrestaShopBackupCore
      *
      * @throws PrestaShopException
      */
-    public static function getBackupPath($filename = '')
+    public static function getBackupPath(?string $filename = ''): string
     {
         $backupdir = realpath(_PS_ADMIN_DIR_.static::$backupDir);
 
@@ -133,7 +135,7 @@ class PrestaShopBackupCore
      *
      * @throws PrestaShopException
      */
-    public static function backupExist($filename)
+    public static function backupExist(string $filename): int|false
     {
         $backupdir = realpath(_PS_ADMIN_DIR_.static::$backupDir);
 
@@ -153,7 +155,7 @@ class PrestaShopBackupCore
      *
      * @return bool bo
      */
-    public function setCustomBackupPath($dir)
+    public function setCustomBackupPath($dir): bool
     {
         $customDir = DIRECTORY_SEPARATOR.trim($dir, '/').DIRECTORY_SEPARATOR;
         if (is_dir(_PS_ADMIN_DIR_.$customDir)) {
@@ -170,7 +172,7 @@ class PrestaShopBackupCore
      *
      * @return string The url used to request the backup file
      */
-    public function getBackupURL()
+    public function getBackupURL(): string
     {
         return __PS_BASE_URI__.basename(_PS_ADMIN_DIR_).'/backup.php?filename='.basename($this->id);
     }
@@ -183,7 +185,7 @@ class PrestaShopBackupCore
      *
      * @throws PrestaShopException
      */
-    public function deleteSelection($list)
+    public function deleteSelection($list): bool
     {
         foreach ($list as $file) {
             $backup = new self($file);
@@ -205,7 +207,7 @@ class PrestaShopBackupCore
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function add()
+    public function add(): bool
     {
         if (!$this->psBackupAll) {
             $ignoreInsertTable = [
@@ -252,9 +254,11 @@ class PrestaShopBackupCore
         $found = 0;
         foreach ($tables as $table) {
             $table = current($table);
-
             // Skip tables which do not start with _DB_PREFIX_
-            if (strlen($table) < strlen(_DB_PREFIX_) || strncmp($table, _DB_PREFIX_, strlen(_DB_PREFIX_)) != 0) {
+            if (strlen((string) $table) < strlen(_DB_PREFIX_)) {
+                continue;
+            }
+            if (!str_starts_with((string) $table, _DB_PREFIX_)) {
                 continue;
             }
 
@@ -295,7 +299,7 @@ class PrestaShopBackupCore
                                 $s .= $tmp;
                             } else {
                                 foreach ($lines as $line) {
-                                    if (strpos($line, '`'.$field.'`') !== false) {
+                                    if (str_contains($line, '`'.$field.'`')) {
                                         if (preg_match('/(.*NOT NULL.*)/Ui', $line)) {
                                             $s .= "'',";
                                         } else {
@@ -340,7 +344,7 @@ class PrestaShopBackupCore
      *
      * @return bool Deletion result, true on success
      */
-    public function delete()
+    public function delete(): bool
     {
         if (!$this->id || !unlink($this->id)) {
             $this->error = Tools::displayError('Error deleting').' '.($this->id ? '"'.$this->id.'"' :

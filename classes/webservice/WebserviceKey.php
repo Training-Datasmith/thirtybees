@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -92,7 +94,7 @@ class WebserviceKeyCore extends ObjectModel implements InitializationCallback
             'module_name'         => ['type' => self::TYPE_STRING, 'size' => 50],
             'active'              => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbType' => 'tinyint(2)', 'dbNullable' => false],
             'context_employee_id' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedInt'],
-            'image_extension'     => ['type' => self::TYPE_STRING, 'size' => 10]
+            'image_extension'     => ['type' => self::TYPE_STRING, 'size' => 10],
         ],
         'keys' => [
             'webservice_account' => [
@@ -222,9 +224,7 @@ class WebserviceKeyCore extends ObjectModel implements InitializationCallback
     public static function isKeyActive($authKey)
     {
         $instance = static::getInstanceByKey($authKey);
-        return Validate::isLoadedObject($instance)
-            ? $instance->active
-            : false;
+        return Validate::isLoadedObject($instance) && $instance->active;
     }
 
     /**
@@ -293,12 +293,10 @@ class WebserviceKeyCore extends ObjectModel implements InitializationCallback
     /**
      * Callback method to initialize class
      *
-     * @param Db $conn
-     * @return void
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function initializationCallback(Db $conn)
+    public static function initializationCallback(Db $conn): void
     {
         $employees = Employee::getEmployeesByProfile(_PS_ADMIN_PROFILE_);
         if ($employees && count($employees) > 0) {
@@ -312,8 +310,6 @@ class WebserviceKeyCore extends ObjectModel implements InitializationCallback
     }
 
     /**
-     * @return string
-     *
      * @throws PrestaShopException
      */
     public function getImageExtension(): string

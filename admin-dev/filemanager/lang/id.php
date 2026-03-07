@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 define('lang_Select', 'Pilih');
 define('lang_Erase', 'Hapus');
 define('lang_Open', 'Buka');

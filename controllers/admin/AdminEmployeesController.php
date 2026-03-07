@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -108,16 +110,16 @@ class AdminEmployeesControllerCore extends AdminController
             'id_employee' => [
                 'title' => $this->l('ID'),
                 'align' => 'center',
-                'class' => 'fixed-width-xs'
+                'class' => 'fixed-width-xs',
             ],
             'firstname'   => [
-                'title' => $this->l('First Name')
+                'title' => $this->l('First Name'),
             ],
             'lastname'    => [
-                'title' => $this->l('Last Name')
+                'title' => $this->l('Last Name'),
             ],
             'email'       => [
-                'title' => $this->l('Email address')
+                'title' => $this->l('Email address'),
             ],
             'profile'     => [
                 'title'      => $this->l('Profile'),
@@ -175,7 +177,7 @@ class AdminEmployeesControllerCore extends AdminController
                 if ($theme === 'default') {
                     // Use thirty bees style as default.
                     $cssFile = 'schemes'.$rtl.'/admin-theme-thirtybees'.$rtl.'.css';
-                    if ( ! is_readable($path.$theme.'/css/'.$cssFile)) {
+                    if (! is_readable($path.$theme.'/css/'.$cssFile)) {
                         // Fall back to unstyled.
                         $cssFile = 'admin-theme'.$rtl.'.css';
                     }
@@ -372,9 +374,9 @@ class AdminEmployeesControllerCore extends AdminController
         $image = _PS_EMPLOYEE_IMG_DIR_.$obj->id.'.'.$this->imageType;
         $imageUrl = ImageManager::thumbnail($image, $this->table.'_'.(int) $obj->id.'.'.$this->imageType, 150, $this->imageType, true, true);
 
-
         $this->fields_form['input'] = array_merge(
-            $this->fields_form['input'], [
+            $this->fields_form['input'],
+            [
                 [
                     'type'          => 'file',
                     'label'         => $this->l('Avatar'),
@@ -716,7 +718,6 @@ class AdminEmployeesControllerCore extends AdminController
         return $object;
     }
 
-
     /**
      * @param string|bool $className
      *
@@ -940,7 +941,7 @@ class AdminEmployeesControllerCore extends AdminController
         }
         $this->ajaxDie(json_encode([
             'status' => 'success',
-            'data' => $message
+            'data' => $message,
         ]));
     }
 }

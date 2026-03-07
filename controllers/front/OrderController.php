@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -34,10 +36,10 @@
  */
 class OrderControllerCore extends ParentOrderController
 {
-    const STEP_SUMMARY_EMPTY_CART = -1;
-    const STEP_ADDRESSES = 1;
-    const STEP_DELIVERY = 2;
-    const STEP_PAYMENT = 3;
+    public const STEP_SUMMARY_EMPTY_CART = -1;
+    public const STEP_ADDRESSES = 1;
+    public const STEP_DELIVERY = 2;
+    public const STEP_PAYMENT = 3;
 
     /**
      * @var int

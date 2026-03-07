@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -61,13 +63,10 @@ class FetchNotificationsTaskCore implements WorkQueueTaskCallable, Initializatio
      * send them to thirty bees api server
      *
      *
-     * @param WorkQueueContext $context
-     * @param array $parameters
      *
-     * @return string
      * @throws PrestaShopException
      */
-    public function execute(WorkQueueContext $context, array $parameters)
+    public function execute(WorkQueueContext $context, array $parameters): string
     {
         $lastUuid = $this->getLastSeenNotificationUuid();
         $data = $this->fetch($lastUuid);
@@ -90,7 +89,7 @@ class FetchNotificationsTaskCore implements WorkQueueTaskCallable, Initializatio
                     $notification->importance = static::getProperty('importance', $entry);
                     $notification->title = static::getProperty('title', $entry);
                     $notification->message = static::getProperty('message', $entry);
-                    $notification->date_created = date('Y-m-d', strtotime(static::getProperty('date', $entry)));
+                    $notification->date_created = date('Y-m-d', strtotime((string) static::getProperty('date', $entry)));
                     $notification->save();
                 }
             }
@@ -128,7 +127,7 @@ class FetchNotificationsTaskCore implements WorkQueueTaskCallable, Initializatio
         $guzzle = new Client([
             'base_uri'    => Configuration::getApiServer(),
             'timeout'     => 15,
-            'verify'      => Configuration::getSslTrustStore()
+            'verify'      => Configuration::getSslTrustStore(),
         ]);
         try {
             $response = $guzzle->post(
@@ -139,38 +138,37 @@ class FetchNotificationsTaskCore implements WorkQueueTaskCallable, Initializatio
                         'lastSeen' => $lastUuid,
                     ],
                     'headers' => [
-                        'X-SID' => Configuration::getServerTrackingId()
-                    ]
+                        'X-SID' => Configuration::getServerTrackingId(),
+                    ],
                 ]
             );
         } catch (GuzzleException $e) {
-            throw new PrestaShopException("Transport exception: " . $e->getMessage(), 0, $e);
+            throw new PrestaShopException('Transport exception: ' . $e->getMessage(), 0, $e);
         }
 
         if ($response->getStatusCode() >= 300) {
-            throw new PrestaShopException("Invalid response status code: " . $response->getStatusCode() . ' ' . $response->getReasonPhrase());
+            throw new PrestaShopException('Invalid response status code: ' . $response->getStatusCode() . ' ' . $response->getReasonPhrase());
         }
 
         $body = (string)$response->getBody();
         if (! $body) {
-            throw new PrestaShopException("Empty response");
+            throw new PrestaShopException('Empty response');
         }
 
         $json = json_decode($body, true);
         if (! is_array($json)) {
-            throw new PrestaShopException("Failed to parse response: " . $body);
+            throw new PrestaShopException('Failed to parse response: ' . $body);
         }
 
         if (! isset($json['success'])) {
-            throw new PrestaShopException("Invalid response payload: " . $body);
+            throw new PrestaShopException('Invalid response payload: ' . $body);
         }
 
         if (! $json['success']) {
             if (isset($json['error'])) {
                 throw new PrestaShopException($json['error']);
-            } else {
-                throw new PrestaShopException("Failure response: " . $body);
             }
+            throw new PrestaShopException('Failure response: ' . $body);
         }
 
         return static::getProperty('data', $json);
@@ -181,7 +179,7 @@ class FetchNotificationsTaskCore implements WorkQueueTaskCallable, Initializatio
      *
      * @param array $conditionGroups array of arrays
      */
-    protected function acceptNotification($conditionGroups)
+    protected function acceptNotification($conditionGroups): bool
     {
         if ($conditionGroups) {
             // at least one condition group must be satisfied
@@ -199,9 +197,8 @@ class FetchNotificationsTaskCore implements WorkQueueTaskCallable, Initializatio
      * Return true, if all conditions are satisfied
      *
      * @param array $conditions
-     * @return bool
      */
-    protected function allConditionsSatisfied($conditions)
+    protected function allConditionsSatisfied($conditions): bool
     {
         foreach ($conditions as $condition) {
             if (! $this->conditionSatisfied($condition)) {
@@ -213,10 +210,8 @@ class FetchNotificationsTaskCore implements WorkQueueTaskCallable, Initializatio
 
     /**
      * Return true, if condition is satisfied
-     *
-     * @param array $condition
      */
-    protected function conditionSatisfied($condition)
+    protected function conditionSatisfied(array $condition)
     {
         if (isset($condition['value']) && isset($condition['compare'])) {
             $valueFunc = $condition['value'];
@@ -287,12 +282,11 @@ class FetchNotificationsTaskCore implements WorkQueueTaskCallable, Initializatio
      * Extracts value of $entry[$key], if exists
      *
      * @param string $key
-     * @param array $entry
      * @param mixed $defaultValue
      * @return mixed
      * @throws PrestaShopException
      */
-    protected static function getProperty($key, array $entry, $defaultValue=null)
+    protected static function getProperty($key, array $entry, $defaultValue = null)
     {
         if (array_key_exists($key, $entry)) {
             return $entry[$key];
@@ -306,17 +300,15 @@ class FetchNotificationsTaskCore implements WorkQueueTaskCallable, Initializatio
     /**
      * Callback method to initialize class
      *
-     * @param Db $conn
-     * @return void
      * @throws PrestaShopException
      */
-    public static function initializationCallback(Db $conn)
+    public static function initializationCallback(Db $conn): void
     {
-        $task = str_replace("FetchNotificationTaskCore", "FetchNotificationTask", static::class);
+        $task = str_replace('FetchNotificationTaskCore', 'FetchNotificationTask', static::class);
         $trackingTasks = ScheduledTask::getTasksForCallable($task);
         if (! $trackingTasks) {
             $scheduledTask = new ScheduledTask();
-            $scheduledTask->frequency = rand(0, 59) . ' */6 * * *';
+            $scheduledTask->frequency = random_int(0, 59) . ' */6 * * *';
             $scheduledTask->name = 'Thirty bees notification task';
             $scheduledTask->description = 'Retrieve thirty bees notifications from api server';
             $scheduledTask->task = $task;
@@ -325,10 +317,7 @@ class FetchNotificationsTaskCore implements WorkQueueTaskCallable, Initializatio
         }
     }
 
-    /**
-     * @return string
-     */
-    protected function conditionFuncPhpVersion()
+    protected function conditionFuncPhpVersion(): string
     {
         return phpversion();
     }
@@ -358,13 +347,11 @@ class FetchNotificationsTaskCore implements WorkQueueTaskCallable, Initializatio
     }
 
     /**
-     * @return string
      * @throws PrestaShopException
      */
-    protected function conditionFuncSid()
+    protected function conditionFuncSid(): string
     {
         return (string)Configuration::getServerTrackingId();
     }
 
 }
-

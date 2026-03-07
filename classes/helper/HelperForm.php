@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -62,7 +64,7 @@ class HelperFormCore extends Helper
     /**
      * @var string if not null, a title will be added on that list
      */
-    public $title = null;
+    public $title;
 
     /**
      * @var string Used to override default 'submitAdd' parameter in form action attribute
@@ -77,17 +79,17 @@ class HelperFormCore extends Helper
     /**
      * @var array $languages
      */
-    public $languages = null;
+    public $languages;
 
     /**
      * @var int
      */
-    public $default_form_language = null;
+    public $default_form_language;
 
     /**
      * @var bool
      */
-    public $allow_employee_form_lang = null;
+    public $allow_employee_form_lang;
 
     /**
      * @var bool $show_cancel_button
@@ -215,7 +217,7 @@ class HelperFormCore extends Helper
                             $uploader->setMaxFiles($params['max_files'] ?? null);
 
                             // Generate dynamic delete_url
-                            if (isset($params['delete_url']) && $params['delete_url']===true) {
+                            if (isset($params['delete_url']) && $params['delete_url'] === true) {
                                 $params['delete_url'] = $this->currentIndex.'&'.$this->identifier.'='.$this->id.'&token='.$this->token.'&action=deleteImage&inputName='.$params['name'];
                             }
 
@@ -426,7 +428,6 @@ class HelperFormCore extends Helper
     }
 
     /**
-     * @param array $selected
      * @param string $templateDirectory
      *
      * @return string

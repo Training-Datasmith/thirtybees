@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -34,13 +36,8 @@
  */
 class EncryptorCore
 {
-    const ALGO_BLOWFISH = 0;
-    const ALGO_PHP_ENCRYPTION = 2;
-
-    /**
-     * @var Blowfish|PhpEncryption cipher tool instance
-     */
-    protected $cipherTool;
+    public const ALGO_BLOWFISH = 0;
+    public const ALGO_PHP_ENCRYPTION = 2;
 
     /**
      * @var Encryptor $instance
@@ -91,9 +88,8 @@ class EncryptorCore
      *
      * @param Blowfish|PhpEncryption $cipherTool optional cipher tool to use
      */
-    protected function __construct($cipherTool)
+    protected function __construct(protected $cipherTool)
     {
-        $this->cipherTool = $cipherTool;
     }
 
     /**
@@ -109,7 +105,7 @@ class EncryptorCore
         try {
             return $this->cipherTool->encrypt($content);
         } catch (Throwable $e) {
-            throw new PrestaShopException("Failed to encrypt content", 0, $e);
+            throw new PrestaShopException('Failed to encrypt content', 0, $e);
         }
     }
 
@@ -127,7 +123,7 @@ class EncryptorCore
         try {
             return $this->cipherTool->decrypt($content);
         } catch (Throwable $e) {
-            throw new PrestaShopException("Failed to decrypt content", 0, $e);
+            throw new PrestaShopException('Failed to decrypt content', 0, $e);
         }
     }
 
@@ -146,26 +142,23 @@ class EncryptorCore
             Configuration::updateValue('PS_CIPHER_ALGORITHM', static::ALGO_PHP_ENCRYPTION);
             return static::ALGO_PHP_ENCRYPTION;
         } catch (Throwable $e) {
-            trigger_error("Failed to resolve encryption algorithm: " . $e);
+            trigger_error('Failed to resolve encryption algorithm: ' . $e);
             return static::ALGO_PHP_ENCRYPTION;
         }
     }
 
     /**
      * Returns ciphering tool according to settings
-     *
-     * @return Blowfish|PhpEncryption
      */
-    private static function getCipherTool()
+    private static function getCipherTool(): \PhpEncryption|\Blowfish
     {
         $algo = static::getAlgorithm();
 
         if ($algo === static::ALGO_PHP_ENCRYPTION && static::supportsPhpEncryption()) {
             if (defined('_PHP_ENCRYPTION_KEY_')) {
                 return new PhpEncryption(_PHP_ENCRYPTION_KEY_);
-            } else {
-                trigger_error('PHP Encryption can\'t be used because _PHP_ENCRYPTION_KEY_ constant is not defined. Using Blowfish encryption instead.', E_USER_WARNING);
             }
+            trigger_error('PHP Encryption can\'t be used because _PHP_ENCRYPTION_KEY_ constant is not defined. Using Blowfish encryption instead.', E_USER_WARNING);
         }
 
         // fallback to blowfish
@@ -179,20 +172,18 @@ class EncryptorCore
     /**
      * Returns blowfish ciphering tool used in standalone environment
      *
-     * @param string $salt
      *
-     * @return Blowfish|PhpEncryption
      *
      * @throws PrestaShopException
      */
-    private static function getStandaloneCipherTool($salt)
+    private static function getStandaloneCipherTool(string $salt): \PhpEncryption|\Blowfish
     {
         if (static::supportsPhpEncryption()) {
             try {
                 $key = PhpEncryption::createKeyFromSalt($salt);
                 return new PhpEncryption($key);
             } catch (Throwable $e) {
-                throw new PrestaShopException("Failed to create standalone cipher tool from salt", 0, $e);
+                throw new PrestaShopException('Failed to create standalone cipher tool from salt', 0, $e);
             }
         }
 
@@ -201,10 +192,8 @@ class EncryptorCore
 
     /**
      * Check if PhpEncryption can be used
-     *
-     * @return bool
      */
-    public static function supportsPhpEncryption()
+    public static function supportsPhpEncryption(): bool
     {
         return extension_loaded('openssl') && function_exists('openssl_encrypt');
     }

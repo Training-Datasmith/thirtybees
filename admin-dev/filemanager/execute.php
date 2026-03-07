@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 include('config/config.php');
 
 $path_thumb = normalizePath(Tools::getValue('path_thumb', ''));

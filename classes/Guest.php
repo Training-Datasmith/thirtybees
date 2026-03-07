@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -155,7 +157,7 @@ class GuestCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function setNewGuest($cookie)
+    public static function setNewGuest($cookie): void
     {
         if (! Tools::isCrawler()) {
             $guest = new Guest(static::getFromCustomer($cookie->id_customer));
@@ -200,7 +202,7 @@ class GuestCore extends ObjectModel
     /**
      * @throws PrestaShopException
      */
-    public function userAgent()
+    public function userAgent(): void
     {
         $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
         $acceptLanguage = $_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? '';
@@ -271,10 +273,8 @@ class GuestCore extends ObjectModel
     }
 
     /**
-     * @param string $name
      *
      * @return int|null
-     *
      * @throws PrestaShopException
      */
     protected function getOperatingSystemId(string $name)
@@ -285,7 +285,7 @@ class GuestCore extends ObjectModel
                 ->from('operating_system', 'os')
                 ->where('os.`name` = \''.pSQL($name).'\'')
         );
-        return $id ? $id : null;
+        return $id ?: null;
     }
 
     /**
@@ -326,10 +326,8 @@ class GuestCore extends ObjectModel
     }
 
     /**
-     * @param string $name
      *
      * @return int|null
-     *
      * @throws PrestaShopException
      */
     protected function getBrowserId(string $name)
@@ -340,9 +338,8 @@ class GuestCore extends ObjectModel
                 ->from('web_browser', 'wb')
                 ->where('wb.`name` = \''.pSQL($name).'\'')
         );
-        return $id ? $id : null;
+        return $id ?: null;
     }
-
 
     /**
      * @param int $idGuest
@@ -351,7 +348,7 @@ class GuestCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function mergeWithCustomer($idGuest, $idCustomer)
+    public function mergeWithCustomer($idGuest, $idCustomer): void
     {
         // Since the guests are merged, the guest id in the connections table must be changed too
         Db::getInstance()->update(

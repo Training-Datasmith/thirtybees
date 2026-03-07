@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -36,10 +38,10 @@
  */
 class AdminBackupControllerCore extends AdminController
 {
-    const ORDER_BY_FILENAME = 'filename';
-    const ORDER_BY_FILESIZE = 'filesize';
-    const ORDER_BY_DATE = 'date';
-    const ORDER_BY_AGE = 'age';
+    public const ORDER_BY_FILENAME = 'filename';
+    public const ORDER_BY_FILESIZE = 'filesize';
+    public const ORDER_BY_DATE = 'date';
+    public const ORDER_BY_AGE = 'age';
 
     /**
      * @var string The field we are sorting on

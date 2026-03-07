@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -74,7 +76,6 @@ class ConnectionCore extends ObjectModel
     ];
 
     /**
-     * @param Cookie $cookie
      * @param bool $full
      *
      * @return array
@@ -86,7 +87,7 @@ class ConnectionCore extends ObjectModel
     {
         $idPage = false;
         // The connection is created if it does not exist yet and we get the current page id
-        if (!isset($cookie->id_connections) || !strstr(Tools::getHttpReferer(), Tools::getHttpHost(false, false))) {
+        if (!isset($cookie->id_connections) || !strstr(Tools::getHttpReferer(), (string) Tools::getHttpHost(false, false))) {
             $idPage = Connection::setNewConnection($cookie);
         }
         // If we do not track the pages, no need to get the page id
@@ -143,7 +144,7 @@ class ConnectionCore extends ObjectModel
                 ->select('1')
                 ->from('connections', 'c')
                 ->addCurrentShopRestriction('c')
-                ->where('`c`.`id_guest` = ' . $guestId )
+                ->where('`c`.`id_guest` = ' . $guestId)
                 ->where('`c`.`date_add` > \'' . pSQL(date('Y-m-d H:i:00', time() - 1800)) . '\'');
             $exists = Db::readOnly()->getRow($sql);
 
@@ -178,7 +179,7 @@ class ConnectionCore extends ObjectModel
     /**
      * @throws PrestaShopException
      */
-    public static function cleanConnectionsPages()
+    public static function cleanConnectionsPages(): void
     {
         $period = Configuration::get('PS_STATS_OLD_CONNECT_AUTO_CLEAN');
 
@@ -208,7 +209,7 @@ class ConnectionCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function setPageTime($idConnections, $idPage, $timeStart, $time)
+    public static function setPageTime($idConnections, $idPage, $timeStart, $time): void
     {
         if (!Validate::isUnsignedId($idConnections)
             || !Validate::isUnsignedId($idPage)
@@ -242,8 +243,6 @@ class ConnectionCore extends ObjectModel
             $this->id_shop_group = Context::getContext()->shop->id_shop_group;
         }
 
-        $fields = parent::getFields();
-
-        return $fields;
+        return parent::getFields();
     }
 }

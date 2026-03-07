@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -34,8 +36,8 @@
  */
 class AdminStatsControllerCore extends AdminStatsTabController
 {
-    const ORDER_DATE_COLUMN_DATE = 'order_date';
-    const ORDER_DATE_COLUMN_INVOICE = 'invoice_date';
+    public const ORDER_DATE_COLUMN_DATE = 'order_date';
+    public const ORDER_DATE_COLUMN_INVOICE = 'invoice_date';
 
     /**
      * Display ajax get KPI
@@ -175,8 +177,8 @@ class AdminStatsControllerCore extends AdminStatsTabController
 
             case 'avg_msg_response_time':
                 $value = sprintf($this->l('%.1f hours', null, null, false), AdminStatsController::getAverageMessageResponseTime(date('Y-m-d', strtotime('-31 day')), date('Y-m-d', strtotime('-1 day'))));
-                ConfigurationKPI::updateValue('AVG_MSG_RESPONSE_TIME',  [$languageId => $value]);
-                ConfigurationKPI::updateValue('AVG_MSG_RESPONSE_TIME_EXPIRE',  [$languageId => strtotime('+4 hour')]);
+                ConfigurationKPI::updateValue('AVG_MSG_RESPONSE_TIME', [$languageId => $value]);
+                ConfigurationKPI::updateValue('AVG_MSG_RESPONSE_TIME_EXPIRE', [$languageId => strtotime('+4 hour')]);
                 break;
 
             case 'messages_per_thread':
@@ -338,7 +340,7 @@ class AdminStatsControllerCore extends AdminStatsTabController
         }
         if ($value !== null) {
             $this->ajaxDie(json_encode([
-                'value' => $value
+                'value' => $value,
             ]));
         }
         $this->ajaxDie(json_encode(['has_errors' => true]));
@@ -1000,21 +1002,21 @@ class AdminStatsControllerCore extends AdminStatsTabController
                 $order['id_currency'] == Configuration::get('PS_CURRENCY_DEFAULT')
                     ? Configuration::get(Configuration::getValidConfigKey('CONF_'.$order['module'].'_FIXED'))
                     : Configuration::get(Configuration::getValidConfigKey('CONF_'.$order['module'].'_FIXED_FOREIGN'))
-                );
+            );
 
             // Add variable fees for this order
             $varFees = $order['total_paid_tax_incl'] * (
                 $order['id_currency'] == Configuration::get('PS_CURRENCY_DEFAULT')
                     ? Configuration::get(Configuration::getValidConfigKey('CONF_'.$order['module'].'_VAR'))
                     : Configuration::get(Configuration::getValidConfigKey('CONF_'.$order['module'].'_VAR_FOREIGN'))
-                ) / 100;
+            ) / 100;
 
             // Add shipping fees for this order
             $shippingFees = $order['total_shipping_tax_excl'] * (
                 $order['id_country'] == Configuration::get('PS_COUNTRY_DEFAULT')
                     ? Configuration::get(Configuration::getValidConfigKey('CONF_'.$order['carrier_reference'].'_SHIP'))
                     : Configuration::get(Configuration::getValidConfigKey('CONF_'.$order['carrier_reference'].'_SHIP_OVERSEAS'))
-                ) / 100;
+            ) / 100;
 
             // Tally up these fees
             if ($granularity == 'day') {

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -17,58 +19,36 @@
  * @license   Open Software License (OSL 3.0)
  */
 
-
 use Thirtybees\Core\Error\ErrorDescription;
 use Thirtybees\Core\Error\Response\ErrorResponseInterface;
 
 class WebserviceFatalErrorResponseCore implements ErrorResponseInterface
 {
-
     /**
      * @var WebserviceOutputBuilder
      */
     protected $outputBuilder;
 
     /**
-     * @var bool
-     */
-    protected $sendErrorMessage;
-
-    /**
-     * @var float
-     */
-    protected $startTime;
-
-    /**
      * @var WebserviceLogger
      */
     protected $logger;
 
-    /**
-     * @param WebserviceOutputBuilder $outputBuilder
-     * @param WebserviceLogger $logger
-     * @param bool $sendErrorMessage
-     * @param float $startTime
-     */
     public function __construct(
         WebserviceOutputBuilder $outputBuilder,
         WebserviceLogger $logger,
-        bool $sendErrorMessage,
-        float $startTime
+        protected bool $sendErrorMessage,
+        protected float $startTime
     ) {
         $this->outputBuilder = $outputBuilder;
         $this->logger = $logger;
-        $this->sendErrorMessage = $sendErrorMessage;
-        $this->startTime = $startTime;
     }
 
     /**
-     * @param ErrorDescription $errorDescription
-     * @return void
      * @throws PrestaShopException
      * @throws WebserviceException
      */
-    public function sendResponse(ErrorDescription $errorDescription)
+    public function sendResponse(ErrorDescription $errorDescription): void
     {
         $time = round(microtime(true) - $this->startTime, 3);
         $this->outputBuilder->setStatus(500);

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -36,9 +38,9 @@ use GuzzleHttp\Client;
  */
 class ThemeCore extends ObjectModel
 {
-    const CACHE_FILE_CUSTOMER_THEMES_LIST = '/config/xml/customer_themes_list.xml';
-    const CACHE_FILE_MUST_HAVE_THEMES_LIST = '/config/xml/must_have_themes_list.xml';
-    const UPLOADED_THEME_DIR_NAME = 'uploaded';
+    public const CACHE_FILE_CUSTOMER_THEMES_LIST = '/config/xml/customer_themes_list.xml';
+    public const CACHE_FILE_MUST_HAVE_THEMES_LIST = '/config/xml/must_have_themes_list.xml';
+    public const UPLOADED_THEME_DIR_NAME = 'uploaded';
 
     /** @var int access rights of created folders (octal) */
     public static $access_rights = 0775;
@@ -354,7 +356,7 @@ class ThemeCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function updateMetas($metas, $fullUpdate = false)
+    public function updateMetas($metas, $fullUpdate = false): void
     {
         $conn = Db::getInstance();
         if ($fullUpdate) {
@@ -503,7 +505,7 @@ class ThemeCore extends ObjectModel
     {
         // Object must have a variable called 'responsive'
         if (!method_exists($this, 'responsive')) {
-            throw new PrestaShopException('property "responsive" is missing in object '.get_class($this));
+            throw new PrestaShopException('property "responsive" is missing in object '.static::class);
         }
 
         // Update only responsive field
@@ -523,7 +525,7 @@ class ThemeCore extends ObjectModel
     public function toggleDefaultLeftColumn()
     {
         if (!method_exists($this, 'default_left_column')) {
-            throw new PrestaShopException('property "default_left_column" is missing in object '.get_class($this));
+            throw new PrestaShopException('property "default_left_column" is missing in object '.static::class);
         }
 
         $this->setFieldsToUpdate(['default_left_column' => true]);
@@ -540,7 +542,7 @@ class ThemeCore extends ObjectModel
     public function toggleDefaultRightColumn()
     {
         if (!method_exists($this, 'default_right_column')) {
-            throw new PrestaShopException('property "default_right_column" is missing in object '.get_class($this));
+            throw new PrestaShopException('property "default_right_column" is missing in object '.static::class);
         }
 
         $this->setFieldsToUpdate(['default_right_column' => true]);
@@ -583,21 +585,25 @@ class ThemeCore extends ObjectModel
     public static function installFromDir($themeDir)
     {
         if (! file_exists($themeDir)) {
-            return sprintf( Tools::displayError('Theme directory not found: "%s"'), $themeDir);
+            return sprintf(Tools::displayError('Theme directory not found: "%s"'), $themeDir);
         }
 
         $xml = static::loadDefaultConfig($themeDir);
-        if ( ! $xml) {
-            return sprintf(Tools::displayError(
-                'Bad or missing config.xml in theme in %s.'),
+        if (! $xml) {
+            return sprintf(
+                Tools::displayError(
+                    'Bad or missing config.xml in theme in %s.'
+                ),
                 $themeDir
             );
         }
         $xmlAttributes = $xml->attributes();
 
         if (static::getByName((string) $xmlAttributes['name']) !== false) {
-            return sprintf(Tools::displayError(
-                'A theme with the same name as the theme in %s is already installed.'),
+            return sprintf(
+                Tools::displayError(
+                    'A theme with the same name as the theme in %s is already installed.'
+                ),
                 $themeDir
             );
         }
@@ -620,8 +626,10 @@ class ThemeCore extends ObjectModel
          */
         if (isset($xml->variations)) {
             if (count($xml->variations) > 1) {
-                return sprintf(Tools::displayError(
-                    'thirty bees supports only themes with at most one variation, the theme in %s has multiple ones.'),
+                return sprintf(
+                    Tools::displayError(
+                        'thirty bees supports only themes with at most one variation, the theme in %s has multiple ones.'
+                    ),
                     $themeDir
                 );
             }
@@ -645,9 +653,11 @@ class ThemeCore extends ObjectModel
         }
 
         $theme->add();
-        if ( ! Validate::isLoadedObject($theme)) {
-            return sprintf(Tools::displayError(
-                'Error while installing theme in %s'),
+        if (! Validate::isLoadedObject($theme)) {
+            return sprintf(
+                Tools::displayError(
+                    'Error while installing theme in %s'
+                ),
                 $themeDir
             );
         }
@@ -727,7 +737,7 @@ class ThemeCore extends ObjectModel
                 $moduleAction = strtolower((string)$moduleRow['action']);
 
                 $module = Module::getInstanceByName($moduleName);
-                if ( ! $module) {
+                if (! $module) {
                     continue;
                 }
 
@@ -738,7 +748,6 @@ class ThemeCore extends ObjectModel
                     ];
                     continue;
                 }
-
 
                 switch ($moduleAction) {
                     case 'install':
@@ -791,7 +800,7 @@ class ThemeCore extends ObjectModel
             // Fill all other metas with default values.
             foreach (Meta::getMetas() as $meta) {
                 $metaId = (int) $meta['id_meta'];
-                if ( ! array_key_exists($metaId, $metasXml)) {
+                if (! array_key_exists($metaId, $metasXml)) {
                     $metasXml[$metaId] = [
                         'id_meta' => $metaId,
                         'left'    => $this->default_left_column,
@@ -921,7 +930,7 @@ class ThemeCore extends ObjectModel
         $this->collectConfigFilesForRetrocompatibility();
 
         $xml = static::loadDefaultConfig(_PS_ALL_THEMES_DIR_.$this->directory);
-        if ( ! $xml || (string) $xml->attributes()->name !== $this->name) {
+        if (! $xml || (string) $xml->attributes()->name !== $this->name) {
             return false;
         }
 
@@ -941,10 +950,8 @@ class ThemeCore extends ObjectModel
      *    folder there.
      *
      * TODO: move this into Core Updater.
-     *
-     * @return void
      */
-    private function collectConfigFilesForRetrocompatibility()
+    private function collectConfigFilesForRetrocompatibility(): void
     {
         $oldConfigFound = false;
         $oldConfigs = [
@@ -1052,7 +1059,7 @@ class ThemeCore extends ObjectModel
         $themePath = rtrim($themePath, '/');
 
         $path = $themePath.'/config.xml'; // Preferred name: all lowercase.
-        if ( ! file_exists($path)) {
+        if (! file_exists($path)) {
             // Try to find differently cased variants.
             foreach (scandir($themePath) as $variant) {
                 if (strcasecmp($variant, 'config.xml') === 0) {
@@ -1068,7 +1075,6 @@ class ThemeCore extends ObjectModel
     /**
      * Return list of displayable hooks from config.xml indexed by module key
      *
-     * @param SimpleXMLElement $xml
      * @param array $ignored/
      * @return array
      * @throws PrestaShopDatabaseException
@@ -1097,7 +1103,7 @@ class ThemeCore extends ObjectModel
             } else {
                 $ignored[] = [
                     'module' => $module,
-                    'hook' => $hook
+                    'hook' => $hook,
                 ];
             }
         }
@@ -1111,14 +1117,14 @@ class ThemeCore extends ObjectModel
      * @param string $template
      * @throws PrestaShopException
      */
-    public function ensureTemplate($template)
+    public function ensureTemplate($template): void
     {
         // template variable usually represents file, simply check if it exists
         if (! @file_exists($template)) {
             // first, resolve relative path
             $directoryPath = $this->getDirectoryPath();
             $template = str_replace('\\', '/', $template);
-            if (strpos($template, $directoryPath) === 0) {
+            if (str_starts_with($template, $directoryPath)) {
                 $relativeTemplate = substr($template, strlen($directoryPath));
             } else {
                 $relativeTemplate = $template;
@@ -1127,7 +1133,7 @@ class ThemeCore extends ObjectModel
             $this->downloadTemplate($directoryPath, $relativeTemplate);
 
             if (! @file_exists($template)) {
-                throw new PrestaShopException("Template " . $template . " does not exists");
+                throw new PrestaShopException('Template ' . $template . ' does not exists');
             }
         }
     }
@@ -1153,7 +1159,7 @@ class ThemeCore extends ObjectModel
         $request = [
             'action' => 'download-template',
             'php' => phpversion(),
-            'templates' => [$relativeTemplate]
+            'templates' => [$relativeTemplate],
         ];
         $archiveFile = tempnam(_PS_CACHE_DIR_, 'theme-templates');
         try {
@@ -1162,36 +1168,34 @@ class ThemeCore extends ObjectModel
                 'verify' => Configuration::getSslTrustStore(),
                 'timeout' => 20,
             ]);
-            $guzzle->post("/coreupdater/v2.php", [
+            $guzzle->post('/coreupdater/v2.php', [
                 'form_params' => $request,
                 'http_errors' => false,
                 'sink' => $archiveFile,
                 'headers' => [
-                    'X-SID' => Configuration::getServerTrackingId()
-                ]
+                    'X-SID' => Configuration::getServerTrackingId(),
+                ],
             ]);
             if (!is_file($archiveFile)) {
-                throw new PrestaShopException("Failed to download file from thirty bees api server");
+                throw new PrestaShopException('Failed to download file from thirty bees api server');
             }
             $magicNumber = file_get_contents($archiveFile, false, null, 0, 2);
             if (@filesize($archiveFile) < 100 || strcmp($magicNumber, "\x1f\x8b")) {
                 // It's an error message response.
-                throw new PrestaShopException("Api error: " . file_get_contents($archiveFile));
+                throw new PrestaShopException('Api error: ' . file_get_contents($archiveFile));
             }
 
             $archive = new Archive_Tar($archiveFile, 'gz');
             $archivePaths = $archive->listContent();
             if ($archive->error_object) {
-                throw new PrestaShopException("Failed to open archive: " . $archive->error_object->message);
+                throw new PrestaShopException('Failed to open archive: ' . $archive->error_object->message);
             }
             if (count($archivePaths) !== 1 || $archivePaths[0]['filename'] !== $relativeTemplate) {
-                throw new PrestaShopException("Archive contains invalid content: " . print_r($archivePaths, true));
+                throw new PrestaShopException('Archive contains invalid content: ' . print_r($archivePaths, true));
             }
             $archive->extract($directoryPath);
-        } catch (PrestaShopException $e) {
-            throw $e;
         } catch (Throwable $e) {
-            throw new PrestaShopException("Failed to download file from thirty bees api server", 0, $e);
+            throw new PrestaShopException('Failed to download file from thirty bees api server', 0, $e);
         } finally {
             @unlink($archiveFile);
         }
@@ -1204,9 +1208,8 @@ class ThemeCore extends ObjectModel
      */
     public function getDirectoryPath()
     {
-        return rtrim(str_replace('\\', '/', _PS_ALL_THEMES_DIR_),'/') . '/' . $this->directory . '/';
+        return rtrim(str_replace('\\', '/', _PS_ALL_THEMES_DIR_), '/') . '/' . $this->directory . '/';
     }
-
 
     /**
      * Returns true, if current theme supports mobile theme variant

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -118,15 +120,13 @@ class CountryCore extends ObjectModel
      */
     public static function getCountriesByIdShop($idShop, $idLang)
     {
-        $result = Db::readOnly()->getArray(
+        return Db::readOnly()->getArray(
             (new DbQuery())
                 ->select('*')
                 ->from('country', 'c')
                 ->leftJoin('country_shop', 'cs', 'cs.`id_country` = c.`id_country` AND cs.`id_shop` = '.(int) $idShop)
                 ->leftJoin('country_lang', 'cl', 'cl.`id_country` = c.`id_country` AND cl.`id_lang` = '.(int) $idLang)
         );
-
-        return $result;
     }
 
     /**
@@ -246,7 +246,7 @@ class CountryCore extends ObjectModel
                 (new DbQuery())
                     ->select('`iso_code`')
                     ->from('country')
-                    ->where('`id_country` = '.(int) $idCountry)
+                    ->where('`id_country` = '.$idCountry)
             );
             Cache::store($key, $result);
 
@@ -363,7 +363,7 @@ class CountryCore extends ObjectModel
         $idZone = (int)$idZone;
         $idLang = (int)$idLang;
 
-        $result = Db::readOnly()->getArray(
+        return Db::readOnly()->getArray(
             (new DbQuery())
                 ->select('c.*, cl.*')
                 ->from('country', 'c')
@@ -372,8 +372,6 @@ class CountryCore extends ObjectModel
                 ->leftJoin('country_lang', 'cl', 'c.`id_country` = cl.`id_country` AND cl.`id_lang` = '.$idLang)
                 ->where('c.`id_zone` = '.$idZone.' OR s.`id_zone` = '.$idZone)
         );
-
-        return $result;
     }
 
     /**
@@ -447,7 +445,7 @@ class CountryCore extends ObjectModel
     public function affectZoneToSelection($idsCountries, $idZone)
     {
         // cast every array values to int (security)
-        $idsCountries = array_map('intval', $idsCountries);
+        $idsCountries = array_map(intval(...), $idsCountries);
 
         return Db::getInstance()->update(
             'country',
@@ -495,9 +493,6 @@ class CountryCore extends ObjectModel
     }
 
     /**
-     * @param array $shops
-     * @param array $countries
-     * @param array $modules
      *
      * @return bool
      *
@@ -533,9 +528,8 @@ class CountryCore extends ObjectModel
 
         if (!empty($insert)) {
             return Db::getInstance()->insert('module_country', $insert, false, true, Db::INSERT_IGNORE);
-        } else {
-            return true;
         }
+        return true;
     }
 
     /**

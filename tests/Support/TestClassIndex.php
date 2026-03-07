@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -25,19 +27,19 @@ use RuntimeException;
 
 class TestClassIndex
 {
-    const SOURCES = [
+    public const SOURCES = [
         'Core' => false,
         'Adapter' => false,
         'classes' => true,
         'controllers' => true,
     ];
 
-    const NOT_OVERRIDABLE = [
+    public const NOT_OVERRIDABLE = [
         'PrestaShopAutoload',
-        'Thirtybees\Core\Error\BootstrapErrorHandler'
+        'Thirtybees\Core\Error\BootstrapErrorHandler',
     ];
 
-    const ALIASES = [
+    public const ALIASES = [
         'Collection' => 'PrestaShopCollection',
         'Autoload' => 'PrestaShopAutoload',
         'Backup' => 'PrestaShopBackup',
@@ -92,7 +94,7 @@ class TestClassIndex
                 if (preg_match("/\.php$/", $path) && is_file($path)) {
                     $filename = basename($path);
                     if ($filename !== 'index.php') {
-                        $relative = str_replace($rootDir, "", $path);
+                        $relative = str_replace($rootDir, '', $path);
                         $content = file($path);
                         $classLine = $this->getClassLine($content);
                         if (! $classLine) {
@@ -186,7 +188,6 @@ class TestClassIndex
         throw new RuntimeException("Failed to resolve class name from $classLine");
     }
 
-
     /**
      * @return string[]
      */
@@ -194,7 +195,7 @@ class TestClassIndex
     {
         $missing = [];
         foreach ($this->coreClasses as $key => $coreClass) {
-            $overrideKey = preg_replace("/Core$/", "", $key);
+            $overrideKey = preg_replace('/Core$/', '', $key);
             if (! isset($this->overrideClasses[$overrideKey]) &&
                 $coreClass['type'] === 'class'  &&
                 static::SOURCES[$coreClass['source']] &&

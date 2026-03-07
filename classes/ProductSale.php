@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -58,7 +60,7 @@ class ProductSaleCore
      *
      * @throws PrestaShopException
      */
-    public static function getNbSales()
+    public static function getNbSales(): int
     {
         return (int) Db::readOnly()->getValue(
             (new DbQuery())
@@ -161,7 +163,6 @@ class ProductSaleCore
      * @param int $idLang Language id
      * @param int $pageNumber Start from (optional)
      * @param int $nbProducts Number of products to return (optional)
-     * @param Context|null $context
      * @return array|false
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
@@ -265,7 +266,8 @@ class ProductSaleCore
 				SET `quantity` = CAST(`quantity` AS SIGNED) - '.(int) $qty.', `sale_nbr` = CAST(`sale_nbr` AS SIGNED) - 1, `date_upd` = NOW()
 				WHERE `id_product` = '.(int) $idProduct
             );
-        } elseif ($totalSales == 1) {
+        }
+        if ($totalSales == 1) {
             return $conn->delete('product_sale', 'id_product = '.(int) $idProduct);
         }
 
@@ -275,12 +277,11 @@ class ProductSaleCore
     /**
      * @param int $idProduct
      *
-     * @return int
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getNbrSales($idProduct)
+    public static function getNbrSales($idProduct): int
     {
         $result = Db::readOnly()->getRow('SELECT `sale_nbr` FROM '._DB_PREFIX_.'product_sale WHERE `id_product` = '.(int) $idProduct);
         if (empty($result) || !array_key_exists('sale_nbr', $result)) {

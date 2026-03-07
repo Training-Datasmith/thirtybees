@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Functional\Front;
 
 use Codeception\Example;
@@ -38,7 +40,7 @@ class WebserviceWalkerCest
     {
         // index pages
         $toTest = [
-            ['url' => '/']
+            ['url' => '/'],
         ];
 
         foreach (WebserviceRequest::getResources() as $key => $resource) {
@@ -49,7 +51,7 @@ class WebserviceWalkerCest
 
             // index page
             $toTest[] = [
-                'url' => $url
+                'url' => $url,
             ];
 
             // one detail page
@@ -58,7 +60,7 @@ class WebserviceWalkerCest
                 $obj = (new PrestaShopCollection($class))->getFirst();
                 if (Validate::isLoadedObject($obj)) {
                     $toTest[] = [
-                        'url' => $url . '/' . $obj->id
+                        'url' => $url . '/' . $obj->id,
                     ];
                 }
             }
@@ -73,7 +75,7 @@ class WebserviceWalkerCest
         $toTest[] = ['url' => '/images/stores'];
         $toTest[] = ['url' => '/images/customizations'];
 
-        usort($toTest, function($a, $b) {
+        usort($toTest, function ($a, $b) {
             return strcmp($a['url'], $b['url']);
         });
 
@@ -89,7 +91,7 @@ class WebserviceWalkerCest
     {
         $source = $I->grabPageSource();
         if (! $source) {
-            $I->fail("Empty response");
+            $I->fail('Empty response');
         }
         $result = simplexml_load_string($source);
         if (! $result) {
@@ -99,7 +101,7 @@ class WebserviceWalkerCest
             foreach ($result->errors as $error) {
                 foreach ($error as $c1) {
                     foreach ($c1 as $c2) {
-                        if ($c2->getName() === "message") {
+                        if ($c2->getName() === 'message') {
                             $I->fail($c2 . "\n\n" . $source);
                             return;
                         }

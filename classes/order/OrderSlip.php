@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -450,7 +452,7 @@ class OrderSlipCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function addPartialSlipDetail($orderDetailList)
+    public function addPartialSlipDetail($orderDetailList): void
     {
         Tools::displayAsDeprecated();
 
@@ -485,7 +487,7 @@ class OrderSlipCore extends ObjectModel
                     (new DbQuery())
                         ->select('`rate`')
                         ->from('tax')
-                        ->where('`id_tax` = '.(int) $idTax)
+                        ->where('`id_tax` = '.$idTax)
                 );
 
                 if ($rate > 0) {
@@ -518,7 +520,7 @@ class OrderSlipCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function addSlipDetail($orderDetailList, $productQtyList)
+    public function addSlipDetail($orderDetailList, $productQtyList): void
     {
         Tools::displayAsDeprecated();
 
@@ -577,7 +579,7 @@ class OrderSlipCore extends ObjectModel
     public function getEcoTaxTaxesBreakdown()
     {
         $ecotaxDetail = [];
-        foreach ($this->getOrdersSlipDetail((int) $this->id) as $orderSlipDetails) {
+        foreach (static::getOrdersSlipDetail((int) $this->id) as $orderSlipDetails) {
             $row = Db::readOnly()->getRow(
                 (new DbQuery())
                     ->select('`ecotax_tax_rate` AS `rate`, `ecotax` AS `ecotax_tax_excl`, `ecotax` AS `ecotax_tax_incl`, `product_quantity`')
@@ -607,14 +609,12 @@ class OrderSlipCore extends ObjectModel
     {
         Tools::displayAsDeprecated();
 
-        $result = Db::readOnly()->getArray(
+        return Db::readOnly()->getArray(
             (new DbQuery())
                 ->select('`id_order_slip` AS `id`, `id_order_detail`, `product_quantity`, `amount_tax_excl`, `amount_tax_incl`')
                 ->from('order_slip_detail')
                 ->where('`id_order_slip` = '.(int) $this->id)
         );
-
-        return $result;
     }
 
     /**

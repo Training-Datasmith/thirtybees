@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -76,7 +78,7 @@ class OrderFollowControllerCore extends FrontController
                 Tools::redirect('index.php?controller=order-follow&errorNotReturnable');
             }
             if ($order->id_customer != $this->context->customer->id) {
-                throw new PrestaShopException(Tools::displayError("Order was not placed by this customer"));
+                throw new PrestaShopException(Tools::displayError('Order was not placed by this customer'));
             }
             $orderReturn = new OrderReturn();
             $orderReturn->id_customer = (int) $this->context->customer->id;
@@ -141,9 +143,8 @@ class OrderFollowControllerCore extends FrontController
 
         $this->context->smarty->assign([
             'PS_RETURN_PREFIX' => Configuration::get('PS_RETURN_PREFIX', $this->context->language->id),
-            'ordersReturn' => $ordersReturn
+            'ordersReturn' => $ordersReturn,
         ]);
-        
 
         $this->setTemplate(_PS_THEME_DIR_.'order-follow.tpl');
     }

@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Functional\Front;
 
+use Category;
 use Codeception\Example;
 use PrestaShopDatabaseException;
 use PrestaShopException;
-use Category;
 use Tests\Support\FunctionalTester;
 
 class CategoryWalkerCest
@@ -43,12 +45,11 @@ class CategoryWalkerCest
             if ($category['id_parent']) {
                 $toTest[] = [
                     'name' => $category['name'],
-                    'categoryId' => $category['id_category']
+                    'categoryId' => $category['id_category'],
                 ];
             }
         }
         return $toTest;
     }
-
 
 }

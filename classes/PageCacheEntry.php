@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -24,23 +26,17 @@ use Thirtybees\Core\View\Model\ProductViewModel;
  */
 class PageCacheEntryCore
 {
-    const CONSTANT = 'const';
-    const OBJECT_MODEL = 'obj';
-    const PRODUCT_PROPERTIES = 'prod';
-    const PRODUCT_VIEW = 'product';
-    const SMARTY_OBJECT = 'smarty';
-    const COOKIE_OBJECT = 'cookie';
-    const CONTEXT_OBJECT = 'context';
+    public const CONSTANT = 'const';
+    public const OBJECT_MODEL = 'obj';
+    public const PRODUCT_PROPERTIES = 'prod';
+    public const PRODUCT_VIEW = 'product';
+    public const SMARTY_OBJECT = 'smarty';
+    public const COOKIE_OBJECT = 'cookie';
+    public const CONTEXT_OBJECT = 'context';
 
-    /**
-     * @var bool
-     */
-    private $isNew = true;
+    private bool $isNew = true;
 
-    /**
-     * @var bool
-     */
-    private $valid = true;
+    private bool $valid = true;
 
     /**
      * @var array
@@ -50,14 +46,14 @@ class PageCacheEntryCore
     /**
      * @var string|null
      */
-    private $content = null;
+    private $content;
 
     /**
      * Initialize cache entry using serialized data from cache.
      *
      * @param string $serialized json object representing this entry
      */
-    public function setFromCache($serialized)
+    public function setFromCache($serialized): void
     {
         $this->valid = true;
         $this->isNew = is_null($serialized);
@@ -72,7 +68,6 @@ class PageCacheEntryCore
         }
     }
 
-
     /**
      * Serialize this cache entry to json object.
      *
@@ -82,16 +77,14 @@ class PageCacheEntryCore
     {
         return json_encode([
             'hooks' => $this->hooks,
-            'content' => $this->content
+            'content' => $this->content,
         ], JSON_PRETTY_PRINT);
     }
 
     /**
      * Returns true, if this cache entry exists in cache.
-     *
-     * @return bool
      */
-    public function exists()
+    public function exists(): bool
     {
         return !$this->isNew;
     }
@@ -114,7 +107,7 @@ class PageCacheEntryCore
      *
      * @param string $content
      */
-    public function setContent($content)
+    public function setContent($content): void
     {
         $this->content = $content;
     }
@@ -175,7 +168,7 @@ class PageCacheEntryCore
      *
      * @return string section id
      */
-    public function setHook($moduleId, $hookId, $hookName, $hookParams)
+    public function setHook($moduleId, $hookId, $hookName, $hookParams): string
     {
         $cnt = count($this->hooks) + 1;
         $id = 'hook:' . $cnt;
@@ -195,11 +188,10 @@ class PageCacheEntryCore
             'id' => $id,
             'hook' => $hookName,
             'moduleId' => $moduleId,
-            'params' => $params
+            'params' => $params,
         ];
         return $id;
     }
-
 
     /**
      * This method returns fresh version of cached page. Every dynamic hook in
@@ -219,12 +211,12 @@ class PageCacheEntryCore
             $key = $hook['id'];
             $hookName = $hook['hook'];
             $moduleId = $hook['moduleId'];
-            $params = $hook['params'] ? array_map([$this, 'instantiateParam'], $hook['params']) : [];
+            $params = $hook['params'] ? array_map($this->instantiateParam(...), $hook['params']) : [];
             $hookContent = Hook::execWithoutCache($hookName, $params, $moduleId, false, true, false, null);
             $hookContent = preg_replace('/\$(\d)/', '\\\$$1', $hookContent);
             $pattern = "/<!--\[$key\]-->.*?<!--\[$key\]-->/s";
             $count = 0;
-            $pageContent = preg_replace($pattern, $hookContent, $content, 1, $count);
+            $pageContent = preg_replace($pattern, $hookContent, (string) $content, 1, $count);
             if (preg_last_error() === PREG_NO_ERROR && $count > 0) {
                 $content = $pageContent;
             }
@@ -233,15 +225,15 @@ class PageCacheEntryCore
         // inject new security tokens into page
         if (Configuration::get('PS_TOKEN_ENABLE')) {
             $newToken = Tools::getToken(false);
-            if (preg_match("/static_token[ ]?=[ ]?'([a-f0-9]{32})'/", $content, $matches)) {
-                if (count($matches) > 1 && $matches[1] != '') {
+            if (preg_match("/static_token[ ]?=[ ]?'([a-f0-9]{32})'/", (string) $content, $matches)) {
+                if ($matches[1] != '') {
                     $oldToken = $matches[1];
-                    $content = preg_replace("/$oldToken/", $newToken, $content);
+                    $content = preg_replace("/$oldToken/", $newToken, (string) $content);
                 }
             } else {
-                $content = preg_replace('/name="token" value="[a-f0-9]{32}/', 'name="token" value="'.$newToken, $content);
-                $content = preg_replace('/token=[a-f0-9]{32}"/', 'token='.$newToken.'"', $content);
-                $content = preg_replace('/static_token[ ]?=[ ]?\'[a-f0-9]{32}/', 'static_token = \''.$newToken, $content);
+                $content = preg_replace('/name="token" value="[a-f0-9]{32}/', 'name="token" value="'.$newToken, (string) $content);
+                $content = preg_replace('/token=[a-f0-9]{32}"/', 'token='.$newToken.'"', (string) $content);
+                $content = preg_replace('/static_token[ ]?=[ ]?\'[a-f0-9]{32}/', 'static_token = \''.$newToken, (string) $content);
             }
         }
 
@@ -256,7 +248,7 @@ class PageCacheEntryCore
      * @return mixed
      * @throws PrestaShopException
      */
-    private function instantiateParam($description)
+    private function instantiateParam(array $description)
     {
         $type = $description['type'];
         switch ($type) {
@@ -309,23 +301,15 @@ class PageCacheEntryCore
     private function describeParam($param)
     {
         $type = gettype($param);
-        switch ($type) {
-            case 'string':
-            case 'integer':
-            case 'boolean':
-            case 'double':
-            case 'NULL':
-                return [
-                    'type' => static::CONSTANT,
-                    'value' => $param
-                ];
-            case 'object':
-                return $this->describeObject($param);
-            case 'array':
-                return $this->describeArray($param);
-            default:
-                return null;
-        }
+        return match ($type) {
+            'string', 'integer', 'boolean', 'double', 'NULL' => [
+                'type' => static::CONSTANT,
+                'value' => $param,
+            ],
+            'object' => $this->describeObject($param),
+            'array' => $this->describeArray($param),
+            default => null,
+        };
     }
 
     /**
@@ -337,38 +321,34 @@ class PageCacheEntryCore
      * generally it's not possible.
      *
      * @param array $param
-     *
-     * @return array | null
      */
-    private function describeArray($param)
+    private function describeArray($param): ?array
     {
         if (array_key_exists('id_product', $param) && array_key_exists('category', $param) && array_key_exists('link', $param)) {
             // array created/enhanced by Product::getProductProperties method
             // we will remove all keys that are dynamically added by Product::getProductProperties, and keep the rest
-            $props = array_filter($param, function($key) {
-                return ! in_array($key, [
-                    'allow_oosp',
-                    'category',
-                    'link',
-                    'attribute_price',
-                    'price_tax_exc',
-                    'price',
-                    'price_without_reduction',
-                    'reduction',
-                    'specific_prices',
-                    'quantity',
-                    'quantity_all_versions',
-                    'features',
-                    'attachments',
-                    'virtual',
-                    'pack',
-                    'packItems',
-                    'nopackprice',
-                    'customization_required',
-                    'rate',
-                    'tax_name',
-                ]);
-            }, ARRAY_FILTER_USE_KEY);
+            $props = array_filter($param, fn ($key) => ! in_array($key, [
+                'allow_oosp',
+                'category',
+                'link',
+                'attribute_price',
+                'price_tax_exc',
+                'price',
+                'price_without_reduction',
+                'reduction',
+                'specific_prices',
+                'quantity',
+                'quantity_all_versions',
+                'features',
+                'attachments',
+                'virtual',
+                'pack',
+                'packItems',
+                'nopackprice',
+                'customization_required',
+                'rate',
+                'tax_name',
+            ]), ARRAY_FILTER_USE_KEY);
             if (isset($props['id_image'])) {
                 $idImage = $props['id_image'];
                 if (strpos($idImage, '-')) {
@@ -383,7 +363,7 @@ class PageCacheEntryCore
 
             return [
                 'type' => static::PRODUCT_PROPERTIES,
-                'row' => $props
+                'row' => $props,
             ];
         }
 
@@ -403,25 +383,23 @@ class PageCacheEntryCore
      * it from scratch.
      *
      * @param object $param
-     *
-     * @return array | null
      */
-    private function describeObject($param)
+    private function describeObject($param): ?array
     {
         if ($param instanceof ProductViewModel) {
             return [
                 'type' => static::PRODUCT_VIEW,
                 'id' => (int)$param->id,
-                'cid' => (int)$param->getSelectedCombinationId()
+                'cid' => (int)$param->getSelectedCombinationId(),
             ];
         }
 
-        $classname = get_class($param);
+        $classname = $param::class;
         if ($param instanceof ObjectModelCore) {
             return [
                 'type' => static::OBJECT_MODEL,
                 'class' => $classname,
-                'id' => $param->id
+                'id' => $param->id,
             ];
         }
 

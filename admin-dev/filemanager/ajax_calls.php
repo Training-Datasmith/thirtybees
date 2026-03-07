@@ -20,7 +20,7 @@ switch ($action) {
         $base_folder = FILE_MANAGER_BASE_DIR . fix_dirname($path).'/';
         switch ($info['extension']) {
             case 'zip':
-                $zip = new ZipArchive;
+                $zip = new ZipArchive();
                 if ($zip->open($path) === true) {
                     //make all the folders
                     for ($i = 0; $i < $zip->numFiles; $i++) {
@@ -124,7 +124,7 @@ switch ($action) {
         </div>
         <?php
         if (in_array(strtolower($info['extension']), getFileExtensions('audio'))) {
-        ?>
+            ?>
             <script type="text/javascript">
                 $(document).ready(function () {
 

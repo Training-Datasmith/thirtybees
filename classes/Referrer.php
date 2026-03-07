@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -200,7 +202,7 @@ class ReferrerCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function cacheNewSource($idConnectionsSource)
+    public static function cacheNewSource($idConnectionsSource): void
     {
         if (!$idConnectionsSource) {
             return;
@@ -248,7 +250,7 @@ class ReferrerCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getAjaxProduct($idReferrer, $idProduct, $employee = null)
+    public static function getAjaxProduct($idReferrer, $idProduct, $employee = null): void
     {
         $product = new Product($idProduct, false, Configuration::get('PS_LANG_DEFAULT'));
         $currency = Currency::getCurrencyInstance(Configuration::get('PS_CURRENCY_DEFAULT'));
@@ -386,13 +388,14 @@ class ReferrerCore extends ObjectModel
         }
 
         $conn = Db::readOnly();
-        $orderIds = array_map('intval', array_column($conn->getArray($sql), 'id_order'));
+        $orderIds = array_map(intval(...), array_column($conn->getArray($sql), 'id_order'));
 
         $orders = 0;
         $sales = 0;
 
         if ($orderIds) {
-            $data = $conn->getRow((new DbQuery())
+            $data = $conn->getRow(
+                (new DbQuery())
                 ->select('COUNT(`o`.`id_order`) AS `orders`, SUM(`op`.`amount` / `op`.`conversion_rate`) AS `sales`')
                 ->from('orders', 'o')
                 ->leftJoin('order_payment', 'op', '`o`.`reference` = `op`.`order_reference`')
@@ -406,7 +409,7 @@ class ReferrerCore extends ObjectModel
         }
         return [
             'orders' => $orders,
-            'sales' => $sales
+            'sales' => $sales,
         ];
     }
 
@@ -488,7 +491,7 @@ class ReferrerCore extends ObjectModel
      * @throws PrestaShopException
      * @throws PrestaShopDatabaseException
      */
-    public static function refreshIndex($referrers = null)
+    public static function refreshIndex($referrers = null): void
     {
         $conn = Db::getInstance();
         if (!$referrers || !is_array($referrers)) {

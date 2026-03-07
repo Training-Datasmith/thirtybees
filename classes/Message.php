@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -99,7 +101,6 @@ class MessageCore extends ObjectModel
      *
      * @param int $idOrder Order ID
      * @param bool $private return WITH private messages
-     * @param Context|null $context
      *
      * @return array Messages
      *
@@ -134,7 +135,6 @@ class MessageCore extends ObjectModel
      *
      * @param int $idCart
      * @param bool $private return WITH private messages
-     * @param Context|null $context
      *
      * @return array Messages
      * @throws PrestaShopDatabaseException
@@ -179,7 +179,7 @@ class MessageCore extends ObjectModel
             return false;
         }
 
-        $result = Db::getInstance()->insert(
+        return Db::getInstance()->insert(
             'message_readed',
             [
                 'id_message'  => (int) $idMessage,
@@ -187,7 +187,5 @@ class MessageCore extends ObjectModel
                 'date_add'    => ['type' => 'sql', 'value' => 'NOW()'],
             ]
         );
-
-        return $result;
     }
 }

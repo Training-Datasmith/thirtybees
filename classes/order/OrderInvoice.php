@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -34,9 +36,9 @@
  */
 class OrderInvoiceCore extends ObjectModel
 {
-    const TAX_EXCL = 0;
-    const TAX_INCL = 1;
-    const DETAIL = 2;
+    public const TAX_EXCL = 0;
+    public const TAX_INCL = 1;
+    public const DETAIL = 2;
 
     /**
      * @var array Object model definition
@@ -231,12 +233,11 @@ class OrderInvoiceCore extends ObjectModel
      */
     public static function getCarrier($idOrderInvoice)
     {
-        $carrier = false;
         if ($idCarrier = static::getCarrierId($idOrderInvoice)) {
-            $carrier = new Carrier((int) $idCarrier);
+            return new Carrier((int) $idCarrier);
         }
 
-        return $carrier;
+        return false;
     }
 
     /**
@@ -280,7 +281,7 @@ class OrderInvoiceCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function fixAllShopAddresses()
+    public static function fixAllShopAddresses(): void
     {
         $shopIds = Shop::getShops(false, null, true);
         $db = Db::getInstance();
@@ -452,7 +453,7 @@ class OrderInvoiceCore extends ObjectModel
     public function useOneAfterAnotherTaxComputationMethod()
     {
         // if one of the order details use the tax computation method the display will be different
-        return Db::readOnly()->getValue(
+        if (Db::readOnly()->getValue(
             (new DbQuery())
                 ->select('od.`tax_computation_method`')
                 ->from('order_detail_tax', 'odt')
@@ -460,7 +461,10 @@ class OrderInvoiceCore extends ObjectModel
                 ->where('od.`id_order` = '.(int) $this->id_order)
                 ->where('od.`id_order_invoice` = '.(int) $this->id)
                 ->where('od.`tax_computation_method` = '.(int) TaxCalculator::ONE_AFTER_ANOTHER_METHOD)
-        ) || Configuration::get('PS_INVOICE_TAXES_BREAKDOWN');
+        )) {
+            return true;
+        }
+        return (bool) Configuration::get('PS_INVOICE_TAXES_BREAKDOWN');
     }
 
     /**
@@ -509,7 +513,7 @@ class OrderInvoiceCore extends ObjectModel
         }
 
         foreach ($details as $row) {
-            $rate = (float)round((float)$row['tax_rate'], 3);
+            $rate = round((float)$row['tax_rate'], 3);
             $key = (string)$rate;
             if (!isset($breakdown[$key])) {
                 $breakdown[$key] = [
@@ -546,7 +550,6 @@ class OrderInvoiceCore extends ObjectModel
     /**
      * Returns the shipping taxes breakdown
      *
-     * @param Order $order
      *
      * @return array
      *
@@ -615,7 +618,7 @@ class OrderInvoiceCore extends ObjectModel
         }
 
         if (! $shippingBreakdown) {
-            $shippingBreakdown = [
+            return [
                 [
                     'total_tax_excl' => $this->total_shipping_tax_excl,
                     'rate'           => $order->carrier_tax_rate,
@@ -689,7 +692,7 @@ class OrderInvoiceCore extends ObjectModel
         }
 
         if (!Configuration::get('PS_INVOICE_TAXES_BREAKDOWN') && !Carrier::useProportionateTax()) {
-            $wrappingBreakdown = [
+            return [
                 [
                     'total_tax_excl' => $this->total_wrapping_tax_excl,
                     'rate'           => $totalTaxRate,
@@ -722,7 +725,7 @@ class OrderInvoiceCore extends ObjectModel
         $taxes = [];
         foreach ($result as $row) {
             if ($row['ecotax_tax_excl'] > 0) {
-                $row['ecotax_tax_incl']= round(
+                $row['ecotax_tax_incl'] = round(
                     $row['ecotax_tax_excl'] * (1 + $row['rate'] / 100),
                     _TB_PRICE_DATABASE_PRECISION_
                 );
@@ -787,15 +790,11 @@ class OrderInvoiceCore extends ObjectModel
 
         $row = Db::readOnly()->getRow($query);
 
-        switch ($mod) {
-            case static::TAX_EXCL:
-                return (float)$row['total_paid_tax_excl'];
-            case static::TAX_INCL:
-                return (float)$row['total_paid_tax_incl'];
-            case static::DETAIL:
-            default:
-                return $row;
-        }
+        return match ($mod) {
+            static::TAX_EXCL => (float)$row['total_paid_tax_excl'],
+            static::TAX_INCL => (float)$row['total_paid_tax_incl'],
+            default => $row,
+        };
     }
 
     /**
@@ -939,7 +938,7 @@ class OrderInvoiceCore extends ObjectModel
         $invoiceFormattedNumber = Hook::getFirstResponse(
             'actionInvoiceNumberFormatted',
             [
-                get_class($this) => $this,
+                static::class => $this,
                 'id_lang'        => (int) $idLang,
                 'id_shop'        => (int) $idShop,
                 'number'         => (int) $this->number,
@@ -960,7 +959,6 @@ class OrderInvoiceCore extends ObjectModel
     }
 
     /**
-     * @param array $taxesAmount
      *
      * @return bool
      *
@@ -989,7 +987,6 @@ class OrderInvoiceCore extends ObjectModel
     }
 
     /**
-     * @param array $taxesAmount
      *
      * @return bool
      *

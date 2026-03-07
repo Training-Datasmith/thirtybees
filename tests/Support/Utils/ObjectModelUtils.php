@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Support\Utils;
 
 use ObjectModel;
@@ -32,8 +34,8 @@ class ObjectModelUtils
             foreach ($iterator as $path) {
                 $file = basename($path);
                 if (preg_match("/^.+\.php$/i", $file)) {
-                    $className = str_replace(".php", "", $file);
-                    if ($className !== "index") {
+                    $className = str_replace('.php', '', $file);
+                    if ($className !== 'index') {
                         if (!class_exists($className)) {
                             require_once($path);
                         }

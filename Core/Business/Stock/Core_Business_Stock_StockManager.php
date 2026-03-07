@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -34,7 +36,6 @@
  */
 class Core_Business_Stock_StockManager
 {
-
     /**
      * This will update a Pack quantity and will decrease the quantity of containing Products if needed.
      *
@@ -100,7 +101,6 @@ class Core_Business_Stock_StockManager
             if (Validate::isLoadedObject($stockAvailable)) {
                 /** @var Adapter_PackItemsManager $packItemsManager */
                 $packItemsManager = Adapter_ServiceLocator::get('Adapter_PackItemsManager');
-
 
                 // Update quantity of the pack products
                 if ($packItemsManager->isPack($product)) {

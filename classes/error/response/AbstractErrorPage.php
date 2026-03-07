@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -27,17 +29,12 @@ use Throwable;
  */
 abstract class AbstractErrorPageCore implements ErrorResponseInterface
 {
-
     /**
      * @var string | null
      */
     private $contentType;
 
-    /**
-     * @param ErrorDescription $errorDescription
-     * @return void
-     */
-    public function sendResponse(ErrorDescription $errorDescription)
+    public function sendResponse(ErrorDescription $errorDescription): void
     {
         // get error page content
         $content = $this->renderError($errorDescription);
@@ -62,7 +59,6 @@ abstract class AbstractErrorPageCore implements ErrorResponseInterface
     }
 
     /**
-     * @param ErrorDescription $errorDescription
      * @return string
      */
     public function getPageContent(ErrorDescription $errorDescription)
@@ -77,11 +73,9 @@ abstract class AbstractErrorPageCore implements ErrorResponseInterface
                 $message = "Failed to display exception:\n";
                 $message .= $errorDescription->getMessage();
                 $message .= "\n\nFailure reason:\n";
-                $message .= $t;
-                return $message;
-            } else {
-                return "Fatal error";
+                return $message . $t;
             }
+            return 'Fatal error';
         }
     }
 
@@ -96,7 +90,7 @@ abstract class AbstractErrorPageCore implements ErrorResponseInterface
     protected function displayErrorTemplate($file, $params)
     {
         foreach ($params as $name => $param) {
-            $$name = $param;
+            ${$name} = $param;
         }
 
         ob_start();
@@ -115,7 +109,6 @@ abstract class AbstractErrorPageCore implements ErrorResponseInterface
      * Called at the start of error page rendering, before content is sent to client.
      * Subclasses can use it to add its own content to server response
      *
-     * @param ErrorDescription $errorDescription
      * @return void
      */
     protected function beforeRender(ErrorDescription $errorDescription)
@@ -127,7 +120,6 @@ abstract class AbstractErrorPageCore implements ErrorResponseInterface
      * Called at the end of error page rendering, after content was send to client.
      * Subclasses can use this to implement various logging, cleanup, etc.
      *
-     * @param ErrorDescription $errorDescription
      * @return void
      */
     protected function afterRender(ErrorDescription $errorDescription)
@@ -141,7 +133,6 @@ abstract class AbstractErrorPageCore implements ErrorResponseInterface
     abstract protected function getContentType();
 
     /**
-     * @param ErrorDescription $errorDescription
      * @return string
      */
     abstract protected function renderError(ErrorDescription $errorDescription);

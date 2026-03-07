@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -274,7 +276,7 @@ abstract class Controller extends ControllerCore
             'block' => $block,
             'memory_usage' => memory_get_usage(),
             'peak_memory_usage' => memory_get_peak_usage(),
-            'time' => microtime(true)
+            'time' => microtime(true),
         ];
     }
 
@@ -403,7 +405,8 @@ abstract class Controller extends ControllerCore
         $this->total_cache_size = $this->getVarSize($cache);
 
         // Retrieve module perfs
-        $result = Db::getInstance()->ExecuteS('
+        $result = Db::getInstance()->ExecuteS(
+            '
     		SELECT *
     		FROM '._DB_PREFIX_.'modules_perfs
     		WHERE session = '.(int)Module::$_log_modules_perfs_session.'
@@ -469,7 +472,7 @@ abstract class Controller extends ControllerCore
             $this->array_queries[] = $query_row;
         }
 
-        uasort(ObjectModel::$debug_list, function($a, $b) {
+        uasort(ObjectModel::$debug_list, function ($a, $b) {
             return (count($a) < count($b)) ? 1 : -1;
         });
         arsort(Db::getInstance()->tables);
@@ -770,7 +773,7 @@ abstract class Controller extends ControllerCore
 
             echo '
 				<tr>
-					<td class="pre"><pre>'.preg_replace("/(^\s*)/m", "", htmlspecialchars($data['query'], ENT_NOQUOTES, 'utf-8', false)).'</pre></td>
+					<td class="pre"><pre>'.preg_replace("/(^\s*)/m", '', htmlspecialchars($data['query'], ENT_NOQUOTES, 'utf-8', false)).'</pre></td>
 					<td data-value="'.$data['time'].'"><span '.$this->getTimeColor($data['time'] * 1000).'>'.(round($data['time'] * 1000, 1) < 0.1 ? '< 1' : round($data['time'] * 1000, 1)).'</span></td>
 					<td>'.(int)$data['rows'].'</td>
 					<td data-value="'.$data['filesort'].'">'.($data['filesort'] ? '<span style="color:red">Yes</span>' : '').'</td>

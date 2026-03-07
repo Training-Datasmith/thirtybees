@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Thirtybees\Core\Error;
 
 /**
@@ -10,9 +12,6 @@ namespace Thirtybees\Core\Error;
  */
 class BootstrapErrorHandler
 {
-    /**
-     * @var array
-     */
     private array $errors;
 
     private bool $collect;
@@ -38,14 +37,11 @@ class BootstrapErrorHandler
         $this->errors = [];
     }
 
-    /**
-     * @return void
-     */
-    public function installErrorHandler()
+    public function installErrorHandler(): void
     {
         @ini_set('display_errors', 'off');
         @error_reporting(E_ALL);
-        set_error_handler([$this, 'errorHandler']);
+        set_error_handler($this->errorHandler(...));
     }
 
     /**
@@ -55,25 +51,20 @@ class BootstrapErrorHandler
      * @param string $errstr error message
      * @param string $errfile filename that the error was raised in
      * @param int $errline line number the error was raised at
-     *
-     * @return bool
      */
-    public function errorHandler($errno, $errstr, $errfile, $errline)
+    public function errorHandler($errno, $errstr, $errfile, $errline): bool
     {
         if ($this->collect) {
             $this->errors[] = [
                 'errno' => $errno,
                 'errstr' => $errstr,
                 'errfile' => $errfile,
-                'errline' => $errline
+                'errline' => $errline,
             ];
         }
         return false;
     }
 
-    /**
-     * @return array
-     */
     public function getCollectedErrors(): array
     {
         $this->collect = false;

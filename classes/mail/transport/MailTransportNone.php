@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -19,7 +21,6 @@
 
 namespace Thirtybees\Core\Mail\Transport;
 
-
 use Thirtybees\Core\Mail\MailAddress;
 use Thirtybees\Core\Mail\MailAttachement;
 use Thirtybees\Core\Mail\MailTemplate;
@@ -31,43 +32,27 @@ use Translate;
  */
 class MailTransportNoneCore implements MailTransport
 {
-    /**
-     * @return string
-     */
     public function getName(): string
     {
         return Translate::getAdminTranslation('None', 'Mail');
     }
 
-    /**
-     * @return null
-     */
-    public function getConfigUrl()
+    public function getConfigUrl(): null
     {
         return null;
     }
 
-    /**
-     * @return string
-     */
     public function getDescription(): string
     {
         return Translate::getAdminTranslation('Never send emails (may be useful for testing purposes)', 'Mail');
     }
 
     /**
-     * @param int $idShop
-     * @param int $idLang
-     * @param MailAddress $fromAddress
      * @param MailAddress[] $toAddresses
      * @param MailAddress[] $bccAddresses
-     * @param MailAddress $replyTo
-     * @param string $subject
      * @param MailTemplate[] $templates
-     * @param array $templateVars
      * @param MailAttachement[] $attachements
      *
-     * @return bool
      */
     public function sendMail(
         int         $idShop,

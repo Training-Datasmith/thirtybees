@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -46,7 +48,7 @@ class InstallControllerConsole
     {
         // process command lines parameters
         $datas = new Datas();
-        if (!($argc-1)) {
+        if (!($argc - 1)) {
             $availableArguments = $datas->getArgs();
             echo 'Arguments available:'."\n";
             foreach ($availableArguments as $key => $arg) {

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -56,34 +58,34 @@ class AdminGendersControllerCore extends AdminController
             'delete' => [
                 'text' => $this->l('Delete selected'),
                 'confirm' => $this->l('Delete selected items?'),
-                'icon' => 'icon-trash'
-            ]
+                'icon' => 'icon-trash',
+            ],
         ];
 
         $this->fieldImageSettings = [
             [
                 'inputName' => 'image',
-                'path' => _PS_GENDERS_DIR_
-            ]
+                'path' => _PS_GENDERS_DIR_,
+            ],
         ];
 
         $this->fields_list = [
             'id_gender' => [
                 'title' => $this->l('ID'),
                 'align' => 'center',
-                'class' => 'fixed-width-xs'
+                'class' => 'fixed-width-xs',
             ],
             'name' => [
                 'title' => $this->l('Social title'),
-                'filter_key' => 'b!name'
+                'filter_key' => 'b!name',
             ],
             'image' => [
                 'title' => $this->l('Image'),
                 'align' => 'center',
                 'image' => 'genders',
                 'orderby' => false,
-                'search' => false
-            ]
+                'search' => false,
+            ],
         ];
 
         parent::__construct();
@@ -99,7 +101,7 @@ class AdminGendersControllerCore extends AdminController
             $this->page_header_toolbar_btn['new_gender'] = [
                 'href' => static::$currentIndex.'&addgender&token='.$this->token,
                 'desc' => $this->l('Add new title', null, null, false),
-                'icon' => 'process-icon-new'
+                'icon' => 'process-icon-new',
             ];
         }
 
@@ -117,7 +119,7 @@ class AdminGendersControllerCore extends AdminController
         $this->fields_form = [
             'legend' => [
                 'title' => $this->l('Social titles'),
-                'icon' => 'icon-male'
+                'icon' => 'icon-male',
             ],
             'input' => [
                 [
@@ -127,33 +129,33 @@ class AdminGendersControllerCore extends AdminController
                     'lang' => true,
                     'col' => 4,
                     'hint' => $this->l('Invalid characters:').' 0-9!&lt;&gt;,;?=+()@#"�{}_$%:',
-                    'required' => true
+                    'required' => true,
                 ],
                 [
                     'type' => 'file',
                     'label' => $this->l('Image'),
                     'name' => 'image',
                     'col' => 6,
-                    'value' => true
+                    'value' => true,
                 ],
                 [
                     'type' => 'text',
                     'label' => $this->l('Image width'),
                     'name' => 'img_width',
                     'col' => 2,
-                    'hint' => $this->l('Image width in pixels. Enter "0" to use the original size.')
+                    'hint' => $this->l('Image width in pixels. Enter "0" to use the original size.'),
                 ],
                 [
                     'type' => 'text',
                     'label' => $this->l('Image height'),
                     'name' => 'img_height',
                     'col' => 2,
-                    'hint' => $this->l('Image height in pixels. Enter "0" to use the original size.')
-                ]
+                    'hint' => $this->l('Image height in pixels. Enter "0" to use the original size.'),
+                ],
             ],
             'submit' => [
                 'title' => $this->l('Save'),
-            ]
+            ],
         ];
 
         /** @var Gender $obj */
@@ -164,7 +166,7 @@ class AdminGendersControllerCore extends AdminController
         $this->fields_value = [
             'img_width' => 16,
             'img_height' => 16,
-            'image' => $obj->getImage()
+            'image' => $obj->getImage(),
         ];
 
         return parent::renderForm();

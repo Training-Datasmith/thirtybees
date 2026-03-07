@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Thirtybees\Core\View\Model;
 
-use Currency;
-use Order;
 use Address;
 use Carrier;
+use Currency;
+use Order;
 use State;
 
 class GuestTrackingOrderModelCore extends Order

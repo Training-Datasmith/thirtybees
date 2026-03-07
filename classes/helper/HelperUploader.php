@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -34,12 +36,12 @@
  */
 class HelperUploaderCore extends Uploader
 {
-    const DEFAULT_TEMPLATE_DIRECTORY = 'helpers/uploader';
-    const DEFAULT_TEMPLATE           = 'simple.tpl';
-    const DEFAULT_AJAX_TEMPLATE      = 'ajax.tpl';
+    public const DEFAULT_TEMPLATE_DIRECTORY = 'helpers/uploader';
+    public const DEFAULT_TEMPLATE           = 'simple.tpl';
+    public const DEFAULT_AJAX_TEMPLATE      = 'ajax.tpl';
 
-    const TYPE_IMAGE                 = 'image';
-    const TYPE_FILE                  = 'file';
+    public const TYPE_IMAGE                 = 'image';
+    public const TYPE_FILE                  = 'file';
 
     /**
      * @var Context
@@ -61,20 +63,11 @@ class HelperUploaderCore extends Uploader
      */
     private $_files;
 
-    /**
-     * @var string
-     */
-    private $_name;
+    private ?string $_name = null;
 
-    /**
-     * @var int
-     */
-    private $_max_files;
+    private ?int $_max_files = null;
 
-    /**
-     * @var bool
-     */
-    private $_multiple;
+    private ?bool $_multiple = null;
 
     /**
      * @var string
@@ -91,15 +84,9 @@ class HelperUploaderCore extends Uploader
      */
     private $_title;
 
-    /**
-     * @var string
-     */
-    private $_url;
+    private ?string $_url = null;
 
-    /**
-     * @var bool
-     */
-    private $_use_ajax;
+    private ?bool $_use_ajax = null;
 
     /**
      * @param Context $value
@@ -327,23 +314,25 @@ class HelperUploaderCore extends Uploader
     public function getTemplateFile($template)
     {
         $controller = $this->getContext()->controller;
-        if (preg_match_all('/((?:^|[A-Z])[a-z]+)/', get_class($controller), $matches) !== false) {
+        if (preg_match_all('/((?:^|[A-Z])[a-z]+)/', $controller::class, $matches) !== false) {
             $controllerName = strtolower($matches[0][1]);
         }
-
         if ($controller instanceof ModuleAdminController &&
             file_exists($this->_normalizeDirectory($controller->getTemplatePath()).$this->getTemplateDirectory().$template)) {
             return $this->_normalizeDirectory($controller->getTemplatePath()).$this->getTemplateDirectory().$template;
-        } elseif ($controller instanceof AdminController && isset($controllerName)
+        }
+        if ($controller instanceof AdminController && isset($controllerName)
             && file_exists($this->_normalizeDirectory($this->getContext()->smarty->getTemplateDir(0)).'controllers'.DIRECTORY_SEPARATOR.$controllerName.DIRECTORY_SEPARATOR.$this->getTemplateDirectory().$template)) {
             return $this->_normalizeDirectory($this->getContext()->smarty->getTemplateDir(0)).'controllers'.DIRECTORY_SEPARATOR.$controllerName.DIRECTORY_SEPARATOR.$this->getTemplateDirectory().$template;
-        } elseif (file_exists($this->_normalizeDirectory($this->getContext()->smarty->getTemplateDir(1)).$this->getTemplateDirectory().$template)) {
-            return $this->_normalizeDirectory($this->getContext()->smarty->getTemplateDir(1)).$this->getTemplateDirectory().$template;
-        } elseif (file_exists($this->_normalizeDirectory($this->getContext()->smarty->getTemplateDir(0)).$this->getTemplateDirectory().$template)) {
-            return $this->_normalizeDirectory($this->getContext()->smarty->getTemplateDir(0)).$this->getTemplateDirectory().$template;
-        } else {
-            return $this->getTemplateDirectory().$template;
         }
+        if (file_exists($this->_normalizeDirectory($this->getContext()->smarty->getTemplateDir(1)).$this->getTemplateDirectory().$template)) {
+            return $this->_normalizeDirectory($this->getContext()->smarty->getTemplateDir(1)).$this->getTemplateDirectory().$template;
+        }
+
+        if (file_exists($this->_normalizeDirectory($this->getContext()->smarty->getTemplateDir(0)).$this->getTemplateDirectory().$template)) {
+            return $this->_normalizeDirectory($this->getContext()->smarty->getTemplateDir(0)).$this->getTemplateDirectory().$template;
+        }
+        return $this->getTemplateDirectory().$template;
     }
 
     /**

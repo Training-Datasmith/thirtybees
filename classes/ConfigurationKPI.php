@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -41,20 +43,14 @@ class ConfigurationKPICore extends Configuration implements InitializationCallba
      */
     public static $definition_backup;
 
-    /**
-     * @return void
-     */
-    public static function setKpiDefinition()
+    public static function setKpiDefinition(): void
     {
         ConfigurationKPI::$definition_backup = Configuration::$definition;
         Configuration::$definition['table'] = 'configuration_kpi';
         Configuration::$definition['primary'] = 'id_configuration_kpi';
     }
 
-    /**
-     * @return void
-     */
-    public static function unsetKpiDefinition()
+    public static function unsetKpiDefinition(): void
     {
         Configuration::$definition = ConfigurationKPI::$definition_backup;
     }
@@ -78,11 +74,10 @@ class ConfigurationKPICore extends Configuration implements InitializationCallba
     }
 
     /**
-     * @return void
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function loadConfiguration()
+    public static function loadConfiguration(): void
     {
         ConfigurationKPI::setKpiDefinition();
         parent::loadConfiguration();
@@ -190,7 +185,7 @@ class ConfigurationKPICore extends Configuration implements InitializationCallba
      *
      * @throws PrestaShopException
      */
-    public static function set($key, $values, $idShopGroup = null, $idShop = null)
+    public static function set($key, $values, $idShopGroup = null, $idShop = null): void
     {
         ConfigurationKPI::setKpiDefinition();
         parent::set($key, $values, $idShopGroup, $idShop);
@@ -258,7 +253,7 @@ class ConfigurationKPICore extends Configuration implements InitializationCallba
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function deleteFromContext($key)
+    public static function deleteFromContext($key): void
     {
         ConfigurationKPI::setKpiDefinition();
         parent::deleteFromContext($key);
@@ -332,12 +327,10 @@ class ConfigurationKPICore extends Configuration implements InitializationCallba
     }
 
     /**
-     * @param Db $conn
-     * @return void
      *
      * @throws PrestaShopException
      */
-    public static function initializationCallback(Db $conn)
+    public static function initializationCallback(Db $conn): void
     {
         $conn->delete('configuration_kpi_lang', 'IFNULL(value, "") = ""');
     }

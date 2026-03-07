@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -29,17 +31,16 @@ class WorkQueueImmediateExecutorCore implements WorkQueueExecutor
     /**
      * Executor identifier
      */
-    const INSTANT_EXECUTOR = 'instant';
+    public const INSTANT_EXECUTOR = 'instant';
 
     /**
      * @var static
      */
-    protected static $instance = null;
+    protected static $instance;
 
     /**
      * Immediately runs work queue task
      *
-     * @param WorkQueueTask $task
      * @return WorkQueueFuture work queue future descriptor
      * @throws PrestaShopException
      */
@@ -51,7 +52,6 @@ class WorkQueueImmediateExecutorCore implements WorkQueueExecutor
     /**
      * Immediately runs work queue task
      *
-     * @param WorkQueueTask $task
      * @return WorkQueueFuture work queue future descriptor
      * @throws PrestaShopException
      */
@@ -72,21 +72,15 @@ class WorkQueueImmediateExecutorCore implements WorkQueueExecutor
         return static::INSTANT_EXECUTOR;
     }
 
-    /**
-     * @return bool
-     */
-    public function supportsImmediateExecution()
+    public function supportsImmediateExecution(): bool
     {
         return true;
     }
 
     /**
      * Generates id for task
-     *
-     * @param WorkQueueTask $task
-     * @return string
      */
-    protected function getId(WorkQueueTask $task)
+    protected function getId(WorkQueueTask $task): string
     {
         if ($task->id) {
             return WorkQueueTask::class . '::' . $task->id;

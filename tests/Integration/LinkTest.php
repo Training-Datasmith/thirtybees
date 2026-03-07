@@ -1,14 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Integration;
 
 use Codeception\Test\Unit;
 use Configuration;
 use Link;
+
+use function PHPUnit\Framework\assertEquals;
+
 use PrestaShopException;
 use Product;
 use Tests\Support\UnitTester;
-use function PHPUnit\Framework\assertEquals;
 
 class LinkTest extends Unit
 {
@@ -83,7 +87,7 @@ class LinkTest extends Unit
     public function testImageLinkForMultiLangProduct()
     {
         $this->raised = false;
-        $previous = set_error_handler(function() {
+        $previous = set_error_handler(function () {
             $this->raised = true;
             return true;
         });
@@ -94,7 +98,7 @@ class LinkTest extends Unit
             $product = new Product(1);
             $imageId = $product->getCoverWs();
             assertEquals('products/1-Niara_cart/candle.jpg', static::getRelativeUrl($link->getImageLink($product->link_rewrite, $imageId, 'cart')));
-            assertEquals(true, $this->raised, "Error should have been raised");
+            assertEquals(true, $this->raised, 'Error should have been raised');
         } finally {
             Configuration::updateValue('PS_REWRITING_SETTINGS', 0);
             set_error_handler($previous);

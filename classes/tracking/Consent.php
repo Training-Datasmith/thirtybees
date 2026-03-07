@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -33,9 +35,9 @@ use Thirtybees\Core\InitializationCallback;
  */
 class ConsentCore extends ObjectModel implements InitializationCallback
 {
-    const CONSENT_ALL = "all";
-    const PREFIX_GROUP = "group_";
-    const PREFIX_EXTRACTOR = "extractor_";
+    public const CONSENT_ALL = 'all';
+    public const PREFIX_GROUP = 'group_';
+    public const PREFIX_EXTRACTOR = 'extractor_';
 
     /**
      * @var array Object model definition
@@ -54,8 +56,8 @@ class ConsentCore extends ObjectModel implements InitializationCallback
         'keys' => [
             'tracking_consent' => [
                 'identifier' => ['type' => ObjectModel::UNIQUE_KEY, 'columns' => ['identifier']],
-            ]
-        ]
+            ],
+        ],
     ];
 
     /**
@@ -83,7 +85,6 @@ class ConsentCore extends ObjectModel implements InitializationCallback
      */
     public $date_upd;
 
-
     /**
      * Returns list of allowed extractors
      *
@@ -110,7 +111,6 @@ class ConsentCore extends ObjectModel implements InitializationCallback
     /**
      * Return all consents
      *
-     * @param ReadOnlyConnection $conn
      *
      * @return array
      * @throws PrestaShopDatabaseException
@@ -119,7 +119,8 @@ class ConsentCore extends ObjectModel implements InitializationCallback
     public static function getConsents(ReadOnlyConnection $conn)
     {
         $consents = [];
-        $result = $conn->getArray((new DbQuery())
+        $result = $conn->getArray(
+            (new DbQuery())
             ->select('identifier, consent')
             ->from(static::$definition['table'])
         );
@@ -168,11 +169,9 @@ class ConsentCore extends ObjectModel implements InitializationCallback
     /**
      * Callback method to initialize class
      *
-     * @param Db $conn
-     * @return void
      * @throws PrestaShopException
      */
-    public static function initializationCallback(Db $conn)
+    public static function initializationCallback(Db $conn): void
     {
         $consents = static::getConsents($conn);
         $groups = DataExtractor::getGroups();

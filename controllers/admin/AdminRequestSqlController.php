@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -36,7 +38,6 @@
  */
 class AdminRequestSqlControllerCore extends AdminController
 {
-
     /**
      * AdminRequestSqlControllerCore constructor.
      *
@@ -462,7 +463,7 @@ class AdminRequestSqlControllerCore extends AdminController
         $id = Tools::getIntValue($this->identifier);
         $sql = RequestSql::getRequestSqlById($id);
         if (! $sql) {
-            $this->errors[] =Tools::displayError("SQL with not found");
+            $this->errors[] = Tools::displayError('SQL with not found');
             $this->redirect_after = Context::getContext()->link->getAdminLink('AdminRequestSql');
             return;
         }
@@ -472,7 +473,7 @@ class AdminRequestSqlControllerCore extends AdminController
         $file = 'request_sql_'.$id.'.csv';
         $separator = Configuration::get('TB_EXPORT_FIELD_DELIMITER') ? Configuration::get('TB_EXPORT_FIELD_DELIMITER') : ',';
         $enclosure = '"';
-        $escape = "";
+        $escape = '';
 
         $conn = Db::readOnly();
         try {
@@ -484,7 +485,7 @@ class AdminRequestSqlControllerCore extends AdminController
         }
 
         if (! $results) {
-            $this->errors[] =Tools::displayError('This SQL query has no result.');
+            $this->errors[] = Tools::displayError('This SQL query has no result.');
             $this->redirect_after = Context::getContext()->link->getAdminLink('AdminRequestSql');
             return;
         }

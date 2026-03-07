@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -24,7 +26,6 @@ namespace Thirtybees\Core\WorkQueue;
  */
 interface WorkQueueExecutor
 {
-
     /**
      * Returns unique identifier of executor
      *
@@ -35,7 +36,6 @@ interface WorkQueueExecutor
     /**
      * Enqueues work queue task
      *
-     * @param WorkQueueTask $task
      * @return WorkQueueFuture
      */
     public function enqueue(WorkQueueTask $task);
@@ -46,7 +46,6 @@ interface WorkQueueExecutor
      * This method must be implemented if supportsImmediateExecution()
      * method returns true
      *
-     * @param WorkQueueTask $task
      * @return WorkQueueFuture
      */
     public function run(WorkQueueTask $task);

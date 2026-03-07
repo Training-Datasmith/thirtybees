@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -34,9 +36,9 @@
  */
 class OrderCore extends ObjectModel
 {
-    const ROUND_ITEM = 1;
-    const ROUND_LINE = 2;
-    const ROUND_TOTAL = 3;
+    public const ROUND_ITEM = 1;
+    public const ROUND_LINE = 2;
+    public const ROUND_TOTAL = 3;
 
     /**
      * @var array Object model definition
@@ -263,7 +265,7 @@ class OrderCore extends ObjectModel
     /**
      * used to cache order customer
      */
-    protected $cacheCustomer = null;
+    protected $cacheCustomer;
 
     /**
      * @var int
@@ -275,9 +277,6 @@ class OrderCore extends ObjectModel
      */
     protected static $_historyCache = [];
 
-    /**
-     * @var bool|null
-     */
     protected ?bool $cacheCanEditProducts = null;
 
     /**
@@ -340,7 +339,7 @@ class OrderCore extends ObjectModel
      *
      * @deprecated 1.1.0
      */
-    public function roundAmounts()
+    public function roundAmounts(): void
     {
         Tools::displayAsDeprecated('No longer needed, ObjectModel rounds now its self.');
     }
@@ -356,8 +355,6 @@ class OrderCore extends ObjectModel
     /**
      * Does NOT delete a product but "cancel" it (which means return/refund/delete it depending of the case)
      *
-     * @param Order $order
-     * @param OrderDetail $orderDetail
      * @param int $quantity
      *
      * @return bool
@@ -370,17 +367,16 @@ class OrderCore extends ObjectModel
         if (!(int) $this->getCurrentState() || !Validate::isLoadedObject($orderDetail)) {
             return false;
         }
-
         if ($this->hasBeenDelivered()) {
             if (!Configuration::get('PS_ORDER_RETURN', null, null, $this->id_shop)) {
                 throw new PrestaShopException('PS_ORDER_RETURN is not defined in table configuration');
             }
             $orderDetail->product_quantity_return += (int) $quantity;
-
             return $orderDetail->update();
-        } elseif ($this->hasBeenPaid()) {
-            $orderDetail->product_quantity_refunded += (int) $quantity;
+        }
 
+        if ($this->hasBeenPaid()) {
+            $orderDetail->product_quantity_refunded += (int) $quantity;
             return $orderDetail->update();
         }
 
@@ -448,13 +444,21 @@ class OrderCore extends ObjectModel
 
         /* Update order */
         $shippingDiffTaxIncl = $this->total_shipping_tax_incl - round(
-            $cart->getPackageShippingCost($this->id_carrier, true, null,
-                                          $this->getCartProducts()),
+            $cart->getPackageShippingCost(
+                $this->id_carrier,
+                true,
+                null,
+                $this->getCartProducts()
+            ),
             _TB_PRICE_DATABASE_PRECISION_
         );
         $shippingDiffTaxExcl = $this->total_shipping_tax_excl - round(
-            $cart->getPackageShippingCost($this->id_carrier, false, null,
-                                          $this->getCartProducts()),
+            $cart->getPackageShippingCost(
+                $this->id_carrier,
+                false,
+                null,
+                $this->getCartProducts()
+            ),
             _TB_PRICE_DATABASE_PRECISION_
         );
         $this->total_shipping -= $shippingDiffTaxIncl;
@@ -504,12 +508,11 @@ class OrderCore extends ObjectModel
             }
 
             return $this->update();
-        } else {
-            $orderDetail->total_price_tax_incl -= $productPriceTaxIncl;
-            $orderDetail->total_price_tax_excl -= $productPriceTaxExcl;
-            $orderDetail->total_shipping_price_tax_incl -= $shippingDiffTaxIncl;
-            $orderDetail->total_shipping_price_tax_excl -= $shippingDiffTaxExcl;
         }
+        $orderDetail->total_price_tax_incl -= $productPriceTaxIncl;
+        $orderDetail->total_price_tax_excl -= $productPriceTaxExcl;
+        $orderDetail->total_shipping_price_tax_incl -= $shippingDiffTaxIncl;
+        $orderDetail->total_shipping_price_tax_excl -= $shippingDiffTaxExcl;
 
         return $orderDetail->update() && $this->update();
     }
@@ -534,7 +537,8 @@ class OrderCore extends ObjectModel
         $conn = Db::getInstance();
         if ($this->hasBeenDelivered()) {
             return $conn->update('customization', ['quantity_returned' => ['type' => 'sql', 'value' => '`quantity_returned` + '.(int) $quantity]], '`id_customization` = '.(int) $idCustomization.' AND `id_cart` = '.(int) $this->id_cart.' AND `id_product` = '.(int) $orderDetail->product_id);
-        } elseif ($this->hasBeenPaid()) {
+        }
+        if ($this->hasBeenPaid()) {
             return $conn->update('customization', ['quantity_refunded' => ['type' => 'sql' , 'value' => '`quantity_refunded` + '.(int) $quantity]], '`id_customization` = '.(int) $idCustomization.' AND `id_cart` = '.(int) $this->id_cart.' AND `id_product` = '.(int) $orderDetail->product_id);
         }
         if (!$conn->update('customization', ['quantity' => ['type' => 'sql' , 'value' => '`quantity` - '.(int) $quantity]], '`id_customization` = '.(int) $idCustomization.' AND `id_cart` = '.(int) $this->id_cart.' AND `id_product` = '.(int) $orderDetail->product_id)) {
@@ -662,7 +666,7 @@ class OrderCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function setProductPrices(&$row)
+    public function setProductPrices(&$row): void
     {
         $taxCalculator = OrderDetail::getTaxCalculatorStatic((int) $row['id_order_detail']);
         $row['tax_calculator'] = $taxCalculator;
@@ -1003,7 +1007,6 @@ class OrderCore extends ObjectModel
     /**
      * Returns true, if order product list can be modified -- products can be added, deleted, or change quantity
      *
-     * @return bool
      *
      * @throws PrestaShopException
      */
@@ -1012,12 +1015,10 @@ class OrderCore extends ObjectModel
         if (is_null($this->cacheCanEditProducts)) {
             $this->cacheCanEditProducts = $this->resolveCanEditProducts();
         }
-        return (bool) $this->cacheCanEditProducts;
+        return $this->cacheCanEditProducts;
     }
 
     /**
-     * @return bool
-     *
      * @throws PrestaShopException
      */
     protected function resolveCanEditProducts(): bool
@@ -1033,7 +1034,6 @@ class OrderCore extends ObjectModel
         }
         return true;
     }
-
 
     /**
      * Has products returned by the merchant or by the customer?
@@ -1110,7 +1110,6 @@ class OrderCore extends ObjectModel
      *
      * @param int $idCustomer Customer id
      * @param bool $showHiddenStatus Display or not hidden order statuses
-     * @param Context|null $context
      *
      * @return array Customer orders
      *
@@ -1190,7 +1189,6 @@ class OrderCore extends ObjectModel
 
     /**
      * @param int|null $limit
-     * @param Context|null $context
      *
      * @return array
      *
@@ -1218,7 +1216,7 @@ class OrderCore extends ObjectModel
                 ->leftJoin('customer', 'c', 'c.`id_customer` = o.`id_customer`')
                 ->where('1'.' '.Shop::addSqlRestriction(false, 'o'))
                 ->orderBy('o.`date_add` DESC')
-                ->limit((int) $limit ? (int) $limit : 0)
+                ->limit((int) $limit ?: 0)
         );
     }
 
@@ -1468,7 +1466,7 @@ class OrderCore extends ObjectModel
                 ->setTime(23, 59, 59);
             $now = new DateTime();
             return $now < $threshold;
-        } catch (Throwable $e) {
+        } catch (Throwable) {
             return false;
         }
     }
@@ -1574,7 +1572,7 @@ class OrderCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function setInvoice($useExistingPayment = false)
+    public function setInvoice($useExistingPayment = false): void
     {
         if (!$this->hasInvoice()) {
             if ($id = (int) $this->getOrderInvoiceIdIfHasDelivery()) {
@@ -1591,7 +1589,7 @@ class OrderCore extends ObjectModel
             $this->setInvoiceDetails($orderInvoice);
 
             if (Configuration::get('PS_INVOICE')) {
-                $this->setLastInvoiceNumber($orderInvoice->id, $this->id_shop);
+                static::setLastInvoiceNumber($orderInvoice->id, $this->id_shop);
             }
 
             $conn = Db::getInstance();
@@ -1682,8 +1680,8 @@ class OrderCore extends ObjectModel
                 $invoiceNumber = Hook::getFirstResponse(
                     'actionSetInvoice',
                     [
-                        get_class($this)         => $this,
-                        get_class($orderInvoice) => $orderInvoice,
+                        static::class         => $this,
+                        $orderInvoice::class => $orderInvoice,
                         'use_existing_payment'   => (bool) $useExistingPayment,
                     ]
                 );
@@ -1749,7 +1747,7 @@ class OrderCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public function setDeliverySlip()
+    public function setDeliverySlip(): void
     {
         if (!$this->hasInvoice()) {
             $orderInvoice = new OrderInvoice();
@@ -1821,7 +1819,7 @@ class OrderCore extends ObjectModel
     /**
      * @throws PrestaShopException
      */
-    public function setDelivery()
+    public function setDelivery(): void
     {
         // Get all invoice
         $orderInvoiceCollection = $this->getInvoicesCollection();
@@ -2041,11 +2039,11 @@ class OrderCore extends ObjectModel
     public function addWs($autodate = true, $nullValues = false)
     {
         if (! $this->module) {
-            throw new PrestaShopException("Payment module not specified");
+            throw new PrestaShopException('Payment module not specified');
         }
         $paymentModule = Module::getInstanceByName($this->module);
         if ($paymentModule === false) {
-           throw new PrestaShopException(sprintf("Payment module '%s' not found", $this->module));
+            throw new PrestaShopException(sprintf("Payment module '%s' not found", $this->module));
         }
         if ($paymentModule instanceof PaymentModule) {
             $customer = new Customer($this->id_customer);
@@ -2062,9 +2060,8 @@ class OrderCore extends ObjectModel
             );
             $this->id = $paymentModule->currentOrder;
             return true;
-        } else {
-            throw new PrestaShopException(sprintf("Module '%s' is not payment module", $this->module));
         }
+        throw new PrestaShopException(sprintf("Module '%s' is not payment module", $this->module));
     }
 
     /**
@@ -2216,10 +2213,10 @@ class OrderCore extends ObjectModel
         // we kept the currency rate for historization reasons
         $orderPayment->conversion_rate = ($currency ? $currency->conversion_rate : 1);
         // if payment_method is define, we used this
-        $orderPayment->payment_method = ($paymentMethod ? $paymentMethod : $this->payment);
+        $orderPayment->payment_method = ($paymentMethod ?: $this->payment);
         $orderPayment->transaction_id = $paymentTransactionId;
         $orderPayment->amount = $amountPaid;
-        $orderPayment->date_add = ($date ? $date : null);
+        $orderPayment->date_add = ($date ?: null);
 
         // Add time to the date if needed
         if ($orderPayment->date_add != null && preg_match('/^[0-9]+-[0-9]+-[0-9]+$/', $orderPayment->date_add)) {
@@ -2326,7 +2323,6 @@ class OrderCore extends ObjectModel
                 ->groupBy('c.`id_carrier`')
         );
     }
-
 
     /**
      * Get all order_slips for the current order
@@ -2745,9 +2741,8 @@ class OrderCore extends ObjectModel
 
         if ($order['min'] == $order['max']) {
             return $this->reference;
-        } else {
-            return $this->reference.'#'.($this->id + 1 - $order['min']);
         }
+        return $this->reference.'#'.($this->id + 1 - $order['min']);
     }
 
     /**
@@ -2790,11 +2785,7 @@ class OrderCore extends ObjectModel
      */
     public static function sortDocuments($a, $b)
     {
-        if ($a->date_add == $b->date_add) {
-            return 0;
-        }
-
-        return ($a->date_add < $b->date_add) ? -1 : 1;
+        return $a->date_add <=> $b->date_add;
     }
 
     /**
@@ -2872,7 +2863,6 @@ class OrderCore extends ObjectModel
         return true;
     }
 
-
     /**
      * By default this function was made for invoice, to compute tax amounts and balance delta (because of computation made on round values).
      * If you provide $limitToOrderDetails, only these item will be taken into account. This option is useful for order slips for example,
@@ -2918,7 +2908,7 @@ class OrderCore extends ObjectModel
                 if (! isset($cheapestProductDiscounts[$cheapestProductId])) {
                     $cheapestProductDiscounts[$cheapestProductId] = [
                         'tax_amount' => 0,
-                        'tax_base'  => 0
+                        'tax_base'  => 0,
                     ];
                 }
 
@@ -2928,7 +2918,7 @@ class OrderCore extends ObjectModel
         }
 
         // Get order_details
-        $orderDetails = $limitToOrderDetails ? $limitToOrderDetails : $this->getOrderDetailList();
+        $orderDetails = $limitToOrderDetails ?: $this->getOrderDetailList();
         $taxRates = [];
         foreach ($orderDetails as $orderDetail) {
             $idOrderDetail = $orderDetail['id_order_detail'];
@@ -2988,7 +2978,7 @@ class OrderCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public function updateOrderDetailTax()
+    public function updateOrderDetailTax(): void
     {
         $orderDetailTaxRowsToInsert = $this->getProductTaxesDetails();
 
@@ -3050,7 +3040,7 @@ class OrderCore extends ObjectModel
      * @param int $currencyId
      * @throws PrestaShopException
      */
-    public function adjustTotalPaidAmount($amount, $currencyId)
+    public function adjustTotalPaidAmount($amount, $currencyId): void
     {
         $currencyId = (int)$currencyId;
         $amount = (float)$amount;
@@ -3074,9 +3064,6 @@ class OrderCore extends ObjectModel
         $this->total_paid_real += $amountOrderCurrency;
     }
 
-    /**
-     * @return DateTime|null
-     */
     public function getDeliveryDate(): ?DateTime
     {
         $deliveryDate = DateTime::createFromFormat('Y-m-d H:i:s', (string)$this->delivery_date);

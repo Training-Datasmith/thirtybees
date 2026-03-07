@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -57,7 +59,7 @@ class HelperViewCore extends Helper
     /**
      * @var string|null If not null, a title will be added on that list
      */
-    public $title = null;
+    public $title;
 
     /**
      * HelperViewCore constructor.

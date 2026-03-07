@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -179,7 +181,8 @@ class AdminPaymentControllerCore extends AdminController
         }
 
         $conn = Db::getInstance();
-        $conn->execute('
+        $conn->execute(
+            '
 			DELETE FROM `'._DB_PREFIX_.'module_'.bqSQL($type).'`
 			WHERE id_shop = '.$this->context->shop->id.'
 			AND `id_module` IN ('.implode(', ', $modules).')'

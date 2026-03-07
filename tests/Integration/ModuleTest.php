@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Integration;
 
 use Codeception\Test\Unit;
@@ -12,7 +14,6 @@ use Tests\Support\UnitTester;
 
 class ModuleTest extends Unit
 {
-
     /**
      * @var UnitTester
      */
@@ -40,7 +41,7 @@ class ModuleTest extends Unit
      */
     public function listModulesOnDisk()
     {
-        $modules = array();
+        $modules = [];
         foreach (scandir(_PS_MODULE_DIR_) as $entry) {
             if ($entry[0] !== '.') {
                 if (file_exists(_PS_MODULE_DIR_.$entry.DIRECTORY_SEPARATOR.$entry.'.php')) {
@@ -80,7 +81,7 @@ class ModuleTest extends Unit
      */
     public function testValidModuleNameIsEnabled()
     {
-        $this->assertTrue(Module::isEnabled("coreupdater"));
+        $this->assertTrue(Module::isEnabled('coreupdater'));
     }
 
     /**
@@ -89,7 +90,7 @@ class ModuleTest extends Unit
      */
     public function testValidModuleNameGetModuleId()
     {
-        $this->assertTrue(!!Module::getModuleIdByName("coreupdater"));
+        $this->assertTrue(!!Module::getModuleIdByName('coreupdater'));
     }
 
     /**
@@ -98,7 +99,7 @@ class ModuleTest extends Unit
      */
     public function testBackwardCompatibilityModuleNameIsEnabled()
     {
-        $this->assertTrue(Module::isEnabled("CoreUpdater"));
+        $this->assertTrue(Module::isEnabled('CoreUpdater'));
     }
 
     /**
@@ -107,7 +108,7 @@ class ModuleTest extends Unit
      */
     public function testBackwardCompatibilityModuleNameGetModuleId()
     {
-        $this->assertTrue(!!Module::getModuleIdByName("CoreUpdater"));
+        $this->assertTrue(!!Module::getModuleIdByName('CoreUpdater'));
     }
 
     /**
@@ -117,8 +118,8 @@ class ModuleTest extends Unit
      */
     public function testMultipleInstantiation()
     {
-        $this->assertTrue(!!Module::getInstanceByName("coreupdater"));
-        $this->assertTrue(!!Module::getInstanceByName("CoreUpdater"));
+        $this->assertTrue(!!Module::getInstanceByName('coreupdater'));
+        $this->assertTrue(!!Module::getInstanceByName('CoreUpdater'));
     }
 
 }

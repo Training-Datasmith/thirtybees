@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -1339,7 +1341,7 @@ class InstallXmlLoader
         // Get all results
         $nodes = $nodesLang = [];
         $conn = Db::getInstance();
-        $results =$conn->getArray($sql);
+        $results = $conn->getArray($sql);
         if ($conn->getNumberError()) {
             $this->setError($this->language->l('SQL error on query <i>%s</i>', $sql));
         } else {
@@ -1422,7 +1424,7 @@ class InstallXmlLoader
             $value = $row[$idFormat];
             $value = preg_replace('#[^a-z0-9_-]#i', '_', $value);
             $value = preg_replace('#_+#', '_', $value);
-            $value = trim($value, "_");
+            $value = trim($value, '_');
 
             $storeIdentifier = $value;
             $i = 1;
@@ -1493,7 +1495,7 @@ class InstallXmlLoader
                 $this->setError(sprintf('Cannot create directory <i>%s</i>', $backupPath));
             }
 
-            $mainImageExtensions = implode('|',ImageManager::getAllowedImageExtensions(true, true));
+            $mainImageExtensions = implode('|', ImageManager::getAllowedImageExtensions(true, true));
 
             foreach (scandir($fromPath) as $file) {
                 if ($file[0] != '.' && preg_match('#^(([0-9]+)(-('.implode('|', $types).'))?)\.('.$mainImageExtensions.')$#i', $file, $m)) {
@@ -1604,7 +1606,7 @@ class InstallXmlLoader
         try {
             return new InstallSimplexmlElement('<entity_' . $entity . ' />');
         } catch (Exception $e) {
-            throw new RuntimeException("Failed to create InstallSimplexmlElement", 0, $e);
+            throw new RuntimeException('Failed to create InstallSimplexmlElement', 0, $e);
         }
     }
 }

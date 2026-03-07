@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -175,7 +177,7 @@ class CombinationCore extends ObjectModel
         'fields'          => [
             'id_product' => [
                 'required' => true,
-                'xlink_resource' => 'products'
+                'xlink_resource' => 'products',
             ],
         ],
         'associations'    => [
@@ -194,7 +196,7 @@ class CombinationCore extends ObjectModel
     /**
      * @var array<int, int>]|null
      */
-    protected $attributes = null;
+    protected $attributes;
 
     /**
      * This method is allowed to know if a feature is active
@@ -318,8 +320,7 @@ class CombinationCore extends ObjectModel
         $conn = Db::getInstance();
         $result = $conn->delete('product_attribute_combination', '`id_product_attribute` = '.(int) $this->id);
         $result = $conn->delete('cart_product', '`id_product_attribute` = '.(int) $this->id) && $result;
-        $result = $conn->delete('product_attribute_image', '`id_product_attribute` = '.(int) $this->id) && $result;
-        return $result;
+        return $conn->delete('product_attribute_image', '`id_product_attribute` = '.(int) $this->id) && $result;
     }
 
     /**
@@ -452,15 +453,13 @@ class CombinationCore extends ObjectModel
      */
     public function getWsProductOptionValues()
     {
-        $result = Db::readOnly()->getArray(
+        return Db::readOnly()->getArray(
             (new DbQuery())
                 ->select('a.`id_attribute` AS `id`')
                 ->from('product_attribute_combination', 'a')
                 ->join(Shop::addSqlAssociation('attribute', 'a'))
                 ->where('a.`id_product_attribute` = '.(int) $this->id)
         );
-
-        return $result;
     }
 
     /**
@@ -470,15 +469,13 @@ class CombinationCore extends ObjectModel
      */
     public function getWsImages()
     {
-        $result = Db::readOnly()->getArray(
+        return Db::readOnly()->getArray(
             (new DbQuery())
                 ->select('a.`id_image` AS `id`')
                 ->from('product_attribute_image', 'a')
                 ->join(Shop::addSqlAssociation('product_attribute', 'a'))
                 ->where('a.`id_product_attribute` = '.(int) $this->id)
         );
-
-        return $result;
     }
 
     /**
@@ -606,7 +603,7 @@ class CombinationCore extends ObjectModel
     /**
      * @param TableSchema $table
      */
-    public static function processTableSchema($table)
+    public static function processTableSchema($table): void
     {
         if ($table->getNameWithoutPrefix() === 'product_attribute_shop') {
             $table->reorderColumns(['id_product', 'id_product_attribute', 'id_shop']);

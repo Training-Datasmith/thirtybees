@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -34,18 +36,11 @@
  */
 class PDFCore
 {
-
     /** @var string $filename */
     public $filename;
 
     /** @var PDFGenerator */
     public $pdf_renderer;
-
-    /** @var ObjectModel[] */
-    public $objects;
-
-    /** @var string */
-    public $template;
 
     /** @var bool */
     public $send_bulk_flag = false;
@@ -53,11 +48,11 @@ class PDFCore
     /** @var Smarty */
     public $smarty;
 
-    const TEMPLATE_INVOICE = 'Invoice';
-    const TEMPLATE_ORDER_RETURN = 'OrderReturn';
-    const TEMPLATE_ORDER_SLIP = 'OrderSlip';
-    const TEMPLATE_DELIVERY_SLIP = 'DeliverySlip';
-    const TEMPLATE_SUPPLY_ORDER_FORM = 'SupplyOrderForm';
+    public const TEMPLATE_INVOICE = 'Invoice';
+    public const TEMPLATE_ORDER_RETURN = 'OrderReturn';
+    public const TEMPLATE_ORDER_SLIP = 'OrderSlip';
+    public const TEMPLATE_DELIVERY_SLIP = 'DeliverySlip';
+    public const TEMPLATE_SUPPLY_ORDER_FORM = 'SupplyOrderForm';
 
     /**
      * @param ObjectModel[]|Iterator|ObjectModel $objects
@@ -65,15 +60,12 @@ class PDFCore
      * @param Smarty $smarty
      * @param string $orientation
      */
-    public function __construct($objects, $template, $smarty, $orientation = 'P')
+    public function __construct(public $objects, public $template, $smarty, $orientation = 'P')
     {
         $this->pdf_renderer = new PDFGenerator(false, $orientation);
-        $this->template = $template;
         $this->smarty = $smarty;
-
-        $this->objects = $objects;
-        if (!($objects instanceof Iterator) && !is_array($objects)) {
-            $this->objects = [ $objects ];
+        if (!($this->objects instanceof Iterator) && !is_array($this->objects)) {
+            $this->objects = [ $this->objects ];
         }
 
         if (count($this->objects) > 1) { // when bulk mode only
@@ -137,7 +129,7 @@ class PDFCore
      * @return HTMLTemplate
      * @throws PrestaShopException
      */
-    public function getTemplateObject($object)
+    public function getTemplateObject($object): \HTMLTemplateInvoice|\HTMLTemplateOrderReturn|\HTMLTemplateOrderSlip|\HTMLTemplateDeliverySlip|\HTMLTemplateSupplyOrderForm|\HTMLTemplate
     {
         switch ($this->template) {
             case static::TEMPLATE_INVOICE:

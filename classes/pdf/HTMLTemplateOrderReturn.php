@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -45,8 +47,6 @@ class HTMLTemplateOrderReturnCore extends HTMLTemplate
     public $order;
 
     /**
-     * @param OrderReturn $orderReturn
-     * @param Smarty $smarty
      *
      * @throws PrestaShopException
      */

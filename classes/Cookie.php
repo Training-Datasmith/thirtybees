@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -87,26 +89,26 @@
  */
 class CookieCore
 {
-    const VERSION = 'v2';
+    public const VERSION = 'v2';
 
-    const CSV_SEPARATOR = ",";
-    const CSV_ENCLOSURE = '"';
-    const CSV_ESCAPE = "";
+    public const CSV_SEPARATOR = ',';
+    public const CSV_ENCLOSURE = '"';
+    public const CSV_ESCAPE = '';
 
     /**
      * @var array Contain cookie content in a key => value format
      */
-    protected $_content;
+    protected array $_content;
 
     /**
      * @var array Crypted cookie name for setcookie()
      */
-    protected $_name;
+    protected string $_name;
 
     /**
      * @var array expiration date for setcookie()
      */
-    protected $_expire;
+    protected int $_expire;
 
     /**
      * @var array Website domain for setcookie()
@@ -116,50 +118,36 @@ class CookieCore
     /**
      * @var array Path for setcookie()
      */
-    protected $_path;
+    protected string $_path;
 
     /**
      * @var bool $_modified
      */
     protected $_modified = false;
 
-    /**
-     * @var bool
-     */
-    protected $_allow_writing;
+    protected bool $_allow_writing;
 
     /**
      * @var string
      */
     protected $_salt;
 
-    /**
-     * @var bool
-     */
-    protected $_standalone;
-
-    /**
-     * @var bool
-     */
-    protected $_secure = false;
+    protected bool $_secure;
 
     /**
      * Get data if the cookie exists and else initialize an new one
      *
      * @param string $name Cookie name before encrypting
-     * @param string $path
      *
      * @param string|null $expire
      * @param array|null $sharedUrls
-     * @param bool $standalone
+     * @param bool $_standalone
      * @param bool $secure
-     *
      * @throws PrestaShopException
      */
-    public function __construct($name, $path = '', $expire = null, $sharedUrls = null, $standalone = false, $secure = false)
+    public function __construct(string $name, string $path = '', $expire = null, $sharedUrls = null, protected $_standalone = false, $secure = false)
     {
         $this->_content = [];
-        $this->_standalone = $standalone;
         $this->_expire = is_null($expire) ? time() + 1728000 : (int) $expire;
 
         $this->_path = trim(($this->_standalone ? '' : Context::getContext()->shop->physical_uri).$path, '/\\').'/';
@@ -192,7 +180,7 @@ class CookieCore
      *
      * @throws PrestaShopException
      */
-    protected function getDomain($sharedUrls = null)
+    protected function getDomain($sharedUrls = null): false|string
     {
         $r = '!(?:(\w+)://)?(?:(\w+)\:(\w+)@)?([^/:]+)?(?:\:(\d*))?([^#?]+)?(?:\?([^#]+))?(?:#(.+$))?!i';
 
@@ -203,7 +191,8 @@ class CookieCore
         if (preg_match(
             '/^(((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]{1}[0-9]|[1-9]).)'.
             '{1}((25[0-5]|2[0-4][0-9]|[1]{1}[0-9]{2}|[1-9]{1}[0-9]|[0-9]).)'.
-            '{2}((25[0-5]|2[0-4][0-9]|[1]{1}[0-9]{2}|[1-9]{1}[0-9]|[0-9]){1}))$/', $out[4]
+            '{2}((25[0-5]|2[0-4][0-9]|[1]{1}[0-9]{2}|[1-9]{1}[0-9]|[0-9]){1}))$/',
+            $out[4]
         )) {
             return false;
         }
@@ -217,14 +206,14 @@ class CookieCore
                 if ($sharedUrl != $out[4]) {
                     continue;
                 }
-                if (preg_match('/^(?:.*\.)?([^.]*(?:.{2,4})?\..{2,3})$/Ui', $sharedUrl, $res)) {
+                if (preg_match('/^(?:.*\.)?([^.]*(?:.{2,4})?\..{2,3})$/Ui', (string) $sharedUrl, $res)) {
                     $domain = '.'.$res[1];
                     break;
                 }
             }
         }
         if (!$domain) {
-            $domain = $out[4];
+            return $out[4];
         }
 
         return $domain;
@@ -235,18 +224,18 @@ class CookieCore
      *
      * @throws PrestaShopException
      */
-    public function update($nullValues = false)
+    public function update($nullValues = false): void
     {
         if (isset($_COOKIE[$this->_name])) {
 
             /* Decrypt cookie content */
             $valid = false;
             $rawContent = $this->getCipherTool()->decrypt($_COOKIE[$this->_name]);
-            if ($rawContent && strlen($rawContent) >= 64) {
+            if ($rawContent && strlen((string) $rawContent) >= 64) {
 
                 // Verify checksum
-                $storedChecksum = substr($rawContent, 0, 64);
-                $data = substr($rawContent, 64);
+                $storedChecksum = substr((string) $rawContent, 0, 64);
+                $data = substr((string) $rawContent, 64);
                 $calculatedChecksum = $this->getSignature($data);
 
                 if ($storedChecksum === $calculatedChecksum) {
@@ -256,7 +245,7 @@ class CookieCore
                         if ($len % 2 === 0) {
                             $fields = $len / 2;
                             $valid = true;
-                            for ($i = 0; $i<$fields; $i++) {
+                            for ($i = 0; $i < $fields; $i++) {
                                 $key = $array[$i * 2];
                                 $value = $array[$i * 2 + 1];
                                 $this->_content[$key] = $value;
@@ -305,7 +294,7 @@ class CookieCore
      * @throws PrestaShopException
      * @deprecated 1.0.0 Use Customer::logout() or Employee::logout() instead;
      */
-    public function logout()
+    public function logout(): void
     {
         Tools::displayAsDeprecated();
         $this->delete();
@@ -316,7 +305,7 @@ class CookieCore
      *
      * @throws PrestaShopException
      */
-    public function delete()
+    public function delete(): void
     {
         $this->_content = [];
         $this->_setcookie();
@@ -329,7 +318,7 @@ class CookieCore
      *
      * @throws PrestaShopException
      */
-    protected function _setcookie($cookie = null)
+    protected function _setcookie($cookie = null): bool
     {
         if ($cookie) {
             $content = $this->getCipherTool()->encrypt($cookie);
@@ -339,13 +328,10 @@ class CookieCore
             $time = 1;
         }
 
-        return setrawcookie($this->_name, $content, $time, $this->_path, $this->_domain, $this->_secure, true);
+        return setrawcookie($this->_name, (string) $content, ['expires' => $time, 'path' => $this->_path, 'domain' => $this->_domain, 'secure' => $this->_secure, 'httponly' => true]);
     }
 
-    /**
-     * @return void
-     */
-    public function disallowWriting()
+    public function disallowWriting(): void
     {
         $this->_allow_writing = false;
     }
@@ -355,7 +341,7 @@ class CookieCore
      *
      * @param int $expire Expiration time from now
      */
-    public function setExpire($expire)
+    public function setExpire($expire): void
     {
         $this->_expire = (int) ($expire);
     }
@@ -367,7 +353,7 @@ class CookieCore
      *
      * @return string value corresponding to the key
      */
-    public function __get($key)
+    public function __get(string $key): mixed
     {
         return $this->_content[$key] ?? false;
     }
@@ -378,7 +364,7 @@ class CookieCore
      * @param string $key Access key for the value
      * @param string|int|float|bool|null $value Value corresponding to the key
      */
-    public function __set($key, $value)
+    public function __set(string $key, mixed $value)
     {
         if ($key === '_cipherTool') {
             Tools::displayAsDeprecated('Cookie object no longer contains _cipherTool property');
@@ -400,7 +386,7 @@ class CookieCore
      *
      * @return bool key existence
      */
-    public function __isset($key)
+    public function __isset(string $key)
     {
         return isset($this->_content[$key]);
     }
@@ -410,7 +396,7 @@ class CookieCore
      *
      * @param string $key key wanted
      */
-    public function __unset($key)
+    public function __unset(string $key)
     {
         if (isset($this->_content[$key])) {
             $this->_modified = true;
@@ -427,7 +413,7 @@ class CookieCore
      * @throws PrestaShopException
      * @deprecated 1.0.0 use Customer::isLogged() instead
      */
-    public function isLogged($withGuest = false)
+    public function isLogged($withGuest = false): bool
     {
         Tools::displayAsDeprecated();
         if (!$withGuest && $this->is_guest == 1) {
@@ -467,7 +453,7 @@ class CookieCore
      *
      * @deprecated 1.0.0 use Customer::mylogout() instead;
      */
-    public function mylogout()
+    public function mylogout(): void
     {
         unset($this->_content['id_compare']);
         unset($this->_content['id_customer']);
@@ -488,7 +474,7 @@ class CookieCore
     /**
      * @throws PrestaShopException
      */
-    public function makeNewLog()
+    public function makeNewLog(): void
     {
         unset($this->_content['id_customer']);
         unset($this->_content['id_guest']);
@@ -528,7 +514,7 @@ class CookieCore
             $data[] = $value;
         }
         $f = fopen('php://memory', 'r+');
-        if (fputcsv($f, $data, static::CSV_SEPARATOR, static::CSV_ENCLOSURE, static::CSV_ESCAPE) === false) {
+        if (fputcsv($f, $data, static::CSV_SEPARATOR, static::CSV_ENCLOSURE, (string) static::CSV_ESCAPE) === false) {
             return false;
         }
         rewind($f);
@@ -546,7 +532,7 @@ class CookieCore
     /**
      * @param string $origin
      */
-    public function unsetFamily($origin)
+    public function unsetFamily($origin): void
     {
         $family = $this->getFamily($origin);
         foreach (array_keys($family) as $member) {
@@ -558,17 +544,15 @@ class CookieCore
      * Get a family of variables (e.g. "filter_")
      *
      * @param string $origin
-     *
-     * @return array
      */
-    public function getFamily($origin)
+    public function getFamily($origin): array
     {
         $result = [];
         if (count($this->_content) == 0) {
             return $result;
         }
         foreach ($this->_content as $key => $value) {
-            if (strncmp($key, $origin, strlen($origin)) == 0) {
+            if (str_starts_with((string) $key, $origin)) {
                 $result[$key] = $value;
             }
         }
@@ -594,10 +578,8 @@ class CookieCore
 
     /**
      * Check if the cookie exists
-     *
-     * @return bool
      */
-    public function exists()
+    public function exists(): bool
     {
         return isset($_COOKIE[$this->_name]);
     }
@@ -616,11 +598,6 @@ class CookieCore
             : Encryptor::getInstance();
     }
 
-    /**
-     * @param string $data
-     *
-     * @return string
-     */
     protected function getSignature(string $data): string
     {
         $payload = $this->_salt . static::VERSION . $data;

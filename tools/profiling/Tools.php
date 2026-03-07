@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Thirtybees\Core\DependencyInjection\ServiceLocator;
 
 /**
@@ -100,7 +102,7 @@ class Tools extends ToolsCore
         $controllers = Dispatcher::getControllers([
             _PS_ADMIN_DIR_.'/tabs/',
             _PS_ADMIN_CONTROLLER_DIR_,
-            _PS_OVERRIDE_DIR_.'controllers/admin/'
+            _PS_OVERRIDE_DIR_.'controllers/admin/',
         ]);
         if (! isset($controllers[strtolower($defaultController)])) {
             $defaultController = 'adminnotfound';

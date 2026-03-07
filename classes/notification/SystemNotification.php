@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -29,10 +31,10 @@ use PrestaShopException;
  */
 class SystemNotificationCore extends ObjectModel
 {
-    const IMPORTANCE_LOW = 'LOW';
-    const IMPORTANCE_MEDIUM = 'MEDIUM';
-    const IMPORTANCE_HIGH = 'HIGH';
-    const IMPORTANCE_URGENT = 'URGENT';
+    public const IMPORTANCE_LOW = 'LOW';
+    public const IMPORTANCE_MEDIUM = 'MEDIUM';
+    public const IMPORTANCE_HIGH = 'HIGH';
+    public const IMPORTANCE_URGENT = 'URGENT';
 
     /**
      * @var string unique message identification
@@ -82,7 +84,7 @@ class SystemNotificationCore extends ObjectModel
                 self::IMPORTANCE_LOW,
                 self::IMPORTANCE_MEDIUM,
                 self::IMPORTANCE_HIGH,
-                self::IMPORTANCE_URGENT
+                self::IMPORTANCE_URGENT,
             ]],
             'title' => ['type' => self::TYPE_STRING, 'validate' => 'isString', 'size' => 512],
             'message' => ['type' => self::TYPE_HTML, 'validate' => 'isString', 'size' => ObjectModel::SIZE_MEDIUM_TEXT ],
@@ -93,8 +95,8 @@ class SystemNotificationCore extends ObjectModel
         'keys' => [
             'system_notification' => [
                 'notification_uuid' => ['type' => ObjectModel::UNIQUE_KEY, 'columns' => ['uuid']],
-            ]
-        ]
+            ],
+        ],
     ];
 
     /**
@@ -106,7 +108,8 @@ class SystemNotificationCore extends ObjectModel
      */
     public static function getByUuid($uuid)
     {
-        $id = (int)Db::getInstance()->getValue((new DbQuery())
+        $id = (int)Db::getInstance()->getValue(
+            (new DbQuery())
             ->select('id_system_notification')
             ->from('system_notification')
             ->where("uuid = '" . pSQL($uuid) ."'")
@@ -124,17 +127,12 @@ class SystemNotificationCore extends ObjectModel
      */
     public static function getBadgeClass($importance)
     {
-        switch ($importance) {
-            case static::IMPORTANCE_LOW:
-                return 'badge-info';
-            case static::IMPORTANCE_MEDIUM:
-                return 'badge-success';
-            case static::IMPORTANCE_HIGH:
-                return '';
-            case static::IMPORTANCE_URGENT:
-                return 'badge-danger';
-            default:
-                return '';
-        }
+        return match ($importance) {
+            static::IMPORTANCE_LOW => 'badge-info',
+            static::IMPORTANCE_MEDIUM => 'badge-success',
+            static::IMPORTANCE_HIGH => '',
+            static::IMPORTANCE_URGENT => 'badge-danger',
+            default => '',
+        };
     }
 }

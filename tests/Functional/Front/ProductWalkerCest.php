@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Functional\Front;
 
 use Codeception\Example;
@@ -43,11 +45,10 @@ class ProductWalkerCest
         foreach ($products as $product) {
             $toTest[] = [
                 'name' => $product['name'],
-                'productId' => $product['id_product']
+                'productId' => $product['id_product'],
             ];
         }
         return $toTest;
     }
-
 
 }

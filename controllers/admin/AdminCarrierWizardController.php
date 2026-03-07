@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -50,7 +52,6 @@ class AdminCarrierWizardControllerCore extends AdminController
      * @var array
      */
     protected $wizard_steps = [];
-
 
     /**
      * AdminCarrierWizardControllerCore constructor.
@@ -437,7 +438,7 @@ class AdminCarrierWizardControllerCore extends AdminController
                         'hint' => $proportionateTax
                             ? Translate::ppTags($this->l('Taxes will be determined dynamically because [1]Proportionate tax for shipping and wrapping[/1] option is enabled'), ['<i>'])
                             : $this->l('Tax rate'),
-                        'disabled' => $proportionateTax
+                        'disabled' => $proportionateTax,
                     ],
                     'prices_with_tax' => [
                         'type'    => 'select',
@@ -491,7 +492,7 @@ class AdminCarrierWizardControllerCore extends AdminController
             // include hidden field to remember selected tax group
             $this->fields_form['form']['input']['id_tax_rules_group_hidden'] = [
                 'type' => 'hidden',
-                'name' => 'id_tax_rules_group'
+                'name' => 'id_tax_rules_group',
             ];
         }
 
@@ -998,7 +999,8 @@ class AdminCarrierWizardControllerCore extends AdminController
 
                     // Call of hooks
                     Hook::triggerEvent(
-                        'actionCarrierUpdate', [
+                        'actionCarrierUpdate',
+                        [
                             'id_carrier' => (int) $currentCarrier->id,
                             'carrier'    => $newCarrier,
                         ]
@@ -1192,7 +1194,7 @@ class AdminCarrierWizardControllerCore extends AdminController
                                 'id_range_weight' => ($rangeType == Carrier::SHIPPING_METHOD_WEIGHT ? (int)$range->id : null),
                                 'id_carrier' => (int)$carrier->id,
                                 'id_zone' => (int)$idZone,
-                                'price' => Tools::parseNumber($fee[$key])
+                                'price' => Tools::parseNumber($fee[$key]),
                             ];
                         }
                     }

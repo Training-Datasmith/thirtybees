@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -99,9 +101,7 @@ class GenderCore extends ObjectModel
             $idLang = Context::getContext()->language->id;
         }
 
-        $genders = new PrestaShopCollection('Gender', $idLang);
-
-        return $genders;
+        return new PrestaShopCollection('Gender', $idLang);
     }
 
     /**
@@ -114,13 +114,13 @@ class GenderCore extends ObjectModel
             'default' => [
                 'src' => static::getGenderImage(null),
                 'alt' => 'Unknown',
-            ]
+            ],
         ];
         foreach (static::getGenders() as $gender) {
             /** @var Gender $gender */
             $gendersIcon[$gender->id] = [
                 'src' => $gender->getImage(),
-                'alt' => $gender->name
+                'alt' => $gender->name,
             ];
         }
         return $gendersIcon;

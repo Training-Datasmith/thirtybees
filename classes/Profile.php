@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -36,10 +38,10 @@ use CoreUpdater\TableSchema;
  */
 class ProfileCore extends ObjectModel
 {
-    const PERMISSION_VIEW = 'view';
-    const PERMISSION_ADD = 'add';
-    const PERMISSION_EDIT = 'edit';
-    const PERMISSION_DELETE = 'delete';
+    public const PERMISSION_VIEW = 'view';
+    public const PERMISSION_ADD = 'add';
+    public const PERMISSION_EDIT = 'edit';
+    public const PERMISSION_DELETE = 'delete';
 
     /**
      * @var array
@@ -182,7 +184,7 @@ class ProfileCore extends ObjectModel
         $data = Db::readOnly()->getArray(
             (new DbQuery())
                 ->from('profile_permission')
-                ->where("id_profile = " . (int)$idProfile)
+                ->where('id_profile = ' . (int)$idProfile)
         );
 
         $result = [];
@@ -267,15 +269,14 @@ class ProfileCore extends ObjectModel
         if (parent::add($autoDate, true)) {
             $conn = Db::getInstance();
             $result = $conn->execute('INSERT INTO '._DB_PREFIX_.'access (SELECT '.(int) $this->id.', id_tab, 0, 0, 0, 0 FROM '._DB_PREFIX_.'tab)');
-            $result = $conn->execute(
+
+            return $conn->execute(
                 '
 				INSERT INTO '._DB_PREFIX_.'module_access
 				(`id_profile`, `id_module`, `configure`, `view`, `uninstall`)
 				(SELECT '.(int) $this->id.', id_module, 0, 1, 0 FROM '._DB_PREFIX_.'module)
 			'
             ) && $result;
-
-            return $result;
         }
 
         return false;
@@ -303,7 +304,7 @@ class ProfileCore extends ObjectModel
     /**
      * @param TableSchema $table
      */
-    public static function processTableSchema($table)
+    public static function processTableSchema($table): void
     {
         if ($table->getNameWithoutPrefix() === 'profile_lang') {
             $table->reorderColumns(['id_lang', 'id_profile']);
@@ -315,7 +316,7 @@ class ProfileCore extends ObjectModel
      *
      * @param int $profileId
      */
-    public static function invalidateCache($profileId)
+    public static function invalidateCache($profileId): void
     {
         if (isset(static::$_cache_permissions[$profileId])) {
             unset(static::$_cache_permissions[$profileId]);
@@ -333,12 +334,12 @@ class ProfileCore extends ObjectModel
      */
     public static function isValidPermission($permission)
     {
-       return in_array((string)$permission, [
-           Profile::PERMISSION_VIEW,
-           Profile::PERMISSION_DELETE,
-           Profile::PERMISSION_ADD,
-           Profile::PERMISSION_EDIT,
-       ]);
+        return in_array((string)$permission, [
+            Profile::PERMISSION_VIEW,
+            Profile::PERMISSION_DELETE,
+            Profile::PERMISSION_ADD,
+            Profile::PERMISSION_EDIT,
+        ]);
     }
 
     /**

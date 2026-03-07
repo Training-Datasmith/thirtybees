@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -40,31 +42,31 @@ if (file_exists(_PS_ROOT_DIR_ . '/config/settings.inc.php')) {
  */
 class DbCore implements ReadOnlyConnection
 {
-    const MYSQL_ERROR_SERVER_GONE = 2006;
-    const MYSQL_ERROR_LOCK_WAIT_TIMEOUT = 1205;
-    const MYSQL_ERROR_LOCK_DEADLOCK = 1213;
+    public const MYSQL_ERROR_SERVER_GONE = 2006;
+    public const MYSQL_ERROR_LOCK_WAIT_TIMEOUT = 1205;
+    public const MYSQL_ERROR_LOCK_DEADLOCK = 1213;
 
-    const MAX_ATTEMPTS = 3;
-
-    /**
-     * @var int Constant used by insert() method
-     */
-    const INSERT = 1;
+    public const MAX_ATTEMPTS = 3;
 
     /**
      * @var int Constant used by insert() method
      */
-    const INSERT_IGNORE = 2;
+    public const INSERT = 1;
 
     /**
      * @var int Constant used by insert() method
      */
-    const REPLACE = 3;
+    public const INSERT_IGNORE = 2;
 
     /**
      * @var int Constant used by insert() method
      */
-    const ON_DUPLICATE_KEY = 4;
+    public const REPLACE = 3;
+
+    /**
+     * @var int Constant used by insert() method
+     */
+    public const ON_DUPLICATE_KEY = 4;
 
     /**
      * @var array List of DB instances
@@ -79,32 +81,9 @@ class DbCore implements ReadOnlyConnection
     /**
      * @var bool|null Flag used to load slave servers only once
      */
-    public static $_slave_servers_loaded = null;
+    public static $_slave_servers_loaded;
 
-    /**
-     * @var string Server (eg. localhost)
-     */
-    protected $server;
-
-    /**
-     * @var string Database user (eg. root)
-     */
-    protected $user;
-
-    /**
-     * @var string Database password (eg. can be empty !)
-     */
-    protected $password;
-
-    /**
-     * @var string Database name
-     */
-    protected $database;
-
-    /**
-     * @var bool
-     */
-    protected $throwOnError;
+    protected bool $throwOnError;
 
     /**
      * @var PDO Resource link
@@ -157,12 +136,8 @@ class DbCore implements ReadOnlyConnection
      * @param string $database Database name
      * @param bool $connect If false, don't connect in constructor (since 1.5.0.1)
      */
-    public function __construct($server, $user, $password, $database, $connect = true)
+    public function __construct(protected $server, protected $user, protected $password, protected $database, $connect = true)
     {
-        $this->server = $server;
-        $this->user = $user;
-        $this->password = $password;
-        $this->database = $database;
         $this->throwOnError = defined('_PS_DEBUG_SQL_') && _PS_DEBUG_SQL_;
 
         if ($connect) {
@@ -178,7 +153,7 @@ class DbCore implements ReadOnlyConnection
     public function connect()
     {
         try {
-            $this->link = $this->_getPDO($this->server, $this->user, $this->password, $this->database, 5);
+            $this->link = static::_getPDO($this->server, $this->user, $this->password, $this->database, 5);
         } catch (PDOException $e) {
             die(sprintf(Tools::displayError('Link to database cannot be established: %s'), $e->getMessage()));
         }
@@ -196,15 +171,13 @@ class DbCore implements ReadOnlyConnection
     /**
      * Returns a new PDO object (database link)
      *
-     * @param string $host
      * @param string $user
      * @param string $password
      * @param string $dbname
      * @param int $timeout
      *
-     * @return PDO
      */
-    protected static function _getPDO($host, $user, $password, $dbname, $timeout = 5)
+    protected static function _getPDO(string $host, $user, $password, ?string $dbname, $timeout = 5): \PDO
     {
         $dsn = 'mysql:';
         if ($dbname) {
@@ -234,7 +207,7 @@ class DbCore implements ReadOnlyConnection
      *
      * @throws PrestaShopDatabaseException
      */
-    public function displayError($sql = false)
+    public function displayError($sql = false): void
     {
         $errno = $this->getNumberError();
         if ($errno) {
@@ -244,10 +217,8 @@ class DbCore implements ReadOnlyConnection
 
     /**
      * Returns the number of the error from previous database operation
-     *
-     * @return int
      */
-    public function getNumberError()
+    public function getNumberError(): int
     {
         $error = $this->link->errorInfo();
 
@@ -280,7 +251,7 @@ class DbCore implements ReadOnlyConnection
      * @return int Error code or 0 if connection was successful
      *
      */
-    public static function tryToConnect($server, $user, $pwd, $db, $newDbLink = true, $engine = null, $timeout = 5)
+    public static function tryToConnect($server, $user, $pwd, $db, $newDbLink = true, $engine = null, $timeout = 5): int
     {
         try {
             $link = static::_getPDO($server, $user, $pwd, $db, $timeout);
@@ -314,7 +285,7 @@ class DbCore implements ReadOnlyConnection
             if ($dropAfter && ($link->exec('DROP DATABASE `' . $escapedName . '`') !== false)) {
                 return true;
             }
-        } catch (PDOException $e) {
+        } catch (PDOException) {
             return false;
         }
 
@@ -334,7 +305,7 @@ class DbCore implements ReadOnlyConnection
     {
         try {
             $link = static::_getPDO($server, $user, $pwd, false, 5);
-        } catch (PDOException $e) {
+        } catch (PDOException) {
             return false;
         }
         $result = $link->exec('SET NAMES \'utf8mb4\'');
@@ -347,17 +318,15 @@ class DbCore implements ReadOnlyConnection
      * @param Db $testDb
      * Unit testing purpose only
      */
-    public static function setInstanceForTesting($testDb)
+    public static function setInstanceForTesting($testDb): void
     {
         static::$instance[0] = $testDb;
     }
 
     /**
      * Unit testing purpose only
-     *
-     * @return void
      */
-    public static function deleteTestingInstance()
+    public static function deleteTestingInstance(): void
     {
         static::$instance = [];
     }
@@ -379,7 +348,6 @@ class DbCore implements ReadOnlyConnection
     {
         return static::tryToConnect($server, $user, $pwd, $db, $newDbLink, $engine, $timeout);
     }
-
 
     /**
      * Try a connection to the database and set names to UTF-8
@@ -406,11 +374,11 @@ class DbCore implements ReadOnlyConnection
      *
      * @return bool
      */
-    public static function hasTableWithSamePrefix($server, $user, $pwd, $db, $prefix)
+    public static function hasTableWithSamePrefix($server, $user, $pwd, $db, string $prefix)
     {
         try {
             $link = static::_getPDO($server, $user, $pwd, $db, 5);
-        } catch (PDOException $e) {
+        } catch (PDOException) {
             return false;
         }
 
@@ -451,16 +419,14 @@ class DbCore implements ReadOnlyConnection
      * @param string $user
      * @param string $pwd
      * @param string $db
-     * @param string $prefix
      * @param string|null $engine Table engine
-     *
      * @return bool|string True, false or error
      */
-    public static function checkCreatePrivilege($server, $user, $pwd, $db, $prefix, $engine = null)
+    public static function checkCreatePrivilege($server, $user, $pwd, $db, string $prefix, $engine = null)
     {
         try {
             $link = static::_getPDO($server, $user, $pwd, $db, 5);
-        } catch (PDOException $e) {
+        } catch (PDOException) {
             return false;
         }
 
@@ -495,10 +461,10 @@ class DbCore implements ReadOnlyConnection
     {
         try {
             $link = static::_getPDO($server, $user, $pwd, false, 5);
-        } catch (PDOException $e) {
+        } catch (PDOException) {
             return false;
         }
-        $ret = (bool)(($result = $link->query('SELECT @@auto_increment_increment as aii')) && ($row = $result->fetch()) && $row['aii'] == 1);
+        $ret = ($result = $link->query('SELECT @@auto_increment_increment as aii')) && ($row = $result->fetch()) && $row['aii'] == 1;
         $ret = ($result = $link->query('SELECT @@auto_increment_offset as aio')) && ($row = $result->fetch()) && $row['aio'] == 1 && $ret;
         unset($link);
 
@@ -525,29 +491,26 @@ class DbCore implements ReadOnlyConnection
             if ($this->throwOnError) {
                 $this->last_query = $sqlString;
                 $this->result = false;
-                throw new PrestaShopDatabaseException("Db::executeS method should be used for SELECT queries only.", $sqlString);
-            } else {
-                $callPoint = Tools::getCallPoint([Db::class]);
-                $error = 'Db::executeS method should be used for SELECT queries only. ';
-                $error .= 'Calling this method with other SQL statements will raise exception in the future. ';
-                $error .= 'Called from: ' . $callPoint['description'] . '. ';
-                $error .= 'Illegal SQL: [' . $sqlString . ']';
-                trigger_error($error, E_USER_DEPRECATED);
-                return $this->execute($sqlString, $useCache);
+                throw new PrestaShopDatabaseException('Db::executeS method should be used for SELECT queries only.', $sqlString);
             }
+            $callPoint = Tools::getCallPoint([Db::class]);
+            $error = 'Db::executeS method should be used for SELECT queries only. ';
+            $error .= 'Calling this method with other SQL statements will raise exception in the future. ';
+            $error .= 'Called from: ' . $callPoint['description'] . '. ';
+            $error .= 'Illegal SQL: [' . $sqlString . ']';
+            trigger_error($error, E_USER_DEPRECATED);
+            return $this->execute($sqlString, $useCache);
         }
 
         $this->result = $this->query($sqlString);
 
         if (!$this->result) {
             return false;
-        } else {
-            if (!$array) {
-                return $this->result;
-            } else {
-                return $this->result->fetchAll(PDO::FETCH_ASSOC);
-            }
         }
+        if (!$array) {
+            return $this->result;
+        }
+        return $this->result->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /**
@@ -556,10 +519,9 @@ class DbCore implements ReadOnlyConnection
      * @param string|DbQuery $sql
      * @param bool $useCache
      *
-     * @return bool
      * @throws PrestaShopException
      */
-    public function execute($sql, $useCache = true)
+    public function execute($sql, $useCache = true): bool
     {
         $this->result = $this->query($sql);
 
@@ -570,10 +532,8 @@ class DbCore implements ReadOnlyConnection
      * Returns all rows from the result set.
      *
      * @param bool $result
-     *
-     * @return array|false|null
      */
-    protected function getAll($result = false)
+    protected function getAll($result = false): false|array
     {
         if (!$result) {
             $result = $this->result;
@@ -594,7 +554,6 @@ class DbCore implements ReadOnlyConnection
      * If multiple database server exists (MASTER -> SLAVE replication), then this method returns connection
      * to SLAVE server
      *
-     * @return ReadOnlyConnection
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
@@ -692,10 +651,8 @@ class DbCore implements ReadOnlyConnection
      * Set timezone on current connection.
      *
      * @param string $timezone
-     *
-     * @return void
      */
-    public function setTimeZone($timezone)
+    public function setTimeZone($timezone): void
     {
         try {
             $now = new DateTime('now', new DateTimeZone($timezone));
@@ -707,7 +664,7 @@ class DbCore implements ReadOnlyConnection
             $offset = sprintf('%+d:%02d', $hours * $sign, $minutes);
             $this->link->exec("SET time_zone='$offset'");
         } catch (Exception $e) {
-            throw new RuntimeException("Failed to set timezone", 0, $e);
+            throw new RuntimeException('Failed to set timezone', 0, $e);
         }
     }
 
@@ -716,7 +673,7 @@ class DbCore implements ReadOnlyConnection
      *
      * @return string|false
      */
-    public function Insert_ID()
+    public function Insert_ID(): string|false
     {
         return $this->link->lastInsertId();
     }
@@ -771,7 +728,7 @@ class DbCore implements ReadOnlyConnection
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function getRow($sql)
+    public function getRow($sql): array|false
     {
         $sqlString = $this->getSqlString($sql);
 
@@ -819,25 +776,21 @@ class DbCore implements ReadOnlyConnection
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function set_db($dbName)
+    public function set_db($dbName): int|false
     {
         return $this->link->exec('USE ' . pSQL($dbName));
     }
 
     /**
      * Selects best table engine.
-     *
-     * @return string
      */
-    public function getBestEngine()
+    public function getBestEngine(): string
     {
         return 'InnoDB';
     }
 
     /**
      * Closes connection to database
-     *
-     * @return void
      */
     public function __destruct()
     {
@@ -849,7 +802,7 @@ class DbCore implements ReadOnlyConnection
     /**
      * Destroys the database connection link
      */
-    public function disconnect()
+    public function disconnect(): void
     {
         unset($this->link);
     }
@@ -891,22 +844,13 @@ class DbCore implements ReadOnlyConnection
     public function autoExecute($table, $data, $type, $where = '', $limit = 0, $useCache = true, $useNull = false)
     {
         $type = strtoupper($type);
-        switch ($type) {
-            case 'INSERT':
-                return $this->insert($table, $data, $useNull, $useCache, static::INSERT, false);
-
-            case 'INSERT IGNORE':
-                return $this->insert($table, $data, $useNull, $useCache, static::INSERT_IGNORE, false);
-
-            case 'REPLACE':
-                return $this->insert($table, $data, $useNull, $useCache, static::REPLACE, false);
-
-            case 'UPDATE':
-                return $this->update($table, $data, $where, $limit, $useNull, $useCache, false);
-
-            default:
-                throw new PrestaShopDatabaseException('Wrong argument (miss type) in static::autoExecute()');
-        }
+        return match ($type) {
+            'INSERT' => $this->insert($table, $data, $useNull, $useCache, static::INSERT, false),
+            'INSERT IGNORE' => $this->insert($table, $data, $useNull, $useCache, static::INSERT_IGNORE, false),
+            'REPLACE' => $this->insert($table, $data, $useNull, $useCache, static::REPLACE, false),
+            'UPDATE' => $this->update($table, $data, $where, $limit, $useNull, $useCache, false),
+            default => throw new PrestaShopDatabaseException('Wrong argument (miss type) in static::autoExecute()'),
+        };
     }
 
     /**
@@ -1060,11 +1004,10 @@ class DbCore implements ReadOnlyConnection
      * @param bool $useCache Use cache or not
      * @param bool $addPrefix Add or not _DB_PREFIX_ before table name
      *
-     * @return bool
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function delete($table, $where = '', $limit = 0, $useCache = true, $addPrefix = true)
+    public function delete($table, $where = '', $limit = 0, $useCache = true, $addPrefix = true): bool
     {
         if ($addPrefix && strncmp(_DB_PREFIX_, $table, strlen(_DB_PREFIX_)) !== 0) {
             $table = _DB_PREFIX_ . $table;
@@ -1086,7 +1029,6 @@ class DbCore implements ReadOnlyConnection
      *
      * @param string|DbQuery $sql the select query
      *
-     * @return array
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
@@ -1097,7 +1039,7 @@ class DbCore implements ReadOnlyConnection
         if (!preg_match('#^\s*\(?\s*(select|show|explain|describe|desc)\s#i', $sqlString)) {
             $this->result = false;
             $this->last_query = $sqlString;
-            throw new PrestaShopDatabaseException("Db::getArrray method can be used for SELECT queries only.", $sqlString);
+            throw new PrestaShopDatabaseException('Db::getArrray method can be used for SELECT queries only.', $sqlString);
         }
         $this->result = $this->query($sqlString);
         return $this->result
@@ -1107,10 +1049,8 @@ class DbCore implements ReadOnlyConnection
 
     /**
      * Get number of rows for last result
-     *
-     * @return int
      */
-    public function numRows()
+    public function numRows(): int
     {
         if ($this->result) {
             return $this->result->rowCount();
@@ -1149,17 +1089,15 @@ class DbCore implements ReadOnlyConnection
      * Escapes illegal characters in a string. Protect string against SQL injections
      *
      * @param string $str
-     *
-     * @return string
      */
-    public function _escape($str)
+    public function _escape($str): string
     {
         if (is_null($str)) {
             return '';
         }
 
-        $search = ["\\", "\0", "\n", "\r", "\x1a", "'", '"'];
-        $replace = ["\\\\", "\\0", "\\n", "\\r", "\Z", "\'", '\"'];
+        $search = ['\\', "\0", "\n", "\r", "\x1a", "'", '"'];
+        $replace = ['\\\\', '\\0', '\\n', '\\r', "\Z", "\'", '\"'];
 
         return str_replace($search, $replace, $str);
     }
@@ -1195,11 +1133,10 @@ class DbCore implements ReadOnlyConnection
     /**
      * Returns database class
      *
-     * @return string
      *
      * @deprecated 1.5.0
      */
-    public static function getClass()
+    public static function getClass(): string
     {
         return 'Db';
     }
@@ -1209,11 +1146,10 @@ class DbCore implements ReadOnlyConnection
      *
      * @param PDOStatement $result
      *
-     * @return int
      *
      * @deprecated 1.5.0
      */
-    protected function _numRows($result)
+    protected function _numRows($result): int
     {
         return $result->rowCount();
     }
@@ -1249,7 +1185,7 @@ class DbCore implements ReadOnlyConnection
                 try {
                     $rand = floor(random_int(0, $wait));
                     $wait = $rand;
-                } catch (Exception $ignored) {
+                } catch (Exception) {
                 }
                 if ($wait > 0) {
                     usleep($wait);
@@ -1287,12 +1223,11 @@ class DbCore implements ReadOnlyConnection
      * @param string $sql
      * @param int $useCache
      *
-     * @return array
      *
      * @throws PrestaShopException
      * @deprecated 2.0.0
      */
-    public static function ps($sql, $useCache = 1)
+    public static function ps($sql, $useCache = 1): array
     {
         Tools::displayAsDeprecated();
         return static::readOnly()->getArray($sql);
@@ -1304,13 +1239,12 @@ class DbCore implements ReadOnlyConnection
      * @param string|DbQuery $sql
      * @param bool $useCache
      *
-     * @return array
      * @throws PrestaShopDatabaseException
      *
      * @throws PrestaShopException
      * @deprecated 2.0.0
      */
-    public static function s($sql, $useCache = true)
+    public static function s($sql, $useCache = true): array
     {
         Tools::displayAsDeprecated();
         return static::readOnly()->getArray($sql);
@@ -1326,7 +1260,7 @@ class DbCore implements ReadOnlyConnection
      * @deprecated 2.0.0
      *
      */
-    public static function ds($sql, $useCache = 1)
+    public static function ds($sql, $useCache = 1): never
     {
         Tools::displayAsDeprecated();
         static::getInstance()->execute($sql);
@@ -1336,7 +1270,6 @@ class DbCore implements ReadOnlyConnection
     /**
      * @param string|DbQuery $sql
      *
-     * @return string
      * @throws PrestaShopException
      */
     protected function getSqlString($sql): string
@@ -1347,6 +1280,5 @@ class DbCore implements ReadOnlyConnection
 
         return (string)$sql;
     }
-
 
 }

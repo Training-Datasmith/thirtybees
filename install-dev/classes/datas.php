@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * 2007-2016 PrestaShop
  *
@@ -152,17 +154,17 @@ class Datas
             'name' => 'friendly_url',
             'default' => 0,
             'validate' => 'isInt',
-            'help' => 'enable or disable friendly url'
+            'help' => 'enable or disable friendly url',
         ],
         'sslEnabled' => [
             'name' => 'enable_ssl',
             'default' => 0,
             'validate' => 'isInt',
-            'help' => 'enable or disable HTTPS support'
+            'help' => 'enable or disable HTTPS support',
         ],
         'config' => [
             'name' => 'config',
-            'help' => 'Set custom configuration value in format <key>:<value>. This option can be used multiple times'
+            'help' => 'Set custom configuration value in format <key>:<value>. This option can be used multiple times',
         ],
     ];
 
@@ -332,7 +334,7 @@ class Datas
     public function extractArgs(array $argv): array
     {
         $arguments = [
-            'config' => []
+            'config' => [],
         ];
 
         foreach ($argv as $arg) {
@@ -345,11 +347,11 @@ class Datas
             if ($parameterName === 'license') {
                 $parameterValue = 1;
             } elseif ($parameterName === 'config') {
-                if (preg_match('/^([a-zA-Z_0-9-]+):(.*)$/',(string)$parameterValue, $config)) {
+                if (preg_match('/^([a-zA-Z_0-9-]+):(.*)$/', (string)$parameterValue, $config)) {
                     $arguments['config'][$config[1]] = $config[2];
                 }
                 continue;
-            } else if (!isset($parameterValue)) {
+            } elseif (!isset($parameterValue)) {
                 continue;
             }
 

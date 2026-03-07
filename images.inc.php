@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -140,8 +142,8 @@ function deleteImage($id_item, $id_image = null)
             unlink($sourceImage);
         }
 
-    /* Auto-generated images */
-    $imagesTypes = ImageType::getImagesTypes();
+        /* Auto-generated images */
+        $imagesTypes = ImageType::getImagesTypes();
         foreach ($imagesTypes as $k => $imagesType) {
             if ($imageByType = ImageManager::getSourceImage($path, $id_item.'-'.$imagesType['name'], null, false)) {
                 unlink($imageByType);

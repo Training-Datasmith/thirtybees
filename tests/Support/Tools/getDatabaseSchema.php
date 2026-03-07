@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -21,7 +23,9 @@
 /**
  * Helper script that prints expected database schema to standard output
  */
+
 namespace Tests\Support\Tools;
+
 use CoreUpdater\ObjectModelSchemaBuilder;
 
 // this script is intended for CLI mode only
@@ -32,7 +36,6 @@ if (php_sapi_name() !== 'cli') {
 require_once __DIR__ . '/../../../config/settings.inc.php';
 require_once __DIR__ . '/../../../config/config.inc.php';
 require_once _PS_MODULE_DIR_ . '/coreupdater/classes/schema/autoload.php';
-
 
 $schemaBuilder = new ObjectModelSchemaBuilder();
 $schema = $schemaBuilder->getSchema();

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -121,14 +123,16 @@ class MetaCore extends ObjectModel
         $selectedPages = [];
 
         $files = Tools::scandir(_PS_FRONT_CONTROLLER_DIR_, 'php', '', true);
-        if ( ! $files) {
+        if (! $files) {
             throw new PrestaShopException(Tools::displayError('Cannot scan root directory'));
         }
         $overrideFiles = Tools::scandir(
             _PS_OVERRIDE_DIR_.'controllers/front/',
-            'php', '', true
+            'php',
+            '',
+            true
         );
-        if ( ! $overrideFiles) {
+        if (! $overrideFiles) {
             throw new PrestaShopException(Tools::displayError('Cannot scan override directory'));
         }
 
@@ -136,7 +140,7 @@ class MetaCore extends ObjectModel
 
         // Exclude pages forbidden.
         $exludePages = [];
-        if ( ! $forTheme) {
+        if (! $forTheme) {
             $exludePages = [
                 'category',
                 'changecurrency',
@@ -157,10 +161,10 @@ class MetaCore extends ObjectModel
                 $properties = $reflection ? $reflection->getDefaultProperties() : [];
                 if (isset($properties['php_self'])) {
                     $selectedPages[$properties['php_self']] = $properties['php_self'];
-                } elseif (preg_match('/^[a-z0-9_.-]*\.php$/i', $file)) {
+                } elseif (preg_match('/^[a-z0-9_.-]*\.php$/i', (string) $file)) {
                     $selectedPages[strtolower(str_replace('Controller.php', '', $file))] = strtolower(str_replace('Controller.php', '', $file));
-                } elseif (preg_match('/^([a-z0-9_.-]*\/)?[a-z0-9_.-]*\.php$/i', $file)) {
-                    $selectedPages[strtolower(sprintf(Tools::displayError('%2$s (in %1$s)'), dirname($file), str_replace('Controller.php', '', basename($file))))] = strtolower(str_replace('Controller.php', '', basename($file)));
+                } elseif (preg_match('/^([a-z0-9_.-]*\/)?[a-z0-9_.-]*\.php$/i', (string) $file)) {
+                    $selectedPages[strtolower(sprintf(Tools::displayError('%2$s (in %1$s)'), dirname((string) $file), str_replace('Controller.php', '', basename((string) $file))))] = strtolower(str_replace('Controller.php', '', basename((string) $file)));
                 }
             }
         }
@@ -170,7 +174,7 @@ class MetaCore extends ObjectModel
         foreach ($moduleDirs as $module) {
             if (Module::isInstalled($module)) {
                 $path = _PS_MODULE_DIR_.$module.'/controllers/front/';
-                if ( ! is_dir($path)) {
+                if (! is_dir($path)) {
                     continue;
                 }
 
@@ -216,13 +220,12 @@ class MetaCore extends ObjectModel
      */
     public static function getMetas()
     {
-        $ret = Db::readOnly()->getArray(
+        return Db::readOnly()->getArray(
             (new DbQuery())
                 ->select('*')
                 ->from('meta')
                 ->orderBy('`page` ASC')
         );
-        return $ret;
     }
 
     /**
@@ -235,15 +238,13 @@ class MetaCore extends ObjectModel
      */
     public static function getMetasByIdLang($idLang)
     {
-        $ret = Db::readOnly()->getArray(
+        return Db::readOnly()->getArray(
             (new DbQuery())
                 ->select('m.id_meta, m.page, m.configurable, ml.title, ml.description, ml.keywords, ml.url_rewrite')
                 ->from('meta', 'm')
                 ->leftJoin('meta_lang', 'ml', 'm.id_meta = ml.id_meta AND ml.id_lang = '.(int) $idLang.' '.Shop::addSqlRestrictionOnLang('ml'))
                 ->orderBy('m.page ASC')
         );
-
-        return $ret;
     }
 
     /**
@@ -285,22 +286,28 @@ class MetaCore extends ObjectModel
      */
     public static function getMetaTags($idLang, $pageName, $title = '')
     {
-        if (!(!Configuration::get('PS_SHOP_ENABLE')
-            && !in_array(Tools::getRemoteAddr(), Tools::getMaintenanceIPAddresses()))
+        if (!Configuration::get('PS_SHOP_ENABLE')
+            && !in_array(Tools::getRemoteAddr(), Tools::getMaintenanceIPAddresses())
         ) {
-            if ($pageName == 'product' && ($idProduct = Tools::getIntValue('id_product'))) {
-                return Meta::getProductMetas($idProduct, $idLang, $pageName);
-            } elseif ($pageName == 'category' && ($idCategory = Tools::getIntValue('id_category'))) {
-                return Meta::getCategoryMetas($idCategory, $idLang, $pageName, $title);
-            } elseif ($pageName == 'manufacturer' && ($idManufacturer = Tools::getIntValue('id_manufacturer'))) {
-                return Meta::getManufacturerMetas($idManufacturer, $idLang, $pageName);
-            } elseif ($pageName == 'supplier' && ($idSupplier = Tools::getIntValue('id_supplier'))) {
-                return Meta::getSupplierMetas($idSupplier, $idLang, $pageName);
-            } elseif ($pageName == 'cms' && ($idCms = Tools::getIntValue('id_cms'))) {
-                return Meta::getCmsMetas($idCms, $idLang, $pageName);
-            } elseif ($pageName == 'cms' && ($idCmsCategory = Tools::getIntValue('id_cms_category'))) {
-                return Meta::getCmsCategoryMetas($idCmsCategory, $idLang, $pageName);
-            }
+            return Meta::getHomeMetas($idLang, $pageName);
+        }
+        if ($pageName == 'product' && ($idProduct = Tools::getIntValue('id_product'))) {
+            return Meta::getProductMetas($idProduct, $idLang, $pageName);
+        }
+        if ($pageName == 'category' && ($idCategory = Tools::getIntValue('id_category'))) {
+            return Meta::getCategoryMetas($idCategory, $idLang, $pageName, $title);
+        }
+        if ($pageName == 'manufacturer' && ($idManufacturer = Tools::getIntValue('id_manufacturer'))) {
+            return Meta::getManufacturerMetas($idManufacturer, $idLang, $pageName);
+        }
+        if ($pageName == 'supplier' && ($idSupplier = Tools::getIntValue('id_supplier'))) {
+            return Meta::getSupplierMetas($idSupplier, $idLang, $pageName);
+        }
+        if ($pageName == 'cms' && ($idCms = Tools::getIntValue('id_cms'))) {
+            return Meta::getCmsMetas($idCms, $idLang, $pageName);
+        }
+        if ($pageName == 'cms' && ($idCmsCategory = Tools::getIntValue('id_cms_category'))) {
+            return Meta::getCmsCategoryMetas($idCmsCategory, $idLang, $pageName);
         }
 
         return Meta::getHomeMetas($idLang, $pageName);
@@ -331,9 +338,9 @@ class MetaCore extends ObjectModel
                 ->where('product_shop.`active` = 1')
         )) {
             if (! empty($row['meta_description'])) {
-                $row['meta_description'] = strip_tags($row['meta_description']);
+                $row['meta_description'] = strip_tags((string) $row['meta_description']);
             } elseif (! empty($row['description_short'])) {
-                $row['meta_description'] = strip_tags($row['description_short']);
+                $row['meta_description'] = strip_tags((string) $row['description_short']);
             }
 
             return Meta::completeMetaTags($row, $row['name']);
@@ -345,10 +352,8 @@ class MetaCore extends ObjectModel
     /**
      * @param array $metaTags
      * @param string $defaultValue
-     * @param Context|null $context
      *
      * @return array
-     *
      * @throws PrestaShopException
      */
     public static function completeMetaTags($metaTags, $defaultValue, ?Context $context = null)
@@ -397,13 +402,12 @@ class MetaCore extends ObjectModel
                 $ret['nofollow'] = true;
             }
             return $ret;
-        } else {
-            return [
-                'meta_title' => $shopName,
-                'meta_description' => '',
-                'meta_keywords' => '',
-            ];
         }
+        return [
+            'meta_title' => $shopName,
+            'meta_description' => '',
+            'meta_keywords' => '',
+        ];
     }
 
     /**
@@ -455,9 +459,9 @@ class MetaCore extends ObjectModel
                     ->where('cl.`id_category` = '.(int) $idCategory.' '.Shop::addSqlRestrictionOnLang('cl'))
             )) {
                 if (! empty($row['meta_description'])) {
-                    $row['meta_description'] = strip_tags($row['meta_description']);
+                    $row['meta_description'] = strip_tags((string) $row['meta_description']);
                 } elseif (! empty($row['description'])) {
-                    $row['meta_description'] = strip_tags($row['description']);
+                    $row['meta_description'] = strip_tags((string) $row['description']);
                 }
 
                 // Paginate title
@@ -507,9 +511,9 @@ class MetaCore extends ObjectModel
                 ->where('ml.`id_manufacturer` = '.(int) $idManufacturer)
         )) {
             if (!empty($row['meta_description'])) {
-                $row['meta_description'] = strip_tags($row['meta_description']);
+                $row['meta_description'] = strip_tags((string) $row['meta_description']);
             }
-            $row['meta_title'] = ($row['meta_title'] ? $row['meta_title'] : $row['name']).(!empty($pageNumber) ? ' ('.$pageNumber.')' : '');
+            $row['meta_title'] = ($row['meta_title'] ?: $row['name']).(!empty($pageNumber) ? ' ('.$pageNumber.')' : '');
             $row['meta_title'] .= ' - '.Configuration::get('PS_SHOP_NAME');
 
             return Meta::completeMetaTags($row, $row['meta_title']);
@@ -541,7 +545,7 @@ class MetaCore extends ObjectModel
                 ->where('sl.`id_supplier` = '.(int) $idSupplier)
         )) {
             if (!empty($row['meta_description'])) {
-                $row['meta_description'] = strip_tags($row['meta_description']);
+                $row['meta_description'] = strip_tags((string) $row['meta_description']);
             }
             if (!empty($row['meta_title'])) {
                 $row['meta_title'] = $row['meta_title'].' - '.Configuration::get('PS_SHOP_NAME');
@@ -668,7 +672,7 @@ class MetaCore extends ObjectModel
     /**
      * @param TableSchema $table
      */
-    public static function processTableSchema($table)
+    public static function processTableSchema($table): void
     {
         if ($table->getNameWithoutPrefix() === 'meta_lang') {
             $table->reorderColumns(['id_meta', 'id_shop', 'id_lang']);

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -104,7 +106,7 @@ class AdminOrderMessageControllerCore extends AdminController
                     'label'    => $this->l('Message'),
                     'name'     => 'message',
                     'required' => true,
-                    'desc'     => $this->l('Available Shortcodes:') . '<br><ul>'.$availableShortocdes
+                    'desc'     => $this->l('Available Shortcodes:') . '<br><ul>'.$availableShortocdes,
                 ],
             ],
             'submit' => [

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -41,7 +43,7 @@ class ControllerFactoryCore
     /**
      * @deprecated since 1.0.0
      */
-    public static function includeController($className)
+    public static function includeController($className): void
     {
         Tools::displayAsDeprecated();
     }

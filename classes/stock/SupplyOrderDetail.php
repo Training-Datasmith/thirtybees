@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -272,7 +274,7 @@ class SupplyOrderDetailCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public function applyGlobalDiscount($discountRate)
+    public function applyGlobalDiscount($discountRate): void
     {
         if ($discountRate != null && is_numeric($discountRate) && (float) $discountRate > 0) {
             // calculates new price, with global order discount, tax ecluded
@@ -292,14 +294,11 @@ class SupplyOrderDetailCore extends ObjectModel
         }
     }
 
-
     /**
-     * @param array $data
      * @param int $idLang
      *
-     * @return void
      */
-    public function hydrate(array $data, $idLang = null)
+    public function hydrate(array $data, $idLang = null): void
     {
         parent::hydrate($data, $idLang);
 

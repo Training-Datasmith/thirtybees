@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Returns all extensions for given $category
  *
@@ -9,7 +11,7 @@
  */
 function getFileExtensions(string $category = 'all'): array
 {
-    return array_reduce(FILE_MANAGER_ALLOWED_MIME_TYPES, function($carry, $record) use ($category){
+    return array_reduce(FILE_MANAGER_ALLOWED_MIME_TYPES, function ($carry, $record) use ($category) {
         if ($category === 'all' || $record['category'] === $category) {
             return array_unique(array_merge($carry, $record['extensions']));
         }
@@ -65,8 +67,8 @@ function deleteDir($dir)
 function duplicate_file($old_path, $name)
 {
     if (file_exists($old_path)) {
-        $info=pathinfo($old_path);
-        $new_path=$info['dirname']."/".$name.".".$info['extension'];
+        $info = pathinfo($old_path);
+        $new_path = $info['dirname'].'/'.$name.'.'.$info['extension'];
         if (file_exists($new_path)) {
             return false;
         }
@@ -81,10 +83,10 @@ function duplicate_file($old_path, $name)
  */
 function rename_file($old_path, $name)
 {
-    $name=fix_filename($name);
+    $name = fix_filename($name);
     if (file_exists($old_path)) {
-        $info=pathinfo($old_path);
-        $new_path=$info['dirname']."/".$name.".".$info['extension'];
+        $info = pathinfo($old_path);
+        $new_path = $info['dirname'].'/'.$name.'.'.$info['extension'];
         if (file_exists($new_path)) {
             return false;
         }
@@ -99,9 +101,9 @@ function rename_file($old_path, $name)
  */
 function rename_folder($old_path, $name)
 {
-    $name=fix_filename($name);
+    $name = fix_filename($name);
     if (file_exists($old_path)) {
-        $new_path=fix_dirname($old_path)."/".$name;
+        $new_path = fix_dirname($old_path).'/'.$name;
         if (file_exists($new_path)) {
             return false;
         }
@@ -117,7 +119,7 @@ function rename_folder($old_path, $name)
  * @return bool
  * @throws PrestaShopException
  */
-function create_img_gd($imgfile, $imgthumb, $newwidth, $newheight="")
+function create_img_gd($imgfile, $imgthumb, $newwidth, $newheight = '')
 {
     if (ImageManager::checkImageMemoryLimit($imgfile)) {
         require_once('php_image_magician.php');
@@ -128,7 +130,6 @@ function create_img_gd($imgfile, $imgthumb, $newwidth, $newheight="")
     }
     return false;
 }
-
 
 /**
  * @param int $size
@@ -142,7 +143,7 @@ function makeSize($size)
         $size = $size / 1024;
         $u++;
     }
-    return (number_format($size, 0) . " " . $units[$u]);
+    return (number_format($size, 0) . ' ' . $units[$u]);
 }
 
 /**
@@ -156,7 +157,7 @@ function foldersize($path)
     $cleanPath = rtrim($path, '/'). '/';
 
     foreach ($files as $t) {
-        if ($t<>"." && $t<>"..") {
+        if ($t <> '.' && $t <> '..') {
             $currentFile = $cleanPath . $t;
             if (is_dir($currentFile)) {
                 $size = foldersize($currentFile);
@@ -176,7 +177,7 @@ function foldersize($path)
  * @param string $path_thumbs
  * @return void
  */
-function create_folder($path=false, $path_thumbs=false)
+function create_folder($path = false, $path_thumbs = false)
 {
     $oldumask = umask(0);
     if ($path && !file_exists($path)) {
@@ -187,7 +188,6 @@ function create_folder($path=false, $path_thumbs=false)
     } // or even 01777 so you get the sticky bit set
     umask($oldumask);
 }
-
 
 /**
  * @param Traversable $phar
@@ -216,8 +216,8 @@ function check_files_extensions_on_phar($phar, &$files, $basepath, $ext)
  */
 function fix_filename($str)
 {
-    $str=str_replace(['"', "'", "/", "\\"], "", $str);
-    $str=strip_tags($str);
+    $str = str_replace(['"', "'", '/', '\\'], '', $str);
+    $str = strip_tags($str);
 
     // Here is a point: a good file UNKNOWN_LANGUAGE.jpg could become .jpg in previous code.
     // So we add that default 'file' name to fix that issue.
@@ -250,7 +250,6 @@ function fix_strtoupper($str)
     }
 }
 
-
 /**
  * @param string $str
  * @return string
@@ -270,7 +269,7 @@ function fix_strtolower($str)
  */
 function fix_path($path)
 {
-    $info=pathinfo($path);
+    $info = pathinfo($path);
     if (($s = strrpos($path, '/')) !== false) {
         $s++;
     }
@@ -280,8 +279,8 @@ function fix_path($path)
     }
     $tmp_path = $info['dirname'].DIRECTORY_SEPARATOR.$info['basename'];
 
-    $str=fix_filename($info['filename']);
-    if ($tmp_path!="") {
+    $str = fix_filename($info['filename']);
+    if ($tmp_path != '') {
         return $tmp_path.DIRECTORY_SEPARATOR.$str;
     } else {
         return $str;
@@ -294,10 +293,10 @@ function fix_path($path)
 function base_url()
 {
     return sprintf(
-    "%s://%s",
-    isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off' ? 'https' : 'http',
-    $_SERVER['HTTP_HOST']
-  );
+        '%s://%s',
+        isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off' ? 'https' : 'http',
+        $_SERVER['HTTP_HOST']
+    );
 }
 
 /**
@@ -325,7 +324,7 @@ function getSubDir($fldr)
     }
 
     if (isset($cookie->fmLastPosition)) {
-       return $cookie->fmLastPosition;
+        return $cookie->fmLastPosition;
     }
 
     return '';
@@ -365,7 +364,7 @@ function normalizePath(string $path): string
 /**
  * @return int
  */
-function getViewType():int
+function getViewType(): int
 {
     $cookie = Context::getContext()->cookie;
     if (isset($cookie->fmViewType)) {
@@ -381,7 +380,7 @@ function getViewType():int
  *
  * @noinspection PhpUndefinedFieldInspection
  */
-function setViewType(int $viewType):int
+function setViewType(int $viewType): int
 {
     $viewType = (int)$viewType;
     $cookie = Context::getContext()->cookie;
@@ -404,7 +403,7 @@ function getSortBy(): string
         if (in_array($sortBy, ['name', 'date', 'size', 'extension'])) {
             return $sortBy;
         }
-        }
+    }
     return 'name';
 }
 
@@ -415,7 +414,7 @@ function getSortBy(): string
  *
  * @noinspection PhpUndefinedFieldInspection
  */
-function setSortBy(string $sortBy):string
+function setSortBy(string $sortBy): string
 {
     $sortBy = strtolower($sortBy);
     if (!in_array($sortBy, ['name', 'date', 'size', 'extension'])) {
@@ -455,7 +454,7 @@ function setDescending(bool $descending): bool
 /**
  * @return string
  */
-function resolveLanguage():string
+function resolveLanguage(): string
 {
     $lang = (string)Tools::getValue('lang', 'en');
     $parts = pathinfo($lang);

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -76,7 +78,6 @@ foreach (scandir($localizationPacksRoot) as $entry) {
         continue;
     }
 
-
     $localizationPackFile = $localizationPacksRoot . DIRECTORY_SEPARATOR . $entry;
 
     $localizationPack = @simplexml_load_file($localizationPackFile);
@@ -92,7 +93,7 @@ foreach (scandir($localizationPacksRoot) as $entry) {
                 $euLocalizationFiles[$localizationPackFile] = [
                     'virtualTax' => $tax,
                     'pack' => $localizationPack,
-                    'iso_code_country' => basename($entry, '.xml')
+                    'iso_code_country' => basename($entry, '.xml'),
                 ];
             } else {
                 die("Too many taxes with eu-tax-group=\"virtual\" found in `$localizationPackFile`.\n");
@@ -178,7 +179,7 @@ foreach ($euLocalizationFiles as $path => $file) {
     // Get max tax id, and list of nodes to kill
     $taxId = 0;
     foreach ($file['pack']->taxes->tax as $tax) {
-        if ((string)$tax['auto-generated'] === "1" && (string)$tax['from-eu-tax-group'] === 'virtual') {
+        if ((string)$tax['auto-generated'] === '1' && (string)$tax['from-eu-tax-group'] === 'virtual') {
             $nodesToKill[] = $tax;
         } else {
             // We only count the ids of the taxes we're not going to remove!
@@ -187,7 +188,7 @@ foreach ($euLocalizationFiles as $path => $file) {
     }
 
     foreach ($file['pack']->taxes->taxRulesGroup as $trg) {
-        if ((string)$trg['auto-generated'] === "1" && (string)$trg['eu-tax-group'] === 'virtual') {
+        if ((string)$trg['auto-generated'] === '1' && (string)$trg['eu-tax-group'] === 'virtual') {
             $nodesToKill[] = $trg;
         }
     }
@@ -210,11 +211,15 @@ foreach ($euLocalizationFiles as $path => $file) {
             continue;
         }
 
-        $tax = addTax($file['pack']->taxes, $foreignFile['virtualTax'], [
+        $tax = addTax(
+            $file['pack']->taxes,
+            $foreignFile['virtualTax'],
+            [
             'id' => (string)$taxId,
             'auto-generated' => '1',
-            'from-eu-tax-group' => 'virtual'
-        ], ['eu-tax-group']
+            'from-eu-tax-group' => 'virtual',
+        ],
+            ['eu-tax-group']
         );
 
         addTaxRule($taxRulesGroup, $tax, $foreignFile['iso_code_country']);
@@ -226,7 +231,7 @@ foreach ($euLocalizationFiles as $path => $file) {
         unset($node[0]);
     }
 
-    $dom = new DOMDocument("1.0");
+    $dom = new DOMDocument('1.0');
     $dom->preserveWhiteSpace = false;
     $dom->formatOutput = true;
     $dom->loadXML($file['pack']->asXML());

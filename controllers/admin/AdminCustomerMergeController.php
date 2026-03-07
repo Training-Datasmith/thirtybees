@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -60,13 +62,13 @@ class AdminCustomerMergeControllerCore extends AdminController implements Initia
                     'list' => [
                         [
                             'id' => 'update',
-                            'name' => $this->l('Update')
+                            'name' => $this->l('Update'),
                         ],
                         [
                             'id' => 'delete',
-                            'name' => $this->l('Delete')
-                        ]
-                    ]
+                            'name' => $this->l('Delete'),
+                        ],
+                    ],
                 ];
             } elseif (array_key_exists($table, $modulesManaged)) {
                 $modulesTables[$table] = [
@@ -80,17 +82,17 @@ class AdminCustomerMergeControllerCore extends AdminController implements Initia
                     'list' => [
                         [
                             'id' => 'update',
-                            'name' => $this->l('Update')
+                            'name' => $this->l('Update'),
                         ],
                         [
                             'id' => 'delete',
-                            'name' => $this->l('Delete')
+                            'name' => $this->l('Delete'),
                         ],
                         [
                             'id' => 'callable',
-                            'name' => $this->l('Custom code handler')
-                        ]
-                    ]
+                            'name' => $this->l('Custom code handler'),
+                        ],
+                    ],
                 ];
             } else {
                 $otherTables[$table] = [
@@ -103,21 +105,20 @@ class AdminCustomerMergeControllerCore extends AdminController implements Initia
                     'list' => [
                         [
                             'id' => '',
-                            'name' => $this->l('Select merge method')
+                            'name' => $this->l('Select merge method'),
                         ],
                         [
                             'id' => 'update',
-                            'name' => $this->l('Update')
+                            'name' => $this->l('Update'),
                         ],
                         [
                             'id' => 'delete',
-                            'name' => $this->l('Delete')
-                        ]
-                    ]
+                            'name' => $this->l('Delete'),
+                        ],
+                    ],
                 ];
             }
         }
-
 
         $this->fields_options = [
             'standard' => [
@@ -143,7 +144,7 @@ class AdminCustomerMergeControllerCore extends AdminController implements Initia
             ];
         }
 
-        $this->fields_options['merge'] =[
+        $this->fields_options['merge'] = [
             'title' => $this->l('Merge customers'),
             'fields' => [
                 'source_customer_id' => [
@@ -161,7 +162,7 @@ class AdminCustomerMergeControllerCore extends AdminController implements Initia
             ],
             'submit' => [
                 'name' => 'submitMerge',
-                'title' => $this->l('Merge')
+                'title' => $this->l('Merge'),
             ],
         ];
     }
@@ -172,7 +173,7 @@ class AdminCustomerMergeControllerCore extends AdminController implements Initia
     public function initToolbarTitle()
     {
         $this->toolbar_title = [
-            $this->l('Merge customers')
+            $this->l('Merge customers'),
         ];
     }
 
@@ -287,7 +288,7 @@ class AdminCustomerMergeControllerCore extends AdminController implements Initia
         $params = [
             'token' => Tools::getAdminTokenLite('AdminCustomers'),
             'viewcustomer' => 1,
-            'id_customer' => $target->id
+            'id_customer' => $target->id,
         ];
         $url = Dispatcher::getInstance()->createUrl('AdminCustomers', $idLang, $params, false);
         Tools::redirectAdmin($url);
@@ -314,7 +315,6 @@ class AdminCustomerMergeControllerCore extends AdminController implements Initia
         }
         return null;
     }
-
 
     /**
      * Callback method to initialize class

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -413,8 +415,7 @@ class ProductControllerCore extends FrontController
                 $imageExtension = ImageManager::getDefaultImageExtension();
                 if (!ImageManager::convertImageToExtension($tmpName, $imageExtension, _PS_UPLOAD_DIR_.$fileName)) {
                     $this->errors[] = Tools::displayError('An error occurred during the image upload process.');
-                } /* A smaller one */
-                elseif (!ImageManager::resize($tmpName, _PS_UPLOAD_DIR_.$fileName.'_small', $productPictureWidth, $productPictureHeight, $imageExtension)) {
+                } /* A smaller one */ elseif (!ImageManager::resize($tmpName, _PS_UPLOAD_DIR_.$fileName.'_small', $productPictureWidth, $productPictureHeight, $imageExtension)) {
                     $this->errors[] = Tools::displayError('An error occurred during the image upload process.');
                 } elseif (!chmod(_PS_UPLOAD_DIR_.$fileName, 0777) || !chmod(_PS_UPLOAD_DIR_.$fileName.'_small', 0777)) {
                     $this->errors[] = Tools::displayError('An error occurred during the image upload process.');
@@ -611,7 +612,8 @@ class ProductControllerCore extends FrontController
             if ($row['price'] >= 0) {
                 // The price may be directly set
 
-                $currentPrice = (!$row['reduction_tax'] ?
+                $currentPrice = (
+                    !$row['reduction_tax'] ?
                     $row['price'] :
                     round(
                         $row['price'] * (1 + $taxRate / 100),
@@ -998,6 +1000,5 @@ class ProductControllerCore extends FrontController
         }
         return null;
     }
-
 
 }

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -615,7 +617,7 @@ class AdminOrdersControllerCore extends AdminController
                             [
                                 'order' => $order,
                                 'customer' => $customer,
-                                'carrier' => $carrier
+                                'carrier' => $carrier,
                             ],
                             $order->id_shop
                         );
@@ -626,8 +628,7 @@ class AdminOrdersControllerCore extends AdminController
             } else {
                 $this->errors[] = Tools::displayError('You do not have permission to edit this.');
             }
-        } /* Change order status, add a new entry in order history and send an e-mail to the customer if needed */
-        elseif (Tools::isSubmit('submitState') && isset($order)) {
+        } /* Change order status, add a new entry in order history and send an e-mail to the customer if needed */ elseif (Tools::isSubmit('submitState') && isset($order)) {
             if ($this->hasEditPermission()) {
                 $newOrderState = Tools::getIntValue('id_order_state');
                 $orderState = new OrderState($newOrderState, $order->id_lang);
@@ -693,8 +694,7 @@ class AdminOrdersControllerCore extends AdminController
             } else {
                 $this->errors[] = Tools::displayError('You do not have permission to edit this.');
             }
-        } /* Add a new message for the current order and send an e-mail to the customer if needed */
-        elseif (Tools::isSubmit('submitMessage') && isset($order)) {
+        } /* Add a new message for the current order and send an e-mail to the customer if needed */ elseif (Tools::isSubmit('submitMessage') && isset($order)) {
             if ($this->hasEditPermission()) {
                 $customer = new Customer(Tools::getIntValue('id_customer'));
                 if (!Validate::isLoadedObject($customer)) {
@@ -799,8 +799,7 @@ class AdminOrdersControllerCore extends AdminController
             } else {
                 $this->errors[] = Tools::displayError('You do not have permission to delete this.');
             }
-        } /* Partial refund from order */
-        elseif (Tools::isSubmit('partialRefund') && isset($order)) {
+        } /* Partial refund from order */ elseif (Tools::isSubmit('partialRefund') && isset($order)) {
             if ($this->hasEditPermission()) {
                 if (Tools::isSubmit('partialRefundProduct') &&
                     ($refunds = Tools::getArrayValue('partialRefundProduct', [])) &&
@@ -898,8 +897,9 @@ class AdminOrdersControllerCore extends AdminController
                                 [
                                     'order' => $order,
                                     'productList' => $orderDetailList,
-                                    'qtyList' => $fullQuantityList
-                                ], $order->id_shop
+                                    'qtyList' => $fullQuantityList,
+                                ],
+                                $order->id_shop
                             );
                             $customer = new Customer((int) ($order->id_customer));
                             $params['{lastname}'] = $customer->lastname;
@@ -1015,8 +1015,7 @@ class AdminOrdersControllerCore extends AdminController
             } else {
                 $this->errors[] = Tools::displayError('You do not have permission to delete this.');
             }
-        } /* Cancel product from order */
-        elseif (Tools::isSubmit('cancelProduct') && isset($order)) {
+        } /* Cancel product from order */ elseif (Tools::isSubmit('cancelProduct') && isset($order)) {
             if ($this->hasDeletePermission()) {
                 if (!Tools::isSubmit('id_order_detail') && !Tools::isSubmit('id_customization')) {
                     $this->errors[] = Tools::displayError('You must select a product.');
@@ -1118,7 +1117,7 @@ class AdminOrdersControllerCore extends AdminController
                                     'actionProductCancel',
                                     [
                                         'order' => $order,
-                                        'id_order_detail' => (int) $idOrderDetail
+                                        'id_order_detail' => (int) $idOrderDetail,
                                     ],
                                     $order->id_shop
                                 );
@@ -1174,8 +1173,9 @@ class AdminOrdersControllerCore extends AdminController
                                     [
                                         'order' => $order,
                                         'productList' => $fullProductList,
-                                        'qtyList' => $fullQuantityList
-                                    ], $order->id_shop
+                                        'qtyList' => $fullQuantityList,
+                                    ],
+                                    $order->id_shop
                                 );
                                 @Mail::Send(
                                     (int) $order->id_lang,
@@ -1583,7 +1583,7 @@ class AdminOrdersControllerCore extends AdminController
                                 $this->errors[] = Tools::displayError('The discount value is invalid.');
                             }
                             break;
-                        // Amount type
+                            // Amount type
                         case 2:
                             if (isset($orderInvoice)) {
                                 if ($discountValue > $orderInvoice->total_paid_tax_incl) {
@@ -1618,7 +1618,7 @@ class AdminOrdersControllerCore extends AdminController
                                 }
                             }
                             break;
-                        // Free shipping type
+                            // Free shipping type
                         case 3:
                             if (isset($orderInvoice)) {
                                 if ($orderInvoice->total_shipping_tax_incl > 0) {
@@ -1842,7 +1842,7 @@ class AdminOrdersControllerCore extends AdminController
         if (!Validate::isLoadedObject($order)) {
             $this->errors[] = Tools::displayError('The order cannot be found within your database.');
         }
-        
+
         $shopActive = Shop::isFeatureActive();
         if ($shopActive) {
             $shop = new Shop((int)$order->id_shop);
@@ -1850,7 +1850,7 @@ class AdminOrdersControllerCore extends AdminController
         }
         $this->tpl_view_vars['shop_feature_active'] = $shopActive;
         $this->context->smarty->assign($this->tpl_view_vars);
-        
+
         $customer = new Customer($order->id_customer);
         $carrier = new Carrier($order->id_carrier);
         $products = $this->getProducts($order);
@@ -2048,7 +2048,8 @@ class AdminOrdersControllerCore extends AdminController
                 ]
             ),
             'HOOK_TAB_SHIP'                => Hook::displayHook(
-                'displayAdminOrderTabShip', [
+                'displayAdminOrderTabShip',
+                [
                     'order'    => $order,
                     'products' => $products,
                     'customer' => $customer,
@@ -2302,7 +2303,6 @@ class AdminOrdersControllerCore extends AdminController
             $cart->id,
             $order->{Configuration::get('PS_TAX_ADDRESS_TYPE', null, null, $order->id_shop)}
         );
-
 
         // Add product to cart
         $updateQuantity = $cart->updateQty(
@@ -2727,7 +2727,6 @@ class AdminOrdersControllerCore extends AdminController
 
         $this->checkStockAvailable($orderDetail, ($productQuantity - $orderDetail->product_quantity));
 
-
         // Check fields validity
         $this->doEditProductValidation($orderDetail, $order, $orderInvoice ?? null);
 
@@ -3129,7 +3128,7 @@ class AdminOrdersControllerCore extends AdminController
             ]));
         }
 
-        if ( ! Validate::isPrice(Tools::getValue('product_price_tax_incl'))
+        if (! Validate::isPrice(Tools::getValue('product_price_tax_incl'))
             || ! Validate::isPrice(Tools::getValue('product_price_tax_excl'))) {
             $this->ajaxDie(json_encode([
                 'result' => false,
@@ -3406,7 +3405,6 @@ class AdminOrdersControllerCore extends AdminController
         }
         return $invoiceArray;
     }
-
 
     /**
      * @param float|mixed $value

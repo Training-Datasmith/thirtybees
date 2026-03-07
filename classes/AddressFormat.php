@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -121,7 +123,7 @@ class AddressFormatCore extends ObjectModel
         'Supplier',
     ];
 
-    const _CLEANING_REGEX_ = '#([^\w:_]+)#i';
+    public const _CLEANING_REGEX_ = '#([^\w:_]+)#i';
 
     /**
      * Check if the the association of the field name and a class name
@@ -224,16 +226,18 @@ class AddressFormatCore extends ObjectModel
         $multipleLineFields = explode("\n", $this->format);
         if ($multipleLineFields && is_array($multipleLineFields)) {
             foreach ($multipleLineFields as $lineField) {
-                if (($patternsName = preg_split(static::_CLEANING_REGEX_, $lineField, -1, PREG_SPLIT_NO_EMPTY))) {
-                    if (is_array($patternsName)) {
-                        foreach ($patternsName as $patternName) {
-                            if (!in_array($patternName, $usedKeyList)) {
-                                $this->_checkLiableAssociation($patternName);
-                                $usedKeyList[] = $patternName;
-                            } else {
-                                $this->_errorFormatList[] = Tools::displayError('This key has already been used.').': '.$patternName;
-                            }
-                        }
+                if (!$patternsName = preg_split(static::_CLEANING_REGEX_, $lineField, -1, PREG_SPLIT_NO_EMPTY)) {
+                    continue;
+                }
+                if (!is_array($patternsName)) {
+                    continue;
+                }
+                foreach ($patternsName as $patternName) {
+                    if (!in_array($patternName, $usedKeyList)) {
+                        $this->_checkLiableAssociation($patternName);
+                        $usedKeyList[] = $patternName;
+                    } else {
+                        $this->_errorFormatList[] = Tools::displayError('This key has already been used.').': '.$patternName;
                     }
                 }
             }
@@ -275,7 +279,7 @@ class AddressFormatCore extends ObjectModel
 
                         $chars = $start = $end = str_replace($key, '', $replacedValue);
                         if (preg_match(static::_CLEANING_REGEX_, $chars)) {
-                            if (mb_substr($replacedValue, 0, mb_strlen($chars)) == $chars) {
+                            if (mb_substr((string) $replacedValue, 0, mb_strlen($chars)) == $chars) {
                                 $end = '';
                             } else {
                                 $start = '';
@@ -286,7 +290,7 @@ class AddressFormatCore extends ObjectModel
                             }
                         }
 
-                        if ($formattedValue = preg_replace('/^'.$key.'$/', $formattedValueList[$key] ?? '', $replacedValue, -1, $count)) {
+                        if ($formattedValue = preg_replace('/^'.$key.'$/', $formattedValueList[$key] ?? '', (string) $replacedValue, -1, $count)) {
                             if ($count) {
                                 // Allow to check multiple key in the same pattern,
                                 if (empty($mainFormattedKey)) {
@@ -310,11 +314,11 @@ class AddressFormatCore extends ObjectModel
     /**
      * @param array $orderedAddressField
      */
-    public static function cleanOrderedAddress(&$orderedAddressField)
+    public static function cleanOrderedAddress(&$orderedAddressField): void
     {
         foreach ($orderedAddressField as &$line) {
             $cleanedLine = '';
-            if (($keyList = preg_split(static::_CLEANING_REGEX_, $line, -1, PREG_SPLIT_NO_EMPTY))) {
+            if (($keyList = preg_split(static::_CLEANING_REGEX_, (string) $line, -1, PREG_SPLIT_NO_EMPTY))) {
                 foreach ($keyList as $key) {
                     $cleanedLine .= $key.' ';
                 }
@@ -356,7 +360,7 @@ class AddressFormatCore extends ObjectModel
             }
 
             foreach ($addressFormat as $line) {
-                if (($keyList = preg_split(static::_CLEANING_REGEX_, $line, -1, PREG_SPLIT_NO_EMPTY)) && is_array($keyList)) {
+                if (($keyList = preg_split(static::_CLEANING_REGEX_, (string) $line, -1, PREG_SPLIT_NO_EMPTY)) && is_array($keyList)) {
                     foreach ($keyList as $pattern) {
                         if ($associateName = explode(':', $pattern)) {
                             $totalName = count($associateName);
@@ -377,8 +381,7 @@ class AddressFormatCore extends ObjectModel
                                     }
                                     if ($temporyObject[$associateName[0]]) {
                                         $tab[$pattern] = (is_array($temporyObject[$associateName[0]]->{$associateName[1]})) ?
-                                            ((isset($temporyObject[$associateName[0]]->{$associateName[1]}[$idLang])) ?
-                                                $temporyObject[$associateName[0]]->{$associateName[1]}[$idLang] : '') :
+                                            ($temporyObject[$associateName[0]]->{$associateName[1]}[$idLang] ?? '') :
                                             $temporyObject[$associateName[0]]->{$associateName[1]};
                                     }
                                 }
@@ -396,14 +399,12 @@ class AddressFormatCore extends ObjectModel
     /**
      * Generates the full address text
      *
-     * @param Address $address
      * @param array $patternRules A defined rules array to avoid some pattern
      * @param string $newLine A string containing the newLine format
      * @param string $separator A string containing the separator format
      * @param array $style
      *
      * @return string
-     *
      * @throws PrestaShopException
      */
     public static function generateAddress(Address $address, $patternRules = [], $newLine = "\r\n", $separator = ' ', $style = [])
@@ -431,9 +432,8 @@ class AddressFormatCore extends ObjectModel
         }
 
         $addressText = preg_replace('/'.preg_quote($newLine, '/').'$/i', '', $addressText);
-        $addressText = rtrim($addressText, $separator);
 
-        return $addressText;
+        return rtrim((string) $addressText, $separator);
     }
 
     /**
@@ -624,7 +624,7 @@ class AddressFormatCore extends ObjectModel
     {
         $out = $this->_getFormatDB($idCountry);
         if (empty($out)) {
-            $out = $this->_getFormatDB(Configuration::get('PS_COUNTRY_DEFAULT'));
+            return $this->_getFormatDB(Configuration::get('PS_COUNTRY_DEFAULT'));
         }
 
         return $out;
@@ -646,7 +646,7 @@ class AddressFormatCore extends ObjectModel
                     ->from(bqSQL(static::$definition['table']))
                     ->where('`id_country` = '.(int) $idCountry)
             );
-            $format = trim($format);
+            $format = trim((string) $format);
             Cache::store('AddressFormat::_getFormatDB'.$idCountry, $format);
 
             return $format;

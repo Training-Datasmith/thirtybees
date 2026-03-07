@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -112,7 +114,6 @@ class OrderDetailControllerCore extends FrontController
                     $cm->ip_address = (int) ip2long($_SERVER['REMOTE_ADDR']);
                     $cm->add();
 
-
                     $to = static::getRecipientEmail();
                     $toName = strval(Configuration::get('PS_SHOP_NAME'));
                     $customer = $this->context->customer;
@@ -150,7 +151,6 @@ class OrderDetailControllerCore extends FrontController
                             $customer->email
                         );
                     }
-
 
                     if (Tools::getValue('ajax') != 'true') {
                         Tools::redirect('index.php?controller=order-detail&id_order='.(int) $idOrder);

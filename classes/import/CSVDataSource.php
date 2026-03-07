@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -19,7 +21,6 @@
 
 namespace Thirtybees\Core\Import;
 
-
 use PrestaShopException;
 use Tools;
 
@@ -29,53 +30,32 @@ use Tools;
 class CSVDataSourceCore implements DataSourceInterface
 {
     /**
-     * @var string
-     */
-    protected $filepath;
-
-    /**
-     * @var string
-     */
-    protected $separator;
-
-    /**
      * @var resource
      */
     protected $handle;
 
-    /**
-     * @var bool
-     */
-    private $containsBom;
+    private readonly bool $containsBom;
 
     /**
      * @var int
      */
     private $numberOfColumns = 0;
 
-    /**
-     * @var bool
-     */
-    private $convert = false;
+    private bool $convert = false;
 
     /**
      * Creates new CSV data source
      *
-     * @param string $filepath
-     * @param string $separator
      *
      * @throws PrestaShopException
      */
-    public function __construct(string $filepath, string $separator)
+    public function __construct(protected string $filepath, protected string $separator)
     {
-        $this->filepath = $filepath;
-        $this->separator = $separator;
-
-        if (is_file($filepath) && is_readable($filepath)) {
-            if (!mb_check_encoding(file_get_contents($filepath), 'UTF-8')) {
+        if (is_file($this->filepath) && is_readable($this->filepath)) {
+            if (!mb_check_encoding(file_get_contents($this->filepath), 'UTF-8')) {
                 $this->convert = true;
             }
-            $this->handle = fopen($filepath, 'r');
+            $this->handle = fopen($this->filepath, 'r');
         }
 
         if (! $this->handle) {
@@ -93,7 +73,6 @@ class CSVDataSourceCore implements DataSourceInterface
         }
         $this->rewind();
     }
-
 
     /**
      * Rewinds file handle to the beginning
@@ -116,11 +95,11 @@ class CSVDataSourceCore implements DataSourceInterface
      *
      * @return array|false
      */
-    public function getRow()
+    public function getRow(): array|false
     {
         $row = fgetcsv($this->handle, 0, $this->separator);
         if ($row && $this->convert) {
-            $row = array_map([static::class, 'convertString'], $row);
+            return array_map([static::class, 'convertString'], $row);
         }
         return $row;
     }
@@ -150,10 +129,8 @@ class CSVDataSourceCore implements DataSourceInterface
 
     /**
      * Returns information about number of rows in the dataset
-     *
-     * @return int
      */
-    public function getNumberOfRows()
+    public function getNumberOfRows(): int
     {
         $this->rewind();
         $cnt = 0;
@@ -169,12 +146,12 @@ class CSVDataSourceCore implements DataSourceInterface
      *
      * @return string
      */
-    protected static function convertString($string)
+    protected static function convertString($string): string|array|false
     {
         if (! is_string($string)) {
             return '';
         }
-        return mb_convert_encoding((string)$string, 'UTF-8', mb_list_encodings());
+        return mb_convert_encoding($string, 'UTF-8', mb_list_encodings());
     }
 
 }

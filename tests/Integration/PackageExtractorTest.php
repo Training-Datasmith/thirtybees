@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Integration;
 
 use Codeception\Test\Unit;
@@ -29,7 +31,6 @@ use Tools;
 
 class PackageExtractorTest extends Unit
 {
-
     /**
      * @var UnitTester
      */
@@ -42,9 +43,9 @@ class PackageExtractorTest extends Unit
      */
     public function testExtractNonExistingSource()
     {
-        $this->execute(function(PackageExtractor $extractor) {
+        $this->execute(function (PackageExtractor $extractor) {
             $res = $extractor->extractPackage(_PS_ROOT_DIR_ . '/non-existing.zip', 'whatever');
-            $this->assertFalse($res, "Package should not have been extracted");
+            $this->assertFalse($res, 'Package should not have been extracted');
         });
     }
 
@@ -55,10 +56,10 @@ class PackageExtractorTest extends Unit
      */
     public function testExtractLocalModule()
     {
-        $this->execute(function(PackageExtractor $extractor) {
+        $this->execute(function (PackageExtractor $extractor) {
             $this->validateNotInstalled('mod1');
             $res = $extractor->extractPackage($this->getLocalSource('mod1'), 'mod1');
-            $this->assertTrue($res, "Failed to extract package:" . $this->getErrors($extractor));
+            $this->assertTrue($res, 'Failed to extract package:' . $this->getErrors($extractor));
             $this->validateModuleStructure('mod1');
         });
     }
@@ -70,10 +71,10 @@ class PackageExtractorTest extends Unit
      */
     public function testExtractTarGzModule()
     {
-        $this->execute(function(PackageExtractor $extractor) {
+        $this->execute(function (PackageExtractor $extractor) {
             $this->validateNotInstalled('mod6');
             $res = $extractor->extractPackage($this->getLocalSource('mod6', '.tar.gz'), 'mod6');
-            $this->assertTrue($res, "Failed to extract package:" . $this->getErrors($extractor));
+            $this->assertTrue($res, 'Failed to extract package:' . $this->getErrors($extractor));
             $this->validateModuleStructure('mod6');
         });
     }
@@ -85,10 +86,10 @@ class PackageExtractorTest extends Unit
      */
     public function testNoValidDirectoryInPackage()
     {
-        $this->execute(function(PackageExtractor $extractor) {
+        $this->execute(function (PackageExtractor $extractor) {
             $this->validateNotInstalled('mod1');
             $res = $extractor->extractPackage($this->getLocalSource('mod1'), 'mod2');
-            $this->assertFalse($res, "Package should not have been extracted");
+            $this->assertFalse($res, 'Package should not have been extracted');
         });
     }
 
@@ -99,10 +100,10 @@ class PackageExtractorTest extends Unit
      */
     public function testExtractFromMultiPackage()
     {
-        $this->execute(function(PackageExtractor $extractor) {
+        $this->execute(function (PackageExtractor $extractor) {
             $this->validateNotInstalled('mod2');
             $res = $extractor->extractPackage($this->getLocalSource('mod2'), 'mod2');
-            $this->assertTrue($res, "Failed to extract package:" . $this->getErrors($extractor));
+            $this->assertTrue($res, 'Failed to extract package:' . $this->getErrors($extractor));
             $this->validateModuleStructure('mod2');
         });
     }
@@ -114,12 +115,12 @@ class PackageExtractorTest extends Unit
      */
     public function testExtractFromPackageWithExtraFile()
     {
-        $this->execute(function(PackageExtractor $extractor) {
+        $this->execute(function (PackageExtractor $extractor) {
             $this->validateNotInstalled('mod7');
             $res = $extractor->extractPackage($this->getLocalSource('mod7'), 'mod7');
-            $this->assertTrue($res, "Failed to extract package:" . $this->getErrors($extractor));
+            $this->assertTrue($res, 'Failed to extract package:' . $this->getErrors($extractor));
             $this->validateModuleStructure('mod7');
-            $this->assertFalse(file_exists($this->getModulesDir() . '/extra.php'), "Extra file detected");
+            $this->assertFalse(file_exists($this->getModulesDir() . '/extra.php'), 'Extra file detected');
         });
     }
 
@@ -130,13 +131,13 @@ class PackageExtractorTest extends Unit
      */
     public function testIgnoreGitDirectory()
     {
-        $this->execute(function(PackageExtractor $extractor) {
+        $this->execute(function (PackageExtractor $extractor) {
             $this->validateNotInstalled('mod3');
             $res = $extractor->extractPackage($this->getLocalSource('mod3'), 'mod3');
-            $this->assertTrue($res, "Failed to extract package:" . $this->getErrors($extractor));
+            $this->assertTrue($res, 'Failed to extract package:' . $this->getErrors($extractor));
             $this->validateModuleStructure('mod3', [], [
                 'mod3/.git/HEAD',
-                'mod3/vendor/vendor_a/.git/HEAD'
+                'mod3/vendor/vendor_a/.git/HEAD',
             ]);
         });
     }
@@ -148,10 +149,10 @@ class PackageExtractorTest extends Unit
      */
     public function testEmptyPackage()
     {
-        $this->execute(function(PackageExtractor $extractor) {
+        $this->execute(function (PackageExtractor $extractor) {
             $this->validateNotInstalled('mod4');
             $res = $extractor->extractPackage($this->getLocalSource('mod4'), 'mod4');
-            $this->assertFalse($res, "Package should not have been extracted");
+            $this->assertFalse($res, 'Package should not have been extracted');
         });
     }
 
@@ -162,7 +163,7 @@ class PackageExtractorTest extends Unit
      */
     public function testExternalValidator()
     {
-        $this->execute(function(PackageExtractor $extractor) {
+        $this->execute(function (PackageExtractor $extractor) {
             $extractor->setPackageValidator(function ($lists) {
                 $errors = [];
                 if (!isset($lists['mod5/mod5.php'])) {
@@ -172,7 +173,7 @@ class PackageExtractorTest extends Unit
             });
             $this->validateNotInstalled('mod5');
             $res = $extractor->extractPackage($this->getLocalSource('mod5'), 'mod5');
-            $this->assertFalse($res, "Package should not have been extracted");
+            $this->assertFalse($res, 'Package should not have been extracted');
         });
     }
 
@@ -183,17 +184,17 @@ class PackageExtractorTest extends Unit
      */
     public function testMergeMode()
     {
-        $this->execute(function(PackageExtractor $extractor) {
+        $this->execute(function (PackageExtractor $extractor) {
             $this->validateNotInstalled('mod3');
             $this->assertTrue($extractor->extractPackage($this->getLocalSource('mod3'), 'mod3'));
             $this->assertTrue($extractor->extractPackage($this->getLocalSource('mod3-v2'), 'mod3'));
             $this->validateModuleStructure('mod3', [
                 'mod3/mod3.php',
                 'mod3/vendor/vendor_a/file.php',
-                'mod3/vendor/vendor_b/readme.txt'
+                'mod3/vendor/vendor_b/readme.txt',
             ]);
             $content = file_get_contents($this->getModulesDir() . '/mod3/mod3.php');
-            $this->assertTrue(strpos($content, 'SEARCH_PLACEHOLDER') !== false, "mod3/mod3.php should contain content of mod3-v2 file");
+            $this->assertTrue(strpos($content, 'SEARCH_PLACEHOLDER') !== false, 'mod3/mod3.php should contain content of mod3-v2 file');
         });
     }
 
@@ -204,17 +205,17 @@ class PackageExtractorTest extends Unit
      */
     public function testMergeModeOtherDirection()
     {
-        $this->execute(function(PackageExtractor $extractor) {
+        $this->execute(function (PackageExtractor $extractor) {
             $this->validateNotInstalled('mod3');
             $this->assertTrue($extractor->extractPackage($this->getLocalSource('mod3-v2'), 'mod3'));
             $this->assertTrue($extractor->extractPackage($this->getLocalSource('mod3'), 'mod3'));
             $this->validateModuleStructure('mod3', [
                 'mod3/mod3.php',
                 'mod3/vendor/vendor_a/file.php',
-                'mod3/vendor/vendor_b/readme.txt'
+                'mod3/vendor/vendor_b/readme.txt',
             ]);
             $content = file_get_contents($this->getModulesDir() . '/mod3/mod3.php');
-            $this->assertTrue(strpos($content, 'SEARCH_PLACEHOLDER') === false, "mod3/mod3.php should NOT contain content of mod3-v2 file");
+            $this->assertTrue(strpos($content, 'SEARCH_PLACEHOLDER') === false, 'mod3/mod3.php should NOT contain content of mod3-v2 file');
         });
     }
 
@@ -225,17 +226,18 @@ class PackageExtractorTest extends Unit
      */
     public function testReplaceMode()
     {
-        $this->execute(function(PackageExtractor $extractor) {
+        $this->execute(function (PackageExtractor $extractor) {
             $extractor->setMode(PackageExtractor::MODE_REPLACE);
             $this->validateNotInstalled('mod3');
             $this->assertTrue($extractor->extractPackage($this->getLocalSource('mod3'), 'mod3'));
             $this->assertTrue($extractor->extractPackage($this->getLocalSource('mod3-v2'), 'mod3'));
-            $this->validateModuleStructure('mod3',
+            $this->validateModuleStructure(
+                'mod3',
                 [
                     // expected files
                     'mod3/mod3.php',
                     'mod3/vendor/vendor_b/readme.txt',
-                    'mod3/vendor/vendor_a/autoload.php'
+                    'mod3/vendor/vendor_a/autoload.php',
                 ],
                 [
                     // not expected files
@@ -252,7 +254,7 @@ class PackageExtractorTest extends Unit
      */
     public function testZipGetPackageTopLevelDirectories()
     {
-        $this->execute(function(PackageExtractor $extractor) {
+        $this->execute(function (PackageExtractor $extractor) {
             $this->assertSame(['mod1', 'mod2'], $extractor->getPackageTopLevelDirectories($this->getLocalSource('mod2')));
             $this->assertSame(['mod3'], $extractor->getPackageTopLevelDirectories($this->getLocalSource('mod3')));
             $this->assertSame(['a', 'b', 'c', 'd'], $extractor->getPackageTopLevelDirectories($this->getLocalSource('multiple')));
@@ -266,7 +268,7 @@ class PackageExtractorTest extends Unit
      */
     public function testTarGzGetPackageTopLevelDirectories()
     {
-        $this->execute(function(PackageExtractor $extractor) {
+        $this->execute(function (PackageExtractor $extractor) {
             $this->assertSame(['mod6'], $extractor->getPackageTopLevelDirectories($this->getLocalSource('mod6', '.tar.gz')));
             $this->assertSame(['a', 'b', 'c', 'd'], $extractor->getPackageTopLevelDirectories($this->getLocalSource('multiple', '.tgz')));
         });
@@ -279,12 +281,13 @@ class PackageExtractorTest extends Unit
      */
     public function testReplaceModeOtherDirection()
     {
-        $this->execute(function(PackageExtractor $extractor) {
+        $this->execute(function (PackageExtractor $extractor) {
             $extractor->setMode(PackageExtractor::MODE_REPLACE);
             $this->validateNotInstalled('mod3');
             $this->assertTrue($extractor->extractPackage($this->getLocalSource('mod3-v2'), 'mod3'));
             $this->assertTrue($extractor->extractPackage($this->getLocalSource('mod3'), 'mod3'));
-            $this->validateModuleStructure('mod3',
+            $this->validateModuleStructure(
+                'mod3',
                 [
                     // expected files
                     'mod3/mod3.php',
@@ -293,7 +296,7 @@ class PackageExtractorTest extends Unit
                 ],
                 [
                     // not expected files
-                    'mod3/vendor/vendor_b/readme.txt'
+                    'mod3/vendor/vendor_b/readme.txt',
                 ]
             );
         });
@@ -306,12 +309,12 @@ class PackageExtractorTest extends Unit
      */
     public function testRemotePackage()
     {
-        $this->execute(function(PackageExtractor $extractor) {
+        $this->execute(function (PackageExtractor $extractor) {
             $url = 'https://github.com/thirtybees/blockmyaccount/releases/download/2.1.1/blockmyaccount-v2.1.1.zip';
             $module = 'blockmyaccount';
             $this->validateNotInstalled($module);
             $res = $extractor->extractPackage($url, $module);
-            $this->assertTrue($res, "Failed to extract package:" . $this->getErrors($extractor));
+            $this->assertTrue($res, 'Failed to extract package:' . $this->getErrors($extractor));
         });
     }
 
@@ -379,7 +382,7 @@ class PackageExtractorTest extends Unit
      * @param string $suffix
      * @return string
      */
-    private function getLocalSource($name, $suffix='.zip')
+    private function getLocalSource($name, $suffix = '.zip')
     {
         $filename = rtrim(_PS_ROOT_DIR_, '/') . '/tests/_data/modules/' . $name . $suffix;
         if (! is_file($filename)) {
@@ -422,7 +425,7 @@ class PackageExtractorTest extends Unit
     private function getErrors(PackageExtractor $extractor)
     {
         $separator = "\n  - ";
-        return $separator . implode($separator, array_map(function($error) {
+        return $separator . implode($separator, array_map(function ($error) {
             $ret = $error['message'];
             if (isset($error['exception']) && $error['exception']) {
                 /** @var Throwable $e */

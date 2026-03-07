@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -39,257 +41,257 @@ class ConfigurationCore extends ObjectModel
     // Default configuration consts
     // @since 1.0.1
     // Benefit of these constants unclear. --Traumflug 2018-12-18
-    const SEARCH_INDEXATION = 'PS_SEARCH_INDEXATION';
-    const ONE_PHONE_AT_LEAST = 'PS_ONE_PHONE_AT_LEAST';
-    const GROUP_FEATURE_ACTIVE = 'PS_GROUP_FEATURE_ACTIVE';
-    const CARRIER_DEFAULT = 'PS_CARRIER_DEFAULT';
-    const CURRENCY_DEFAULT = 'PS_CURRENCY_DEFAULT';
-    const COUNTRY_DEFAULT = 'PS_COUNTRY_DEFAULT';
-    const REWRITING_SETTINGS = 'PS_REWRITING_SETTINGS';
-    const ORDER_OUT_OF_STOCK = 'PS_ORDER_OUT_OF_STOCK';
-    const LAST_QTIES = 'PS_LAST_QTIES';
-    const CART_REDIRECT = 'PS_CART_REDIRECT';
-    const CONDITIONS = 'PS_CONDITIONS';
-    const RECYCLABLE_PACK = 'PS_RECYCLABLE_PACK';
-    const GIFT_WRAPPING = 'PS_GIFT_WRAPPING';
-    const GIFT_WRAPPING_PRICE = 'PS_GIFT_WRAPPING_PRICE';
-    const STOCK_MANAGEMENT = 'PS_STOCK_MANAGEMENT';
-    const NAVIGATION_PIPE = 'PS_NAVIGATION_PIPE';
-    const PRODUCTS_PER_PAGE = 'PS_PRODUCTS_PER_PAGE';
-    const PURCHASE_MINIMUM = 'PS_PURCHASE_MINIMUM';
-    const PRODUCTS_ORDER_WAY = 'PS_PRODUCTS_ORDER_WAY';
-    const PRODUCTS_ORDER_BY = 'PS_PRODUCTS_ORDER_BY';
-    const SHIPPING_HANDLING = 'PS_SHIPPING_HANDLING';
-    const SHIPPING_FREE_PRICE = 'PS_SHIPPING_FREE_PRICE';
-    const SHIPPING_FREE_WEIGHT = 'PS_SHIPPING_FREE_WEIGHT';
-    const SHIPPING_METHOD = 'PS_SHIPPING_METHOD';
-    const TAX = 'PS_TAX';
-    const SHOP_ENABLE = 'PS_SHOP_ENABLE';
-    const NB_DAYS_NEW_PRODUCT = 'PS_NB_DAYS_NEW_PRODUCT';
-    const SSL_ENABLED = 'PS_SSL_ENABLED';
-    const WEIGHT_UNIT = 'PS_WEIGHT_UNIT';
-    const BLOCK_CART_AJAX = 'PS_BLOCK_CART_AJAX';
-    const ORDER_RETURN = 'PS_ORDER_RETURN';
-    const ORDER_RETURN_NB_DAYS = 'PS_ORDER_RETURN_NB_DAYS';
-    const MAIL_TYPE = 'PS_MAIL_TYPE';
-    const PRODUCT_PICTURE_MAX_SIZE = 'PS_PRODUCT_PICTURE_MAX_SIZE';
-    const PRODUCT_PICTURE_WIDTH = 'PS_PRODUCT_PICTURE_WIDTH';
-    const PRODUCT_PICTURE_HEIGHT = 'PS_PRODUCT_PICTURE_HEIGHT';
-    const INVOICE_PREFIX = 'PS_INVOICE_PREFIX';
-    const INVCE_INVOICE_ADDR_RULES = 'PS_INVCE_INVOICE_ADDR_RULES';
-    const INVCE_DELIVERY_ADDR_RULES = 'PS_INVCE_DELIVERY_ADDR_RULES';
-    const DELIVERY_PREFIX = 'PS_DELIVERY_PREFIX';
-    const DELIVERY_NUMBER = 'PS_DELIVERY_NUMBER';
-    const RETURN_PREFIX = 'PS_RETURN_PREFIX';
-    const INVOICE = 'PS_INVOICE';
-    const PASSWD_TIME_BACK = 'PS_PASSWD_TIME_BACK';
-    const PASSWD_TIME_FRONT = 'PS_PASSWD_TIME_FRONT';
-    const DISP_UNAVAILABLE_ATTR = 'PS_DISP_UNAVAILABLE_ATTR';
-    const SEARCH_MINWORDLEN = 'PS_SEARCH_MINWORDLEN';
-    const SEARCH_BLACKLIST = 'PS_SEARCH_BLACKLIST';
-    const SEARCH_WEIGHT_PNAME = 'PS_SEARCH_WEIGHT_PNAME';
-    const SEARCH_WEIGHT_REF = 'PS_SEARCH_WEIGHT_REF';
-    const SEARCH_WEIGHT_SHORTDESC = 'PS_SEARCH_WEIGHT_SHORTDESC';
-    const SEARCH_WEIGHT_DESC = 'PS_SEARCH_WEIGHT_DESC';
-    const SEARCH_WEIGHT_CNAME = 'PS_SEARCH_WEIGHT_CNAME';
-    const SEARCH_WEIGHT_MNAME = 'PS_SEARCH_WEIGHT_MNAME';
-    const SEARCH_WEIGHT_TAG = 'PS_SEARCH_WEIGHT_TAG';
-    const SEARCH_WEIGHT_ATTRIBUTE = 'PS_SEARCH_WEIGHT_ATTRIBUTE';
-    const SEARCH_WEIGHT_FEATURE = 'PS_SEARCH_WEIGHT_FEATURE';
-    const SEARCH_AJAX = 'PS_SEARCH_AJAX';
-    const TIMEZONE = 'PS_TIMEZONE';
-    const THEME_V11 = 'PS_THEME_V11';
-    const TIN_ACTIVE = 'PS_TIN_ACTIVE';
-    const SHOW_ALL_MODULES = 'PS_SHOW_ALL_MODULES';
-    const BACKUP_ALL = 'PS_BACKUP_ALL';
-    const PRICE_ROUND_MODE = 'PS_PRICE_ROUND_MODE';
-    const CONDITIONS_CMS_ID = 'PS_CONDITIONS_CMS_ID';
-    const TRACKING_DIRECT_TRAFFIC = 'TRACKING_DIRECT_TRAFFIC';
-    const META_KEYWORDS = 'PS_META_KEYWORDS';
-    const DISPLAY_JQZOOM = 'PS_DISPLAY_JQZOOM';
-    const VOLUME_UNIT = 'PS_VOLUME_UNIT';
-    const CIPHER_ALGORITHM = 'PS_CIPHER_ALGORITHM';
-    const ATTRIBUTE_CATEGORY_DISPLAY = 'PS_ATTRIBUTE_CATEGORY_DISPLAY';
-    const CUSTOMER_SERVICE_FILE_UPLOAD = 'PS_CUSTOMER_SERVICE_FILE_UPLOAD';
-    const CUSTOMER_SERVICE_SIGNATURE = 'PS_CUSTOMER_SERVICE_SIGNATURE';
-    const BLOCK_BESTSELLERS_DISPLAY = 'PS_BLOCK_BESTSELLERS_DISPLAY';
-    const BLOCK_NEWPRODUCTS_DISPLAY = 'PS_BLOCK_NEWPRODUCTS_DISPLAY';
-    const BLOCK_SPECIALS_DISPLAY = 'PS_BLOCK_SPECIALS_DISPLAY';
-    const STOCK_MVT_REASON_DEFAULT = 'PS_STOCK_MVT_REASON_DEFAULT';
-    const COMPARATOR_MAX_ITEM = 'PS_COMPARATOR_MAX_ITEM';
-    const ORDER_PROCESS_TYPE = 'PS_ORDER_PROCESS_TYPE';
-    const SPECIFIC_PRICE_PRIORITIES = 'PS_SPECIFIC_PRICE_PRIORITIES';
-    const TAX_DISPLAY = 'PS_TAX_DISPLAY';
-    const SMARTY_FORCE_COMPILE = 'PS_SMARTY_FORCE_COMPILE';
-    const DISTANCE_UNIT = 'PS_DISTANCE_UNIT';
-    const STORES_DISPLAY_CMS = 'PS_STORES_DISPLAY_CMS';
-    const STORES_DISPLAY_FOOTER = 'PS_STORES_DISPLAY_FOOTER';
-    const STORES_SIMPLIFIED = 'PS_STORES_SIMPLIFIED';
-    const SHOP_LOGO_WIDTH = 'SHOP_LOGO_WIDTH';
-    const SHOP_LOGO_HEIGHT = 'SHOP_LOGO_HEIGHT';
-    const EDITORIAL_IMAGE_WIDTH = 'EDITORIAL_IMAGE_WIDTH';
-    const EDITORIAL_IMAGE_HEIGHT = 'EDITORIAL_IMAGE_HEIGHT';
-    const STATSDATA_CUSTOMER_PAGESVIEWS = 'PS_STATSDATA_CUSTOMER_PAGESVIEWS';
-    const STATSDATA_PAGESVIEWS = 'PS_STATSDATA_PAGESVIEWS';
-    const STATSDATA_PLUGINS = 'PS_STATSDATA_PLUGINS';
-    const GEOLOCATION_ENABLED = 'PS_GEOLOCATION_ENABLED';
-    const ALLOWED_COUNTRIES = 'PS_ALLOWED_COUNTRIES';
-    const GEOLOCATION_BEHAVIOR = 'PS_GEOLOCATION_BEHAVIOR';
-    const LOCALE_LANGUAGE = 'PS_LOCALE_LANGUAGE';
-    const LOCALE_COUNTRY = 'PS_LOCALE_COUNTRY';
-    const ATTACHMENT_MAXIMUM_SIZE = 'PS_ATTACHMENT_MAXIMUM_SIZE';
-    const SMARTY_CACHE = 'PS_SMARTY_CACHE';
-    const DIMENSION_UNIT = 'PS_DIMENSION_UNIT';
-    const GUEST_CHECKOUT_ENABLED = 'PS_GUEST_CHECKOUT_ENABLED';
-    const DISPLAY_SUPPLIERS = 'PS_DISPLAY_SUPPLIERS';
-    const DISPLAY_BEST_SELLERS = 'PS_DISPLAY_BEST_SELLERS';
-    const CATALOG_MODE = 'PS_CATALOG_MODE';
-    const GEOLOCATION_WHITELIST = 'PS_GEOLOCATION_WHITELIST';
-    const LOGS_BY_EMAIL = 'PS_LOGS_BY_EMAIL';
-    const COOKIE_CHECKIP = 'PS_COOKIE_CHECKIP';
-    const STORES_CENTER_LAT = 'PS_STORES_CENTER_LAT';
-    const STORES_CENTER_LONG = 'PS_STORES_CENTER_LONG';
-    const USE_ECOTAX = 'PS_USE_ECOTAX';
-    const CANONICAL_REDIRECT = 'PS_CANONICAL_REDIRECT';
-    const IMG_UPDATE_TIME = 'PS_IMG_UPDATE_TIME';
-    const BACKUP_DROP_TABLE = 'PS_BACKUP_DROP_TABLE';
-    const OS_PAYMENT = 'PS_OS_PAYMENT';
-    const OS_PREPARATION = 'PS_OS_PREPARATION';
-    const OS_SHIPPING = 'PS_OS_SHIPPING';
-    const OS_DELIVERED = 'PS_OS_DELIVERED';
-    const OS_CANCELED = 'PS_OS_CANCELED';
-    const OS_REFUND = 'PS_OS_REFUND';
-    const OS_ERROR = 'PS_OS_ERROR';
-    const OS_OUTOFSTOCK = 'PS_OS_OUTOFSTOCK';
-    const OS_BANKWIRE = 'PS_OS_BANKWIRE';
-    const OS_PAYPAL = 'PS_OS_PAYPAL';
-    const OS_WS_PAYMENT = 'PS_OS_WS_PAYMENT';
-    const OS_OUTOFSTOCK_PAID = 'PS_OS_OUTOFSTOCK_PAID';
-    const OS_OUTOFSTOCK_UNPAID = 'PS_OS_OUTOFSTOCK_UNPAID';
-    const OS_COD_VALIDATION = 'PS_OS_COD_VALIDATION';
-    const COOKIE_LIFETIME_FO = 'PS_COOKIE_LIFETIME_FO';
-    const COOKIE_LIFETIME_BO = 'PS_COOKIE_LIFETIME_BO';
-    const RESTRICT_DELIVERED_COUNTRIES = 'PS_RESTRICT_DELIVERED_COUNTRIES';
-    const SHOW_NEW_ORDERS = 'PS_SHOW_NEW_ORDERS';
-    const SHOW_NEW_CUSTOMERS = 'PS_SHOW_NEW_CUSTOMERS';
-    const SHOW_NEW_MESSAGES = 'PS_SHOW_NEW_MESSAGES';
-    const SHOW_NEW_SYSTEM_NOTIFICATIONS = 'TB_SHOW_NEW_SYSTEM_NOTIFICATIONS';
-    const FEATURE_FEATURE_ACTIVE = 'PS_FEATURE_FEATURE_ACTIVE';
-    const COMBINATION_FEATURE_ACTIVE = 'PS_COMBINATION_FEATURE_ACTIVE';
-    const SPECIFIC_PRICE_FEATURE_ACTIVE = 'PS_SPECIFIC_PRICE_FEATURE_ACTIVE';
-    const SCENE_FEATURE_ACTIVE = 'PS_SCENE_FEATURE_ACTIVE';
-    const VIRTUAL_PROD_FEATURE_ACTIVE = 'PS_VIRTUAL_PROD_FEATURE_ACTIVE';
-    const CUSTOMIZATION_FEATURE_ACTIVE = 'PS_CUSTOMIZATION_FEATURE_ACTIVE';
-    const CART_RULE_FEATURE_ACTIVE = 'PS_CART_RULE_FEATURE_ACTIVE';
-    const PACK_FEATURE_ACTIVE = 'PS_PACK_FEATURE_ACTIVE';
-    const ALIAS_FEATURE_ACTIVE = 'PS_ALIAS_FEATURE_ACTIVE';
-    const TAX_ADDRESS_TYPE = 'PS_TAX_ADDRESS_TYPE';
-    const SHOP_DEFAULT = 'PS_SHOP_DEFAULT';
-    const CARRIER_DEFAULT_SORT = 'PS_CARRIER_DEFAULT_SORT';
-    const STOCK_MVT_INC_REASON_DEFAULT = 'PS_STOCK_MVT_INC_REASON_DEFAULT';
-    const STOCK_MVT_DEC_REASON_DEFAULT = 'PS_STOCK_MVT_DEC_REASON_DEFAULT';
-    const ADVANCED_STOCK_MANAGEMENT = 'PS_ADVANCED_STOCK_MANAGEMENT';
-    const ADMINREFRESH_NOTIFICATION = 'PS_ADMINREFRESH_NOTIFICATION';
-    const STOCK_MVT_TRANSFER_TO = 'PS_STOCK_MVT_TRANSFER_TO';
-    const STOCK_MVT_TRANSFER_FROM = 'PS_STOCK_MVT_TRANSFER_FROM';
-    const CARRIER_DEFAULT_ORDER = 'PS_CARRIER_DEFAULT_ORDER';
-    const STOCK_MVT_SUPPLY_ORDER = 'PS_STOCK_MVT_SUPPLY_ORDER';
-    const STOCK_CUSTOMER_ORDER_REASON = 'PS_STOCK_CUSTOMER_ORDER_REASON';
-    const UNIDENTIFIED_GROUP = 'PS_UNIDENTIFIED_GROUP';
-    const GUEST_GROUP = 'PS_GUEST_GROUP';
-    const CUSTOMER_GROUP = 'PS_CUSTOMER_GROUP';
-    const SMARTY_CONSOLE = 'PS_SMARTY_CONSOLE';
-    const INVOICE_MODEL = 'PS_INVOICE_MODEL';
-    const LIMIT_UPLOAD_IMAGE_VALUE = 'PS_LIMIT_UPLOAD_IMAGE_VALUE';
-    const LIMIT_UPLOAD_FILE_VALUE = 'PS_LIMIT_UPLOAD_FILE_VALUE';
-    const TOKEN_ENABLE = 'PS_TOKEN_ENABLE';
-    const BO_FORCE_TOKEN = 'TB_BO_FORCE_TOKEN';
-    const STATS_RENDER = 'PS_STATS_RENDER';
-    const STATS_OLD_CONNECT_AUTO_CLEAN = 'PS_STATS_OLD_CONNECT_AUTO_CLEAN';
-    const STATS_GRID_RENDER = 'PS_STATS_GRID_RENDER';
-    const BASE_DISTANCE_UNIT = 'PS_BASE_DISTANCE_UNIT';
-    const SHOP_DOMAIN = 'PS_SHOP_DOMAIN';
-    const SHOP_DOMAIN_SSL = 'PS_SHOP_DOMAIN_SSL';
-    const SHOP_NAME = 'PS_SHOP_NAME';
-    const SHOP_EMAIL = 'PS_SHOP_EMAIL';
-    const MAIL_METHOD = 'PS_MAIL_METHOD';
-    const SHOP_ACTIVITY = 'PS_SHOP_ACTIVITY';
-    const LOGO = 'PS_LOGO';
-    const FAVICON = 'PS_FAVICON';
-    const STORES_ICON = 'PS_STORES_ICON';
-    const ROOT_CATEGORY = 'PS_ROOT_CATEGORY';
-    const HOME_CATEGORY = 'PS_HOME_CATEGORY';
-    const CONFIGURATION_AGREMENT = 'PS_CONFIGURATION_AGREMENT';
-    const MAIL_SERVER = 'PS_MAIL_SERVER';
-    const MAIL_USER = 'PS_MAIL_USER';
-    const MAIL_PASSWD = 'PS_MAIL_PASSWD';
-    const MAIL_SMTP_ENCRYPTION = 'PS_MAIL_SMTP_ENCRYPTION';
-    const MAIL_SMTP_PORT = 'PS_MAIL_SMTP_PORT';
-    const MAIL_COLOR = 'PS_MAIL_COLOR';
-    const PAYMENT_LOGO_CMS_ID = 'PS_PAYMENT_LOGO_CMS_ID';
-    const ALLOW_MOBILE_DEVICE = 'PS_ALLOW_MOBILE_DEVICE';
-    const CUSTOMER_CREATION_EMAIL = 'PS_CUSTOMER_CREATION_EMAIL';
-    const SMARTY_CONSOLE_KEY = 'PS_SMARTY_CONSOLE_KEY';
-    const ATTRIBUTE_ANCHOR_SEPARATOR = 'PS_ATTRIBUTE_ANCHOR_SEPARATOR';
-    const DASHBOARD_SIMULATION = 'PS_DASHBOARD_SIMULATION';
-    const QUICK_VIEW = 'PS_QUICK_VIEW';
-    const USE_HTMLPURIFIER = 'PS_USE_HTMLPURIFIER';
-    const SMARTY_CACHING_TYPE = 'PS_SMARTY_CACHING_TYPE';
-    const SMARTY_CLEAR_CACHE = 'PS_SMARTY_CLEAR_CACHE';
-    const DETECT_LANG = 'PS_DETECT_LANG';
-    const DETECT_COUNTRY = 'PS_DETECT_COUNTRY';
-    const ROUND_TYPE = 'PS_ROUND_TYPE';
-    const PRICE_DISPLAY_PRECISION = 'PS_PRICE_DISPLAY_PRECISION';
-    const LOG_EMAILS = 'PS_LOG_EMAILS';
-    const CUSTOMER_NWSL = 'PS_CUSTOMER_NWSL';
-    const CUSTOMER_OPTIN = 'PS_CUSTOMER_OPTIN';
-    const PACK_STOCK_TYPE = 'PS_PACK_STOCK_TYPE';
-    const LOG_MODULE_PERFS_MODULO = 'PS_LOG_MODULE_PERFS_MODULO';
-    const DISALLOW_HISTORY_REORDERING = 'PS_DISALLOW_HISTORY_REORDERING';
-    const DISPLAY_PRODUCT_WEIGHT = 'PS_DISPLAY_PRODUCT_WEIGHT';
-    const PRODUCT_WEIGHT_PRECISION = 'PS_PRODUCT_WEIGHT_PRECISION';
-    const ADVANCED_PAYMENT_API = 'PS_ADVANCED_PAYMENT_API';
-    const PAGE_CACHE_CONTROLLERS = 'TB_PAGE_CACHE_CONTROLLERS';
-    const PAGE_CACHE_IGNOREPARAMS = 'PS_ADVANCED_PAYMENT_API';
-    const ROUTE_PRODUCT_RULE = 'PS_ROUTE_product_rule';
-    const ROUTE_CATEGORY_RULE = 'PS_ROUTE_category_rule';
-    const ROUTE_SUPPLIER_RULE = 'PS_ROUTE_supplier_rule';
-    const ROUTE_MANUFACTURER_RULE = 'PS_ROUTE_manufacturer_rule';
-    const ROUTE_CMS_RULE = 'PS_ROUTE_cms_rule';
-    const ROUTE_CMS_CATEGORY_RULE = 'PS_ROUTE_cms_category_rule';
-    const DISABLE_OVERRIDES = 'PS_DISABLE_OVERRIDES';
-    const DISABLE_NON_NATIVE_MODULE = 'PS_DISABLE_NON_NATIVE_MODULE';
-    const CUSTOMCODE_METAS = 'TB_CUSTOMCODE_METAS';
-    const CUSTOMCODE_CSS = 'TB_CUSTOMCODE_CSS';
-    const CUSTOMCODE_JS = 'TB_CUSTOMCODE_JS';
-    const CUSTOMCODE_ORDERCONF_JS = 'TB_CUSTOMCODE_ORDERCONF_JS';
-    const STORE_REGISTERED = 'TB_STORE_REGISTERED';
-    const MAIL_SUBJECT_TEMPLATE = 'TB_MAIL_SUBJECT_TEMPLATE';
-    const API_SERVER_OVERRIDE = 'TB_API_SERVER_OVERRIDE';
-    const ACCOUNTS_SERVER_OVERRIDE = 'TB_ACCOUNTS_SERVER_OVERRIDE';
-    const SSL_TRUST_STORE_TYPE = 'TB_SSL_TRUST_STORE_TYPE';
-    const SSL_TRUST_STORE = 'TB_SSL_TRUST_STORE';
-    const TRACKING_ID = 'TB_TRACKING_UID';
-    const MAIL_TRANSPORT = 'TB_MAIL_TRANSPORT';
-    const BECOME_SUPPORTER_URL = 'TB_SUPPORTER_URL';
-    const SUPPORTER_TYPE = 'TB_SUPPORTER_TYPE';
-    const SUPPORTER_TYPE_NAME = 'TB_SUPPORTER_TYPE_NAME';
-    const CONNECTED = 'TB_CONNECTED';
-    const CONNECT_CODE = 'TB_CONNECT_CODE';
-    const MAINTENANCE_IP_ADDRESSES = 'PS_MAINTENANCE_IP';
-    const LANGUAGE_CODE_IN_URL = 'TB_LANGUAGE_CODE_IN_URL';
+    public const SEARCH_INDEXATION = 'PS_SEARCH_INDEXATION';
+    public const ONE_PHONE_AT_LEAST = 'PS_ONE_PHONE_AT_LEAST';
+    public const GROUP_FEATURE_ACTIVE = 'PS_GROUP_FEATURE_ACTIVE';
+    public const CARRIER_DEFAULT = 'PS_CARRIER_DEFAULT';
+    public const CURRENCY_DEFAULT = 'PS_CURRENCY_DEFAULT';
+    public const COUNTRY_DEFAULT = 'PS_COUNTRY_DEFAULT';
+    public const REWRITING_SETTINGS = 'PS_REWRITING_SETTINGS';
+    public const ORDER_OUT_OF_STOCK = 'PS_ORDER_OUT_OF_STOCK';
+    public const LAST_QTIES = 'PS_LAST_QTIES';
+    public const CART_REDIRECT = 'PS_CART_REDIRECT';
+    public const CONDITIONS = 'PS_CONDITIONS';
+    public const RECYCLABLE_PACK = 'PS_RECYCLABLE_PACK';
+    public const GIFT_WRAPPING = 'PS_GIFT_WRAPPING';
+    public const GIFT_WRAPPING_PRICE = 'PS_GIFT_WRAPPING_PRICE';
+    public const STOCK_MANAGEMENT = 'PS_STOCK_MANAGEMENT';
+    public const NAVIGATION_PIPE = 'PS_NAVIGATION_PIPE';
+    public const PRODUCTS_PER_PAGE = 'PS_PRODUCTS_PER_PAGE';
+    public const PURCHASE_MINIMUM = 'PS_PURCHASE_MINIMUM';
+    public const PRODUCTS_ORDER_WAY = 'PS_PRODUCTS_ORDER_WAY';
+    public const PRODUCTS_ORDER_BY = 'PS_PRODUCTS_ORDER_BY';
+    public const SHIPPING_HANDLING = 'PS_SHIPPING_HANDLING';
+    public const SHIPPING_FREE_PRICE = 'PS_SHIPPING_FREE_PRICE';
+    public const SHIPPING_FREE_WEIGHT = 'PS_SHIPPING_FREE_WEIGHT';
+    public const SHIPPING_METHOD = 'PS_SHIPPING_METHOD';
+    public const TAX = 'PS_TAX';
+    public const SHOP_ENABLE = 'PS_SHOP_ENABLE';
+    public const NB_DAYS_NEW_PRODUCT = 'PS_NB_DAYS_NEW_PRODUCT';
+    public const SSL_ENABLED = 'PS_SSL_ENABLED';
+    public const WEIGHT_UNIT = 'PS_WEIGHT_UNIT';
+    public const BLOCK_CART_AJAX = 'PS_BLOCK_CART_AJAX';
+    public const ORDER_RETURN = 'PS_ORDER_RETURN';
+    public const ORDER_RETURN_NB_DAYS = 'PS_ORDER_RETURN_NB_DAYS';
+    public const MAIL_TYPE = 'PS_MAIL_TYPE';
+    public const PRODUCT_PICTURE_MAX_SIZE = 'PS_PRODUCT_PICTURE_MAX_SIZE';
+    public const PRODUCT_PICTURE_WIDTH = 'PS_PRODUCT_PICTURE_WIDTH';
+    public const PRODUCT_PICTURE_HEIGHT = 'PS_PRODUCT_PICTURE_HEIGHT';
+    public const INVOICE_PREFIX = 'PS_INVOICE_PREFIX';
+    public const INVCE_INVOICE_ADDR_RULES = 'PS_INVCE_INVOICE_ADDR_RULES';
+    public const INVCE_DELIVERY_ADDR_RULES = 'PS_INVCE_DELIVERY_ADDR_RULES';
+    public const DELIVERY_PREFIX = 'PS_DELIVERY_PREFIX';
+    public const DELIVERY_NUMBER = 'PS_DELIVERY_NUMBER';
+    public const RETURN_PREFIX = 'PS_RETURN_PREFIX';
+    public const INVOICE = 'PS_INVOICE';
+    public const PASSWD_TIME_BACK = 'PS_PASSWD_TIME_BACK';
+    public const PASSWD_TIME_FRONT = 'PS_PASSWD_TIME_FRONT';
+    public const DISP_UNAVAILABLE_ATTR = 'PS_DISP_UNAVAILABLE_ATTR';
+    public const SEARCH_MINWORDLEN = 'PS_SEARCH_MINWORDLEN';
+    public const SEARCH_BLACKLIST = 'PS_SEARCH_BLACKLIST';
+    public const SEARCH_WEIGHT_PNAME = 'PS_SEARCH_WEIGHT_PNAME';
+    public const SEARCH_WEIGHT_REF = 'PS_SEARCH_WEIGHT_REF';
+    public const SEARCH_WEIGHT_SHORTDESC = 'PS_SEARCH_WEIGHT_SHORTDESC';
+    public const SEARCH_WEIGHT_DESC = 'PS_SEARCH_WEIGHT_DESC';
+    public const SEARCH_WEIGHT_CNAME = 'PS_SEARCH_WEIGHT_CNAME';
+    public const SEARCH_WEIGHT_MNAME = 'PS_SEARCH_WEIGHT_MNAME';
+    public const SEARCH_WEIGHT_TAG = 'PS_SEARCH_WEIGHT_TAG';
+    public const SEARCH_WEIGHT_ATTRIBUTE = 'PS_SEARCH_WEIGHT_ATTRIBUTE';
+    public const SEARCH_WEIGHT_FEATURE = 'PS_SEARCH_WEIGHT_FEATURE';
+    public const SEARCH_AJAX = 'PS_SEARCH_AJAX';
+    public const TIMEZONE = 'PS_TIMEZONE';
+    public const THEME_V11 = 'PS_THEME_V11';
+    public const TIN_ACTIVE = 'PS_TIN_ACTIVE';
+    public const SHOW_ALL_MODULES = 'PS_SHOW_ALL_MODULES';
+    public const BACKUP_ALL = 'PS_BACKUP_ALL';
+    public const PRICE_ROUND_MODE = 'PS_PRICE_ROUND_MODE';
+    public const CONDITIONS_CMS_ID = 'PS_CONDITIONS_CMS_ID';
+    public const TRACKING_DIRECT_TRAFFIC = 'TRACKING_DIRECT_TRAFFIC';
+    public const META_KEYWORDS = 'PS_META_KEYWORDS';
+    public const DISPLAY_JQZOOM = 'PS_DISPLAY_JQZOOM';
+    public const VOLUME_UNIT = 'PS_VOLUME_UNIT';
+    public const CIPHER_ALGORITHM = 'PS_CIPHER_ALGORITHM';
+    public const ATTRIBUTE_CATEGORY_DISPLAY = 'PS_ATTRIBUTE_CATEGORY_DISPLAY';
+    public const CUSTOMER_SERVICE_FILE_UPLOAD = 'PS_CUSTOMER_SERVICE_FILE_UPLOAD';
+    public const CUSTOMER_SERVICE_SIGNATURE = 'PS_CUSTOMER_SERVICE_SIGNATURE';
+    public const BLOCK_BESTSELLERS_DISPLAY = 'PS_BLOCK_BESTSELLERS_DISPLAY';
+    public const BLOCK_NEWPRODUCTS_DISPLAY = 'PS_BLOCK_NEWPRODUCTS_DISPLAY';
+    public const BLOCK_SPECIALS_DISPLAY = 'PS_BLOCK_SPECIALS_DISPLAY';
+    public const STOCK_MVT_REASON_DEFAULT = 'PS_STOCK_MVT_REASON_DEFAULT';
+    public const COMPARATOR_MAX_ITEM = 'PS_COMPARATOR_MAX_ITEM';
+    public const ORDER_PROCESS_TYPE = 'PS_ORDER_PROCESS_TYPE';
+    public const SPECIFIC_PRICE_PRIORITIES = 'PS_SPECIFIC_PRICE_PRIORITIES';
+    public const TAX_DISPLAY = 'PS_TAX_DISPLAY';
+    public const SMARTY_FORCE_COMPILE = 'PS_SMARTY_FORCE_COMPILE';
+    public const DISTANCE_UNIT = 'PS_DISTANCE_UNIT';
+    public const STORES_DISPLAY_CMS = 'PS_STORES_DISPLAY_CMS';
+    public const STORES_DISPLAY_FOOTER = 'PS_STORES_DISPLAY_FOOTER';
+    public const STORES_SIMPLIFIED = 'PS_STORES_SIMPLIFIED';
+    public const SHOP_LOGO_WIDTH = 'SHOP_LOGO_WIDTH';
+    public const SHOP_LOGO_HEIGHT = 'SHOP_LOGO_HEIGHT';
+    public const EDITORIAL_IMAGE_WIDTH = 'EDITORIAL_IMAGE_WIDTH';
+    public const EDITORIAL_IMAGE_HEIGHT = 'EDITORIAL_IMAGE_HEIGHT';
+    public const STATSDATA_CUSTOMER_PAGESVIEWS = 'PS_STATSDATA_CUSTOMER_PAGESVIEWS';
+    public const STATSDATA_PAGESVIEWS = 'PS_STATSDATA_PAGESVIEWS';
+    public const STATSDATA_PLUGINS = 'PS_STATSDATA_PLUGINS';
+    public const GEOLOCATION_ENABLED = 'PS_GEOLOCATION_ENABLED';
+    public const ALLOWED_COUNTRIES = 'PS_ALLOWED_COUNTRIES';
+    public const GEOLOCATION_BEHAVIOR = 'PS_GEOLOCATION_BEHAVIOR';
+    public const LOCALE_LANGUAGE = 'PS_LOCALE_LANGUAGE';
+    public const LOCALE_COUNTRY = 'PS_LOCALE_COUNTRY';
+    public const ATTACHMENT_MAXIMUM_SIZE = 'PS_ATTACHMENT_MAXIMUM_SIZE';
+    public const SMARTY_CACHE = 'PS_SMARTY_CACHE';
+    public const DIMENSION_UNIT = 'PS_DIMENSION_UNIT';
+    public const GUEST_CHECKOUT_ENABLED = 'PS_GUEST_CHECKOUT_ENABLED';
+    public const DISPLAY_SUPPLIERS = 'PS_DISPLAY_SUPPLIERS';
+    public const DISPLAY_BEST_SELLERS = 'PS_DISPLAY_BEST_SELLERS';
+    public const CATALOG_MODE = 'PS_CATALOG_MODE';
+    public const GEOLOCATION_WHITELIST = 'PS_GEOLOCATION_WHITELIST';
+    public const LOGS_BY_EMAIL = 'PS_LOGS_BY_EMAIL';
+    public const COOKIE_CHECKIP = 'PS_COOKIE_CHECKIP';
+    public const STORES_CENTER_LAT = 'PS_STORES_CENTER_LAT';
+    public const STORES_CENTER_LONG = 'PS_STORES_CENTER_LONG';
+    public const USE_ECOTAX = 'PS_USE_ECOTAX';
+    public const CANONICAL_REDIRECT = 'PS_CANONICAL_REDIRECT';
+    public const IMG_UPDATE_TIME = 'PS_IMG_UPDATE_TIME';
+    public const BACKUP_DROP_TABLE = 'PS_BACKUP_DROP_TABLE';
+    public const OS_PAYMENT = 'PS_OS_PAYMENT';
+    public const OS_PREPARATION = 'PS_OS_PREPARATION';
+    public const OS_SHIPPING = 'PS_OS_SHIPPING';
+    public const OS_DELIVERED = 'PS_OS_DELIVERED';
+    public const OS_CANCELED = 'PS_OS_CANCELED';
+    public const OS_REFUND = 'PS_OS_REFUND';
+    public const OS_ERROR = 'PS_OS_ERROR';
+    public const OS_OUTOFSTOCK = 'PS_OS_OUTOFSTOCK';
+    public const OS_BANKWIRE = 'PS_OS_BANKWIRE';
+    public const OS_PAYPAL = 'PS_OS_PAYPAL';
+    public const OS_WS_PAYMENT = 'PS_OS_WS_PAYMENT';
+    public const OS_OUTOFSTOCK_PAID = 'PS_OS_OUTOFSTOCK_PAID';
+    public const OS_OUTOFSTOCK_UNPAID = 'PS_OS_OUTOFSTOCK_UNPAID';
+    public const OS_COD_VALIDATION = 'PS_OS_COD_VALIDATION';
+    public const COOKIE_LIFETIME_FO = 'PS_COOKIE_LIFETIME_FO';
+    public const COOKIE_LIFETIME_BO = 'PS_COOKIE_LIFETIME_BO';
+    public const RESTRICT_DELIVERED_COUNTRIES = 'PS_RESTRICT_DELIVERED_COUNTRIES';
+    public const SHOW_NEW_ORDERS = 'PS_SHOW_NEW_ORDERS';
+    public const SHOW_NEW_CUSTOMERS = 'PS_SHOW_NEW_CUSTOMERS';
+    public const SHOW_NEW_MESSAGES = 'PS_SHOW_NEW_MESSAGES';
+    public const SHOW_NEW_SYSTEM_NOTIFICATIONS = 'TB_SHOW_NEW_SYSTEM_NOTIFICATIONS';
+    public const FEATURE_FEATURE_ACTIVE = 'PS_FEATURE_FEATURE_ACTIVE';
+    public const COMBINATION_FEATURE_ACTIVE = 'PS_COMBINATION_FEATURE_ACTIVE';
+    public const SPECIFIC_PRICE_FEATURE_ACTIVE = 'PS_SPECIFIC_PRICE_FEATURE_ACTIVE';
+    public const SCENE_FEATURE_ACTIVE = 'PS_SCENE_FEATURE_ACTIVE';
+    public const VIRTUAL_PROD_FEATURE_ACTIVE = 'PS_VIRTUAL_PROD_FEATURE_ACTIVE';
+    public const CUSTOMIZATION_FEATURE_ACTIVE = 'PS_CUSTOMIZATION_FEATURE_ACTIVE';
+    public const CART_RULE_FEATURE_ACTIVE = 'PS_CART_RULE_FEATURE_ACTIVE';
+    public const PACK_FEATURE_ACTIVE = 'PS_PACK_FEATURE_ACTIVE';
+    public const ALIAS_FEATURE_ACTIVE = 'PS_ALIAS_FEATURE_ACTIVE';
+    public const TAX_ADDRESS_TYPE = 'PS_TAX_ADDRESS_TYPE';
+    public const SHOP_DEFAULT = 'PS_SHOP_DEFAULT';
+    public const CARRIER_DEFAULT_SORT = 'PS_CARRIER_DEFAULT_SORT';
+    public const STOCK_MVT_INC_REASON_DEFAULT = 'PS_STOCK_MVT_INC_REASON_DEFAULT';
+    public const STOCK_MVT_DEC_REASON_DEFAULT = 'PS_STOCK_MVT_DEC_REASON_DEFAULT';
+    public const ADVANCED_STOCK_MANAGEMENT = 'PS_ADVANCED_STOCK_MANAGEMENT';
+    public const ADMINREFRESH_NOTIFICATION = 'PS_ADMINREFRESH_NOTIFICATION';
+    public const STOCK_MVT_TRANSFER_TO = 'PS_STOCK_MVT_TRANSFER_TO';
+    public const STOCK_MVT_TRANSFER_FROM = 'PS_STOCK_MVT_TRANSFER_FROM';
+    public const CARRIER_DEFAULT_ORDER = 'PS_CARRIER_DEFAULT_ORDER';
+    public const STOCK_MVT_SUPPLY_ORDER = 'PS_STOCK_MVT_SUPPLY_ORDER';
+    public const STOCK_CUSTOMER_ORDER_REASON = 'PS_STOCK_CUSTOMER_ORDER_REASON';
+    public const UNIDENTIFIED_GROUP = 'PS_UNIDENTIFIED_GROUP';
+    public const GUEST_GROUP = 'PS_GUEST_GROUP';
+    public const CUSTOMER_GROUP = 'PS_CUSTOMER_GROUP';
+    public const SMARTY_CONSOLE = 'PS_SMARTY_CONSOLE';
+    public const INVOICE_MODEL = 'PS_INVOICE_MODEL';
+    public const LIMIT_UPLOAD_IMAGE_VALUE = 'PS_LIMIT_UPLOAD_IMAGE_VALUE';
+    public const LIMIT_UPLOAD_FILE_VALUE = 'PS_LIMIT_UPLOAD_FILE_VALUE';
+    public const TOKEN_ENABLE = 'PS_TOKEN_ENABLE';
+    public const BO_FORCE_TOKEN = 'TB_BO_FORCE_TOKEN';
+    public const STATS_RENDER = 'PS_STATS_RENDER';
+    public const STATS_OLD_CONNECT_AUTO_CLEAN = 'PS_STATS_OLD_CONNECT_AUTO_CLEAN';
+    public const STATS_GRID_RENDER = 'PS_STATS_GRID_RENDER';
+    public const BASE_DISTANCE_UNIT = 'PS_BASE_DISTANCE_UNIT';
+    public const SHOP_DOMAIN = 'PS_SHOP_DOMAIN';
+    public const SHOP_DOMAIN_SSL = 'PS_SHOP_DOMAIN_SSL';
+    public const SHOP_NAME = 'PS_SHOP_NAME';
+    public const SHOP_EMAIL = 'PS_SHOP_EMAIL';
+    public const MAIL_METHOD = 'PS_MAIL_METHOD';
+    public const SHOP_ACTIVITY = 'PS_SHOP_ACTIVITY';
+    public const LOGO = 'PS_LOGO';
+    public const FAVICON = 'PS_FAVICON';
+    public const STORES_ICON = 'PS_STORES_ICON';
+    public const ROOT_CATEGORY = 'PS_ROOT_CATEGORY';
+    public const HOME_CATEGORY = 'PS_HOME_CATEGORY';
+    public const CONFIGURATION_AGREMENT = 'PS_CONFIGURATION_AGREMENT';
+    public const MAIL_SERVER = 'PS_MAIL_SERVER';
+    public const MAIL_USER = 'PS_MAIL_USER';
+    public const MAIL_PASSWD = 'PS_MAIL_PASSWD';
+    public const MAIL_SMTP_ENCRYPTION = 'PS_MAIL_SMTP_ENCRYPTION';
+    public const MAIL_SMTP_PORT = 'PS_MAIL_SMTP_PORT';
+    public const MAIL_COLOR = 'PS_MAIL_COLOR';
+    public const PAYMENT_LOGO_CMS_ID = 'PS_PAYMENT_LOGO_CMS_ID';
+    public const ALLOW_MOBILE_DEVICE = 'PS_ALLOW_MOBILE_DEVICE';
+    public const CUSTOMER_CREATION_EMAIL = 'PS_CUSTOMER_CREATION_EMAIL';
+    public const SMARTY_CONSOLE_KEY = 'PS_SMARTY_CONSOLE_KEY';
+    public const ATTRIBUTE_ANCHOR_SEPARATOR = 'PS_ATTRIBUTE_ANCHOR_SEPARATOR';
+    public const DASHBOARD_SIMULATION = 'PS_DASHBOARD_SIMULATION';
+    public const QUICK_VIEW = 'PS_QUICK_VIEW';
+    public const USE_HTMLPURIFIER = 'PS_USE_HTMLPURIFIER';
+    public const SMARTY_CACHING_TYPE = 'PS_SMARTY_CACHING_TYPE';
+    public const SMARTY_CLEAR_CACHE = 'PS_SMARTY_CLEAR_CACHE';
+    public const DETECT_LANG = 'PS_DETECT_LANG';
+    public const DETECT_COUNTRY = 'PS_DETECT_COUNTRY';
+    public const ROUND_TYPE = 'PS_ROUND_TYPE';
+    public const PRICE_DISPLAY_PRECISION = 'PS_PRICE_DISPLAY_PRECISION';
+    public const LOG_EMAILS = 'PS_LOG_EMAILS';
+    public const CUSTOMER_NWSL = 'PS_CUSTOMER_NWSL';
+    public const CUSTOMER_OPTIN = 'PS_CUSTOMER_OPTIN';
+    public const PACK_STOCK_TYPE = 'PS_PACK_STOCK_TYPE';
+    public const LOG_MODULE_PERFS_MODULO = 'PS_LOG_MODULE_PERFS_MODULO';
+    public const DISALLOW_HISTORY_REORDERING = 'PS_DISALLOW_HISTORY_REORDERING';
+    public const DISPLAY_PRODUCT_WEIGHT = 'PS_DISPLAY_PRODUCT_WEIGHT';
+    public const PRODUCT_WEIGHT_PRECISION = 'PS_PRODUCT_WEIGHT_PRECISION';
+    public const ADVANCED_PAYMENT_API = 'PS_ADVANCED_PAYMENT_API';
+    public const PAGE_CACHE_CONTROLLERS = 'TB_PAGE_CACHE_CONTROLLERS';
+    public const PAGE_CACHE_IGNOREPARAMS = 'PS_ADVANCED_PAYMENT_API';
+    public const ROUTE_PRODUCT_RULE = 'PS_ROUTE_product_rule';
+    public const ROUTE_CATEGORY_RULE = 'PS_ROUTE_category_rule';
+    public const ROUTE_SUPPLIER_RULE = 'PS_ROUTE_supplier_rule';
+    public const ROUTE_MANUFACTURER_RULE = 'PS_ROUTE_manufacturer_rule';
+    public const ROUTE_CMS_RULE = 'PS_ROUTE_cms_rule';
+    public const ROUTE_CMS_CATEGORY_RULE = 'PS_ROUTE_cms_category_rule';
+    public const DISABLE_OVERRIDES = 'PS_DISABLE_OVERRIDES';
+    public const DISABLE_NON_NATIVE_MODULE = 'PS_DISABLE_NON_NATIVE_MODULE';
+    public const CUSTOMCODE_METAS = 'TB_CUSTOMCODE_METAS';
+    public const CUSTOMCODE_CSS = 'TB_CUSTOMCODE_CSS';
+    public const CUSTOMCODE_JS = 'TB_CUSTOMCODE_JS';
+    public const CUSTOMCODE_ORDERCONF_JS = 'TB_CUSTOMCODE_ORDERCONF_JS';
+    public const STORE_REGISTERED = 'TB_STORE_REGISTERED';
+    public const MAIL_SUBJECT_TEMPLATE = 'TB_MAIL_SUBJECT_TEMPLATE';
+    public const API_SERVER_OVERRIDE = 'TB_API_SERVER_OVERRIDE';
+    public const ACCOUNTS_SERVER_OVERRIDE = 'TB_ACCOUNTS_SERVER_OVERRIDE';
+    public const SSL_TRUST_STORE_TYPE = 'TB_SSL_TRUST_STORE_TYPE';
+    public const SSL_TRUST_STORE = 'TB_SSL_TRUST_STORE';
+    public const TRACKING_ID = 'TB_TRACKING_UID';
+    public const MAIL_TRANSPORT = 'TB_MAIL_TRANSPORT';
+    public const BECOME_SUPPORTER_URL = 'TB_SUPPORTER_URL';
+    public const SUPPORTER_TYPE = 'TB_SUPPORTER_TYPE';
+    public const SUPPORTER_TYPE_NAME = 'TB_SUPPORTER_TYPE_NAME';
+    public const CONNECTED = 'TB_CONNECTED';
+    public const CONNECT_CODE = 'TB_CONNECT_CODE';
+    public const MAINTENANCE_IP_ADDRESSES = 'PS_MAINTENANCE_IP';
+    public const LANGUAGE_CODE_IN_URL = 'TB_LANGUAGE_CODE_IN_URL';
 
     /**
      * List of configuration keys that will raise warnings
      */
-    const DEPRECATED_CONFIG_KEYS = [
-        self::PRICE_DISPLAY_PRECISION => 'Use Currency::getDisplayPrecision() method instead'
+    public const DEPRECATED_CONFIG_KEYS = [
+        self::PRICE_DISPLAY_PRECISION => 'Use Currency::getDisplayPrecision() method instead',
     ];
-    const LAST_SEEN_NOTIFICATION_UUID = 'TB_LAST_SEEN_NOTIFICATION_UUID';
+    public const LAST_SEEN_NOTIFICATION_UUID = 'TB_LAST_SEEN_NOTIFICATION_UUID';
 
-    const CCC_ASSETS_RETENTION_PERIOD = 'TB_CCC_ASSETS_RETENTION_PERIOD';
+    public const CCC_ASSETS_RETENTION_PERIOD = 'TB_CCC_ASSETS_RETENTION_PERIOD';
 
-    const LOGS_RETENTION_PERIOD = 'TB_LOGS_RETENTION_PERIOD';
+    public const LOGS_RETENTION_PERIOD = 'TB_LOGS_RETENTION_PERIOD';
 
     /**
      * @var array Object model definition
@@ -391,7 +393,7 @@ class ConfigurationCore extends ObjectModel
      *
      * @todo    Delegate static calls from Configuration to an instance of a class to be created.
      */
-    public static function clearConfigurationCacheForTesting()
+    public static function clearConfigurationCacheForTesting(): void
     {
         static::$_cache = [];
     }
@@ -428,7 +430,7 @@ class ConfigurationCore extends ObjectModel
         }
         static::validateKey($key);
 
-        if ( ! static::configurationIsLoaded()) {
+        if (! static::configurationIsLoaded()) {
             Configuration::loadConfiguration();
         }
 
@@ -443,12 +445,14 @@ class ConfigurationCore extends ObjectModel
         if (!isset(static::$_cache[static::$definition['table']][$idLang])) {
             $idLang = 0;
         }
-
         if ($idShop && Configuration::hasKey($key, $idLang, null, $idShop)) {
             return static::$_cache[static::$definition['table']][$idLang]['shop'][$idShop][$key];
-        } elseif ($idShopGroup && Configuration::hasKey($key, $idLang, $idShopGroup)) {
+        }
+        if ($idShopGroup && Configuration::hasKey($key, $idLang, $idShopGroup)) {
             return static::$_cache[static::$definition['table']][$idLang]['group'][$idShopGroup][$key];
-        } elseif (Configuration::hasKey($key, $idLang)) {
+        }
+
+        if (Configuration::hasKey($key, $idLang)) {
             return static::$_cache[static::$definition['table']][$idLang]['global'][$key];
         }
 
@@ -508,7 +512,7 @@ class ConfigurationCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function loadConfiguration()
+    public static function loadConfiguration(): void
     {
         static::loadConfigurationFromDB(Db::readOnly());
     }
@@ -521,7 +525,7 @@ class ConfigurationCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function loadConfigurationFromDB($connection)
+    public static function loadConfigurationFromDB($connection): void
     {
         static::$_cache[static::$definition['table']] = [];
 
@@ -533,7 +537,7 @@ class ConfigurationCore extends ObjectModel
         );
 
         foreach ($rows as $row) {
-            $lang = ($row['id_lang']) ? $row['id_lang'] : 0;
+            $lang = $row['id_lang'] ?: 0;
             static::$types[$row['name']] = ($lang) ? 'lang' : 'normal';
             if (!isset(static::$_cache[static::$definition['table']][$lang])) {
                 static::$_cache[static::$definition['table']][$lang] = [
@@ -570,17 +574,18 @@ class ConfigurationCore extends ObjectModel
     {
         static::validateKey($key);
 
-        if ( ! static::configurationIsLoaded()) {
+        if (! static::configurationIsLoaded()) {
             Configuration::loadConfiguration();
         }
 
         $idLang = (int) $idLang;
-
         if ($idShop) {
             return isset(static::$_cache[static::$definition['table']][$idLang]['shop'][$idShop])
                 && (isset(static::$_cache[static::$definition['table']][$idLang]['shop'][$idShop][$key])
                     || array_key_exists($key, static::$_cache[static::$definition['table']][$idLang]['shop'][$idShop]));
-        } elseif ($idShopGroup) {
+        }
+
+        if ($idShopGroup) {
             return isset(static::$_cache[static::$definition['table']][$idLang]['group'][$idShopGroup])
                 && (isset(static::$_cache[static::$definition['table']][$idLang]['group'][$idShopGroup][$key])
                     || array_key_exists($key, static::$_cache[static::$definition['table']][$idLang]['group'][$idShopGroup]));
@@ -712,7 +717,7 @@ class ConfigurationCore extends ObjectModel
                     $value = Tools::purifyHTML($value);
                 } else {
                     // if html values are not allowed, strip tags
-                    $value = strip_tags($value);
+                    $value = strip_tags((string) $value);
                 }
             }
         }
@@ -830,11 +835,11 @@ class ConfigurationCore extends ObjectModel
     {
         if ($idShop) {
             return ' AND id_shop = '.(int) $idShop;
-        } elseif ($idShopGroup) {
-            return ' AND id_shop_group = '.(int) $idShopGroup.' AND (id_shop IS NULL OR id_shop = 0)';
-        } else {
-            return ' AND (id_shop_group IS NULL OR id_shop_group = 0) AND (id_shop IS NULL OR id_shop = 0)';
         }
+        if ($idShopGroup) {
+            return ' AND id_shop_group = '.(int) $idShopGroup.' AND (id_shop IS NULL OR id_shop = 0)';
+        }
+        return ' AND (id_shop_group IS NULL OR id_shop_group = 0) AND (id_shop IS NULL OR id_shop = 0)';
     }
 
     /**
@@ -883,7 +888,7 @@ class ConfigurationCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function set($key, $values, $idShopGroup = null, $idShop = null)
+    public static function set($key, $values, $idShopGroup = null, $idShop = null): void
     {
         static::validateKey($key);
 
@@ -949,7 +954,7 @@ class ConfigurationCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function deleteFromContext($key)
+    public static function deleteFromContext($key): void
     {
         if (Shop::getContext() == Shop::CONTEXT_ALL) {
             return;
@@ -998,9 +1003,8 @@ class ConfigurationCore extends ObjectModel
                 }
             }
             return false;
-        } else {
-            return static::hasContext($key, null, Shop::getContext());
         }
+        return static::hasContext($key, null, Shop::getContext());
     }
 
     /**
@@ -1042,12 +1046,14 @@ class ConfigurationCore extends ObjectModel
             $idShopGroup = Shop::getContextShopGroupID(true);
             $idShop = Shop::getContextShopID(true);
         }
-
         if ($context == Shop::CONTEXT_SHOP && Configuration::hasKey($key, $idLang, null, $idShop)) {
             return true;
-        } elseif ($context == Shop::CONTEXT_GROUP && Configuration::hasKey($key, $idLang, $idShopGroup)) {
+        }
+        if ($context == Shop::CONTEXT_GROUP && Configuration::hasKey($key, $idLang, $idShopGroup)) {
             return true;
-        } elseif ($context == Shop::CONTEXT_ALL && Configuration::hasKey($key, $idLang)) {
+        }
+
+        if ($context == Shop::CONTEXT_ALL && Configuration::hasKey($key, $idLang)) {
             return true;
         }
 
@@ -1106,8 +1112,8 @@ class ConfigurationCore extends ObjectModel
      */
     protected static function validateKey($key)
     {
-        if ( ! Validate::isConfigName($key)) {
-            $message= sprintf(
+        if (! Validate::isConfigName($key)) {
+            $message = sprintf(
                 Tools::displayError('[%s] is not a valid configuration key'),
                 Tools::htmlentitiesUTF8($key)
             );
@@ -1117,8 +1123,8 @@ class ConfigurationCore extends ObjectModel
 
         if (static::$checkDeprecatedKeys && array_key_exists($key, static::DEPRECATED_CONFIG_KEYS)) {
             $callPoint = Tools::getCallPoint([Configuration::class]);
-            $message = sprintf(Tools::displayError("Configuration key [%s] is deprecated."), $key) . ' ';
-            $message .= trim(static::DEPRECATED_CONFIG_KEYS[$key]) . '. ';
+            $message = sprintf(Tools::displayError('Configuration key [%s] is deprecated.'), $key) . ' ';
+            $message .= trim((string) static::DEPRECATED_CONFIG_KEYS[$key]) . '. ';
             $message .= 'Called from: ' . $callPoint['description'];
             trigger_error($message, E_USER_DEPRECATED);
         }
@@ -1130,7 +1136,6 @@ class ConfigurationCore extends ObjectModel
      * Default api url can be overridden using configuration key TB_API_SERVER_OVERRIDE. This should be used
      * by thirty bees developers only
      *
-     * @return string
      * @throws PrestaShopException
      */
     public static function getApiServer(): string
@@ -1151,7 +1156,6 @@ class ConfigurationCore extends ObjectModel
      *  Default api url can be overridden using configuration key TB_ACCOUNTS_SERVER_OVERRIDE. This should be used
      *  by thirty bees developers only
      *
-     * @return string
      * @throws PrestaShopException
      */
     public static function getAccountsServer(): string
@@ -1187,7 +1191,7 @@ class ConfigurationCore extends ObjectModel
             default:
                 $path = static::getGlobalValue(static::SSL_TRUST_STORE);
                 if (! $path) {
-                    $path = _PS_TOOL_DIR_.'cacert.pem';
+                    return _PS_TOOL_DIR_.'cacert.pem';
                 }
                 return $path;
         }
@@ -1218,9 +1222,9 @@ class ConfigurationCore extends ObjectModel
     {
         $url = static::getGlobalValue(static::BECOME_SUPPORTER_URL);
         if (! $url) {
-            $url = "https://forum.thirtybees.com/support-thirty-bees/?sid=@SID@";
+            $url = 'https://forum.thirtybees.com/support-thirty-bees/?sid=@SID@';
         }
-        return str_replace("@SID@", static::getServerTrackingId(), $url);
+        return str_replace('@SID@', static::getServerTrackingId(), $url);
     }
 
     /**
@@ -1234,7 +1238,7 @@ class ConfigurationCore extends ObjectModel
         if ($type) {
             return [
                 'type' => $type,
-                'name' => static::getGlobalValue(static::SUPPORTER_TYPE_NAME)
+                'name' => static::getGlobalValue(static::SUPPORTER_TYPE_NAME),
             ];
         }
         return null;
@@ -1272,14 +1276,10 @@ class ConfigurationCore extends ObjectModel
         return $value;
     }
 
-    /**
-     * @param string $key
-     * @return string
-     */
     public static function getValidConfigKey(string $key): string
     {
-        $str = preg_replace("/[^A-Z0-9_]/", "_", strtoupper($key));
-        $str = preg_replace("/_+/", "_", $str);
-        return trim($str, '_');
+        $str = preg_replace('/[^A-Z0-9_]/', '_', strtoupper($key));
+        $str = preg_replace('/_+/', '_', (string) $str);
+        return trim((string) $str, '_');
     }
 }

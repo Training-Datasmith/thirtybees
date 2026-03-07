@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -55,7 +57,7 @@ if (Tools::isSubmit('submitTranslations')) {
         }
         $new_content .= "\t),\n";
     }
-    $new_content .= ");";
+    $new_content .= ');';
     file_put_contents('../langs/'.$iso.'/install.php', $new_content);
     echo '<span class="label label-success">Translations Updated</span><br /><br />';
 }

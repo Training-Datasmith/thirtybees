@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -37,17 +39,17 @@ use Thirtybees\Core\Error\ErrorUtils;
  */
 class HelperListCore extends Helper
 {
-    const COLUMN_TYPE_TEXT = 'text';
-    const COLUMN_TYPE_BOOL = 'bool';
-    const COLUMN_TYPE_DATE = 'date';
-    const COLUMN_TYPE_DATETIME = 'datetime';
-    const COLUMN_TYPE_SELECT = 'select';
-    const COLUMN_TYPE_FLOAT = 'float';
-    const COLUMN_TYPE_PRICE = 'price';
-    const COLUMN_TYPE_DECIMAL = 'decimal';
-    const COLUMN_TYPE_PERCENT = 'percent';
-    const COLUMNT_TYPE_EDITABLE = 'editable';
-    const COLUMN_TYPE_INT = 'int';
+    public const COLUMN_TYPE_TEXT = 'text';
+    public const COLUMN_TYPE_BOOL = 'bool';
+    public const COLUMN_TYPE_DATE = 'date';
+    public const COLUMN_TYPE_DATETIME = 'datetime';
+    public const COLUMN_TYPE_SELECT = 'select';
+    public const COLUMN_TYPE_FLOAT = 'float';
+    public const COLUMN_TYPE_PRICE = 'price';
+    public const COLUMN_TYPE_DECIMAL = 'decimal';
+    public const COLUMN_TYPE_PERCENT = 'percent';
+    public const COLUMNT_TYPE_EDITABLE = 'editable';
+    public const COLUMN_TYPE_INT = 'int';
 
     /**
      * @var array $cache_lang use to cache texts in current language
@@ -157,7 +159,7 @@ class HelperListCore extends Helper
     /**
      * @var string
      */
-    public $specificConfirmDelete = null;
+    public $specificConfirmDelete;
 
     /**
      * @var bool
@@ -172,7 +174,7 @@ class HelperListCore extends Helper
     /**
      * @var string|null If not null, a title will be added on that list
      */
-    public $title = null;
+    public $title;
 
     /**
      * @var bool ask for simple header : no filters, no paginations and no sorting
@@ -254,7 +256,7 @@ class HelperListCore extends Helper
     /**
      * @var string|null
      */
-    protected $listError = null;
+    protected $listError;
 
     /**
      * HelperListCore constructor.
@@ -364,8 +366,8 @@ class HelperListCore extends Helper
             }
 
             $valueKey = $prefix.$this->list_id.'Filter_'.(array_key_exists('filter_key', $params) ? $params['filter_key'] : $key);
-            if ($key == 'active' && strpos($key, '!') !== false) {
-                $keys = explode('!', $params['filter_key']);
+            if ($key == 'active' && str_contains((string) $key, '!')) {
+                $keys = explode('!', (string) $params['filter_key']);
                 $valueKey = $keys[1];
             }
             $value = $cookie->{$valueKey};
@@ -452,7 +454,7 @@ class HelperListCore extends Helper
                 'toolbar_scroll'      => $this->toolbar_scroll,
                 'toolbar_btn'         => $this->toolbar_btn,
                 'has_bulk_actions'    => $this->hasBulkActions($hasValue),
-                'filters_has_value'   => (bool) $hasValue,
+                'filters_has_value'   => $hasValue,
             ]
         );
 
@@ -462,7 +464,7 @@ class HelperListCore extends Helper
             $controller->addJS(_PS_JS_DIR_ . 'admin/dnd.js');
             Media::addJsDef([
                 'come_from' => $this->list_id ?? $this->table,
-                'alternate' => $this->orderWay === 'DESC'
+                'alternate' => $this->orderWay === 'DESC',
             ]);
         }
 
@@ -560,9 +562,7 @@ class HelperListCore extends Helper
                 $positionGroupIdentifier = Category::getRootCategory()->id;
             }
 
-            $positions = array_map(function ($elem) {
-                return (int) $elem['position'];
-            }, $this->_list);
+            $positions = array_map(fn (array $elem) => (int) $elem['position'], $this->_list);
             sort($positions);
         }
 
@@ -580,7 +580,7 @@ class HelperListCore extends Helper
             $name = $tr['name'] ?? null;
 
             if ($this->shopLinkType) {
-                $this->_list[$index]['short_shop_name'] = mb_strlen($tr['shop_name']) > 15 ? mb_substr($tr['shop_name'], 0, 15).'...' : $tr['shop_name'];
+                $this->_list[$index]['short_shop_name'] = mb_strlen((string) $tr['shop_name']) > 15 ? mb_substr((string) $tr['shop_name'], 0, 15).'...' : $tr['shop_name'];
             }
 
             $isFirst = true;
@@ -589,7 +589,7 @@ class HelperListCore extends Helper
             foreach ($this->actions as $action) {
                 //Check if the action is available for the current row
                 if (!array_key_exists($action, $this->list_skip_actions) || !in_array($id, $this->list_skip_actions[$action])) {
-                    $methodName = 'display'.ucfirst($action).'Link';
+                    $methodName = 'display'.ucfirst((string) $action).'Link';
 
                     if (method_exists($controller, $methodName)) {
                         $this->_list[$index][$action] = $controller->$methodName($this->token, $id, $name);
@@ -622,7 +622,7 @@ class HelperListCore extends Helper
             // @todo skip action for bulk actions
             // $this->_list[$index]['has_bulk_actions'] = true;
             foreach ($this->fields_list as $key => $params) {
-                $tmp = explode('!', $key);
+                $tmp = explode('!', (string) $key);
                 $key = $tmp[1] ?? $tmp[0];
                 $dataValue = $tr[$key] ?? null;
 
@@ -693,16 +693,16 @@ class HelperListCore extends Helper
                     if (isset($this->_list[$index][$key]['src'])) {
                         $iconFile = $this->_list[$index][$key]['src'];
                         if (file_exists(_PS_IMG_DIR_.'admin/'.$iconFile)) {
-                            $this->_list[$index][$key]['src'] =_PS_ADMIN_IMG_.$iconFile;
+                            $this->_list[$index][$key]['src'] = _PS_ADMIN_IMG_.$iconFile;
                         }
                     }
                 } elseif (isset($params['type']) && $params['type'] == static::COLUMN_TYPE_FLOAT) {
-                    $this->_list[$index][$key] = rtrim(rtrim($dataValue, '0'), '.');
+                    $this->_list[$index][$key] = rtrim(rtrim((string) $dataValue, '0'), '.');
                 } elseif (isset($dataValue)) {
                     $convertedValue = $dataValue;
                     if (isset($params['callback'])) {
                         try {
-                            $callbackObj = (isset($params['callback_object'])) ? $params['callback_object'] : $controller;
+                            $callbackObj = $params['callback_object'] ?? $controller;
                             $convertedValue = call_user_func_array([$callbackObj, $params['callback']], [$dataValue, $tr]);
                         } catch (Throwable $e) {
                             $errorHandler = ServiceLocator::getInstance()->getErrorHandler();
@@ -844,10 +844,9 @@ class HelperListCore extends Helper
                 'action'      => static::$cache_lang['Duplicate'],
                 'confirm'     => $confirm,
                 'location_ok' => $duplicate.'&token='.($token != null ? $token : $this->token),
-                'location_ko' => $duplicate.'&noimage=1&token='.($token ? $token : $this->token),
+                'location_ko' => $duplicate.'&noimage=1&token='.($token ?: $this->token),
             ]
         );
-
 
         return $tpl->fetch();
     }
@@ -895,7 +894,7 @@ class HelperListCore extends Helper
             [
                 'id'          => $id,
                 'href'        => $this->currentIndex.'&'.$this->identifier.'='.$id.'&details'.$this->table.'&token='.($token != null ? $token : $this->token),
-                'controller'  => str_replace('Controller', '', get_class($this->getController())),
+                'controller'  => str_replace('Controller', '', $this->getController()::class),
                 'token'       => $token != null ? $token : $this->token,
                 'action'      => static::$cache_lang['Details'],
                 'params'      => $ajaxParams,
@@ -1039,10 +1038,6 @@ class HelperListCore extends Helper
     }
 
     /**
-     * @param string $listId
-     * @param Cookie $cookie
-     * @param array $pagination
-     * @param int $defaultPagination
      *
      * @return int
      */
@@ -1057,16 +1052,12 @@ class HelperListCore extends Helper
                 return $defaultPagination;
             }
             return $pagination[0];
-        } else {
-            trigger_error("Pagination not set for list $listId", E_USER_WARNING);
-            return 20;
         }
+        trigger_error("Pagination not set for list $listId", E_USER_WARNING);
+        return 20;
     }
 
     /**
-     * @param string $listId
-     * @param Cookie $cookie
-     * @param int $defaultPagination
      *
      * @return int
      */
@@ -1087,9 +1078,7 @@ class HelperListCore extends Helper
     }
 
     /**
-     * @param array $fields
      *
-     * @return array
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -117,7 +119,7 @@ class ContactCore extends ObjectModel
                 ->from('contact', 'c')
                 ->join(Shop::addSqlAssociation('contact', 'c', false))
                 ->leftJoin('contact_lang', 'cl', 'c.`id_contact` = cl.`id_contact` AND cl.`id_lang` = '.(int) $idLang)
-                ->where('contact_shop.`id_shop` IN ('.implode(', ', array_map('intval', Shop::getContextListShopID())).')')
+                ->where('contact_shop.`id_shop` IN ('.implode(', ', array_map(intval(...), Shop::getContextListShopID())).')')
                 ->where(($onlyActive ? 'active = true' : '1'))
                 ->groupBy('c.`id_contact`')
                 ->orderBy('`name` ASC')
@@ -141,7 +143,7 @@ class ContactCore extends ObjectModel
                 ->join(Shop::addSqlAssociation('contact', 'ct', false))
                 ->leftJoin('contact_lang', 'cl', 'cl.`id_contact` = ct.`id_contact` AND cl.`id_lang` = '.(int) Context::getContext()->language->id)
                 ->where('ct.`customer_service` = 1')
-                ->where('contact_shop.`id_shop` IN ('.implode(', ', array_map('intval', Shop::getContextListShopID())).')')
+                ->where('contact_shop.`id_shop` IN ('.implode(', ', array_map(intval(...), Shop::getContextListShopID())).')')
                 ->groupBy('ct.`id_contact`')
         );
     }

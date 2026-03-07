@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -291,8 +293,7 @@ class CustomerThreadCore extends ObjectModel
                 }
             }
         }
-        $return = parent::delete() && $return;
 
-        return $return;
+        return parent::delete() && $return;
     }
 }

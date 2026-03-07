@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -139,7 +141,7 @@ class CategoryCore extends ObjectModel implements InitializationCallback
     /**
      * @var array
      */
-    public $groupBox = null;
+    public $groupBox;
 
     /** @var string id_image is the category ID when an image exists and false otherwise */
     public $id_image = false;
@@ -187,14 +189,14 @@ class CategoryCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public static function recurseCategory($categories, $current, $idCategory = null, $idSelected = 1)
+    public static function recurseCategory($categories, $current, $idCategory = null, $idSelected = 1): void
     {
         if (!$idCategory) {
             $idCategory = (int) Configuration::get('PS_ROOT_CATEGORY');
         }
 
         echo '<option value="'.$idCategory.'"'.(($idSelected == $idCategory) ? ' selected="selected"' : '').'>'.
-            str_repeat('&nbsp;', $current['infos']['level_depth'] * 5).stripslashes($current['infos']['name']).'</option>';
+            str_repeat('&nbsp;', $current['infos']['level_depth'] * 5).stripslashes((string) $current['infos']['name']).'</option>';
         if (isset($categories[$idCategory])) {
             foreach (array_keys($categories[$idCategory]) as $key) {
                 Category::recurseCategory($categories, $categories[$idCategory][$key], $key, $idSelected);
@@ -242,7 +244,6 @@ class CategoryCore extends ObjectModel implements InitializationCallback
             $categories[$row['id_parent']][$row['id_category']]['infos'] = $row;
         }
 
-
         return $categories;
     }
 
@@ -255,14 +256,13 @@ class CategoryCore extends ObjectModel implements InitializationCallback
      */
     protected static function getActiveColumnCondition($active, $useShopRestriction)
     {
-        if ($active) {
-            if ($useShopRestriction) {
-                return 'AND category_shop.`active` = 1';
-            } else {
-                return 'AND EXISTS(SELECT 1 FROM ' . _DB_PREFIX_ . 'category_shop cs WHERE cs.id_category = c.id_category AND cs.active = 1)';
-            }
+        if (!$active) {
+            return '';
         }
-        return '';
+        if ($useShopRestriction) {
+            return 'AND category_shop.`active` = 1';
+        }
+        return 'AND EXISTS(SELECT 1 FROM ' . _DB_PREFIX_ . 'category_shop cs WHERE cs.id_category = c.id_category AND cs.active = 1)';
     }
 
     /**
@@ -308,7 +308,7 @@ class CategoryCore extends ObjectModel implements InitializationCallback
 				LEFT JOIN `'._DB_PREFIX_.'category_lang` cl ON c.`id_category` = cl.`id_category`'.Shop::addSqlRestrictionOnLang('cl').'
 				'.(isset($groups) && Group::isFeatureActive() ? 'LEFT JOIN `'._DB_PREFIX_.'category_group` cg ON c.`id_category` = cg.`id_category`' : '').'
 				'.(isset($rootCategory) ? 'RIGHT JOIN `'._DB_PREFIX_.'category` c2 ON c2.`id_category` = '.(int) $rootCategory.' AND c.`nleft` >= c2.`nleft` AND c.`nright` <= c2.`nright`' : '').'
-				WHERE '.($sqlFilter ? $sqlFilter : '1').' '.($idLang ? 'AND `id_lang` = '.(int) $idLang : '').'
+				WHERE '.($sqlFilter ?: '1').' '.($idLang ? 'AND `id_lang` = '.(int) $idLang : '').'
 				'.static::getActiveColumnCondition($active, $useShopRestriction).'
 				'.(isset($groups) && Group::isFeatureActive() ? ' AND cg.`id_group` IN ('.implode(',', $groups).')' : '').'
 				'.(!$idLang || (isset($groups) && Group::isFeatureActive()) ? ' GROUP BY c.`id_category`' : '').'
@@ -355,9 +355,9 @@ class CategoryCore extends ObjectModel implements InitializationCallback
         }
 
         $cacheId = 'Category::getNestedCategories_'.md5(
-                (int) $rootCategory.(int) $idLang.(int) $active.(int) $useShopRestriction
+            (int) $rootCategory.(int) $idLang.(int) $active.(int) $useShopRestriction
                 .(isset($groups) && Group::isFeatureActive() ? implode('', $groups) : '')
-            );
+        );
 
         if (!Cache::isStored($cacheId)) {
             $result = Db::readOnly()->getArray(
@@ -405,7 +405,6 @@ class CategoryCore extends ObjectModel implements InitializationCallback
 
     /**
      * @param int|null $idLang
-     * @param Shop|null $shop
      *
      * @return Category
      *
@@ -429,12 +428,10 @@ class CategoryCore extends ObjectModel implements InitializationCallback
         }
         $isMoreThanOneRootCategory = count(Category::getCategoriesWithoutParent()) > 1;
         if (Shop::isFeatureActive() && $isMoreThanOneRootCategory && Shop::getContext() != Shop::CONTEXT_SHOP) {
-            $category = Category::getTopCategory($idLang);
-        } else {
-            $category = new Category($shop->getCategory(), $idLang);
+            return Category::getTopCategory($idLang);
         }
 
-        return $category;
+        return new Category($shop->getCategory(), $idLang);
     }
 
     /**
@@ -603,7 +600,6 @@ class CategoryCore extends ObjectModel implements InitializationCallback
      * @param int $idParent
      * @param array $selectedCat
      * @param int $idLang
-     * @param Shop|null $shop
      * @param bool $useShopContext
      *
      * @return array
@@ -616,7 +612,7 @@ class CategoryCore extends ObjectModel implements InitializationCallback
             $shop = Context::getContext()->shop;
         }
 
-        $idShop = $shop->id ? $shop->id : Configuration::get('PS_SHOP_DEFAULT');
+        $idShop = $shop->id ?: Configuration::get('PS_SHOP_DEFAULT');
         $selectedCat = explode(',', str_replace(' ', '', $selectedCat));
         $sql = '
 		SELECT c.`id_category`, c.`level_depth`, cl.`name`,
@@ -630,7 +626,7 @@ class CategoryCore extends ObjectModel implements InitializationCallback
 			FROM `'._DB_PREFIX_.'category` c3
 			WHERE c3.`nleft` > c.`nleft`
 			AND c3.`nright` < c.`nright`
-			AND c3.`id_category`  IN ('.implode(',', array_map('intval', $selectedCat)).')
+			AND c3.`id_category`  IN ('.implode(',', array_map(intval(...), $selectedCat)).')
 		)' : '0').' AS nbSelectedSubCat
 		FROM `'._DB_PREFIX_.'category` c
 		LEFT JOIN `'._DB_PREFIX_.'category_lang` cl ON (c.`id_category` = cl.`id_category` '.Shop::addSqlRestrictionOnLang('cl', $idShop).')
@@ -669,13 +665,14 @@ class CategoryCore extends ObjectModel implements InitializationCallback
             $row = [];
             foreach ($result as $i) {
                 $row[] = '('.implode(
-                        ', ', [
+                    ', ',
+                    [
                             (int) $idNew, $i['id_category'], '(SELECT tmp.max + 1 FROM (
 					SELECT MAX(cp.`position`) AS max
 					FROM `'._DB_PREFIX_.'category_product` cp
 					WHERE cp.`id_category`='.(int) $i['id_category'].') AS tmp)',
                         ]
-                    ).')';
+                ).')';
             }
 
             return Db::getInstance()->execute(
@@ -772,7 +769,7 @@ class CategoryCore extends ObjectModel implements InitializationCallback
         $categories = explode('/', trim($path));
         $category = $idParentCategory = false;
 
-        if (is_array($categories) && count($categories)) {
+        if (count($categories)) {
             foreach ($categories as $categoryName) {
                 if ($idParentCategory) {
                     $category = Category::searchByNameAndParentCategoryId($idLang, $categoryName, $idParentCategory);
@@ -853,16 +850,15 @@ class CategoryCore extends ObjectModel implements InitializationCallback
             }
 
             return Cache::retrieve($key);
-        } else {
-            return Db::readOnly()->getArray(
-                (new DbQuery())
-                    ->select('c.*, cl.*')
-                    ->from('category', 'c')
-                    ->leftJoin('category_lang', 'cl', 'c.`id_category` = cl.`id_category` AND `id_lang` = '.(int) $idLang.' '.Shop::addSqlRestrictionOnLang('cl'))
-                    ->where('`name` LIKE \'%'.pSQL($query).'%\'')
-                    ->where('c.`id_category` != '.(int) Configuration::get('PS_HOME_CATEGORY'))
-            );
         }
+        return Db::readOnly()->getArray(
+            (new DbQuery())
+                ->select('c.*, cl.*')
+                ->from('category', 'c')
+                ->leftJoin('category_lang', 'cl', 'c.`id_category` = cl.`id_category` AND `id_lang` = '.(int) $idLang.' '.Shop::addSqlRestrictionOnLang('cl'))
+                ->where('`name` LIKE \'%'.pSQL($query).'%\'')
+                ->where('c.`id_category` != '.(int) Configuration::get('PS_HOME_CATEGORY'))
+        );
     }
 
     /**
@@ -908,7 +904,7 @@ class CategoryCore extends ObjectModel implements InitializationCallback
                     'id_group'    => (int) $idGroup,
                 ]
             );
-        } catch (PrestaShopDatabaseException $e) {
+        } catch (PrestaShopDatabaseException) {
             return false;
         }
     }
@@ -936,10 +932,8 @@ class CategoryCore extends ObjectModel implements InitializationCallback
 
     /**
      * @param int $idCategory
-     * @param Shop|null $shop
      *
      * @return bool
-     *
      * @throws PrestaShopException
      */
     public static function inShopStatic($idCategory, ?Shop $shop = null)
@@ -1021,7 +1015,7 @@ class CategoryCore extends ObjectModel implements InitializationCallback
                 ->from('category', 'c')
                 ->leftJoin('category_lang', 'cl', 'c.`id_category` = cl.`id_category` '.Shop::addSqlRestrictionOnLang('cl'))
                 ->where('cl.`id_lang` = '.(int) $idLang)
-                ->where('c.`id_category` IN ('.implode(',', array_map('intval', $idsCategory)).')')
+                ->where('c.`id_category` IN ('.implode(',', array_map(intval(...), $idsCategory)).')')
         );
 
         foreach ($results as $category) {
@@ -1111,7 +1105,6 @@ class CategoryCore extends ObjectModel implements InitializationCallback
     /**
      * Add some categories to a shop
      *
-     * @param array $categories
      * @param int $idShop
      * @return bool
      *
@@ -1163,7 +1156,7 @@ class CategoryCore extends ObjectModel implements InitializationCallback
                 }
             } else {
                 $id = Context::getContext()->shop->id;
-                $idShop = $id ? $id : Configuration::get('PS_SHOP_DEFAULT');
+                $idShop = $id ?: Configuration::get('PS_SHOP_DEFAULT');
                 $return = $conn->execute(
                     '
 					INSERT INTO `'._DB_PREFIX_.'category_shop` (`id_category`, `id_shop`, `position`) VALUES
@@ -1197,25 +1190,24 @@ class CategoryCore extends ObjectModel implements InitializationCallback
     public static function getLastPosition($idCategoryParent, $idShop)
     {
         if ((int) Db::readOnly()->getValue(
-                '
+            '
 				SELECT COUNT(c.`id_category`)
 				FROM `'._DB_PREFIX_.'category` c
 				LEFT JOIN `'._DB_PREFIX_.'category_shop` cs
 				ON (c.`id_category` = cs.`id_category` AND cs.`id_shop` = '.(int) $idShop.')
 				WHERE c.`id_parent` = '.(int) $idCategoryParent
-            ) === 1
+        ) === 1
         ) {
             return 0;
-        } else {
-            return (1 + (int) Db::readOnly()->getValue(
-                    '
+        }
+        return (1 + (int) Db::readOnly()->getValue(
+            '
 				SELECT MAX(cs.`position`)
 				FROM `'._DB_PREFIX_.'category` c
 				LEFT JOIN `'._DB_PREFIX_.'category_shop` cs
 				ON (c.`id_category` = cs.`id_category` AND cs.`id_shop` = '.(int) $idShop.')
 				WHERE c.`id_parent` = '.(int) $idCategoryParent
-                ));
-        }
+        ));
     }
 
     /**
@@ -1290,10 +1282,10 @@ class CategoryCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public static function regenerateEntireNtree()
+    public static function regenerateEntireNtree(): void
     {
         $id = Context::getContext()->shop->id;
-        $idShop = $id ? $id : Configuration::get('PS_SHOP_DEFAULT');
+        $idShop = $id ?: Configuration::get('PS_SHOP_DEFAULT');
         $categories = Db::readOnly()->getArray(
             (new DbQuery())
                 ->select('c.`id_category`, c.`id_parent`')
@@ -1345,7 +1337,7 @@ class CategoryCore extends ObjectModel implements InitializationCallback
         Db::getInstance()->execute(
             '
 		UPDATE '._DB_PREFIX_.'category
-		SET nleft = '.(int) $left.', nright = '.(int) $right.'
+		SET nleft = '.(int) $left.', nright = '.$right.'
 		WHERE id_category = '.(int) $idCategory.' LIMIT 1'
         );
     }
@@ -1358,7 +1350,7 @@ class CategoryCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function updateGroup($groupIds)
+    public function updateGroup($groupIds): void
     {
         $this->cleanGroups();
         if (is_array($groupIds)) {
@@ -1456,7 +1448,7 @@ class CategoryCore extends ObjectModel implements InitializationCallback
 
         $ret = parent::update($nullValues);
         if ($changed && (!isset($this->doNotRegenerateNTree) || !$this->doNotRegenerateNTree)) {
-            $this->cleanPositions((int) $this->id_parent);
+            static::cleanPositions((int) $this->id_parent);
             Category::regenerateEntireNtree();
             $this->recalculateLevelDepth($this->id);
         }
@@ -1518,8 +1510,8 @@ class CategoryCore extends ObjectModel implements InitializationCallback
             $return = Db::getInstance()->execute(
                 '
             UPDATE `'._DB_PREFIX_.'category` c '.Shop::addSqlAssociation('category', 'c').'
-            SET c.`position` = '.(int) ($i).',
-            category_shop.`position` = '.(int) ($i).',
+            SET c.`position` = '.$i.',
+            category_shop.`position` = '.$i.',
             c.`date_upd` = "'.date('Y-m-d H:i:s').'"
             WHERE c.`id_parent` = '.(int) $idCategoryParent.' AND c.`id_category` = '.(int) $result[$i]['id_category']
             ) && $return;
@@ -1536,7 +1528,7 @@ class CategoryCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function recalculateLevelDepth($idCategory)
+    public function recalculateLevelDepth($idCategory): void
     {
         if (!is_numeric($idCategory)) {
             throw new PrestaShopException('id category is not numeric');
@@ -1830,11 +1822,9 @@ class CategoryCore extends ObjectModel implements InitializationCallback
      * @param int $randomNumberProducts Number of products to return if random is activated
      * @param bool $checkAccess If set tot rue, check if the current customer
      *                                             can see products from this category
-     * @param Context|null $context
      *
      * @return array|int|false Products, number of products or false (no access)
      * @throws PrestaShopDatabaseException
-     *
      * @throws PrestaShopException
      */
     public function getProducts($idLang, $p, $n, $orderBy = null, $orderWay = null, $getTotal = false, $active = true, $random = false, $randomNumberProducts = 1, $checkAccess = true, ?Context $context = null)
@@ -1852,7 +1842,7 @@ class CategoryCore extends ObjectModel implements InitializationCallback
 
         $subcats = $this->getAllSubcategories();
         $catsToSearchIn = [$this->id];
-        if($subcats && $this->display_from_sub) {
+        if ($subcats && $this->display_from_sub) {
             foreach ($subcats as $scat) {
                 $catsToSearchIn[] = $scat['id_category'];
             }
@@ -1877,8 +1867,8 @@ class CategoryCore extends ObjectModel implements InitializationCallback
         }
 
         /** Tools::strtolower is a fix for all modules which are now using lowercase values for 'orderBy' parameter */
-        $orderBy = Validate::isOrderBy($orderBy) ? mb_strtolower($orderBy) : 'position';
-        $orderWay = Validate::isOrderWay($orderWay) ? mb_strtoupper($orderWay) : 'ASC';
+        $orderBy = Validate::isOrderBy($orderBy) ? mb_strtolower((string) $orderBy) : 'position';
+        $orderWay = Validate::isOrderWay($orderWay) ? mb_strtoupper((string) $orderWay) : 'ASC';
 
         $orderByPrefix = false;
         if ($orderBy == 'id_product' || $orderBy == 'date_add' || $orderBy == 'date_upd') {
@@ -2050,11 +2040,9 @@ class CategoryCore extends ObjectModel implements InitializationCallback
     }
 
     /**
-     * @param Link|null $link
      * @param int|null $idLang
      *
      * @return string
-     *
      * @throws PrestaShopException
      */
     public function getLink(?Link $link = null, $idLang = null)
@@ -2103,7 +2091,8 @@ class CategoryCore extends ObjectModel implements InitializationCallback
             // object was loaded in different language context than requested, we need to load names from db
             $connection = Db::readOnly();
             $nameArray = [];
-            $rows = $connection->getArray((new DbQuery())
+            $rows = $connection->getArray(
+                (new DbQuery())
                 ->select('id_lang, name')
                 ->from('category_lang')
                 ->where('id_category = ' . (int)$this->id)
@@ -2288,7 +2277,7 @@ class CategoryCore extends ObjectModel implements InitializationCallback
         // since BETWEEN is treated differently according to databases
         $conn = Db::getInstance();
         $result = ($conn->execute(
-                '
+            '
             UPDATE `'._DB_PREFIX_.'category` c '.Shop::addSqlAssociation('category', 'c').'
             SET c.`position`= c.`position` '.($way ? '- 1' : '+ 1').',
             category_shop.`position`= category_shop.`position` '.($way ? '- 1' : '+ 1').',
@@ -2298,7 +2287,7 @@ class CategoryCore extends ObjectModel implements InitializationCallback
                     ? '> '.(int) $moved_category['position'].' AND category_shop.`position` <= '.(int) $position
                     : '< '.(int) $moved_category['position'].' AND category_shop.`position` >= '.(int) $position).'
             AND c.`id_parent`='.(int) $moved_category['id_parent']
-            )
+        )
             && $conn->execute(
                 '
             UPDATE `'._DB_PREFIX_.'category` c '.Shop::addSqlAssociation('category', 'c').'
@@ -2316,10 +2305,8 @@ class CategoryCore extends ObjectModel implements InitializationCallback
     /**
      * Check if current category is a child of shop root category
      *
-     * @param Shop|null $shop
      *
      * @return bool
-     *
      * @throws PrestaShopException
      */
     public function inShop(?Shop $shop = null)
@@ -2347,7 +2334,7 @@ class CategoryCore extends ObjectModel implements InitializationCallback
      */
     public function getChildrenWs()
     {
-        $result = Db::readOnly()->getArray(
+        return Db::readOnly()->getArray(
             '
 		SELECT c.`id_category` AS id
 		FROM `'._DB_PREFIX_.'category` c
@@ -2356,8 +2343,6 @@ class CategoryCore extends ObjectModel implements InitializationCallback
 		AND category_shop.`active` = 1
 		ORDER BY category_shop.`position` ASC'
         );
-
-        return $result;
     }
 
     /**
@@ -2371,13 +2356,14 @@ class CategoryCore extends ObjectModel implements InitializationCallback
     public function getAssociatedProducts()
     {
         $connection = Db::readOnly();
-        $result = $connection->getArray((new DbQuery())
+        $result = $connection->getArray(
+            (new DbQuery())
             ->select('id_product')
             ->from('category_product')
             ->where('id_category = ' . (int) $this->id)
             ->orderBy('`position` ASC, `id_product`')
         );
-        return array_map('intval', array_column($result, 'id_product'));
+        return array_map(intval(...), array_column($result, 'id_product'));
     }
 
     /**
@@ -2388,15 +2374,13 @@ class CategoryCore extends ObjectModel implements InitializationCallback
      */
     public function getProductsWs()
     {
-        $result = Db::readOnly()->getArray(
+        return Db::readOnly()->getArray(
             '
 		SELECT cp.`id_product` AS id
 		FROM `'._DB_PREFIX_.'category_product` cp
 		WHERE cp.`id_category` = '.(int) $this->id.'
 		ORDER BY `position` ASC'
         );
-
-        return $result;
     }
 
     /**
@@ -2442,7 +2426,7 @@ class CategoryCore extends ObjectModel implements InitializationCallback
     public function isParentCategoryAvailable($idShop)
     {
         $id = Context::getContext()->shop->id;
-        $idShop = $id ? $id : Configuration::get('PS_SHOP_DEFAULT');
+        $idShop = $id ?: Configuration::get('PS_SHOP_DEFAULT');
 
         return (bool) Db::readOnly()->getValue(
             (new DbQuery())
@@ -2573,7 +2557,7 @@ class CategoryCore extends ObjectModel implements InitializationCallback
     /**
      * @param TableSchema $table
      */
-    public static function processTableSchema($table)
+    public static function processTableSchema($table): void
     {
         if ($table->getNameWithoutPrefix() === 'category_lang') {
             $table->reorderColumns(['id_category', 'id_shop', 'id_lang']);
@@ -2583,11 +2567,9 @@ class CategoryCore extends ObjectModel implements InitializationCallback
     /**
      * Database initialization callback
      *
-     * @param Db $conn
-     * @return void
      * @throws PrestaShopException
      */
-    public static function initializationCallback(Db $conn)
+    public static function initializationCallback(Db $conn): void
     {
         // in 1.4.0 columns 'active', 'display_from_sub', 'date_add', and 'date_upd' were moved to
         // shop table. We need to initialize them properly

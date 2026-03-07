@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -79,7 +81,7 @@ class AdminOrderPreferencesControllerCore extends AdminController
         foreach (Contact::getContacts($this->context->language->id, true) as $contact) {
             $contacts[] = [
                 'id' => (int)$contact['id_contact'],
-                'name' => $contact['name']
+                'name' => $contact['name'],
             ];
         }
 
@@ -192,7 +194,7 @@ class AdminOrderPreferencesControllerCore extends AdminController
                         'hint' => $proportionateTax
                             ? Translate::ppTags($this->l('Taxes will be determined dynamically because [1]Proportionate tax for shipping and wrapping[/1] option is enabled'), ['<i>'])
                             : $this->l('Set a tax for gift wrapping.'),
-                        'disabled' => $proportionateTax
+                        'disabled' => $proportionateTax,
                     ],
                     'PS_RECYCLABLE_PACK'               => [
                         'title'      => $this->l('Offer recycled packaging'),

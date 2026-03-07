@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -52,30 +54,30 @@ class AdminGroupsControllerCore extends AdminController
             'delete' => [
                 'text' => $this->l('Delete selected'),
                 'confirm' => $this->l('Delete selected items?'),
-                'icon' => 'icon-trash'
-            ]
+                'icon' => 'icon-trash',
+            ],
         ];
 
         $groups_to_keep = [
             Configuration::get('PS_UNIDENTIFIED_GROUP'),
             Configuration::get('PS_GUEST_GROUP'),
-            Configuration::get('PS_CUSTOMER_GROUP')
+            Configuration::get('PS_CUSTOMER_GROUP'),
         ];
 
         $this->fields_list = [
             'id_group' => [
                 'title' => $this->l('ID'),
                 'align' => 'center',
-                'class' => 'fixed-width-xs'
+                'class' => 'fixed-width-xs',
             ],
             'name' => [
                 'title' => $this->l('Group name'),
-                'filter_key' => 'b!name'
+                'filter_key' => 'b!name',
             ],
             'reduction' => [
                 'title' => $this->l('Discount (%)'),
                 'align' => 'right',
-                'type' => 'percent'
+                'type' => 'percent',
             ],
             'price_display_method' => [
                 'title' => $this->l('Price display method'),
@@ -83,7 +85,7 @@ class AdminGroupsControllerCore extends AdminController
                 'callback' => 'printPriceDisplayMethod',
                 'type' => 'select',
                 'list' => $this->getPriceDisplayMethods(),
-                'filter_key' => 'a!price_display_method'
+                'filter_key' => 'a!price_display_method',
             ],
             'nb' => [
                 'title' => $this->l('Members'),
@@ -95,13 +97,13 @@ class AdminGroupsControllerCore extends AdminController
                 'align' => 'center',
                 'type' => 'bool',
                 'callback' => 'printShowPricesIcon',
-                'orderby' => false
+                'orderby' => false,
             ],
             'date_add' => [
                 'title' => $this->l('Creation date'),
                 'type' => 'date',
-                'align' => 'right'
-            ]
+                'align' => 'right',
+            ],
         ];
 
         $this->addRowActionSkipList('delete', $groups_to_keep);
@@ -128,7 +130,7 @@ class AdminGroupsControllerCore extends AdminController
                             'cast' => 'intval',
                             'type' => 'select',
                             'list' => $groups,
-                            'identifier' => 'id_group'
+                            'identifier' => 'id_group',
                         ],
                         'PS_GUEST_GROUP' => [
                             'title' => $this->l('Guests group'),
@@ -136,7 +138,7 @@ class AdminGroupsControllerCore extends AdminController
                             'cast' => 'intval',
                             'type' => 'select',
                             'list' => $groups,
-                            'identifier' => 'id_group'
+                            'identifier' => 'id_group',
                         ],
                         'PS_CUSTOMER_GROUP' => [
                             'title' => $this->l('Customers group'),
@@ -144,12 +146,12 @@ class AdminGroupsControllerCore extends AdminController
                             'cast' => 'intval',
                             'type' => 'select',
                             'list' => $groups,
-                            'identifier' => 'id_group'
+                            'identifier' => 'id_group',
                         ],
                     ],
                     'submit' => [
                         'title' => $this->l('Save'),
-                    ]
+                    ],
                 ],
             ];
         }
@@ -193,7 +195,7 @@ class AdminGroupsControllerCore extends AdminController
             $this->page_header_toolbar_btn['new_group'] = [
                 'href' => static::$currentIndex.'&addgroup&token='.$this->token,
                 'desc' => $this->l('Add new group', null, null, false),
-                'icon' => 'process-icon-new'
+                'icon' => 'process-icon-new',
             ];
         }
 
@@ -245,7 +247,7 @@ class AdminGroupsControllerCore extends AdminController
             'group' => $group,
             'language' => $this->context->language,
             'customerList' => $this->renderCustomersList($group),
-            'categorieReductions' => $this->formatCategoryDiscountList($group->id)
+            'categorieReductions' => $this->formatCategoryDiscountList($group->id),
         ];
 
         return parent::renderView();
@@ -278,7 +280,7 @@ class AdminGroupsControllerCore extends AdminController
             'email' => ['title' => $this->l('Email address'), 'filter_key' => 'c!email', 'orderby' => true],
             'birthday' => ['title' => $this->l('Birth date'), 'type' => 'date', 'class' => 'fixed-width-md', 'align' => 'center'],
             'date_add' => ['title' => $this->l('Registration date'), 'type' => 'date', 'class' => 'fixed-width-md', 'align' => 'center'],
-            'active' => ['title' => $this->l('Enabled'), 'align' => 'center', 'class' => 'fixed-width-sm', 'type' => 'bool', 'search' => false, 'orderby' => false, 'filter_key' => 'c!active', 'callback' => 'printOptinIcon']
+            'active' => ['title' => $this->l('Enabled'), 'align' => 'center', 'class' => 'fixed-width-sm', 'type' => 'bool', 'search' => false, 'orderby' => false, 'filter_key' => 'c!active', 'callback' => 'printOptinIcon'],
         ]);
         $this->_select = 'c.*, a.id_group';
         $this->_join = 'LEFT JOIN `'._DB_PREFIX_.'customer` c ON (a.`id_customer` = c.`id_customer`)';
@@ -316,14 +318,14 @@ class AdminGroupsControllerCore extends AdminController
         foreach ($this->getPriceDisplayMethods() as $method => $name) {
             $priceDisplaMethods[] = [
                 'id_method' => $method,
-                'name' => $name
+                'name' => $name,
             ];
         }
 
         $this->fields_form = [
             'legend' => [
                 'title' => $this->l('Customer group'),
-                'icon' => 'icon-group'
+                'icon' => 'icon-group',
             ],
             'submit' => [
                 'title' => $this->l('Save'),
@@ -336,7 +338,7 @@ class AdminGroupsControllerCore extends AdminController
                     'required' => true,
                     'lang' => true,
                     'col' => 4,
-                    'hint' => $this->l('Forbidden characters:').' 0-9!&amp;lt;&amp;gt;,;?=+()@#"�{}_$%:'
+                    'hint' => $this->l('Forbidden characters:').' 0-9!&amp;lt;&amp;gt;,;?=+()@#"�{}_$%:',
                 ],
                 [
                     'type' => 'text',
@@ -344,7 +346,7 @@ class AdminGroupsControllerCore extends AdminController
                     'name' => 'reduction',
                     'suffix' => '%',
                     'col' => 1,
-                    'hint' => $this->l('Automatically apply this value as a discount on all products for members of this customer group.')
+                    'hint' => $this->l('Automatically apply this value as a discount on all products for members of this customer group.'),
                 ],
                 [
                     'type' => 'select',
@@ -355,8 +357,8 @@ class AdminGroupsControllerCore extends AdminController
                     'options' => [
                         'query' => $priceDisplaMethods,
                         'id' => 'id_method',
-                        'name' => 'name'
-                    ]
+                        'name' => 'name',
+                    ],
                 ],
                 [
                     'type' => 'switch',
@@ -369,29 +371,29 @@ class AdminGroupsControllerCore extends AdminController
                         [
                             'id' => 'show_prices_on',
                             'value' => 1,
-                            'label' => $this->l('Enabled')
+                            'label' => $this->l('Enabled'),
                         ],
                         [
                             'id' => 'show_prices_off',
                             'value' => 0,
-                            'label' => $this->l('Disabled')
-                        ]
+                            'label' => $this->l('Disabled'),
+                        ],
                     ],
-                    'hint' => $this->l('Customers in this group can view prices.')
+                    'hint' => $this->l('Customers in this group can view prices.'),
                 ],
                 [
                     'type' => 'group_discount_category',
                     'label' => $this->l('Category discount'),
                     'name' => 'reduction',
-                    'values' => ($group->id ? $this->formatCategoryDiscountList((int)$group->id) : [])
+                    'values' => ($group->id ? $this->formatCategoryDiscountList((int)$group->id) : []),
                 ],
                 [
                     'type' => 'modules',
                     'label' => $this->l('Modules Authorization'),
                     'name' => 'auth_modules',
-                    'values' => $this->formatModuleListAuth($group->id)
-                ]
-            ]
+                    'values' => $this->formatModuleListAuth($group->id),
+                ],
+            ],
         ];
 
         if (Shop::isFeatureActive()) {
@@ -434,7 +436,7 @@ class AdminGroupsControllerCore extends AdminController
             $category_reductions[(int)$category['id_category']] = [
                 'path' => $this->getCategoryPath((int)$category['id_category']),
                 'reduction' => (float)$category['reduction'] * 100,
-                'id_category' => (int)$category['id_category']
+                'id_category' => (int)$category['id_category'],
             ];
         }
 
@@ -444,7 +446,7 @@ class AdminGroupsControllerCore extends AdminController
                     $category_reductions[(int)$key] = [
                         'path' => $this->getCategoryPath((int)$key),
                         'reduction' => (float)$val * 100,
-                        'id_category' => (int)$key
+                        'id_category' => (int)$key,
                     ];
                 }
             }
@@ -590,11 +592,13 @@ class AdminGroupsControllerCore extends AdminController
     {
         $category_reduction = Tools::getValue('category_reduction');
         $conn = Db::getInstance();
-        $conn->execute('
+        $conn->execute(
+            '
 			DELETE FROM `'._DB_PREFIX_.'group_reduction`
 			WHERE `id_group` = '.Tools::getIntValue('id_group')
         );
-        $conn->execute('
+        $conn->execute(
+            '
 			DELETE FROM `'._DB_PREFIX_.'product_group_reduction_cache`
 			WHERE `id_group` = '.Tools::getIntValue('id_group')
         );
@@ -730,7 +734,7 @@ class AdminGroupsControllerCore extends AdminController
             [
                 'href' => $href,
                 'action' => static::$cache_lang['Edit'],
-                'id' => $id
+                'id' => $id,
             ]
         );
 
@@ -746,10 +750,10 @@ class AdminGroupsControllerCore extends AdminController
     protected function getCategoryPath(int $categoryId)
     {
         $path = Category::getCategoryPath($categoryId, (int)$this->context->language->id);
-        $names = array_map(function(Category $category) {
+        $names = array_map(function (Category $category) {
             $link = Context::getContext()->link->getAdminLink('AdminCategories', true, [
                 'viewcategory' => 1,
-                'id_category' => (int)$category->id
+                'id_category' => (int)$category->id,
             ]);
             return '<a href="'.$link.'">' . Tools::safeOutput($category->name) . '</a>';
         }, $path);

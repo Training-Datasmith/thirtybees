@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -98,18 +100,12 @@ class SpecificPriceRuleCore extends ObjectModel
         ],
     ];
 
-    /**
-     * @return void
-     */
-    public static function disableAnyApplication()
+    public static function disableAnyApplication(): void
     {
         static::$rules_application_enable = false;
     }
 
-    /**
-     * @return void
-     */
-    public static function enableAnyApplication()
+    public static function enableAnyApplication(): void
     {
         static::$rules_application_enable = true;
     }
@@ -117,12 +113,11 @@ class SpecificPriceRuleCore extends ObjectModel
     /**
      * @param array|bool $products
      *
-     * @return void
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function applyAllRules($products = false)
+    public static function applyAllRules($products = false): void
     {
         if (!static::$rules_application_enable) {
             return;
@@ -138,12 +133,11 @@ class SpecificPriceRuleCore extends ObjectModel
     /**
      * @param bool $products
      *
-     * @return void
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function apply($products = false)
+    public function apply($products = false): void
     {
         if (!static::$rules_application_enable) {
             return;
@@ -168,7 +162,7 @@ class SpecificPriceRuleCore extends ObjectModel
     {
         $where = '';
         if ($products && is_array($products) && count($products)) {
-            $where .= ' AND id_product IN ('.implode(', ', array_map('intval', $products)).')';
+            $where .= ' AND id_product IN ('.implode(', ', array_map(intval(...), $products)).')';
         }
 
         return Db::getInstance()->delete('specific_price', '`id_specific_price_rule` = '.(int) $this->id.$where);
@@ -239,7 +233,7 @@ class SpecificPriceRuleCore extends ObjectModel
 
                 // Products limitation
                 if ($products && count($products)) {
-                    $query->where('p.`id_product` IN ('.implode(', ', array_map('intval', $products)).')');
+                    $query->where('p.`id_product` IN ('.implode(', ', array_map(intval(...), $products)).')');
                 }
 
                 // Force the column id_product_attribute if not requested
@@ -254,19 +248,18 @@ class SpecificPriceRuleCore extends ObjectModel
                 }
             }
             return array_values($result);
-        } else {
-            // All products without conditions
-            $query = new DbQuery();
-            $query->select('p.`id_product`')
-                ->select('NULL as `id_product_attribute`')
-                ->from('product', 'p')
-                ->leftJoin('product_shop', 'ps', 'p.`id_product` = ps.`id_product`')
-                ->where('ps.id_shop = '.(int) $currentShopId);
-            if ($products && count($products)) {
-                $query->where('p.`id_product` IN ('.implode(', ', array_map('intval', $products)).')');
-            }
-            return $conn->getArray($query);
         }
+        // All products without conditions
+        $query = new DbQuery();
+        $query->select('p.`id_product`')
+            ->select('NULL as `id_product_attribute`')
+            ->from('product', 'p')
+            ->leftJoin('product_shop', 'ps', 'p.`id_product` = ps.`id_product`')
+            ->where('ps.id_shop = '.(int) $currentShopId);
+        if ($products && count($products)) {
+            $query->where('p.`id_product` IN ('.implode(', ', array_map(intval(...), $products)).')');
+        }
+        return $conn->getArray($query);
     }
 
     /**
@@ -340,7 +333,8 @@ class SpecificPriceRuleCore extends ObjectModel
         );
         $specificPrice->reduction_type = $rule->reduction_type;
         $specificPrice->reduction_tax = $rule->reduction_tax;
-        $specificPrice->reduction = ($rule->reduction_type === 'percentage' ?
+        $specificPrice->reduction = (
+            $rule->reduction_type === 'percentage' ?
             round(
                 $rule->reduction / 100,
                 _TB_PRICE_DATABASE_PRECISION_
@@ -371,7 +365,7 @@ class SpecificPriceRuleCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function deleteConditions()
+    public function deleteConditions(): void
     {
         $idsConditionGroup = Db::readOnly()->getArray(
             (new DbQuery())
@@ -417,7 +411,7 @@ class SpecificPriceRuleCore extends ObjectModel
             $result = $conn->insert(
                 'specific_price_rule_condition',
                 [
-                    'id_specific_price_rule_condition_group' => (int) $idSpecificPriceRuleConditionGroup,
+                    'id_specific_price_rule_condition_group' => $idSpecificPriceRuleConditionGroup,
                     'type'                                   => pSQL($condition['type']),
                     'value'                                  => round(
                         $condition['value'],

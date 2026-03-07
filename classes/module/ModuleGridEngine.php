@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -34,11 +36,6 @@
  */
 class ModuleGridEngineCore extends Module
 {
-    /**
-     * @var string|null
-     */
-    protected $_type;
-
     /**
      * @var array
      */
@@ -77,13 +74,12 @@ class ModuleGridEngineCore extends Module
     /**
      * ModuleGridEngineCore constructor.
      *
-     * @param string|null $type
+     * @param string|null $_type
      *
      * @noinspection PhpMissingParentConstructorInspection
      */
-    public function __construct($type)
+    public function __construct(protected $_type)
     {
-        $this->_type = $type;
     }
 
     /**
@@ -141,7 +137,7 @@ class ModuleGridEngineCore extends Module
         $customParams = '';
         if (isset($params['customParams'])) {
             foreach ($params['customParams'] as $name => $value) {
-                $customParams .= '&'.$name.'='.urlencode($value);
+                $customParams .= '&'.$name.'='.urlencode((string) $value);
             }
         }
         $html = '
@@ -165,7 +161,7 @@ class ModuleGridEngineCore extends Module
 				$.get(url, "", function(json) {
 					$("#grid_1 tbody").html("");
 					var array = $.parseJSON(json);
-					$("#grid_1 tfoot tr th").html("'.addslashes($params['pagingMessage']).'");
+					$("#grid_1 tfoot tr th").html("'.addslashes((string) $params['pagingMessage']).'");
 					$("#grid_1 tfoot tr th").html($("#grid_1 tfoot tr th").html().replace("{0}", array["from"]));
 					$("#grid_1 tfoot tr th").html($("#grid_1 tfoot tr th").html().replace("{1}", array["to"]));
 					$("#grid_1 tfoot tr th").html($("#grid_1 tfoot tr th").html().replace("{2}", array["total"]));
@@ -187,16 +183,14 @@ class ModuleGridEngineCore extends Module
             $params['defaultSortDirection'] = false;
         }
 
-
         $limit = 40;
         if (isset($params['limit']) && Validate::isUnsignedInt($params['limit'])) {
             $limit = (int)$params['limit'];
         }
-
-        $html .= '		$("#grid_1 tbody").append(newLine);
+        return $html . ('		$("#grid_1 tbody").append(newLine);
 						});
 					else
-						$("#grid_1 tbody").append("<tr><td class=\"center\" colspan=\"" + '.count($params['columns']).' + "\">'.$params['emptyMsg'].'</td></tr>");
+						$("#grid_1 tbody").append("<tr><td class=\"center\" colspan=\"" + ' . count($params['columns']) . ' + "\">' . $params['emptyMsg'] . '</td></tr>");
 				});
 			}
 			
@@ -204,9 +198,9 @@ class ModuleGridEngineCore extends Module
 			{
 				var from = url.match(/&start=[0-9]+/i);
 				if (from && from[0] && parseInt(from[0].replace("&start=", "")) > 0)
-					from = "&start=" + (parseInt(from[0].replace("&start=", "")) + '.$limit.');
+					from = "&start=" + (parseInt(from[0].replace("&start=", "")) + ' . $limit . ');
 				else
-					from = "&start='.$limit.'";
+					from = "&start=' . $limit . '";
 				url = url.replace(/&start=[0-9]+/i, "") + from;
 				getGridData(url);
 			}
@@ -216,7 +210,7 @@ class ModuleGridEngineCore extends Module
 				var from = url.match(/&start=[0-9]+/i);
 				if (from && from[0] && parseInt(from[0].replace("&start=", "")) > 0)
 				{
-					var fromInt = parseInt(from[0].replace("&start=", "")) - '.$limit.';
+					var fromInt = parseInt(from[0].replace("&start=", "")) - ' . $limit . ';
 					if (fromInt > 0)
 						from = "&start=" + fromInt;
 					else
@@ -227,9 +221,8 @@ class ModuleGridEngineCore extends Module
 				url = url.replace(/&start=[0-9]+/i, "") + from;
 				getGridData(url);
 			}
-			$(document).ready(function(){getGridData("'.$grider.'&sort='.urlencode($params['defaultSortColumn']).'&dir='.urlencode($params['defaultSortDirection']).$customParams.'");});
-		</script>';
-        return $html;
+			$(document).ready(function(){getGridData("' . $grider . '&sort=' . urlencode((string) $params['defaultSortColumn']) . '&dir=' . urlencode($params['defaultSortDirection']) . $customParams . '");});
+		</script>');
     }
 
     /**
@@ -242,18 +235,16 @@ class ModuleGridEngineCore extends Module
 
     /**
      * @param array $values
-     * @return void
      */
-    public function setValues($values)
+    public function setValues($values): void
     {
         $this->_values = $values;
     }
 
     /**
      * @param string $title
-     * @return void
      */
-    public function setTitle($title)
+    public function setTitle($title): void
     {
         $this->_title = $title;
     }
@@ -261,9 +252,8 @@ class ModuleGridEngineCore extends Module
     /**
      * @param int $width
      * @param int $height
-     * @return void
      */
-    public function setSize($width, $height)
+    public function setSize($width, $height): void
     {
         $this->_width = $width;
         $this->_height = $height;
@@ -271,9 +261,8 @@ class ModuleGridEngineCore extends Module
 
     /**
      * @param int $totalCount
-     * @return void
      */
-    public function setTotalCount($totalCount)
+    public function setTotalCount($totalCount): void
     {
         $this->_totalCount = (int)$totalCount;
     }
@@ -281,24 +270,20 @@ class ModuleGridEngineCore extends Module
     /**
      * @param int $start
      * @param int $limit
-     * @return void
      */
-    public function setLimit($start, $limit)
+    public function setLimit($start, $limit): void
     {
         $this->_start = (int)$start;
         $this->_limit = (int)$limit;
     }
 
-    /**
-     * @return void
-     */
-    public function render()
+    public function render(): void
     {
         echo json_encode([
             'total' => $this->_totalCount,
             'from' => min($this->_start + 1, $this->_totalCount),
             'to' => min($this->_start + $this->_limit, $this->_totalCount),
-            'values' => $this->_values
+            'values' => $this->_values,
         ]);
         exit;
     }

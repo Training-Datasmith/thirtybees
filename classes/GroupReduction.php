@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -396,10 +398,8 @@ class GroupReductionCore extends ObjectModel
         foreach ($products as $product) {
             $ids[] = $product['id_product'];
         }
-
-        $result = true;
         if ($ids) {
-            $result = Db::getInstance()->update(
+            return Db::getInstance()->update(
                 'product_group_reduction_cache',
                 [
                     'reduction' => (float) $this->reduction,
@@ -408,7 +408,7 @@ class GroupReductionCore extends ObjectModel
             );
         }
 
-        return $result;
+        return true;
     }
 
     /**

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 include('config/config.php');
 
 $directory = normalizePath(Tools::getValue('path', ''));
@@ -27,7 +29,7 @@ if (! is_file($fullPath)) {
 // check mime type
 $mimeType = mime_content_type($fullPath);
 if (! canUploadFile($mimeType, $fileExtension)) {
-   die('unsupported mime type');
+    die('unsupported mime type');
 }
 
 header('Pragma: private');

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -27,17 +29,8 @@ use Smarty_CacheResource_Custom;
  */
 class CacheResourceServerSideCacheCore extends Smarty_CacheResource_Custom
 {
-    /**
-     * @var Cache
-     */
-    protected $cache;
-
-    /**
-     * @param Cache $cache
-     */
-    public function __construct(Cache $cache)
+    public function __construct(protected \Cache $cache)
     {
-        $this->cache = $cache;
     }
 
     /**
@@ -107,7 +100,7 @@ class CacheResourceServerSideCacheCore extends Smarty_CacheResource_Custom
     {
         $value = [
             'mtime' => time(),
-            'content' => $content
+            'content' => $content,
         ];
         return $this->cache->set($this->getCacheKey($name, $cacheId, $compileId), $value, $expTime);
     }
@@ -127,19 +120,17 @@ class CacheResourceServerSideCacheCore extends Smarty_CacheResource_Custom
         if ($name === null && $cacheId === null && $compileId === null) {
             $this->cache->flush();
             return -1;
-        } else {
-            $key = $this->getCacheKey($name, $cacheId, $compileId);
-            if ($name && !$cacheId) {
-                $key = $key . '*';
-            }
-            $deleted = $this->cache->delete($key);
-            if (is_array($deleted)) {
-                return count($deleted);
-            }
-            return 1;
         }
+        $key = $this->getCacheKey($name, $cacheId, $compileId);
+        if ($name && !$cacheId) {
+            $key = $key . '*';
+        }
+        $deleted = $this->cache->delete($key);
+        if (is_array($deleted)) {
+            return count($deleted);
+        }
+        return 1;
     }
-
 
     /**
      * @param string $name

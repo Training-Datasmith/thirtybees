@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -28,7 +30,6 @@ use Thirtybees\Core\WorkQueue\WorkQueueTask;
  */
 class AdminSystemNotificationControllerCore extends AdminController implements InitializationCallback
 {
-
     /**
      * @var WorkQueueClient
      */
@@ -59,7 +60,6 @@ class AdminSystemNotificationControllerCore extends AdminController implements I
         $this->lang = false;
 
         $this->addRowAction('view');
-
 
         $this->context = Context::getContext();
 
@@ -92,7 +92,7 @@ class AdminSystemNotificationControllerCore extends AdminController implements I
             'date_created' => [
                 'title' => $this->l('Date'),
                 'type' => 'date',
-            ]
+            ],
         ];
 
         parent::__construct();
@@ -146,7 +146,7 @@ class AdminSystemNotificationControllerCore extends AdminController implements I
         if (empty($this->display)) {
             $this->page_header_toolbar_btn['fetch'] = [
                 'href' => $this->context->link->getAdminLink('AdminSystemNotification', true, [
-                    'action' => 'fetchNotifications'
+                    'action' => 'fetchNotifications',
                 ]),
                 'desc' => $this->l('Refresh'),
                 'icon' => 'process-icon-refresh',

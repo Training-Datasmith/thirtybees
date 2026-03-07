@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -50,7 +52,7 @@ class AttachmentControllerCore extends FrontController
         }
 
         if (! $a->fileExists()) {
-            trigger_error(sprintf("File for attachment %s not found", $a->id), E_USER_WARNING);
+            trigger_error(sprintf('File for attachment %s not found', $a->id), E_USER_WARNING);
             Tools::redirect('index.php');
         }
 

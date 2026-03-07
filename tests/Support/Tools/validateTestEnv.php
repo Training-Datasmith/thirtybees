@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -21,7 +23,9 @@
 /**
  * Helper script that validates test environment
  */
+
 namespace Tests\Support\Tools;
+
 require_once __DIR__ . '/../TestClassIndex.php';
 
 // this script is intended for CLI mode only

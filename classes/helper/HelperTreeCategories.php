@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -34,9 +36,9 @@
  */
 class HelperTreeCategoriesCore extends TreeCore
 {
-    const DEFAULT_TEMPLATE = 'tree_categories.tpl';
-    const DEFAULT_NODE_FOLDER_TEMPLATE = 'tree_node_folder_radio.tpl';
-    const DEFAULT_NODE_ITEM_TEMPLATE = 'tree_node_item_radio.tpl';
+    public const DEFAULT_TEMPLATE = 'tree_categories.tpl';
+    public const DEFAULT_NODE_FOLDER_TEMPLATE = 'tree_node_folder_radio.tpl';
+    public const DEFAULT_NODE_ITEM_TEMPLATE = 'tree_node_item_radio.tpl';
 
     /**
      * @var array|null
@@ -124,15 +126,13 @@ class HelperTreeCategoriesCore extends TreeCore
     }
 
     /**
-     * @param array $categories
      * @param int $idCategory
      *
-     * @return array
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    protected function fillTree(&$categories, $idCategory)
+    protected function fillTree(array &$categories, $idCategory): array
     {
         $tree = [];
         foreach ($categories[$idCategory] as $category) {
@@ -210,10 +210,8 @@ class HelperTreeCategoriesCore extends TreeCore
 
     /**
      * @param bool $value
-     *
-     * @return static
      */
-    public function setChildrenOnly($value)
+    public function setChildrenOnly($value): static
     {
         $this->_children_only = (bool)$value;
 
@@ -222,10 +220,8 @@ class HelperTreeCategoriesCore extends TreeCore
 
     /**
      * @param bool $value
-     *
-     * @return static
      */
-    public function setFullTree($value)
+    public function setFullTree($value): static
     {
         $this->_full_tree = (bool)$value;
 
@@ -242,10 +238,8 @@ class HelperTreeCategoriesCore extends TreeCore
 
     /**
      * @param array|null $value
-     *
-     * @return static
      */
-    public function setDisabledCategories($value)
+    public function setDisabledCategories($value): static
     {
         $this->_disabled_categories = $value;
 
@@ -262,10 +256,8 @@ class HelperTreeCategoriesCore extends TreeCore
 
     /**
      * @param string $value
-     *
-     * @return static
      */
-    public function setInputName($value)
+    public function setInputName($value): static
     {
         $this->_input_name = $value;
 
@@ -286,10 +278,8 @@ class HelperTreeCategoriesCore extends TreeCore
 
     /**
      * @param int $value
-     *
-     * @return static
      */
-    public function setLang($value)
+    public function setLang($value): static
     {
         $this->_lang = $value;
 
@@ -335,10 +325,9 @@ class HelperTreeCategoriesCore extends TreeCore
     /**
      * @param int $value
      *
-     * @return static
      * @throws PrestaShopException
      */
-    public function setRootCategory($value)
+    public function setRootCategory($value): static
     {
         if (!Validate::isInt($value)) {
             throw new PrestaShopException('Root category must be an integer value');
@@ -360,10 +349,9 @@ class HelperTreeCategoriesCore extends TreeCore
     /**
      * @param array $value
      *
-     * @return static
      * @throws PrestaShopException
      */
-    public function setSelectedCategories($value)
+    public function setSelectedCategories($value): static
     {
         if (!is_array($value)) {
             throw new PrestaShopException('Selected categories value must be an array');
@@ -388,10 +376,8 @@ class HelperTreeCategoriesCore extends TreeCore
 
     /**
      * @param Shop $value
-     *
-     * @return static
      */
-    public function setShop($value)
+    public function setShop($value): static
     {
         $this->_shop = $value;
 
@@ -434,10 +420,8 @@ class HelperTreeCategoriesCore extends TreeCore
 
     /**
      * @param bool $value
-     *
-     * @return static
      */
-    public function setUseCheckBox($value)
+    public function setUseCheckBox($value): static
     {
         $this->_use_checkbox = (bool) $value;
 
@@ -446,10 +430,8 @@ class HelperTreeCategoriesCore extends TreeCore
 
     /**
      * @param bool $value
-     *
-     * @return static
      */
-    public function setUseSearch($value)
+    public function setUseSearch($value): static
     {
         $this->_use_search = (bool) $value;
 
@@ -458,36 +440,25 @@ class HelperTreeCategoriesCore extends TreeCore
 
     /**
      * @param bool $value
-     *
-     * @return static
      */
-    public function setUseShopRestriction($value)
+    public function setUseShopRestriction($value): static
     {
         $this->_use_shop_restriction = (bool) $value;
 
         return $this;
     }
 
-    /**
-     * @return bool
-     */
-    public function useCheckBox()
+    public function useCheckBox(): bool
     {
         return (isset($this->_use_checkbox) && $this->_use_checkbox);
     }
 
-    /**
-     * @return bool
-     */
-    public function useSearch()
+    public function useSearch(): bool
     {
         return (isset($this->_use_search) && $this->_use_search);
     }
 
-    /**
-     * @return bool
-     */
-    public function useShopRestriction()
+    public function useShopRestriction(): bool
     {
         return (isset($this->_use_shop_restriction) && $this->_use_shop_restriction);
     }
@@ -566,11 +537,10 @@ class HelperTreeCategoriesCore extends TreeCore
     /**
      * @param array|null $data
      *
-     * @return string
      * @throws PrestaShopException
      * @throws SmartyException
      */
-    public function renderNodes($data = null)
+    public function renderNodes($data = null): string
     {
         if (!isset($data)) {
             $data = $this->getData();
@@ -636,7 +606,7 @@ class HelperTreeCategoriesCore extends TreeCore
      *
      * @return int
      */
-    protected function _getSelectedChildNumbers(&$categories, $selected, &$parent = null)
+    protected function _getSelectedChildNumbers(&$categories, $selected, &$parent = null): float|int
     {
         $selectedChilds = 0;
 

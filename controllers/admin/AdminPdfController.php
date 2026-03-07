@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -175,7 +177,7 @@ class AdminPdfControllerCore extends AdminController
     {
         $orderSlip = new OrderSlip(Tools::getIntValue('id_order_slip'));
 
-        if ( ! Validate::isLoadedObject($orderSlip)) {
+        if (! Validate::isLoadedObject($orderSlip)) {
             throw new PrestaShopException(Tools::displayError('The order slip cannot be found within your database.'));
         }
 

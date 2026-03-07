@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Thirtybees\Core\View\Model;
 
 use Combination;
@@ -9,8 +11,7 @@ use StockAvailable;
 
 class ProductViewModelCore extends Product
 {
-
-    const LEGACY_PROPERTY_GETTER = [
+    public const LEGACY_PROPERTY_GETTER = [
         'id_image' => 'getCoverImageId',
         'allow_oosp' => 'availableWhenOutOfStock',
         'id_product_attribute' => 'getSelectedCombinationId',
@@ -32,10 +33,6 @@ class ProductViewModelCore extends Product
     protected $coverImageId;
 
     /**
-     * @param int $productId
-     * @param int $combinationId
-     * @param int $languageId
-     * @param int $shopId
      *
      * @throws PrestaShopException
      */
@@ -72,7 +69,6 @@ class ProductViewModelCore extends Product
         }
     }
 
-
     /**
      * Get all available attribute groups
      *
@@ -96,7 +92,6 @@ class ProductViewModelCore extends Product
         }
         return $attributeGroups;
     }
-
 
     /**
      * Get product price
@@ -149,7 +144,6 @@ class ProductViewModelCore extends Product
     }
 
     /**
-     * @return int
      * @throws PrestaShopException
      */
     public function getCoverImageId(): int
@@ -161,7 +155,6 @@ class ProductViewModelCore extends Product
     /**
      * return bool|int
      *
-     * @return bool
      * @throws PrestaShopException
      */
     public function availableWhenOutOfStock(): bool

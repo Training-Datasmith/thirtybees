@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Functional\Back;
 
 use Codeception\Example;
@@ -45,12 +47,11 @@ class ModuleConfigWalkerCest
             $instance = Module::getInstanceByName($moduleName);
             if (method_exists($instance, 'getContent')) {
                 $modules[] = [
-                    'module' => $moduleName
+                    'module' => $moduleName,
                 ];
             }
         }
         return $modules;
     }
-
 
 }

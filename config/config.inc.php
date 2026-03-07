@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 use Thirtybees\Core\DependencyInjection\ServiceLocator;
 use Thirtybees\Core\Error\BootstrapErrorHandler;
+
 /**
  * 2007-2016 PrestaShop
  *

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Functional\Front;
 
 use Tests\Support\FunctionalTester;
@@ -27,7 +29,7 @@ class MyAccountCest
     public function testLogin(FunctionalTester $I)
     {
         $I->amLoggedInToFrontOffice();
-        $I->see("Sign out");
+        $I->see('Sign out');
         $I->withoutErrors();
     }
 
@@ -74,9 +76,9 @@ class MyAccountCest
         $I->amLoggedInToFrontOffice();
         $I->amOnPage('index.php?controller=history');
         $I->see('Order history');
-        $I->see("Awaiting bank wire payment");
-        $I->see("KHWLILZLL");
-        $I->see("Reorder");
+        $I->see('Awaiting bank wire payment');
+        $I->see('KHWLILZLL');
+        $I->see('Reorder');
         $I->withoutErrors();
     }
 
@@ -89,7 +91,7 @@ class MyAccountCest
     {
         $I->amLoggedInToFrontOffice();
         $I->amOnPage('index.php?controller=order-slip');
-        $I->see("Credit Slips");
+        $I->see('Credit Slips');
         $I->withoutErrors();
     }
 
@@ -102,8 +104,8 @@ class MyAccountCest
     {
         $I->amLoggedInToFrontOffice();
         $I->amOnPage('index.php?controller=addresses');
-        $I->see("My Addresses");
-        $I->see("Main street 2nd floor");
+        $I->see('My Addresses');
+        $I->see('Main street 2nd floor');
         $I->withoutErrors();
     }
 
@@ -116,8 +118,8 @@ class MyAccountCest
     {
         $I->amLoggedInToFrontOffice();
         $I->amOnPage('index.php?controller=identity');
-        $I->see("Your personal information");
-        $I->see("First name");
+        $I->see('Your personal information');
+        $I->see('First name');
         $I->withoutErrors();
     }
 }

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -62,8 +64,8 @@ class ModuleFrontControllerCore extends FrontController
             $this->display_column_left = $theme->hasLeftColumn($this->page_name);
             $this->display_column_right = $theme->hasRightColumn($this->page_name);
         } else {
-            $this->display_column_left = $this->display_column_left ?? true;
-            $this->display_column_right = $this->display_column_right ?? true;
+            $this->display_column_left ??= true;
+            $this->display_column_right ??= true;
         }
     }
 
@@ -74,7 +76,7 @@ class ModuleFrontControllerCore extends FrontController
      *
      * @throws PrestaShopException
      */
-    public function setTemplate($template)
+    public function setTemplate($template): void
     {
         if (!$path = $this->getTemplatePath($template)) {
             throw new PrestaShopException("Template '$template' not found");
@@ -94,9 +96,11 @@ class ModuleFrontControllerCore extends FrontController
     {
         if (file_exists(_PS_THEME_DIR_.'modules/'.$this->module->name.'/'.$template)) {
             return _PS_THEME_DIR_.'modules/'.$this->module->name.'/'.$template;
-        } elseif (file_exists(_PS_THEME_DIR_.'modules/'.$this->module->name.'/views/templates/front/'.$template)) {
+        }
+        if (file_exists(_PS_THEME_DIR_.'modules/'.$this->module->name.'/views/templates/front/'.$template)) {
             return _PS_THEME_DIR_.'modules/'.$this->module->name.'/views/templates/front/'.$template;
-        } elseif (file_exists(_PS_MODULE_DIR_.$this->module->name.'/views/templates/front/'.$template)) {
+        }
+        if (file_exists(_PS_MODULE_DIR_.$this->module->name.'/views/templates/front/'.$template)) {
             return _PS_MODULE_DIR_.$this->module->name.'/views/templates/front/'.$template;
         }
 
@@ -106,7 +110,7 @@ class ModuleFrontControllerCore extends FrontController
     /**
      * @throws PrestaShopException
      */
-    public function initContent()
+    public function initContent(): void
     {
         if (Tools::isSubmit('module') && Tools::getValue('controller') == 'payment') {
             $currency = Currency::getCurrency((int) $this->context->cart->id_currency);

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -27,11 +29,6 @@ use PrestaShopException;
 class WorkQueueFutureCore
 {
     /**
-     * @var string unique internal id, implementation specific
-     */
-    protected $id;
-
-    /**
      * @var string work queue implementation
      */
     protected $implementation;
@@ -39,17 +36,15 @@ class WorkQueueFutureCore
     /**
      * @var string task status
      */
-    protected $status;
+    protected string $status;
 
     /**
      * WorkQueueFutureCore constructor.
      *
-     * @param WorkQueueExecutor $executor
      * @param string $id
-     * @param string $status
      * @throws PrestaShopException
      */
-    public function __construct(WorkQueueExecutor $executor, $id, $status)
+    public function __construct(WorkQueueExecutor $executor, protected $id, string $status)
     {
         if (! in_array($status, [
             WorkQueueTask::STATUS_PENDING,
@@ -60,7 +55,6 @@ class WorkQueueFutureCore
             throw new PrestaShopException('Invalid work queue status: ' . $status);
         }
         $this->implementation = $executor->getExecutorIdentifier();
-        $this->id = $id;
         $this->status = $status;
     }
 

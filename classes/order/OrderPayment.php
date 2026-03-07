@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -173,10 +175,9 @@ class OrderPaymentCore extends ObjectModel
         $collection = new PrestaShopCollection('OrderPayment');
         if (! $payments) {
             return $collection->empty();
-        } else {
-            $paymentList = array_column($payments, 'id_order_payment');
-            return $collection->where('id_order_payment', 'IN', $paymentList);
         }
+        $paymentList = array_column($payments, 'id_order_payment');
+        return $collection->where('id_order_payment', 'IN', $paymentList);
     }
 
     /**

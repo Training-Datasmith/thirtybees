@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -69,24 +71,24 @@ class AdminImagesControllerCore extends AdminController
                 ],
         ];
 
-        $this->_select = " image_aliases, image_entities ";
+        $this->_select = ' image_aliases, image_entities ';
 
         $this->_join = "
             LEFT JOIN (
                 SELECT id_image_type_parent, GROUP_CONCAT(name SEPARATOR ', ') AS image_aliases
-                FROM "._DB_PREFIX_."image_type
+                FROM "._DB_PREFIX_.'image_type
                 GROUP BY id_image_type_parent
             ) alias ON alias.id_image_type_parent=a.id_image_type
-        ";
+        ';
 
-        $this->_join.= "
+        $this->_join .= "
             LEFT JOIN (
                 SELECT id_image_type, GROUP_CONCAT(name SEPARATOR ', ') AS image_entities
-                FROM "._DB_PREFIX_."image_entity_type AS iet
-                LEFT JOIN "._DB_PREFIX_."image_entity AS ie ON ie.id_image_entity=iet.id_image_entity
+                FROM "._DB_PREFIX_.'image_entity_type AS iet
+                LEFT JOIN '._DB_PREFIX_.'image_entity AS ie ON ie.id_image_entity=iet.id_image_entity
                 GROUP BY iet.id_image_type
             ) entities ON entities.id_image_type=a.id_image_type
-        ";
+        ';
 
         $this->_where = ' AND (a.id_image_type_parent IS NULL OR a.id_image_type_parent=0) ';
 
@@ -109,8 +111,7 @@ class AdminImagesControllerCore extends AdminController
 
         if (ImageManager::serverSupportsWebp()) {
             $desc = $this->l('It\'s recommended to use modern webp extension. Note: tb does serve old browser with jpg format, so you are fully backward compatible.');
-        }
-        else {
+        } else {
             $desc = Translate::ppTags($this->l('[1]Warning[/1]: your server does not support webp images'), ['<b>']);
         }
 
@@ -154,7 +155,7 @@ class AdminImagesControllerCore extends AdminController
                         'identifier' => 'id',
                         'visibility' => Shop::CONTEXT_ALL,
                         'hint' => $this->l('In which file extension(s), do you want to hold uploaded images on your server?'),
-                        'desc' => $this->l('If your theme or any module is using source images, you should save the image also in converted extension. It means, that your image are always available in the selected extension above.')
+                        'desc' => $this->l('If your theme or any module is using source images, you should save the image also in converted extension. It means, that your image are always available in the selected extension above.'),
                     ],
                     'PS_IMAGE_GENERATION_METHOD'  => [
                         'title'      => $this->l('Generate images based on one side of the source image'),
@@ -291,7 +292,7 @@ class AdminImagesControllerCore extends AdminController
             ],
             'label' => $this->l('Image type aliases'),
             'hint' => $this->l('The selected image types won\'t be generated anymore. Instead the current image type will be used.'),
-            'desc' => $this->l('Important: make sure, that you also select the responsible image entities below, if you are using aliases.')
+            'desc' => $this->l('Important: make sure, that you also select the responsible image entities below, if you are using aliases.'),
         ];
 
         $this->fields_value['ids_image_type_parent[]'] = array_column(ImageType::getImageTypeAliases($id_image_type), 'id_image_type');
@@ -323,8 +324,6 @@ class AdminImagesControllerCore extends AdminController
 
             $this->fields_value[$imageEntity['name']] = in_array($id_image_type, array_column($imageEntity['imageTypes'], 'id_image_type'));
         }
-
-
 
         parent::__construct();
     }
@@ -562,14 +561,14 @@ class AdminImagesControllerCore extends AdminController
 
         // Launching generation process
         foreach (ImageEntity::getImageEntities() as $imageEntity) {
-            if ($type!='all' && $type!=$imageEntity['name']) {
+            if ($type != 'all' && $type != $imageEntity['name']) {
                 continue;
             }
 
             // Getting format generation
             $imagesTypes = $imageEntity['imageTypes'];
 
-            if ($type!='all') {
+            if ($type != 'all') {
                 $format = strval(Tools::getValue('format_'.$type));
                 if ($format != 'all') {
                     foreach ($imagesTypes as $k => $form) {
@@ -731,7 +730,7 @@ class AdminImagesControllerCore extends AdminController
                     );
                 }
                 if (file_exists($dir.$image) && ! file_exists($newFile)) {
-                    if ( ! filesize($dir.$image)) {
+                    if (! filesize($dir.$image)) {
                         $this->errors[] = sprintf(
                             $this->l('Source file for %s id %s is corrupt: %s'),
                             $entityType,
@@ -1160,20 +1159,20 @@ class AdminImagesControllerCore extends AdminController
         foreach (ImageEntity::getImageEntities() as $entityType) {
             $imageEntityId = (int)$entityType['id_image_entity'];
             $primary = bqSQL($entityType['primary']);
-            $table = _DB_PREFIX_ . "image_regeneration";
+            $table = _DB_PREFIX_ . 'image_regeneration';
 
             $insert = (
                 "INSERT INTO $table(id_image_entity, id_entity, status, date_add, date_upd)\n" .
                 "SELECT $imageEntityId, entity.$primary, 'pending', now(), now()\n" .
-                "FROM " . _DB_PREFIX_ . $entityType['table'] . " entity\n" .
-                "WHERE NOT EXISTS(SELECT 1 FROM " . _DB_PREFIX_ . "image_regeneration r WHERE r.id_image_entity = $imageEntityId AND r.id_entity = entity.$primary)"
+                'FROM ' . _DB_PREFIX_ . $entityType['table'] . " entity\n" .
+                'WHERE NOT EXISTS(SELECT 1 FROM ' . _DB_PREFIX_ . "image_regeneration r WHERE r.id_image_entity = $imageEntityId AND r.id_entity = entity.$primary)"
             );
             $conn->execute($insert);
 
             $delete = (
                 "DELETE FROM $table\n" .
                 "WHERE id_image_entity = $imageEntityId\n" .
-                "AND NOT EXISTS(SELECT 1 FROM " . _DB_PREFIX_ . $entityType['table'] . " entity WHERE $table.id_entity = entity.$primary)"
+                'AND NOT EXISTS(SELECT 1 FROM ' . _DB_PREFIX_ . $entityType['table'] . " entity WHERE $table.id_entity = entity.$primary)"
             );
             $conn->execute($delete);
         }

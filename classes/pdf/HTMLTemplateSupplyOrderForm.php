@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -65,8 +67,6 @@ class HTMLTemplateSupplyOrderFormCore extends HTMLTemplate
     protected $currency;
 
     /**
-     * @param SupplyOrder $supplyOrder
-     * @param Smarty $smarty
      *
      * @throws PrestaShopException
      */
@@ -217,7 +217,7 @@ class HTMLTemplateSupplyOrderFormCore extends HTMLTemplate
         $width = $height = 0;
 
         if (!empty($pathLogo)) {
-            list($width, $height) = getimagesize($pathLogo);
+            [$width, $height] = getimagesize($pathLogo);
         }
 
         $this->smarty->assign(
@@ -301,8 +301,6 @@ class HTMLTemplateSupplyOrderFormCore extends HTMLTemplate
 
     /**
      * Rounds values of a SupplyOrder object
-     *
-     * @param SupplyOrder $supplyOrder
      */
     protected function roundSupplyOrder(SupplyOrder &$supplyOrder)
     {

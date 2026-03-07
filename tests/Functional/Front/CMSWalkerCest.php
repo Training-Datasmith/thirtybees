@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Functional\Front;
 
 use CMS;
@@ -64,7 +66,6 @@ class CMSWalkerCest
         }
         return $ret;
     }
-
 
     /**
      * @return array

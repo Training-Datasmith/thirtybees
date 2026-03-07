@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -128,7 +130,7 @@ class StockMvtReasonCore extends ObjectModel
         }
 
         if (count($idsIgnore)) {
-            $idsIgnore = array_map('intval', $idsIgnore);
+            $idsIgnore = array_map(intval(...), $idsIgnore);
             $query->where('smr.id_stock_mvt_reason NOT IN('.implode(', ', $idsIgnore).')');
         }
 

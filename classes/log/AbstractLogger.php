@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -49,10 +51,10 @@ abstract class AbstractLoggerCore
         3 => 'ERROR',
     ];
 
-    const DEBUG = 0;
-    const INFO = 1;
-    const WARNING = 2;
-    const ERROR = 3;
+    public const DEBUG = 0;
+    public const INFO = 1;
+    public const WARNING = 2;
+    public const ERROR = 3;
 
     /**
      * AbstractLoggerCore constructor.
@@ -74,7 +76,7 @@ abstract class AbstractLoggerCore
      * @param string $message
      * @param int $level
      */
-    public function log($message, $level = self::DEBUG)
+    public function log($message, $level = self::DEBUG): void
     {
         if ($level >= $this->level) {
             $this->logMessage($message, $level);
@@ -86,7 +88,7 @@ abstract class AbstractLoggerCore
      *
      * @param string $message
      */
-    public function logDebug($message)
+    public function logDebug($message): void
     {
         $this->log($message, static::DEBUG);
     }
@@ -96,7 +98,7 @@ abstract class AbstractLoggerCore
      *
      * @param string $message
      */
-    public function logInfo($message)
+    public function logInfo($message): void
     {
         $this->log($message, static::INFO);
     }
@@ -106,7 +108,7 @@ abstract class AbstractLoggerCore
      *
      * @param string $message
      */
-    public function logWarning($message)
+    public function logWarning($message): void
     {
         $this->log($message, static::WARNING);
     }
@@ -116,7 +118,7 @@ abstract class AbstractLoggerCore
      *
      * @param string $message
      */
-    public function logError($message)
+    public function logError($message): void
     {
         $this->log($message, static::ERROR);
     }

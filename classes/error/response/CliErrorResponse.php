@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -36,7 +38,6 @@ class CliErrorResponseCore extends AbstractErrorPage
     }
 
     /**
-     * @param ErrorDescription $errorDescription
      * @return string
      */
     protected function renderError(ErrorDescription $errorDescription)
@@ -45,7 +46,7 @@ class CliErrorResponseCore extends AbstractErrorPage
         $message .= "Stacktrace:\n" . $errorDescription->getTraceAsString() . "\n";
         $cause = $errorDescription->getCause();
         while ($cause) {
-            $message .= "Cause by " . $cause->getExtendedMessage() . "\n";
+            $message .= 'Cause by ' . $cause->getExtendedMessage() . "\n";
             $cause = $cause->getCause();
         }
         return $message;

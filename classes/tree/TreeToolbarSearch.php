@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -57,19 +59,22 @@ class TreeToolbarSearchCore extends TreeToolbarButtonCore implements ITreeToolba
     }
 
     /**
-     * @return string
      *
      * @throws PrestaShopException
      * @throws SmartyException
      */
-    public function render()
+    public function render(): string
     {
         if ($this->hasAttribute('data_search')) {
-            $this->setAttribute('typeahead_source',
-                $this->_renderData($this->getAttribute('data_search')));
+            $this->setAttribute(
+                'typeahead_source',
+                $this->_renderData($this->getAttribute('data_search'))
+            );
         } elseif ($this->hasAttribute('data')) {
-            $this->setAttribute('typeahead_source',
-                $this->_renderData($this->getAttribute('data')));
+            $this->setAttribute(
+                'typeahead_source',
+                $this->_renderData($this->getAttribute('data'))
+            );
         }
 
         $adminWebpath = str_ireplace(_PS_CORE_DIR_, '', _PS_ADMIN_DIR_);
@@ -94,12 +99,10 @@ class TreeToolbarSearchCore extends TreeToolbarButtonCore implements ITreeToolba
     /**
      * @param array $data
      *
-     * @return string
      * @throws PrestaShopException
-     *
      * @deprecated 2.0.0
      */
-    protected function _renderData($data)
+    protected function _renderData($data): string
     {
         if (!is_array($data) && !$data instanceof Traversable) {
             throw new PrestaShopException('Data value must be a traversable array');

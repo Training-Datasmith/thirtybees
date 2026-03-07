@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -19,18 +21,17 @@
 
 namespace Thirtybees\Core\Tracking\Extractor;
 
+use Db;
 use Exception;
 use PrestaShopDatabaseException;
 use PrestaShopException;
 use Thirtybees\Core\Tracking\DataExtractor;
-use Db;
 
 /**
  * Class DbExtractorCore
  */
 class DbExtractorCore extends DataExtractor
 {
-
     /**
      * Returns data name
      *
@@ -63,7 +64,7 @@ class DbExtractorCore extends DataExtractor
         $connection = Db::getInstance();
         return [
             'version' => $connection->getVersion(),
-            'comment' => $this->getVersionComment($connection)
+            'comment' => $this->getVersionComment($connection),
         ];
     }
 
@@ -78,7 +79,7 @@ class DbExtractorCore extends DataExtractor
             if (isset($result[0]['Value'])) {
                 return $result[0]['Value'];
             }
-        } catch (Exception $ignored) {
+        } catch (Exception) {
         }
         return '';
     }

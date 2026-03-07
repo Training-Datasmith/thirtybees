@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -335,7 +337,6 @@ class ManufacturerCore extends ObjectModel implements InitializationCallback
      * @param bool $getTotal
      * @param bool $active
      * @param bool $activeCategory
-     * @param Context|null $context
      *
      * @return array|false|int
      *
@@ -403,7 +404,7 @@ class ManufacturerCore extends ObjectModel implements InitializationCallback
                     ->where('EXISTS ('.$categoryGroupSql->build().')')
             );
 
-            return (int) count($result);
+            return count($result);
         }
         if (strpos($orderBy, '.') > 0) {
             $orderBy = explode('.', $orderBy);
@@ -693,11 +694,9 @@ class ManufacturerCore extends ObjectModel implements InitializationCallback
     /**
      * Database initialization callback
      *
-     * @param Db $conn
-     * @return void
      * @throws PrestaShopException
      */
-    public static function initializationCallback(Db $conn)
+    public static function initializationCallback(Db $conn): void
     {
         ImageEntity::rebuildImageEntities(static::class, self::$definition['images']);
     }

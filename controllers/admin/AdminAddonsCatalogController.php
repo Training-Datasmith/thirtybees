@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -22,7 +24,7 @@ use Psr\Http\Message\StreamInterface;
 
 class AdminAddonsCatalogControllerCore extends AdminController
 {
-    const ADDONS_URL = '/catalog/catalog.json';
+    public const ADDONS_URL = '/catalog/catalog.json';
 
     /**
      * AdminAddonsCatalogControllerCore constructor.
@@ -87,8 +89,8 @@ class AdminAddonsCatalogControllerCore extends AdminController
         try {
             return $guzzle->get(static::ADDONS_URL, [
                 'headers' => [
-                    'X-SID' => Configuration::getServerTrackingId()
-                ]
+                    'X-SID' => Configuration::getServerTrackingId(),
+                ],
             ])->getBody();
         } catch (Throwable $e) {
             return null;

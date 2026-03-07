@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -116,9 +118,7 @@ class TaxRulesGroupCore extends ObjectModel
     /**
      * Save the object with the field deleted to true
      *
-     * @param TaxRulesGroup $taxRulesGroup
      * @return bool
-     *
      * @throws PrestaShopException
      */
     public function historize(TaxRulesGroup $taxRulesGroup)
@@ -176,8 +176,9 @@ class TaxRulesGroupCore extends ObjectModel
         $idTaxRule = (int)$idTaxRule;
         if ($idTaxRule) {
             $connection = Db::readOnly();
-            $params = $connection->getRow((new DbQuery())
-                ->select( 't.id_country')
+            $params = $connection->getRow(
+                (new DbQuery())
+                ->select('t.id_country')
                 ->select('t.id_state')
                 ->select('t.zipcode_from')
                 ->select('t.zipcode_to')
@@ -188,7 +189,8 @@ class TaxRulesGroupCore extends ObjectModel
             );
 
             if ($params) {
-                return (int)$connection->getValue((new DbQuery())
+                return (int)$connection->getValue(
+                    (new DbQuery())
                     ->select('t.id_tax_rule')
                     ->from('tax_rule', 't')
                     ->where('t.id_tax_rules_group = ' . (int)$this->id)

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -53,7 +55,7 @@ $function_array = [
     'invoices2' => 'generateInvoicesPDF2',
     'slips' => 'generateOrderSlipsPDF',
     'deliveryslips' => 'generateDeliverySlipsPDF',
-    'id_supply_order' => 'generateSupplyOrderFormPDF'
+    'id_supply_order' => 'generateSupplyOrderFormPDF',
 ];
 
 $pdf_controller = new AdminPdfController();

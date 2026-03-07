@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -523,10 +525,10 @@ class AdminSearchControllerCore extends AdminController
     protected function getCategoryPath(int $categoryId)
     {
         $path = Category::getCategoryPath($categoryId, (int)$this->context->language->id);
-        $names = array_map(function(Category $category) {
+        $names = array_map(function (Category $category) {
             $link = Context::getContext()->link->getAdminLink('AdminCategories', true, [
                 'viewcategory' => 1,
-                'id_category' => (int)$category->id
+                'id_category' => (int)$category->id,
             ]);
             return '<a href="'.$link.'">' . Tools::safeOutput($category->name) . '</a>';
         }, $path);

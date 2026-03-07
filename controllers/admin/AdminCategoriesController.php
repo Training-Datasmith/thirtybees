@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -36,9 +38,9 @@
  */
 class AdminCategoriesControllerCore extends AdminController
 {
-    const DELETE_MODE_DELETE = 'delete';
-    const DELETE_MODE_LINK = 'link';
-    const DELETE_MODE_LINK_AND_DISABLE = 'linkanddisable';
+    public const DELETE_MODE_DELETE = 'delete';
+    public const DELETE_MODE_LINK = 'link';
+    public const DELETE_MODE_LINK_AND_DISABLE = 'linkanddisable';
 
     /**
      * @var bool does the product have to be removed during the delete process
@@ -761,7 +763,7 @@ class AdminCategoriesControllerCore extends AdminController
             : [
                 Configuration::get('PS_UNIDENTIFIED_GROUP'),
                 Configuration::get('PS_GUEST_GROUP'),
-                Configuration::get('PS_CUSTOMER_GROUP')
+                Configuration::get('PS_CUSTOMER_GROUP'),
             ];
 
         $groups = Group::getGroups($this->context->language->id);
@@ -944,7 +946,7 @@ class AdminCategoriesControllerCore extends AdminController
                 if (!$category->isRootCategoryForAShop()) {
                     $categories[$category->id] = [
                         'parentCategoryId' => (int)$category->id_parent,
-                        'products' => $category->getAssociatedProducts()
+                        'products' => $category->getAssociatedProducts(),
                     ];
                 }
             }
@@ -1058,6 +1060,5 @@ class AdminCategoriesControllerCore extends AdminController
             $object->groupBox = array_filter(array_unique(array_map('intval', $object->groupBox)));
         }
     }
-
 
 }

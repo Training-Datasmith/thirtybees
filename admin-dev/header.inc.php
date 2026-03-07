@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -64,7 +66,7 @@ Context::getContext()->smarty->assign(
     [
         'show_page_header_toolbar' => true,
         'title' => implode(' '.Configuration::get('PS_NAVIGATION_PIPE').' ', $title),
-        'toolbar_btn' => []
+        'toolbar_btn' => [],
     ]
 );
 echo Context::getContext()->smarty->fetch($header_tpl);

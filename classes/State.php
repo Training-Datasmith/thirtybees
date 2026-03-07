@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -270,9 +272,8 @@ class StateCore extends ObjectModel
             }
 
             return $result;
-        } else {
-            return false;
         }
+        return false;
     }
 
     /**
@@ -296,14 +297,12 @@ class StateCore extends ObjectModel
      */
     public function countUsed()
     {
-        $result = Db::readOnly()->getValue(
+        return Db::readOnly()->getValue(
             (new DbQuery())
                 ->select('COUNT(*)')
                 ->from('address')
                 ->where('`'.bqSQL(static::$definition['primary']).'` = '.(int) $this->id)
         );
-
-        return $result;
     }
 
     /**
@@ -318,7 +317,7 @@ class StateCore extends ObjectModel
     public function affectZoneToSelection($idsStates, $idZone)
     {
         // cast every array values to int (security)
-        $idsStates = array_map('intval', $idsStates);
+        $idsStates = array_map(intval(...), $idsStates);
 
         return Db::getInstance()->update(
             'state',

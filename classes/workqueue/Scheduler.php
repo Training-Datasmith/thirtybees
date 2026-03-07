@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -34,37 +36,32 @@ class SchedulerCore
     /**
      * Database lock name
      */
-    const LOCK_NAME = 'THIRTY_BEES_SCHEDULER';
+    public const LOCK_NAME = 'THIRTY_BEES_SCHEDULER';
 
     /**
      * Configuration key: Last cron event timestamp
      */
-    const CRON_EVENT_TS = 'SCHEDULER_LAST_CRON_EVENT_TS';
+    public const CRON_EVENT_TS = 'SCHEDULER_LAST_CRON_EVENT_TS';
 
     /**
      * Configuration key: Synthetic cron secret
      */
-    const SYNTHETIC_CRON_SECRET = 'SCHEDULER_SYNTHETIC_CRON_SECRET';
+    public const SYNTHETIC_CRON_SECRET = 'SCHEDULER_SYNTHETIC_CRON_SECRET';
 
     /**
      * Configuration key: Minimal cron interval in seconds
      */
-    const MINIMAL_CRON_INTERVAL = 'SCHEDULER_MINIMAL_CRON_INTERVAL';
+    public const MINIMAL_CRON_INTERVAL = 'SCHEDULER_MINIMAL_CRON_INTERVAL';
 
     /**
      * Default value of cron interval, used if not found in configuration table
      */
-    const MINIMAL_CRON_INTERVAL_DEFAULT_VALUE = 600;
+    public const MINIMAL_CRON_INTERVAL_DEFAULT_VALUE = 600;
 
     /**
      * Hard limit for minimal cron interval. Used if configuration table contains lower value
      */
-    const MINIMAL_CRON_INTERVAL_HARD_LIMIT = 60;
-
-    /**
-     * @var Db Database connection
-     */
-    protected $connection;
+    public const MINIMAL_CRON_INTERVAL_HARD_LIMIT = 60;
 
     /**
      * @var WorkQueueClient work queue client
@@ -73,12 +70,13 @@ class SchedulerCore
 
     /**
      * SchedulerCore constructor.
-     * @param Db $connection
-     * @param WorkQueueClient $workQueueClient
      */
-    public function __construct(Db $connection, WorkQueueClient $workQueueClient)
-    {
-        $this->connection = $connection;
+    public function __construct(/**
+     * @var Db Database connection
+     */
+        protected \Db $connection,
+        WorkQueueClient $workQueueClient
+    ) {
         $this->workQueueClient = $workQueueClient;
     }
 
@@ -88,7 +86,7 @@ class SchedulerCore
      *
      * @throws PrestaShopException
      */
-    public function syntheticEventRequired()
+    public function syntheticEventRequired(): bool
     {
         $now = time();
         $lastCronEvent = (int)Configuration::getGlobalValue(static::CRON_EVENT_TS);
@@ -121,7 +119,7 @@ class SchedulerCore
     /**
      * @throws PrestaShopException
      */
-    public function deleteSyntheticEventSecret()
+    public function deleteSyntheticEventSecret(): void
     {
         Configuration::updateGlobalValue(static::SYNTHETIC_CRON_SECRET, '');
     }
@@ -130,7 +128,7 @@ class SchedulerCore
      * Executes all scheduled tasks
      * @throws PrestaShopException
      */
-    public function run()
+    public function run(): void
     {
         // update last cron event timestamp
         Configuration::updateGlobalValue(static::CRON_EVENT_TS, time());
@@ -177,14 +175,12 @@ class SchedulerCore
 
     /**
      * Tries to acquire lock
-     *
-     * @return bool
      */
-    protected function lock()
+    protected function lock(): bool
     {
         try {
             return (bool)(int)$this->connection->getValue("SELECT GET_LOCK('" . static::LOCK_NAME . "', 3)");
-        } catch (Exception $e) {
+        } catch (Exception) {
             return false;
         }
     }
@@ -198,7 +194,7 @@ class SchedulerCore
     {
         try {
             $this->connection->execute("SELECT RELEASE_LOCK('" . static::LOCK_NAME . "')");
-        } catch (Exception $ignored) {
+        } catch (Exception) {
         }
     }
 

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -30,18 +32,18 @@ require_once(dirname(__FILE__).'/../config/defines.inc.php');
 require_once(_PS_ROOT_DIR_.'/config/autoload.php');
 
 if (!defined('_PS_ADMIN_DIR_')) {
-  // Find admin dir even on non-developer installations.
-  $adminDir = null;
-  $rootDir = dir(_PS_ROOT_DIR_);
-  while (($entry = $rootDir->read())) {
-    $found = strpos($entry, 'admin');
-    if ($found !== false && $found === 0) {
-      $adminDir = $rootDir->path.DIRECTORY_SEPARATOR.$entry;
-      break;
+    // Find admin dir even on non-developer installations.
+    $adminDir = null;
+    $rootDir = dir(_PS_ROOT_DIR_);
+    while (($entry = $rootDir->read())) {
+        $found = strpos($entry, 'admin');
+        if ($found !== false && $found === 0) {
+            $adminDir = $rootDir->path.DIRECTORY_SEPARATOR.$entry;
+            break;
+        }
     }
-  }
-  $rootDir->close();
-  define('_PS_ADMIN_DIR_', $adminDir);
+    $rootDir->close();
+    define('_PS_ADMIN_DIR_', $adminDir);
 }
 
 AdminInformationControllerCore::generateMd5List();

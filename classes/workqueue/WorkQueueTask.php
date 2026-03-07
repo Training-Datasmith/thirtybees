@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -20,8 +22,8 @@
 namespace Thirtybees\Core\WorkQueue;
 
 use ObjectModel;
-use ReflectionClass;
 use PrestaShopException;
+use ReflectionClass;
 use ReflectionException;
 use Thirtybees\Core\DependencyInjection\ServiceLocator;
 use Throwable;
@@ -31,10 +33,10 @@ use Throwable;
  */
 class WorkQueueTaskCore extends ObjectModel
 {
-    const STATUS_PENDING = 'pending';
-    const STATUS_RUNNING = 'running';
-    const STATUS_FAILURE = 'failure';
-    const STATUS_SUCCESS = 'success';
+    public const STATUS_PENDING = 'pending';
+    public const STATUS_RUNNING = 'running';
+    public const STATUS_FAILURE = 'failure';
+    public const STATUS_SUCCESS = 'success';
 
     /**
      * @var array Object model definition
@@ -64,7 +66,7 @@ class WorkQueueTaskCore extends ObjectModel
             // record information
             'date_add'             => ['type' => self::TYPE_DATE, 'validate' => 'isDate', 'dbNullable' => false],
             'date_upd'             => ['type' => self::TYPE_DATE, 'validate' => 'isDate', 'dbNullable' => false],
-        ]
+        ],
     ];
 
     /**
@@ -156,8 +158,6 @@ class WorkQueueTaskCore extends ObjectModel
      * Creates new task
      *
      * @param string $task
-     * @param array $parameters
-     * @param WorkQueueContext $context
      *
      * @return static
      */
@@ -208,7 +208,7 @@ class WorkQueueTaskCore extends ObjectModel
     public function run()
     {
         $errorHandler = ServiceLocator::getInstance()->getErrorHandler();
-        $previousFatalErrorHandler = $errorHandler->setFatalErrorHandler([$this, 'fatalErrorHandler']);
+        $previousFatalErrorHandler = $errorHandler->setFatalErrorHandler($this->fatalErrorHandler(...));
 
         $this->start = microtime(true);
         $this->status = static::STATUS_RUNNING;
@@ -249,21 +249,21 @@ class WorkQueueTaskCore extends ObjectModel
      *
      * @param array $error
      */
-    public function fatalErrorHandler($error)
+    public function fatalErrorHandler($error): void
     {
         $this->status = static::STATUS_FAILURE;
         $this->result = null;
-        $this->error = "Error: ";
+        $this->error = 'Error: ';
         if (isset($error['message'])) {
             $this->error .= $error['message'];
         } else {
-            $this->error .= "Unknown error";
+            $this->error .= 'Unknown error';
         }
         if (isset($error['file'])) {
-            $this->error .= " in file " . $error['file'];
+            $this->error .= ' in file ' . $error['file'];
         }
         if (isset($error['line'])) {
-            $this->error .= " at line " . $error['line'];
+            $this->error .= ' at line ' . $error['line'];
         }
         $this->duration = microtime(true) - $this->start;
         $this->saveRecord(true);
@@ -280,7 +280,7 @@ class WorkQueueTaskCore extends ObjectModel
     {
         if ($force || $this->id) {
             try {
-                 $this->save();
+                $this->save();
             } catch (Throwable $e) {
                 $this->error = $e->__toString();
             }
@@ -310,10 +310,10 @@ class WorkQueueTaskCore extends ObjectModel
                     $instance = $reflection->newInstance();
                     static::$callableMap[$task] = $instance;
                 } catch (ReflectionException $e) {
-                    throw new PrestaShopException("Failed to instantiate WorkQueueTaskCallable class " . $task, 0, $e);
+                    throw new PrestaShopException('Failed to instantiate WorkQueueTaskCallable class ' . $task, 0, $e);
                 }
             } else {
-                throw new PrestaShopException("Failed to resolve WorkQueueTaskCallable class " . $task);
+                throw new PrestaShopException('Failed to resolve WorkQueueTaskCallable class ' . $task);
             }
         }
         return static::$callableMap[$task];

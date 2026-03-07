@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -133,9 +135,8 @@ class ZoneCore extends ObjectModel
 
             // Update Country & state zone with 0
             $result = $conn->update('country', ['id_zone' => 0], 'id_zone = '.(int) $this->id) && $result;
-            $result = $conn->update('state', ['id_zone' => 0], 'id_zone = '.(int) $this->id) && $result;
 
-            return $result;
+            return $conn->update('state', ['id_zone' => 0], 'id_zone = '.(int) $this->id) && $result;
         }
 
         return false;

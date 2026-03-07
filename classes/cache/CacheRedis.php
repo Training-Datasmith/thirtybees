@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -37,7 +39,7 @@ use Thirtybees\Core\Error\ErrorUtils;
  */
 class CacheRedisCore extends Cache
 {
-    const KEYS_PREFIX_CONFIG_KEY = 'TB_REDIS_KEYS_PREFIX';
+    public const KEYS_PREFIX_CONFIG_KEY = 'TB_REDIS_KEYS_PREFIX';
 
     /**
      * @var bool Connection status
@@ -65,7 +67,7 @@ class CacheRedisCore extends Cache
         $this->is_connected = $this->connect();
         $this->keysPrefix = $keysPrefix ?? static::resolveKeysPrefix();
         if (! $this->is_connected) {
-            trigger_error("Failed to connect to redis", E_USER_WARNING);
+            trigger_error('Failed to connect to redis', E_USER_WARNING);
         }
     }
 
@@ -74,7 +76,7 @@ class CacheRedisCore extends Cache
      */
     public static function checkEnvironment()
     {
-       return extension_loaded('redis');
+        return extension_loaded('redis');
     }
 
     /**
@@ -102,7 +104,7 @@ class CacheRedisCore extends Cache
                 ? $this->connectSingleServer($servers[0])
                 : $this->connectCluster($servers);
 
-        } catch (RedisException $e) {
+        } catch (RedisException) {
             return false;
         }
     }
@@ -144,7 +146,7 @@ class CacheRedisCore extends Cache
 
         $connected = true;
         foreach ($servers as $serverConfig) {
-            $connected= $connected && $this->authConnection($serverConfig);
+            $connected = $connected && $this->authConnection($serverConfig);
         }
         return $connected;
     }
@@ -161,12 +163,10 @@ class CacheRedisCore extends Cache
     {
         if ($serverConfig['auth']) {
             return $this->redis->auth($serverConfig['auth']) === true;
-        } else {
-            $this->redis->select($serverConfig['db']);
-            return (bool)$this->redis->ping();
         }
+        $this->redis->select($serverConfig['db']);
+        return (bool)$this->redis->ping();
     }
-
 
     /***
      * Returns true, if we are connected to redis cluster
@@ -271,7 +271,6 @@ class CacheRedisCore extends Cache
         return $value;
     }
 
-
     /**
      * Clean all cached data
      *
@@ -347,7 +346,7 @@ class CacheRedisCore extends Cache
 
         }
 
-        if (strpos($key, '*') === false) {
+        if (!str_contains($key, '*')) {
             return $this->_delete($key);
         }
 
@@ -355,11 +354,11 @@ class CacheRedisCore extends Cache
             $keys = $this->redis->keys($this->mapKey($key));
             $res = true;
             if (is_array($keys) && $keys) {
-                $res = $this->redis->del($keys) && $res;
+                return $this->redis->del($keys) && $res;
             }
             return $res;
         } catch (RedisException $e) {
-            $this->logException( $e);
+            $this->logException($e);
             return false;
         }
     }
@@ -462,8 +461,6 @@ class CacheRedisCore extends Cache
     }
 
     /**
-     * @param RedisException $e
-     *
      * @return void
      */
     protected function logException(RedisException $e)

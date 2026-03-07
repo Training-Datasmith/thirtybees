@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -701,8 +703,7 @@ class AdminShopControllerCore extends AdminController
             if (!$object->add()) {
                 $this->errors[] = Tools::displayError('An error occurred while creating an object.').
                     ' <b>'.$this->table.' ('.Db::getInstance()->getMsgError().')</b>';
-            } /* voluntary do affectation here */
-            elseif (($_POST[$this->identifier] = $object->id) && $this->postImage($object->id) && !count($this->errors) && $this->_redirect) {
+            } /* voluntary do affectation here */ elseif (($_POST[$this->identifier] = $object->id) && $this->postImage($object->id) && !count($this->errors) && $this->_redirect) {
                 $parentId = Tools::getIntValue('id_parent', 1);
                 $this->afterAdd($object);
                 $this->updateAssoShop($object->id);

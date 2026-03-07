@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop.
  *
@@ -34,7 +36,7 @@
  */
 class FrontControllerCore extends Controller
 {
-    const JS_DEF_PLACEHOLDER = 'js_def';
+    public const JS_DEF_PLACEHOLDER = 'js_def';
     /**
      * True if controller has already been initialized.
      * Prevents initializing controller more than once.
@@ -113,7 +115,7 @@ class FrontControllerCore extends Controller
     /**
      * @var string|null Controller rewrite name
      */
-    public $page_name = null;
+    public $page_name;
 
     /** @var bool If true, switches display to restricted country page during init. */
     protected $restrictedCountry = false;
@@ -237,7 +239,7 @@ class FrontControllerCore extends Controller
      * @throws PrestaShopException
      * @throws SmartyException
      */
-    public function run()
+    public function run(): void
     {
         if (PageCache::isEnabled()) {
             $debug = Configuration::get('TB_PAGE_CACHE_DEBUG');
@@ -254,10 +256,9 @@ class FrontControllerCore extends Controller
                 echo $content;
 
                 return;
-            } else {
-                if ($debug) {
-                    header('X-thirtybees-PageCache: MISS');
-                }
+            }
+            if ($debug) {
+                header('X-thirtybees-PageCache: MISS');
             }
         }
 
@@ -269,7 +270,7 @@ class FrontControllerCore extends Controller
      *
      * @throws PrestaShopException
      */
-    public function initContent()
+    public function initContent(): void
     {
         $this->process();
 
@@ -294,7 +295,6 @@ class FrontControllerCore extends Controller
                 $faviconHtml = '';
                 foreach ($links as $link) {
                     foreach ($link->attributes as $attribute) {
-                        /** @var DOMElement $link */
                         if ($favicon = Tools::parseFaviconSizeTag(urldecode($attribute->value))) {
                             $attribute->value = Media::getMediaPath(_PS_IMG_DIR_."favicon/favicon_{$this->context->shop->id}_{$favicon['width']}_{$favicon['height']}.{$favicon['type']}");
                         }
@@ -473,7 +473,7 @@ class FrontControllerCore extends Controller
      * @throws SmartyException
      * @deprecated 2.0.0
      */
-    public function displayHeader($display = true)
+    public function displayHeader($display = true): void
     {
         Tools::displayAsDeprecated();
 
@@ -518,7 +518,7 @@ class FrontControllerCore extends Controller
      *
      * @throws PrestaShopException
      */
-    public function initHeader()
+    public function initHeader(): void
     {
         // Added powered by for builtwith.com
         header('Powered-By: thirty bees');
@@ -594,7 +594,7 @@ class FrontControllerCore extends Controller
         }
 
         if (!$layout && file_exists($layoutDir.'layout.tpl')) {
-            $layout = $layoutDir.'layout.tpl';
+            return $layoutDir.'layout.tpl';
         }
 
         return $layout;
@@ -648,7 +648,6 @@ class FrontControllerCore extends Controller
      *
      * @param array|string $content
      *
-     * @return string
      * @throws PrestaShopException
      * @throws SmartyException
      */
@@ -678,14 +677,13 @@ class FrontControllerCore extends Controller
             if ($defer && (!isset($this->ajax) || !$this->ajax)) {
                 $html .= $javascript;
             } else {
-                $html = preg_replace('/(?<!\$)'.static::JS_DEF_PLACEHOLDER.'/', $javascript, $html);
+                $html = preg_replace('/(?<!\$)'.static::JS_DEF_PLACEHOLDER.'/', (string) $javascript, $html);
             }
 
             $html .= $liveEditContent . ((!isset($this->ajax) || !$this->ajax) ? '</body></html>' : '');
         }
         return $html;
     }
-
 
     /**
      * Compiles and outputs page footer section.
@@ -696,7 +694,7 @@ class FrontControllerCore extends Controller
      * @throws PrestaShopException
      * @deprecated 2.0.0
      */
-    public function displayFooter($display = true)
+    public function displayFooter($display = true): void
     {
         Tools::displayAsDeprecated();
         $this->smartyOutputContent(_PS_THEME_DIR_.'footer.tpl');
@@ -708,7 +706,7 @@ class FrontControllerCore extends Controller
      * @throws PrestaShopException
      * @throws SmartyException
      */
-    public function initCursedPage()
+    public function initCursedPage(): void
     {
         $this->displayMaintenancePage();
     }
@@ -740,7 +738,7 @@ class FrontControllerCore extends Controller
             $this->context->smarty->assign('HOOK_MAINTENANCE', Hook::displayHook('displayMaintenance'));
 
             // If the controller is a module, then getTemplatePath will try to find the template in the modules, so we need to instanciate a real frontcontroller
-            $frontController = preg_match('/ModuleFrontController$/', get_class($this)) ? new FrontController() : $this;
+            $frontController = preg_match('/ModuleFrontController$/', static::class) ? new FrontController() : $this;
             $this->smartyOutputContent($frontController->getTemplatePath($this->getThemeDir() . 'maintenance.tpl'));
             exit;
         }
@@ -762,7 +760,7 @@ class FrontControllerCore extends Controller
         }
 
         $tplFile = basename($template);
-        $dirname = dirname($template).(substr(dirname($template), -1, 1) == '/' ? '' : '/');
+        $dirname = dirname($template).(str_ends_with(dirname($template), '/') ? '' : '/');
 
         if ($dirname == _PS_THEME_DIR_) {
             if (file_exists(_PS_THEME_MOBILE_DIR_.$tplFile)) {
@@ -818,7 +816,7 @@ class FrontControllerCore extends Controller
                 'errors'         => $this->errors,
                 'display_header' => $this->display_header,
                 'display_footer' => $this->display_footer,
-                'img_formats'    => $img_formats
+                'img_formats'    => $img_formats,
             ]
         );
 
@@ -869,12 +867,11 @@ class FrontControllerCore extends Controller
     /**
      * Sets controller CSS and JS files.
      *
-     * @return void
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function setMedia()
+    public function setMedia(): void
     {
         /*
          * If website is accessed by mobile device
@@ -944,7 +941,7 @@ class FrontControllerCore extends Controller
      *
      * @throws PrestaShopException
      */
-    public function setMobileMedia()
+    public function setMobileMedia(): void
     {
         $this->addJquery();
 
@@ -1009,10 +1006,10 @@ class FrontControllerCore extends Controller
                     $type = 'js';
                     $file = $media;
                 }
-                if (strpos($file, __PS_BASE_URI__.'modules/') === 0) {
+                if (str_starts_with((string) $file, __PS_BASE_URI__.'modules/')) {
                     $overridePath = str_replace(__PS_BASE_URI__.'modules/', _PS_ROOT_DIR_.'/themes/'._THEME_NAME_.'/'.$type.'/modules/', $file, $different);
-                    if (strrpos($overridePath, $type.'/'.basename($file)) !== false) {
-                        $overridePathCss = str_replace($type.'/'.basename($file), basename($file), $overridePath, $differentCss);
+                    if (strrpos($overridePath, $type.'/'.basename((string) $file)) !== false) {
+                        $overridePathCss = str_replace($type.'/'.basename((string) $file), basename((string) $file), $overridePath, $differentCss);
                     }
 
                     if ($different && file_exists($overridePath)) {
@@ -1077,7 +1074,7 @@ class FrontControllerCore extends Controller
      *
      * @throws PrestaShopException
      */
-    public function initFooter()
+    public function initFooter(): void
     {
         $hookFooter = Hook::displayHook('displayFooter');
 
@@ -1138,9 +1135,8 @@ class FrontControllerCore extends Controller
             );
 
             return $this->context->smarty->createTemplate(_PS_ALL_THEMES_DIR_.'live_edit.tpl', $data)->fetch();
-        } else {
-            return '';
         }
+        return '';
     }
 
     /**
@@ -1169,7 +1165,7 @@ class FrontControllerCore extends Controller
      *
      * @throws PrestaShopException
      */
-    public function productSort()
+    public function productSort(): void
     {
         // $this->orderBy = Tools::getProductsOrder('by', Tools::getValue('orderby'));
         // $this->orderWay = Tools::getProductsOrder('way', Tools::getValue('orderway'));
@@ -1212,7 +1208,7 @@ class FrontControllerCore extends Controller
      * @throws PrestaShopException
      * @throws SmartyException
      */
-    public function pagination($totalProducts = null)
+    public function pagination($totalProducts = null): void
     {
         if (!static::$initialized) {
             $this->init();
@@ -1301,7 +1297,7 @@ class FrontControllerCore extends Controller
      * @global array $js_files
      * @global Currency $currency Visitor's selected currency
      */
-    public function init()
+    public function init(): void
     {
         /*
          * Globals are DEPRECATED as of version 1.5.0.1
@@ -1380,7 +1376,7 @@ class FrontControllerCore extends Controller
 
             if ((!$hasCurrency || $hasCountry) && !$hasAddressType) {
                 $idCountry = $hasCountry && !Validate::isLanguageIsoCode($this->context->cookie->iso_code_country) ?
-                    (int) Country::getByIso(strtoupper($this->context->cookie->iso_code_country)) : (int) Tools::getCountry();
+                    (int) Country::getByIso(strtoupper((string) $this->context->cookie->iso_code_country)) : (int) Tools::getCountry();
 
                 $country = new Country($idCountry, (int) $this->context->cookie->id_lang);
 
@@ -1418,9 +1414,8 @@ class FrontControllerCore extends Controller
             if (Validate::isLoadedObject($cart) && $cart->OrderExists()) {
                 unset($this->context->cookie->id_cart, $cart, $this->context->cookie->checkedTOS);
                 $this->context->cookie->check_cgv = false;
-            } /* Delete product of cart, if user can't make an order from his country */
-            elseif (intval(Configuration::get('PS_GEOLOCATION_ENABLED')) &&
-                !in_array(strtoupper($this->context->cookie->iso_code_country), explode(';', (string)Configuration::get('PS_ALLOWED_COUNTRIES'))) &&
+            } /* Delete product of cart, if user can't make an order from his country */ elseif (intval(Configuration::get('PS_GEOLOCATION_ENABLED')) &&
+                !in_array(strtoupper((string) $this->context->cookie->iso_code_country), explode(';', (string)Configuration::get('PS_ALLOWED_COUNTRIES'))) &&
                 $cart->nbProducts() && intval(Configuration::get('PS_GEOLOCATION_NA_BEHAVIOR')) != -1 &&
                 !FrontController::isInWhitelistForGeolocation() &&
                 !in_array($_SERVER['SERVER_NAME'], ['localhost', '127.0.0.1'])
@@ -1494,18 +1489,18 @@ class FrontControllerCore extends Controller
             $pageName = $this->php_self;
         } elseif (Tools::getValue('fc') == 'module' && $moduleName != '' && (Module::getInstanceByName($moduleName) instanceof PaymentModule)) {
             $pageName = 'module-payment-submit';
-        } elseif (preg_match('#^'.preg_quote($this->context->shop->physical_uri, '#').'modules/([a-zA-Z0-9_-]+?)/(.*)$#', $_SERVER['REQUEST_URI'], $m)) {
+        } elseif (preg_match('#^'.preg_quote((string) $this->context->shop->physical_uri, '#').'modules/([a-zA-Z0-9_-]+?)/(.*)$#', (string) $_SERVER['REQUEST_URI'], $m)) {
             $pageName = 'module-'.$m[1].'-'.str_replace(['.php', '/'], ['', '-'], $m[2]);
         } else {
             $pageName = Dispatcher::getInstance()->getController();
-            $pageName = (preg_match('/^[0-9]/', $pageName) ? 'page_'.$pageName : $pageName);
+            $pageName = (preg_match('/^[0-9]/', (string) $pageName) ? 'page_'.$pageName : $pageName);
         }
 
         $this->context->smarty->assign(Meta::getMetaTags($this->context->language->id, $pageName));
-        $this->context->smarty->assign('request_uri', Tools::safeOutput(urldecode($_SERVER['REQUEST_URI'])));
+        $this->context->smarty->assign('request_uri', Tools::safeOutput(urldecode((string) $_SERVER['REQUEST_URI'])));
 
         /* Breadcrumb */
-        $navigationPipe = (Configuration::get('PS_NAVIGATION_PIPE') ? Configuration::get('PS_NAVIGATION_PIPE') : '>');
+        $navigationPipe = (Configuration::get('PS_NAVIGATION_PIPE') ?: '>');
         $this->context->smarty->assign('navigationPipe', $navigationPipe);
 
         // Automatically redirect to the canonical URL if needed
@@ -1563,8 +1558,8 @@ class FrontControllerCore extends Controller
                 'lang_iso'            => $this->context->language->iso_code,
                 'lang_id'             => (int) $this->context->language->id,
                 'isRtl'               => $this->context->language->is_rtl,
-                'language_code'       => $this->context->language->language_code ? $this->context->language->language_code : $this->context->language->iso_code,
-                'come_from'           => Tools::getHttpHost(true, true).Tools::htmlentitiesUTF8(str_replace(['\'', '\\'], '', urldecode($_SERVER['REQUEST_URI']))),
+                'language_code'       => $this->context->language->language_code ?: $this->context->language->iso_code,
+                'come_from'           => Tools::getHttpHost(true, true).Tools::htmlentitiesUTF8(str_replace(['\'', '\\'], '', urldecode((string) $_SERVER['REQUEST_URI']))),
                 'cart_qties'          => (int) $cart->nbProducts(),
                 'currencies'          => Currency::getCurrencies(),
                 'languages'           => $languages,
@@ -1642,7 +1637,7 @@ class FrontControllerCore extends Controller
         }
 
         foreach ($assignArray as $assignKey => $assignValue) {
-            if (substr($assignValue, 0, 1) == '/' || $protocolContent == 'https://') {
+            if (str_starts_with($assignValue, '/') || $protocolContent == 'https://') {
                 $this->context->smarty->assign($assignKey, $protocolContent.Tools::getMediaServer($assignValue).$assignValue);
             } else {
                 $this->context->smarty->assign($assignKey, $assignValue);
@@ -1770,7 +1765,7 @@ class FrontControllerCore extends Controller
                                 $this->context->smarty->assign(
                                     [
                                         'restricted_country_mode' => true,
-                                        'geolocation_country' => $countryName
+                                        'geolocation_country' => $countryName,
                                     ]
                                 );
                             }
@@ -1784,24 +1779,24 @@ class FrontControllerCore extends Controller
                 if (isset($this->context->cookie->iso_code_country) && $this->context->cookie->iso_code_country && !Validate::isLanguageIsoCode($this->context->cookie->iso_code_country)) {
                     $this->context->cookie->iso_code_country = Country::getIsoById(Configuration::get('PS_COUNTRY_DEFAULT'));
                 }
-
                 if (isset($this->context->cookie->iso_code_country) && ($idCountry = (int) Country::getByIso(strtoupper($this->context->cookie->iso_code_country)))) {
                     /* Update defaultCountry */
                     if ($defaultCountry->iso_code != $this->context->cookie->iso_code_country) {
                         $defaultCountry = new Country($idCountry);
                     }
                     if (isset($hasBeenSet) && $hasBeenSet) {
-                        $this->context->cookie->id_currency = (int) ($defaultCountry->id_currency ? (int) $defaultCountry->id_currency : (int) Configuration::get('PS_CURRENCY_DEFAULT'));
+                        $this->context->cookie->id_currency = $defaultCountry->id_currency ? (int) $defaultCountry->id_currency : (int) Configuration::get('PS_CURRENCY_DEFAULT');
                     }
-
                     return $defaultCountry;
-                } elseif (Configuration::get('PS_GEOLOCATION_NA_BEHAVIOR') == _PS_GEOLOCATION_NO_CATALOG_ && !FrontController::isInWhitelistForGeolocation()) {
+                }
+
+                if (Configuration::get('PS_GEOLOCATION_NA_BEHAVIOR') == _PS_GEOLOCATION_NO_CATALOG_ && !FrontController::isInWhitelistForGeolocation()) {
                     $this->restrictedCountry = true;
                 } elseif (Configuration::get('PS_GEOLOCATION_NA_BEHAVIOR') == _PS_GEOLOCATION_NO_ORDER_ && !FrontController::isInWhitelistForGeolocation()) {
                     $this->context->smarty->assign(
                         [
                             'restricted_country_mode' => true,
-                            'geolocation_country' => ''
+                            'geolocation_country' => '',
                         ]
                     );
                 }
@@ -1832,7 +1827,7 @@ class FrontControllerCore extends Controller
 
         // retrocompatibility
         $ipsOld = explode(';', (string)Configuration::get('PS_GEOLOCATION_WHITELIST'));
-        if (is_array($ipsOld) && count($ipsOld)) {
+        if (count($ipsOld)) {
             foreach ($ipsOld as $ip) {
                 $ips = array_merge($ips, explode("\n", $ip));
             }
@@ -1969,7 +1964,7 @@ class FrontControllerCore extends Controller
      * @param string|null $cssMediaType CSS media type
      * @param bool $checkPath If true, checks if files exists
      */
-    public function removeMedia($mediaUri, $cssMediaType = null, $checkPath = true)
+    public function removeMedia($mediaUri, $cssMediaType = null, $checkPath = true): void
     {
         $this->addMedia($mediaUri, $cssMediaType, null, true, $checkPath);
     }
@@ -1992,7 +1987,7 @@ class FrontControllerCore extends Controller
      *
      * @throws PrestaShopException
      */
-    public function setTemplate($defaultTemplate)
+    public function setTemplate($defaultTemplate): void
     {
         if ($this->useMobileTheme()) {
             $this->setMobileTemplate($defaultTemplate);
@@ -2017,7 +2012,7 @@ class FrontControllerCore extends Controller
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function setMobileTemplate($template)
+    public function setMobileTemplate($template): void
     {
         // Needed for site map
         $blockmanufacturer = Module::getInstanceByName('blockmanufacturer');
@@ -2074,7 +2069,7 @@ class FrontControllerCore extends Controller
      * @throws PrestaShopException
      * @throws SmartyException
      */
-    public function addColorsToProductList(&$products)
+    public function addColorsToProductList(&$products): void
     {
         if (!is_array($products) || !count($products) || !file_exists(_PS_THEME_DIR_.'product-list-colors.tpl')) {
             return;
@@ -2104,7 +2099,7 @@ class FrontControllerCore extends Controller
                         'colors_list' => $colors[$product['id_product']],
                         'link'        => Context::getContext()->link,
                         'img_col_dir' => _THEME_COL_DIR_,
-                        'col_img_dir' => _PS_COL_IMG_DIR_
+                        'col_img_dir' => _PS_COL_IMG_DIR_,
                     ]
                 );
             }
@@ -2144,7 +2139,6 @@ class FrontControllerCore extends Controller
      * Saves user preference about 'Mobile Theme' into cookie. This allows
      * visitors to opt out from using mobile theme variant
      *
-     * @param Cookie $cookie
      * @param bool $allowed
      * @return void
      * @throws PrestaShopDatabaseException
@@ -2164,10 +2158,7 @@ class FrontControllerCore extends Controller
     }
 
     /**
-     * @param array $languages
-     * @param int $defaultLangId
      *
-     * @return array
      * @throws PrestaShopException
      */
     protected function getHrefLangMapping(array $languages, int $defaultLangId): array
@@ -2188,7 +2179,7 @@ class FrontControllerCore extends Controller
             $mapping[$code] = [
                 'targetShopId' => $targetShopId,
                 'targetLangId' => $targetLangId,
-                'isDefault' => $isDefault
+                'isDefault' => $isDefault,
             ];
         }
         return $mapping;
@@ -2223,8 +2214,6 @@ class FrontControllerCore extends Controller
     /**
      * Returns alternate url for current page
      *
-     * @param int $shopId
-     * @param int $languageId
      *
      * @return string|null
      * @throws PrestaShopException
@@ -2238,9 +2227,8 @@ class FrontControllerCore extends Controller
                 // include only required $_GET parameters and ignore others
                 $params = array_intersect_key($_GET, $dispatcher->getRouteRequiredParams($routeId, $languageId));
                 return $this->context->link->getModuleLink($info['module'], $info['controller'], $params, null, $languageId, $shopId);
-            } else {
-                return $this->context->link->getPageLink($routeId, null, $languageId, null, false, $shopId);
             }
+            return $this->context->link->getPageLink($routeId, null, $languageId, null, false, $shopId);
         }
         return null;
     }

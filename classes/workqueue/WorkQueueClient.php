@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -27,7 +29,6 @@ class WorkQueueClientCore
     /**
      * Enqueues new work queue task
      *
-     * @param WorkQueueTask $task
      * @return WorkQueueFuture work queue future descriptor
      */
     public function enqueue(WorkQueueTask $task)
@@ -41,7 +42,6 @@ class WorkQueueClientCore
      * If executor implementation does not support immediate execution,
      * WorkQueueImmediateExecutor will be used as a fallback
      *
-     * @param WorkQueueTask $task
      * @return WorkQueueFuture
      */
     public function runImmediately(WorkQueueTask $task)
@@ -49,9 +49,8 @@ class WorkQueueClientCore
         $executor = $this->getExecutor();
         if ($executor->supportsImmediateExecution()) {
             return $executor->run($task);
-        } else {
-            return $this->getImmediateExecutor()->run($task);
         }
+        return $this->getImmediateExecutor()->run($task);
     }
 
     /**

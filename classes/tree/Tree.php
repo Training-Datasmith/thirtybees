@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -32,13 +34,13 @@
 /**
  * Class TreeCore
  */
-class TreeCore
+class TreeCore implements \Stringable
 {
-    const DEFAULT_TEMPLATE_DIRECTORY = 'helpers/tree';
-    const DEFAULT_TEMPLATE = 'tree.tpl';
-    const DEFAULT_HEADER_TEMPLATE = 'tree_header.tpl';
-    const DEFAULT_NODE_FOLDER_TEMPLATE = 'tree_node_folder.tpl';
-    const DEFAULT_NODE_ITEM_TEMPLATE = 'tree_node_item.tpl';
+    public const DEFAULT_TEMPLATE_DIRECTORY = 'helpers/tree';
+    public const DEFAULT_TEMPLATE = 'tree.tpl';
+    public const DEFAULT_HEADER_TEMPLATE = 'tree_header.tpl';
+    public const DEFAULT_NODE_FOLDER_TEMPLATE = 'tree_node_folder.tpl';
+    public const DEFAULT_NODE_ITEM_TEMPLATE = 'tree_node_item.tpl';
 
     /**
      * @var array
@@ -95,20 +97,14 @@ class TreeCore
      */
     private $_template_directory;
 
-    /**
-     * @var string
-     */
-    private $_title = '';
+    private string $_title = '';
 
     /**
      * @var bool
      */
     private $_no_js;
 
-    /**
-     * @var ITreeToolbarCore
-     */
-    private $_toolbar;
+    private ?\ITreeToolbarCore $_toolbar = null;
 
     /**
      * TreeCore constructor.
@@ -128,22 +124,19 @@ class TreeCore
     }
 
     /**
-     * @return string
      *
      * @throws PrestaShopException
      * @throws SmartyException
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->render();
     }
 
     /**
      * @param ITreeToolbarButtonCore[] $value
-     *
-     * @return static
      */
-    public function setActions($value)
+    public function setActions($value): static
     {
         if (!isset($this->_toolbar)) {
             $this->setToolbar(new TreeToolbar());
@@ -169,10 +162,8 @@ class TreeCore
     /**
      * @param string $name
      * @param mixed $value
-     *
-     * @return static
      */
-    public function setAttribute($name, $value)
+    public function setAttribute($name, $value): static
     {
         if (!isset($this->_attributes)) {
             $this->_attributes = [];
@@ -186,10 +177,9 @@ class TreeCore
     /**
      * @param array $value
      *
-     * @return static
      * @throws PrestaShopException
      */
-    public function setAttributes($value)
+    public function setAttributes($value): static
     {
         if (!is_array($value) && !$value instanceof Traversable) {
             throw new PrestaShopException('Data value must be an traversable array');
@@ -202,10 +192,8 @@ class TreeCore
 
     /**
      * @param string $idTree
-     *
-     * @return static
      */
-    public function setIdTree($idTree)
+    public function setIdTree($idTree): static
     {
         $this->_id_tree = $idTree;
 
@@ -234,10 +222,8 @@ class TreeCore
 
     /**
      * @param Context $value
-     *
-     * @return static
      */
-    public function setContext($value)
+    public function setContext($value): static
     {
         $this->_context = $value;
 
@@ -259,10 +245,9 @@ class TreeCore
     /**
      * @param array $value
      *
-     * @return static
      * @throws PrestaShopException
      */
-    public function setDataSearch($value)
+    public function setDataSearch($value): static
     {
         if (!is_array($value) && !$value instanceof Traversable) {
             throw new PrestaShopException('Data value must be an traversable array');
@@ -288,10 +273,9 @@ class TreeCore
     /**
      * @param array $value
      *
-     * @return static
      * @throws PrestaShopException
      */
-    public function setData($value)
+    public function setData($value): static
     {
         if (!is_array($value) && !$value instanceof Traversable) {
             throw new PrestaShopException('Data value must be an traversable array');
@@ -316,10 +300,8 @@ class TreeCore
 
     /**
      * @param string $value
-     *
-     * @return static
      */
-    public function setHeaderTemplate($value)
+    public function setHeaderTemplate($value): static
     {
         $this->_headerTemplate = $value;
 
@@ -340,10 +322,8 @@ class TreeCore
 
     /**
      * @param int $value
-     *
-     * @return static
      */
-    public function setId($value)
+    public function setId($value): static
     {
         $this->_id = $value;
 
@@ -360,10 +340,8 @@ class TreeCore
 
     /**
      * @param string $value
-     *
-     * @return static
      */
-    public function setNodeFolderTemplate($value)
+    public function setNodeFolderTemplate($value): static
     {
         $this->_node_folder_template = $value;
 
@@ -384,10 +362,8 @@ class TreeCore
 
     /**
      * @param string $value
-     *
-     * @return static
      */
-    public function setNodeItemTemplate($value)
+    public function setNodeItemTemplate($value): static
     {
         $this->_node_item_template = $value;
 
@@ -408,10 +384,8 @@ class TreeCore
 
     /**
      * @param string $value
-     *
-     * @return static
      */
-    public function setTemplate($value)
+    public function setTemplate($value): static
     {
         $this->_template = $value;
 
@@ -432,10 +406,8 @@ class TreeCore
 
     /**
      * @param string $value
-     *
-     * @return static
      */
-    public function setTemplateDirectory($value)
+    public function setTemplateDirectory($value): static
     {
         $this->_template_directory = $this->_normalizeDirectory($value);
 
@@ -457,58 +429,54 @@ class TreeCore
     }
 
     /**
-     * @param string $template
      *
-     * @return string
      *
      * @throws PrestaShopException
      */
-    public function getTemplateFile($template)
+    public function getTemplateFile(string $template): string
     {
-        if (preg_match_all('/((?:^|[A-Z])[a-z]+)/', get_class($this->getContext()->controller), $matches) !== false) {
+        if (preg_match_all('/((?:^|[A-Z])[a-z]+)/', $this->getContext()->controller::class, $matches) !== false) {
             $controllerName = strtolower($matches[0][1]);
         }
-
         if ($this->getContext()->controller instanceof ModuleAdminController && isset($controllerName) && file_exists(
-                $this->_normalizeDirectory($this->getContext()->controller->getTemplatePath()).$controllerName.DIRECTORY_SEPARATOR.$this->getTemplateDirectory().$template
-            )
-        ) {
+            $this->_normalizeDirectory($this->getContext()->controller->getTemplatePath()).$controllerName.DIRECTORY_SEPARATOR.$this->getTemplateDirectory().$template
+        )) {
             return $this->_normalizeDirectory($this->getContext()->controller->getTemplatePath()).$controllerName.DIRECTORY_SEPARATOR.$this->getTemplateDirectory().$template;
-        } elseif ($this->getContext()->controller instanceof ModuleAdminController && file_exists(
-                $this->_normalizeDirectory(
-                    $this->getContext()->controller->getTemplatePath()
-                ).$this->getTemplateDirectory().$template
-            )
-        ) {
+        }
+        if ($this->getContext()->controller instanceof ModuleAdminController && file_exists(
+            $this->_normalizeDirectory(
+                $this->getContext()->controller->getTemplatePath()
+            ).$this->getTemplateDirectory().$template
+        )) {
             return $this->_normalizeDirectory($this->getContext()->controller->getTemplatePath()).$this->getTemplateDirectory().$template;
-        } elseif ($this->getContext()->controller instanceof AdminController && isset($controllerName)
-            && file_exists($this->_normalizeDirectory($this->getContext()->smarty->getTemplateDir(0)).'controllers'.DIRECTORY_SEPARATOR.$controllerName.DIRECTORY_SEPARATOR.$this->getTemplateDirectory().$template)
-        ) {
+        }
+        if ($this->getContext()->controller instanceof AdminController && isset($controllerName)
+            && file_exists($this->_normalizeDirectory($this->getContext()->smarty->getTemplateDir(0)).'controllers'.DIRECTORY_SEPARATOR.$controllerName.DIRECTORY_SEPARATOR.$this->getTemplateDirectory().$template)) {
             return $this->_normalizeDirectory($this->getContext()->smarty->getTemplateDir(0)).'controllers'
                 .DIRECTORY_SEPARATOR.$controllerName.DIRECTORY_SEPARATOR.$this->getTemplateDirectory().$template;
-        } elseif (file_exists(
+        }
+        if (file_exists(
             $this->_normalizeDirectory($this->getContext()->smarty->getTemplateDir(1))
             .$this->getTemplateDirectory().$template
         )) {
             return $this->_normalizeDirectory($this->getContext()->smarty->getTemplateDir(1))
                 .$this->getTemplateDirectory().$template;
-        } elseif (file_exists(
+        }
+
+        if (file_exists(
             $this->_normalizeDirectory($this->getContext()->smarty->getTemplateDir(0))
             .$this->getTemplateDirectory().$template
         )) {
             return $this->_normalizeDirectory($this->getContext()->smarty->getTemplateDir(0))
                 .$this->getTemplateDirectory().$template;
-        } else {
-            return $this->getTemplateDirectory().$template;
         }
+        return $this->getTemplateDirectory().$template;
     }
 
     /**
      * @param bool $value
-     *
-     * @return static
      */
-    public function setNoJS($value)
+    public function setNoJS($value): static
     {
         $this->_no_js = $value;
 
@@ -517,10 +485,8 @@ class TreeCore
 
     /**
      * @param string $value
-     *
-     * @return static
      */
-    public function setTitle($value)
+    public function setTitle($value): static
     {
         if ($value) {
             $this->_title = trim($value);
@@ -537,12 +503,7 @@ class TreeCore
         return $this->_title;
     }
 
-    /**
-     * @param ITreeToolbarCore $value
-     *
-     * @return static
-     */
-    public function setToolbar(ITreeToolbarCore $value)
+    public function setToolbar(ITreeToolbarCore $value): static
     {
         $this->_toolbar = $value;
         return $this;
@@ -566,10 +527,8 @@ class TreeCore
 
     /**
      * @param ITreeToolbarButtonCore $action
-     *
-     * @return static
      */
-    public function addAction($action)
+    public function addAction($action): static
     {
         if (!isset($this->_toolbar)) {
             $this->setToolbar(new TreeToolbar());
@@ -580,10 +539,7 @@ class TreeCore
         return $this;
     }
 
-    /**
-     * @return static
-     */
-    public function removeActions()
+    public function removeActions(): static
     {
         if (!isset($this->_toolbar)) {
             $this->setToolbar(new TreeToolbar());
@@ -597,12 +553,11 @@ class TreeCore
     /**
      * @param array|null $data
      *
-     * @return string
      *
      * @throws PrestaShopException
      * @throws SmartyException
      */
-    public function render($data = null)
+    public function render($data = null): string
     {
         //Adding tree.js
         $adminWebpath = str_ireplace(_PS_CORE_DIR_, '', _PS_ADMIN_DIR_);
@@ -660,11 +615,10 @@ class TreeCore
     /**
      * @param array|null $data
      *
-     * @return string
      * @throws PrestaShopException
      * @throws SmartyException
      */
-    public function renderNodes($data = null)
+    public function renderNodes($data = null): string
     {
         if (!isset($data)) {
             $data = $this->getData();
@@ -712,30 +666,22 @@ class TreeCore
         return $this->getToolbar()->render();
     }
 
-    /**
-     * @return bool
-     */
-    public function useInput()
+    public function useInput(): bool
     {
         return isset($this->_input_type);
     }
 
-    /**
-     * @return bool
-     */
-    public function useToolbar()
+    public function useToolbar(): bool
     {
         return isset($this->_toolbar);
     }
 
     /**
-     * @param string $directory
      *
-     * @return string
      *
      * @deprecated 2.0.0
      */
-    protected function _normalizeDirectory($directory)
+    protected function _normalizeDirectory(string $directory): string
     {
         $last = $directory[strlen($directory) - 1];
 
@@ -745,8 +691,6 @@ class TreeCore
             return $directory;
         }
 
-        $directory .= DIRECTORY_SEPARATOR;
-
-        return $directory;
+        return $directory . DIRECTORY_SEPARATOR;
     }
 }

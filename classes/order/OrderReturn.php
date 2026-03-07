@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -84,7 +86,7 @@ class OrderReturnCore extends ObjectModel
         $returns = Customization::getReturnedCustomizations($idOrder);
         $order = new Order($idOrder);
         if (!Validate::isLoadedObject($order)) {
-            throw new PrestaShopException(sprintf(Tools::displayError("Order %s not found"), $idOrder));
+            throw new PrestaShopException(sprintf(Tools::displayError('Order %s not found'), $idOrder));
         }
         $products = $order->getProducts();
 
@@ -144,7 +146,7 @@ class OrderReturnCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function addReturnedQuantity(&$products, $idOrder)
+    public static function addReturnedQuantity(&$products, $idOrder): void
     {
         $details = Db::readOnly()->getArray(
             (new DbQuery())
@@ -179,7 +181,7 @@ class OrderReturnCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function addReturnDetail($orderDetailList, $productQtyList, $customizationIds, $customizationQtyInput)
+    public function addReturnDetail($orderDetailList, $productQtyList, $customizationIds, $customizationQtyInput): void
     {
         /* Classic product return */
         $conn = Db::getInstance();
@@ -218,7 +220,7 @@ class OrderReturnCore extends ObjectModel
         $idOrder = (int) $this->id_order;
         $order = new Order($idOrder);
         if (!Validate::isLoadedObject($order)) {
-            throw new PrestaShopException(sprintf(Tools::displayError("Order %s not found"), $idOrder));
+            throw new PrestaShopException(sprintf(Tools::displayError('Order %s not found'), $idOrder));
         }
         $products = $order->getProducts();
         /* Products already returned */
@@ -263,7 +265,6 @@ class OrderReturnCore extends ObjectModel
      * @param int $customerId
      * @param int|bool $orderId
      * @param bool $noDenied
-     * @param Context|null $context
      *
      * @return array
      *

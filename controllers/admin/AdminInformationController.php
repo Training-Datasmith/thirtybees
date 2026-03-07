@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -62,7 +64,7 @@ class AdminInformationControllerCore extends AdminController
     public function initContent()
     {
         $this->show_toolbar = false;
-        if ( ! $this->ajax) {
+        if (! $this->ajax) {
             $this->display = 'view';
         }
 
@@ -123,8 +125,8 @@ class AdminInformationControllerCore extends AdminController
             'shop'            => [
                 'version'  => _TB_VERSION_,
                 'revision' => _TB_REVISION_,
-                'build_php'=> $buildPhp,
-                'wrong_php'=> $buildPhp != PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION,
+                'build_php' => $buildPhp,
+                'wrong_php' => $buildPhp != PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION,
                 'url'      => $this->context->shop->getBaseURL(),
                 'theme'    => $this->context->shop->theme_name,
                 'rootDir'  => _PS_ROOT_DIR_,
@@ -242,7 +244,7 @@ class AdminInformationControllerCore extends AdminController
         $this->setJSendErrorHandling();
         $this->ajaxDie(json_encode([
             'status' => 'success',
-            'data' => $this->getTestResult()
+            'data' => $this->getTestResult(),
         ]));
     }
 
@@ -280,7 +282,7 @@ class AdminInformationControllerCore extends AdminController
 
         file_put_contents(
             _PS_CONFIG_DIR_.'json/files.json',
-            json_encode($md5List, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES)
+            json_encode($md5List, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
         );
 
         return $md5List;
@@ -347,7 +349,7 @@ class AdminInformationControllerCore extends AdminController
             $path = str_replace($basePath, '', $file->getPathname());
             $path = str_replace(DIRECTORY_SEPARATOR, '/', $path);
             $path = str_replace($adminDir, '/admin', $path);
-            if ( ! in_array($path, $fileList)) {
+            if (! in_array($path, $fileList)) {
                 $this->fileList['obsolete'][] = ltrim($path, '/');
             }
         }

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -40,11 +42,6 @@ class TaxRulesTaxManagerCore implements TaxManagerInterface
     public $address;
 
     /**
-     * @var int
-     */
-    public $type;
-
-    /**
      * @var TaxCalculator
      */
     public $tax_calculator;
@@ -55,12 +52,10 @@ class TaxRulesTaxManagerCore implements TaxManagerInterface
     private $configurationManager;
 
     /**
-     * @param Address $address
      * @param int $type TaxRulesGroup id
-     * @param Core_Business_ConfigurationInterface|null $configurationManager
      * @throws PrestaShopException
      */
-    public function __construct(Address $address, $type, ?Core_Business_ConfigurationInterface $configurationManager = null)
+    public function __construct(Address $address, public $type, ?Core_Business_ConfigurationInterface $configurationManager = null)
     {
         if ($configurationManager === null) {
             $this->configurationManager = Adapter_ServiceLocator::get('Core_Business_ConfigurationInterface');
@@ -69,15 +64,12 @@ class TaxRulesTaxManagerCore implements TaxManagerInterface
         }
 
         $this->address = $address;
-        $this->type = $type;
     }
 
     /**
      * Returns true if this tax manager is available for this address
-     *
-     * @return bool
      */
-    public static function isAvailableForThisAddress(Address $address)
+    public static function isAvailableForThisAddress(Address $address): bool
     {
         return true; // default manager, available for all addresses
     }

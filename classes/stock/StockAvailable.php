@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -38,9 +40,9 @@ use Thirtybees\Core\Stock\Synchronization\DynamicPacksSynchronizationTask;
  */
 class StockAvailableCore extends ObjectModel
 {
-    const OUT_OF_STOCK_DENY = 0;
-    const OUT_OF_STOCK_ALLOW = 1;
-    const OUT_OF_STOCK_SYSTEM_DEFAULT = 2;
+    public const OUT_OF_STOCK_DENY = 0;
+    public const OUT_OF_STOCK_ALLOW = 1;
+    public const OUT_OF_STOCK_SYSTEM_DEFAULT = 2;
 
     /** @var int identifier of the current product */
     public $id_product;
@@ -57,9 +59,7 @@ class StockAvailableCore extends ObjectModel
     /** @var int determine if a product is out of stock - it was previously in Product class */
     public $out_of_stock = self::OUT_OF_STOCK_DENY;
 
-
-    /** @var int */
-    protected $original_quantity = null;
+    protected int $original_quantity;
 
     /**
      * @var array Object model definition
@@ -118,7 +118,6 @@ class StockAvailableCore extends ObjectModel
         parent::__construct($id, $idLang, $idShop);
         $this->original_quantity = (int)$this->quantity;
     }
-
 
     /**
      * @return bool
@@ -467,8 +466,6 @@ class StockAvailableCore extends ObjectModel
     /**
      * Returns information about combination quantities
      *
-     * @param int $idProduct
-     * @param int|null $idShop
      *
      * @return array<int, int> Map from combinationId -> quantity
      *
@@ -476,14 +473,13 @@ class StockAvailableCore extends ObjectModel
      */
     public static function getCombinationQuantities(int $idProduct, ?int $idShop = null): array
     {
-        $idProduct = (int)$idProduct;
         $key = 'StockAvailable::getCombinationQuantities'.$idProduct.'-'.(int) $idShop;
         if (!Cache::isStored($key)) {
             $result = [];
             $query = (new DbQuery())
                 ->select('id_product_attribute, quantity')
                 ->from('stock_available')
-                ->where('`id_product` = '. (int)$idProduct)
+                ->where('`id_product` = '. $idProduct)
                 ->where('`id_product_attribute` != 0')
                 ->orderBy('id_product_attribute');
             static::addSqlShopRestriction($query, $idShop);
@@ -579,7 +575,7 @@ class StockAvailableCore extends ObjectModel
                 ->where('`id_product` = '.(int) $this->id_product)
                 ->where('`id_product_attribute` <> 0 '.static::addSqlShopRestriction(null, $idShop))
         );
-        $this->setQuantity($this->id_product, 0, $totalQuantity, $idShop);
+        static::setQuantity($this->id_product, 0, $totalQuantity, $idShop);
 
         return true;
     }
@@ -649,7 +645,7 @@ class StockAvailableCore extends ObjectModel
         if ($idStockAvailable) {
             $stockAvailable = new StockAvailable($idStockAvailable);
             if ((int)$stockAvailable->quantity !== $quantity) {
-                $stockAvailable->quantity = (int) $quantity;
+                $stockAvailable->quantity = $quantity;
                 $stockAvailable->update();
 
                 // adjust packs this item might be in
@@ -670,7 +666,7 @@ class StockAvailableCore extends ObjectModel
             $stockAvailable->out_of_stock = (int) $outOfStock;
             $stockAvailable->id_product = (int) $idProduct;
             $stockAvailable->id_product_attribute = (int) $idProductAttribute;
-            $stockAvailable->quantity = (int) $quantity;
+            $stockAvailable->quantity = $quantity;
 
             if ($idShop === null) {
                 $shopGroup = Shop::getContextShopGroup();
@@ -725,7 +721,7 @@ class StockAvailableCore extends ObjectModel
                         ->select('COUNT(*)')
                         ->from('product'.bqSQL($paSql).'_shop')
                         ->where('`id_product'.bqSQL($paSql).'` = '.(int) $idProductAttributeSql)
-                        ->where('`id_shop` IN ('.implode(',', array_map('intval', Shop::getContextListShopID(Shop::SHARE_STOCK))).')')
+                        ->where('`id_shop` IN ('.implode(',', array_map(intval(...), Shop::getContextListShopID(Shop::SHARE_STOCK))).')')
                 )) {
                     return true;
                 }
@@ -749,7 +745,7 @@ class StockAvailableCore extends ObjectModel
             $stockAvailable = new StockAvailable();
             $stockAvailable->id_product = (int) $idProduct;
             $stockAvailable->id_product_attribute = (int) $idProductAttribute;
-            $stockAvailable->id_shop = (int) $idShop;
+            $stockAvailable->id_shop = $idShop;
             $stockAvailable->postSave();
         }
 
@@ -781,9 +777,8 @@ class StockAvailableCore extends ObjectModel
             $idShopsList = implode(', ', $shopList);
 
             return $conn->update('stock_available', ['quantity' => 0], 'id_shop IN ('.$idShopsList.')');
-        } else {
-            return $conn->update('stock_available', ['quantity' => 0], 'id_shop_group = '.$shopGroup->id);
         }
+        return $conn->update('stock_available', ['quantity' => 0], 'id_shop_group = '.$shopGroup->id);
     }
 
     /**
@@ -843,9 +838,8 @@ class StockAvailableCore extends ObjectModel
         $value = (int) Db::readOnly()->getValue($query);
         if (static::isValidOutOfStockValue($value)) {
             return $value;
-        } else {
-            return static::OUT_OF_STOCK_DENY;
         }
+        return static::OUT_OF_STOCK_DENY;
     }
 
     /**
@@ -915,7 +909,7 @@ class StockAvailableCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function addSqlShopParams(&$params, $idShop = null)
+    public static function addSqlShopParams(&$params, $idShop = null): void
     {
         $context = Context::getContext();
         $groupOk = false;
@@ -988,23 +982,21 @@ class StockAvailableCore extends ObjectModel
 
     /**
      * @param int $productId
-     * @return void
      * @throws PrestaShopException
      */
-    public static function synchronizeDynamicPack($productId)
+    public static function synchronizeDynamicPack($productId): void
     {
         static::synchronizeDynamicPacks([
-            $productId
+            $productId,
         ], true);
     }
 
     /**
      * @param int[] $productIds
-     * @return void
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function synchronizeDynamicPacks($productIds, $immediateExecution = false)
+    public static function synchronizeDynamicPacks($productIds, $immediateExecution = false): void
     {
         $task = DynamicPacksSynchronizationTask::createTask($productIds);
         $workQueueClient = ServiceLocator::getInstance()->getWorkQueueClient();
@@ -1017,9 +1009,8 @@ class StockAvailableCore extends ObjectModel
 
     /**
      * @param int $productId
-     * @return void
      */
-    public static function cleanQuantityCache($productId)
+    public static function cleanQuantityCache($productId): void
     {
         $productId = (int)$productId;
         Cache::clean('StockAvailable::getQuantityAvailableByProduct_'.$productId.'-*');
@@ -1057,17 +1048,12 @@ class StockAvailableCore extends ObjectModel
         }
     }
 
-    /**
-     * @param int $value
-     *
-     * @return bool
-     */
     protected static function isValidOutOfStockValue(int $value): bool
     {
         return in_array($value, [
             static::OUT_OF_STOCK_DENY,
             static::OUT_OF_STOCK_ALLOW,
-            static::OUT_OF_STOCK_SYSTEM_DEFAULT
+            static::OUT_OF_STOCK_SYSTEM_DEFAULT,
         ]);
     }
 

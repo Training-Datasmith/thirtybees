@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -34,7 +36,6 @@
  */
 class WebserviceExceptionCore extends Exception
 {
-
     /**
      * @var int
      */
@@ -55,8 +56,8 @@ class WebserviceExceptionCore extends Exception
      */
     protected $type;
 
-    const SIMPLE = 0;
-    const DID_YOU_MEAN = 1;
+    public const SIMPLE = 0;
+    public const DID_YOU_MEAN = 1;
 
     /**
      * WebserviceExceptionCore constructor.
@@ -85,10 +86,8 @@ class WebserviceExceptionCore extends Exception
 
     /**
      * @param int $type
-     *
-     * @return static
      */
-    public function setType($type)
+    public function setType($type): static
     {
         $this->type = $type;
 
@@ -97,10 +96,8 @@ class WebserviceExceptionCore extends Exception
 
     /**
      * @param int $status
-     *
-     * @return static
      */
-    public function setStatus($status)
+    public function setStatus($status): static
     {
         if (Validate::isInt($status)) {
             $this->status = $status;
@@ -128,10 +125,8 @@ class WebserviceExceptionCore extends Exception
     /**
      * @param string $wrongValue
      * @param array $availableValues
-     *
-     * @return static
      */
-    public function setDidYouMean($wrongValue, $availableValues)
+    public function setDidYouMean($wrongValue, $availableValues): static
     {
         $this->type = static::DID_YOU_MEAN;
         $this->wrong_value = $wrongValue;

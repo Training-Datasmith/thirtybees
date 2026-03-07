@@ -1,6 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 use GuzzleHttp\Client;
+
 /**
  * 2007-2016 PrestaShop
  *
@@ -36,9 +39,9 @@ use GuzzleHttp\Client;
  */
 class LanguageCore extends ObjectModel
 {
-    const LANG_CODE_IN_URL_WHEN_MULTI_LANGUAGES = 0;
-    const LANG_CODE_IN_URL_ALWAYS = 1;
-    const LANG_CODE_IN_URL_FOR_NON_DEFAULT_LANGUAGES = 2;
+    public const LANG_CODE_IN_URL_WHEN_MULTI_LANGUAGES = 0;
+    public const LANG_CODE_IN_URL_ALWAYS = 1;
+    public const LANG_CODE_IN_URL_FOR_NON_DEFAULT_LANGUAGES = 2;
 
     /** @var array Languages cache */
     protected static $_checkedLangs;
@@ -56,7 +59,7 @@ class LanguageCore extends ObjectModel
     /**
      * @var int|null
      */
-    protected static $_cache_language_installation = null;
+    protected static $_cache_language_installation;
 
     /**
      * @var string Name
@@ -146,12 +149,11 @@ class LanguageCore extends ObjectModel
      * LanguageCore constructor.
      *
      * @param int|null $id
-     * @param int|null $idLang
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function __construct($id = null, $idLang = null)
+    public function __construct($id = null)
     {
         parent::__construct($id);
     }
@@ -190,10 +192,12 @@ class LanguageCore extends ObjectModel
 
         $languages = [];
         foreach (static::$_LANGUAGES as $language) {
-            if ($active && !$language['active'] || ($idShop && !isset($language['shops'][(int) $idShop]))) {
+            if ($active && !$language['active']) {
                 continue;
             }
-
+            if ($idShop && !isset($language['shops'][(int) $idShop])) {
+                continue;
+            }
             $languages[] = $idsOnly ? (int)$language['id_lang'] : $language;
         }
 
@@ -205,7 +209,7 @@ class LanguageCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function loadLanguages()
+    public static function loadLanguages(): void
     {
         static::$_LANGUAGES = [];
 
@@ -293,9 +297,8 @@ class LanguageCore extends ObjectModel
         // Instantiate the Language object if we found it.
         if ($idLang) {
             return new Language($idLang);
-        } else {
-            return false;
         }
+        return false;
     }
 
     /**
@@ -329,7 +332,7 @@ class LanguageCore extends ObjectModel
         $conn = Db::getInstance();
         $result = $conn->getArray('SHOW TABLES FROM `'._DB_NAME_.'`');
         foreach ($result as $row) {
-            if (preg_match('/_lang/', $row['Tables_in_'._DB_NAME_]) && $row['Tables_in_'._DB_NAME_] != _DB_PREFIX_.'lang') {
+            if (preg_match('/_lang/', (string) $row['Tables_in_'._DB_NAME_]) && $row['Tables_in_'._DB_NAME_] != _DB_PREFIX_.'lang') {
                 $result2 = $conn->getArray(
                     (new DbQuery())
                         ->select('*')
@@ -422,11 +425,9 @@ class LanguageCore extends ObjectModel
     }
 
     /**
-     * @param array $modulesList
-     *
      * @throws PrestaShopException
      */
-    public static function updateModulesTranslations(array $modulesList)
+    public static function updateModulesTranslations(array $modulesList): void
     {
         $languages = Language::getLanguages(false);
         clearstatcache();
@@ -443,9 +444,7 @@ class LanguageCore extends ObjectModel
                 if ($fileList) {
                     $filesToExtract = [];
                     foreach ($modulesList as $moduleName) {
-                        $moduleFileList = array_filter($fileList, function ($file) use ($moduleName) {
-                            return strpos($file, 'modules/' . $moduleName . '/') !== false;
-                        });
+                        $moduleFileList = array_filter($fileList, fn ($file) => str_contains((string) $file, 'modules/' . $moduleName . '/'));
                         $filesToExtract = array_merge($filesToExtract, $moduleFileList);
                     }
                     if ($filesToExtract) {
@@ -474,7 +473,7 @@ class LanguageCore extends ObjectModel
         if ($version == null) {
             $version = _TB_VERSION_;
         }
-        $version = implode('.', array_map('intval', explode('.', $version, 3)));
+        $version = implode('.', array_map(intval(...), explode('.', $version, 3)));
 
         $langPack = false;
         $errors = [];
@@ -499,7 +498,7 @@ class LanguageCore extends ObjectModel
             );
         }
 
-        if ( ! count($errors)) {
+        if (! count($errors)) {
             if (!$langPack = json_decode($langPackLink)) {
                 $errors[] = Tools::displayError('Error occurred when language was checked according to your thirty bees version.');
             } elseif (!static::checkAndAddLanguage($iso, $langPack, false, $params)) {
@@ -541,7 +540,7 @@ class LanguageCore extends ObjectModel
             foreach ($filePaths as $filePath) {
                 $path = dirname($filePath);
                 if (is_dir(_PS_TRANSLATIONS_DIR_.'../'.$path) && !is_writable(_PS_TRANSLATIONS_DIR_.'../'.$path) && !in_array($path, $tmpArray)) {
-                    $errors[] = (!$i++? Tools::displayError('Translation pack cannot be extracted.').' ' : '').Tools::displayError('The server does not have permissions for writing.').' '.sprintf(Tools::displayError('Please check rights for %s'), $path);
+                    $errors[] = (!$i++ ? Tools::displayError('Translation pack cannot be extracted.').' ' : '').Tools::displayError('The server does not have permissions for writing.').' '.sprintf(Tools::displayError('Please check rights for %s'), $path);
                     $tmpArray[] = $path;
                 }
             }
@@ -576,9 +575,8 @@ class LanguageCore extends ObjectModel
             if (is_array($result)) {
                 Cache::store($key, $result);
                 return $result;
-            } else {
-                return [];
             }
+            return [];
         }
 
         return Cache::retrieve($key);
@@ -612,7 +610,7 @@ class LanguageCore extends ObjectModel
 
         // If the language pack has not been provided, retrieve it from translations.thirtybees.com
         if (!$langPack) {
-            $version = implode('.', array_map('intval', explode('.', _TB_VERSION_, 3)));
+            $version = implode('.', array_map(intval(...), explode('.', _TB_VERSION_, 3)));
             $guzzle = new Client([
                 'base_uri' => "https://translations.thirtybees.com/packs/{$version}/",
                 'timeout'  => 20,
@@ -622,7 +620,7 @@ class LanguageCore extends ObjectModel
             try {
                 $lowerIso = mb_strtolower($isoCode);
                 $langPack = json_decode((string) $guzzle->get("{$lowerIso}.json")->getBody());
-            } catch (Throwable $e) {
+            } catch (Throwable) {
                 $langPack = false;
             }
         }
@@ -742,7 +740,7 @@ class LanguageCore extends ObjectModel
      */
     protected function _generateFiles($newIso = null)
     {
-        $isoCode = $newIso ? $newIso : $this->iso_code;
+        $isoCode = $newIso ?: $this->iso_code;
 
         if (!file_exists(_PS_TRANSLATIONS_DIR_.$isoCode)) {
             if (@mkdir(_PS_TRANSLATIONS_DIR_.$isoCode)) {
@@ -755,14 +753,16 @@ class LanguageCore extends ObjectModel
             if (!file_exists($pathFile)) {
                 if ($file != 'tabs') {
                     @file_put_contents(
-                        $pathFile, '<?php
+                        $pathFile,
+                        '<?php
 	global $'.$var.';
 	$'.$var.' = array();
 ?>'
                     );
                 } else {
                     @file_put_contents(
-                        $pathFile, '<?php
+                        $pathFile,
+                        '<?php
 	$'.$var.' = array();
 	return $'.$var.';
 ?>'
@@ -789,7 +789,7 @@ class LanguageCore extends ObjectModel
 
         $ignoredTables = [
             _DB_PREFIX_.'configuration_lang',
-            _DB_PREFIX_.'configuration_kpi_lang'
+            _DB_PREFIX_.'configuration_kpi_lang',
         ];
         foreach ($tables as $table) {
             foreach ($table as $t) {
@@ -807,7 +807,7 @@ class LanguageCore extends ObjectModel
             $idLangDefault = Configuration::get('PS_LANG_DEFAULT', null, $shop->id_shop_group, $shop->id);
 
             foreach ($langTables as $name) {
-                preg_match('#^'.preg_quote(_DB_PREFIX_).'(.+)_lang$#i', $name, $m);
+                preg_match('#^'.preg_quote(_DB_PREFIX_).'(.+)_lang$#i', (string) $name, $m);
                 $identifier = 'id_'.$m[1];
 
                 $fields = '';
@@ -947,10 +947,9 @@ class LanguageCore extends ObjectModel
                 $dstFile = _PS_LANG_IMG_DIR_.$iso_code.'-default-'.$imageType['name'].'.'.$imageExtension;
                 $success = ImageManager::resize($sourceImage, $dstFile, $imageType['width'], $imageType['height'], $imageExtension) && $success;
                 $dstFile = _PS_LANG_IMG_DIR_.$iso_code.'-default-'.$imageType['name'].'2x.'.$imageExtension;
-                $success = ImageManager::resize($sourceImage, $dstFile, $imageType['width']*2, $imageType['height']*2, $imageExtension) && $success;
+                $success = ImageManager::resize($sourceImage, $dstFile, $imageType['width'] * 2, $imageType['height'] * 2, $imageExtension) && $success;
             }
-        }
-        else {
+        } else {
             $success = false;
         }
 
@@ -978,7 +977,7 @@ class LanguageCore extends ObjectModel
      * @param string $newIso
      * @throws PrestaShopException
      */
-    public function moveToIso($newIso)
+    public function moveToIso($newIso): void
     {
         if ($newIso == $this->iso_code) {
             return;
@@ -1076,9 +1075,8 @@ class LanguageCore extends ObjectModel
     {
         if (empty($isoFrom)) {
             throw new PrestaShopException('getFilesList: $isoFrom not provided');
-        } else {
-            $isoFrom = (string)$isoFrom;
         }
+        $isoFrom = (string)$isoFrom;
 
         $copy = $isoTo && $themeTo;
 
@@ -1218,10 +1216,9 @@ class LanguageCore extends ObjectModel
         if ($select == 'theme') {
             return $filesTheme;
         }
-        $files = array_merge($files, $filesTheme);
 
         // Return
-        return $files;
+        return array_merge($files, $filesTheme);
     }
 
     /**
@@ -1265,7 +1262,10 @@ class LanguageCore extends ObjectModel
             $conn = Db::getInstance();
             $tableNameKey = 'Tables_in_'._DB_NAME_;
             foreach ($result as $row) {
-                if (empty($row[$tableNameKey]) || !preg_match('/_lang$/', $row[$tableNameKey])) {
+                if (empty($row[$tableNameKey])) {
+                    continue;
+                }
+                if (!preg_match('/_lang$/', (string) $row[$tableNameKey])) {
                     continue;
                 }
                 $columns = Db::readOnly()->getArray('SHOW COLUMNS FROM `'.$row[$tableNameKey].'`');
@@ -1367,11 +1367,7 @@ class LanguageCore extends ObjectModel
             static::loadLanguages();
         }
 
-        if (isset(static::$_LANGUAGES[(int) $idLang]['iso_code'])) {
-            return static::$_LANGUAGES[(int) $idLang]['iso_code'];
-        }
-
-        return false;
+        return static::$_LANGUAGES[(int) $idLang]['iso_code'] ?? false;
     }
 
     /**
@@ -1409,23 +1405,17 @@ class LanguageCore extends ObjectModel
         return $themes;
     }
 
-    /**
-     * @return string
-     */
     public function getUrlCode(): string
     {
         $urlCode = (string)$this->url_code;
         if ($urlCode) {
             return $urlCode;
-        } else {
-            return (string)$this->iso_code;
         }
+        return (string)$this->iso_code;
     }
 
     /**
-     * @param int $languageId
      *
-     * @return string
      *
      * @throws PrestaShopException
      */

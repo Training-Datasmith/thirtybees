@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,31 +32,31 @@
  */
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Promise\Utils;
 use Thirtybees\Core\DependencyInjection\ServiceLocator;
 use Thirtybees\Core\Error\ErrorUtils;
-use GuzzleHttp\Promise\Utils;
 
 /**
  * Class ModuleCore
  */
 abstract class ModuleCore
 {
-    const MODULES_CACHE_FILE = _PS_CACHE_DIR_ . 'api.thirtybees.com.modules.json';
-    const LAST_MODULES_CHECK = 'TB_LAST_MODULES_CHECK';
-    const MODULES_CHECK_INTERVAL = 'TB_MODULES_CHECK_INTERVAL';
+    public const MODULES_CACHE_FILE = _PS_CACHE_DIR_ . 'api.thirtybees.com.modules.json';
+    public const LAST_MODULES_CHECK = 'TB_LAST_MODULES_CHECK';
+    public const MODULES_CHECK_INTERVAL = 'TB_MODULES_CHECK_INTERVAL';
 
-    const CACHE_FILE_TAB_MODULES_LIST = '/config/xml/tab_modules_list.xml';
+    public const CACHE_FILE_TAB_MODULES_LIST = '/config/xml/tab_modules_list.xml';
 
     /** @var array used by AdminTab to determine which lang file to use (admin.php or module lang file) */
     public static $classInModule = [];
     /** @var bool Define if we will log modules performances for this session */
-    public static $_log_modules_perfs = null;
+    public static $_log_modules_perfs;
     /** @var array $hosted_modules_blacklist */
     public static $hosted_modules_blacklist = ['autoupgrade'];
     /** @var bool Random session for modules perfs logs */
-    public static $_log_modules_perfs_session = null;
+    public static $_log_modules_perfs_session;
     /** @var array Array cache filled with modules informations */
-    protected static $modules_cache;
+    protected static ?array $modules_cache;
     /** @var array Array cache filled with modules instances */
     protected static $_INSTANCE = [];
     /** @var bool Config xml generation mode */
@@ -72,7 +74,7 @@ abstract class ModuleCore
     /** @var array $_defered_func_call */
     protected static $_defered_func_call = [];
     /** @var int Module ID */
-    public $id = null;
+    public $id;
     /** @var string $version Version */
     public $version;
     /** @var string $database_version */
@@ -117,7 +119,7 @@ abstract class ModuleCore
     /** @var bool need_instance */
     public $need_instance = true;
     /** @var string Admin tab corresponding to the module */
-    public $tab = null;
+    public $tab;
     /** @var bool Status */
     public $active = false;
     /** @var string Fill it if the module is installed but not yet set up */
@@ -137,9 +139,9 @@ abstract class ModuleCore
     /** @var array current language translations */
     protected $_lang = [];
     /** @var string Module web path (eg. '/shop/modules/modulename/') */
-    protected $_path = null;
+    protected $_path;
     /** @var string Module local path (eg. '/home/prestashop/modules/modulename/') */
-    protected $local_path = null;
+    protected $local_path;
     /** @var array Array filled with module errors */
     protected $_errors = [];
     /** @var array Array  array filled with module success */
@@ -153,7 +155,7 @@ abstract class ModuleCore
     /** @var Smarty_Data */
     protected $smarty;
     /** @var Smarty_Internal_Template|null */
-    protected $current_subtemplate = null;
+    protected $current_subtemplate;
     /** @var bool $installed */
     public $installed;
     /** @var string */
@@ -163,7 +165,6 @@ abstract class ModuleCore
      * Constructor
      *
      * @param string|null $name Module unique name
-     * @param Context|null $context
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
@@ -178,16 +179,16 @@ abstract class ModuleCore
             $this->ps_versions_compliancy['max'] = _PS_VERSION_;
         }
 
-        if (strlen($this->ps_versions_compliancy['min']) == 3) {
+        if (strlen((string) $this->ps_versions_compliancy['min']) == 3) {
             $this->ps_versions_compliancy['min'] .= '.0.0';
         }
 
-        if (strlen($this->ps_versions_compliancy['max']) == 3) {
+        if (strlen((string) $this->ps_versions_compliancy['max']) == 3) {
             $this->ps_versions_compliancy['max'] .= '.999.999';
         }
 
         // Load context and smarty
-        $this->context = $context ? $context : Context::getContext();
+        $this->context = $context ?: Context::getContext();
         if (is_object($this->context->smarty)) {
             $this->smarty = $this->context->smarty->createData($this->context->smarty);
         }
@@ -248,17 +249,13 @@ abstract class ModuleCore
      * Set the flag to indicate we are doing an import
      *
      * @param bool $value
-     * @return void
      */
-    public static function setBatchMode($value)
+    public static function setBatchMode($value): void
     {
         static::$_batch_mode = (bool) $value;
     }
 
-    /**
-     * @return void
-     */
-    public static function processDeferedFuncCall()
+    public static function processDeferedFuncCall(): void
     {
         static::setBatchMode(false);
         foreach (static::$_defered_func_call as $funcCall) {
@@ -272,7 +269,7 @@ abstract class ModuleCore
      *
      * @throws PrestaShopException
      */
-    public static function processDeferedClearCache()
+    public static function processDeferedClearCache(): void
     {
         static::setBatchMode(false);
 
@@ -306,7 +303,7 @@ abstract class ModuleCore
     /**
      * @param bool $update
      */
-    public static function updateTranslationsAfterInstall($update = true)
+    public static function updateTranslationsAfterInstall($update = true): void
     {
         Module::$update_translations_after_install = (bool) $update;
     }
@@ -464,8 +461,8 @@ abstract class ModuleCore
                     'method' => '__construct',
                     'time_start' => pSQL($timeStart),
                     'time_end' => pSQL($timeEnd),
-                    'memory_start' => (int) $memoryStart,
-                    'memory_end' => (int) $memoryEnd,
+                    'memory_start' => $memoryStart,
+                    'memory_end' => $memoryEnd,
                 ]
             );
         }
@@ -474,12 +471,11 @@ abstract class ModuleCore
     }
 
     /**
-     * @param String $moduleName
      *
      * @return Module
      * @throws PrestaShopException
      */
-    protected static function instantiateModule($moduleName)
+    protected static function instantiateModule(string $moduleName)
     {
         if (! class_exists($moduleName, false)) {
             include_once(_PS_MODULE_DIR_.$moduleName.'/'.$moduleName.'.php');
@@ -506,7 +502,6 @@ abstract class ModuleCore
      * Load the available list of upgrade of a specified module
      * with an associated version
      *
-     * @param string $moduleName
      * @param string $moduleVersion
      * @param string $registeredVersion
      *
@@ -515,7 +510,7 @@ abstract class ModuleCore
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    protected static function loadUpgradeVersionList($moduleName, $moduleVersion, $registeredVersion)
+    protected static function loadUpgradeVersionList(string $moduleName, $moduleVersion, $registeredVersion)
     {
         $list = [];
 
@@ -557,7 +552,7 @@ abstract class ModuleCore
             Module::upgradeModuleVersion($moduleName, $moduleVersion);
         }
 
-        usort($list, 'ps_module_version_sort');
+        usort($list, ps_module_version_sort(...));
 
         // Set the list to module cache
         static::$modules_cache[$moduleName]['upgrade']['upgrade_file_left'] = $list;
@@ -650,7 +645,7 @@ abstract class ModuleCore
                 $reflectionClass = new ReflectionClass($currentClass);
                 $filePath = realpath($reflectionClass->getFileName());
                 $realpathModuleDir = realpath(_PS_MODULE_DIR_);
-                if (strpos($filePath, $realpathModuleDir) === 0) {
+                if (str_starts_with($filePath, $realpathModuleDir)) {
                     $moduleRelativePath = trim(substr($filePath, strlen($realpathModuleDir)), '/\\');
                     if (preg_match('/^([a-zA-Z0-9_-]+)/', $moduleRelativePath, $matches)) {
                         $moduleName = $matches[1];
@@ -699,13 +694,11 @@ abstract class ModuleCore
     }
 
     /**
-     * @param string $module
-     *
      * @return string
      */
-    public static function getModuleName($module)
+    public static function getModuleName(string $module)
     {
-        $iso = substr(Context::getContext()->language->iso_code, 0, 2);
+        $iso = substr((string) Context::getContext()->language->iso_code, 0, 2);
 
         // Config file
         $configFile = _PS_MODULE_DIR_.$module.'/config_'.$iso.'.xml';
@@ -786,7 +779,7 @@ abstract class ModuleCore
                 break;
             }
 
-            $iso = substr(Context::getContext()->language->iso_code, 0, 2);
+            $iso = substr((string) Context::getContext()->language->iso_code, 0, 2);
 
             // Check if config.xml module file exists and if it's not outdated
 
@@ -865,7 +858,7 @@ abstract class ModuleCore
                     );
 
                     // replace "namespace {...} " syntax with if(false) {...} to avoid syntax error
-                    $file = preg_replace('/\n[\s\t]*?namespace\s*{\s*/', 'if (false) {', $file);
+                    $file = preg_replace('/\n[\s\t]*?namespace\s*{\s*/', 'if (false) {', (string) $file);
 
                     // If (false) is a trick to not load the class with "eval".
                     // This way require_once will works correctly
@@ -911,10 +904,9 @@ abstract class ModuleCore
                         'canInstall'             => true,
                     ];
 
-
                     $item = (object) $item;
                     $moduleList[] = $item;
-                    $modulesNameToCursor[mb_strtolower($item->name)] = $item;
+                    $modulesNameToCursor[mb_strtolower((string) $item->name)] = $item;
 
                     if (!$xmlExist || $needNewConfigFile) {
                         static::$_generate_config_xml_mode = true;
@@ -940,8 +932,8 @@ abstract class ModuleCore
             );
 
             foreach ($results as $result) {
-                if (isset($modulesNameToCursor[mb_strtolower($result['name'])])) {
-                    $moduleCursor = $modulesNameToCursor[mb_strtolower($result['name'])];
+                if (isset($modulesNameToCursor[mb_strtolower((string) $result['name'])])) {
+                    $moduleCursor = $modulesNameToCursor[mb_strtolower((string) $result['name'])];
                     $moduleCursor->id = (int) $result['id_module'];
                     $moduleCursor->active = ($result['total'] == count($list)) ? 1 : 0;
                 }
@@ -949,7 +941,7 @@ abstract class ModuleCore
         }
 
         // Get native and partner modules
-        $languageCode = str_replace('_', '-', mb_strtolower(Context::getContext()->language->language_code));
+        $languageCode = str_replace('_', '-', mb_strtolower((string) Context::getContext()->language->language_code));
 
         // This array gets filled with requested module images to download (key = module code, value = guzzle promise)
         $imagePromises = [];
@@ -1005,15 +997,15 @@ abstract class ModuleCore
                     'active'              => 0,
                     'premium'             => $module['premium'] ?? false,
                     'canInstall'          => (bool)$module['binary'],
-                    'url'                 => $module['url'] ?? ''
+                    'url'                 => $module['url'] ?? '',
                 ];
 
                 if (isset($module['img'])) {
-                    if (!file_exists(_PS_TMP_IMG_DIR_.md5($name).'.png')) {
-                        $imagePromises[$name] = $guzzle->getAsync($module['img'], ['sink' => _PS_TMP_IMG_DIR_.md5($name).'.png']);
+                    if (!file_exists(_PS_TMP_IMG_DIR_.md5((string) $name).'.png')) {
+                        $imagePromises[$name] = $guzzle->getAsync($module['img'], ['sink' => _PS_TMP_IMG_DIR_.md5((string) $name).'.png']);
                     }
 
-                    $item['image'] = '../img/tmp/'.md5($name).'.png';
+                    $item['image'] = '../img/tmp/'.md5((string) $name).'.png';
                 }
 
                 $moduleList[] = (object) $item;
@@ -1069,7 +1061,8 @@ abstract class ModuleCore
         foreach ($modules as $name) {
             if (is_file(_PS_MODULE_DIR_.$name)) {
                 continue;
-            } elseif (static::moduleExistsOnFilesystem($name)) {
+            }
+            if (static::moduleExistsOnFilesystem($name)) {
                 if (!Validate::isModuleName($name)) {
                     throw new PrestaShopException(sprintf('Module %s is not a valid module name', $name));
                 }
@@ -1132,7 +1125,7 @@ abstract class ModuleCore
         $query = (new DbQuery())->select('*')->from('module');
         $nativeModules = static::getNativeModuleList();
         if ($nativeModules) {
-            $query->where("`name` NOT IN ('".implode("', '", array_map('pSQL', $nativeModules))."')");
+            $query->where("`name` NOT IN ('".implode("', '", array_map(pSQL(...), $nativeModules))."')");
         }
 
         return Db::readOnly()->getArray($query);
@@ -1179,7 +1172,7 @@ abstract class ModuleCore
             'opcachemanager',
             'overridecheck',
             'sitemap',
-            'tbcleaner'
+            'tbcleaner',
         ];
     }
 
@@ -1282,7 +1275,7 @@ abstract class ModuleCore
     /**
      * @deprecated 2.0.0
      */
-    public static function getPaypalIgnore()
+    public static function getPaypalIgnore(): void
     {
         Tools::displayAsDeprecated();
     }
@@ -1364,13 +1357,11 @@ abstract class ModuleCore
     }
 
     /**
-     * @param string $moduleName
      *
      * @return bool|null
-     *
      * @throws PrestaShopException
      */
-    public static function isEnabled($moduleName)
+    public static function isEnabled(string $moduleName)
     {
         if (!Cache::isStored('Module::isEnabled'.$moduleName)) {
             $active = false;
@@ -1440,22 +1431,20 @@ abstract class ModuleCore
         }
 
         // Check module dependencies
-        if (count($this->dependencies) > 0) {
-            foreach ($this->dependencies as $dependency) {
-                if (!Db::readOnly()->getRow(
-                    (new DbQuery())
-                        ->select('`id_module`')
-                        ->from('module')
-                        ->where('LOWER(`name`) = \'' . pSQL(mb_strtolower($dependency)) . '\'')
-                )) {
-                    $error = Tools::displayError('Before installing this module, you have to install this/these module(s) first:') . '<br />';
-                    foreach ($this->dependencies as $d) {
-                        $error .= '- ' . $d . '<br />';
-                    }
-                    $this->_errors[] = $error;
-
-                    return false;
+        foreach ($this->dependencies as $dependency) {
+            if (!Db::readOnly()->getRow(
+                (new DbQuery())
+                    ->select('`id_module`')
+                    ->from('module')
+                    ->where('LOWER(`name`) = \'' . pSQL(mb_strtolower((string) $dependency)) . '\'')
+            )) {
+                $error = Tools::displayError('Before installing this module, you have to install this/these module(s) first:') . '<br />';
+                foreach ($this->dependencies as $d) {
+                    $error .= '- ' . $d . '<br />';
                 }
+                $this->_errors[] = $error;
+
+                return false;
             }
         }
 
@@ -1471,10 +1460,12 @@ abstract class ModuleCore
         if (function_exists('opcache_invalidate') && file_exists(_PS_MODULE_DIR_.$this->name)) {
             foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator(_PS_MODULE_DIR_.$this->name)) as $file) {
                 /** @var SplFileInfo $file */
-                if (substr($file->getFilename(), -4) !== '.php' || $file->isLink()) {
+                if (!str_ends_with($file->getFilename(), '.php')) {
                     continue;
                 }
-
+                if ($file->isLink()) {
+                    continue;
+                }
                 opcache_invalidate($file->getPathname());
             }
         }
@@ -1488,7 +1479,6 @@ abstract class ModuleCore
 
             return false;
         }
-
 
         if (!$this->installControllers()) {
             return false;
@@ -1559,7 +1549,7 @@ abstract class ModuleCore
             return false;
         }
 
-        $tbVersion = implode('.', array_map('intval', explode('.', _TB_VERSION_, 3)));
+        $tbVersion = implode('.', array_map(intval(...), explode('.', _TB_VERSION_, 3)));
         return version_compare($tbVersion, $this->tb_min_version, '>=');
     }
 
@@ -1628,7 +1618,7 @@ abstract class ModuleCore
             $map = [];
             foreach (Db::readOnly()->getArray($sql) as $row) {
                 $moduleId = (int)$row['id_module'];
-                $name = strtolower($row['name']);
+                $name = strtolower((string) $row['name']);
                 $map[$name] = $moduleId;
             }
             Cache::store($cacheId, $map);
@@ -1698,9 +1688,8 @@ abstract class ModuleCore
 
             if (!file_exists($pathOverride)) {
                 return false;
-            } else {
-                file_put_contents($pathOverride, preg_replace('#(\r\n|\r)#ism', "\n", file_get_contents($pathOverride)));
             }
+            file_put_contents($pathOverride, preg_replace('#(\r\n|\r)#ism', "\n", file_get_contents($pathOverride)));
 
             $patternEscapeCom = '#(^\s*?\/\/.*?\n|\/\*(?!\n\s+\* module:.*?\* date:.*?\* version:.*?\*\/).*?\*\/)#ism';
 
@@ -1831,7 +1820,7 @@ abstract class ModuleCore
 
             return true;
         } catch (ReflectionException $e) {
-            throw new PrestaShopException("Failed to add override", 0, $e);
+            throw new PrestaShopException('Failed to add override', 0, $e);
         }
     }
 
@@ -1862,20 +1851,19 @@ abstract class ModuleCore
     /**
      * Remove all methods in a module override from the override class
      *
-     * @param string $classname
      *
      * @return bool
-     *
      * @throws PrestaShopException
      */
-    public function removeOverride($classname)
+    public function removeOverride(string $classname)
     {
         try {
             $origPath = $path = PrestaShopAutoload::getInstance()->getClassPath($classname . 'Core');
-
             if ($origPath && !$file = PrestaShopAutoload::getInstance()->getClassPath($classname)) {
                 return true;
-            } elseif (!$origPath && Module::getModuleIdByName($classname)) {
+            }
+
+            if (!$origPath && Module::getModuleIdByName($classname)) {
                 $path = 'modules' . DIRECTORY_SEPARATOR . $classname . DIRECTORY_SEPARATOR . $classname . '.php';
             }
 
@@ -1923,7 +1911,7 @@ abstract class ModuleCore
                         $replace = false;
                     }
 
-                    if (md5($moduleContent) != md5($origContent) && $replace) {
+                    if (md5((string) $moduleContent) != md5((string) $origContent) && $replace) {
                         $overrideFile = $overrideFileOrig;
                     }
                 }
@@ -2010,7 +1998,7 @@ abstract class ModuleCore
 
             return true;
         } catch (ReflectionException $e) {
-            throw new PrestaShopException("Failed to remove module override", 0, $e);
+            throw new PrestaShopException('Failed to remove module override', 0, $e);
         }
     }
 
@@ -2111,11 +2099,9 @@ abstract class ModuleCore
     }
 
     /**
-     * @return void
-     *
      * @throws PrestaShopException
      */
-    public function updateModuleTranslations()
+    public function updateModuleTranslations(): void
     {
         Language::updateModulesTranslations([$this->name]);
     }
@@ -2184,7 +2170,7 @@ abstract class ModuleCore
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function disable($forceAll = false)
+    public function disable($forceAll = false): void
     {
         // Disable module for all shops
         Db::getInstance()->delete(
@@ -2195,10 +2181,8 @@ abstract class ModuleCore
 
     /**
      * Set errors, warning or success message of a module upgrade
-     *
-     * @param array $upgradeDetail
      */
-    protected function setUpgradeMessage($upgradeDetail)
+    protected function setUpgradeMessage(array $upgradeDetail)
     {
         // Store information if a module has been upgraded (memory optimization)
         if ($upgradeDetail['available_upgrade']) {
@@ -2276,13 +2260,13 @@ abstract class ModuleCore
         $this->disable(true);
 
         // Delete permissions module access
-        $conn->delete('module_access' ,'`id_module` = '.(int) $this->id);
+        $conn->delete('module_access', '`id_module` = '.(int) $this->id);
 
         // Remove restrictions for client groups
         Group::truncateRestrictionsByModule($this->id);
 
         // Uninstall the module
-        if ($conn->delete('module' , '`id_module` = '.(int) $this->id)) {
+        if ($conn->delete('module', '`id_module` = '.(int) $this->id)) {
             Cache::clean('Module::getModulesNameToIdMap');
 
             return true;
@@ -2321,7 +2305,7 @@ abstract class ModuleCore
         // Unregister module on hook by id
         $result = Db::getInstance()->delete(
             'hook_module',
-            '`id_module` = '.(int) $this->id.' AND `id_hook` = '.(int) $hookId.(($shopList) ? ' AND `id_shop` IN('.implode(', ', array_map('intval', $shopList)).')' : '')
+            '`id_module` = '.(int) $this->id.' AND `id_hook` = '.(int) $hookId.(($shopList) ? ' AND `id_shop` IN('.implode(', ', array_map(intval(...), $shopList)).')' : '')
         );
 
         // Clean modules position
@@ -2350,7 +2334,7 @@ abstract class ModuleCore
                 ->select('`id_module`, `id_shop`')
                 ->from('hook_module')
                 ->where('`id_hook` = '.(int) $idHook)
-                ->where($shopList ? '`id_shop` IN('.implode(', ', array_map('intval', $shopList)).')' : '')
+                ->where($shopList ? '`id_shop` IN('.implode(', ', array_map(intval(...), $shopList)).')' : '')
                 ->orderBy('`position`')
         );
         $position = [];
@@ -2385,7 +2369,7 @@ abstract class ModuleCore
     {
         return Db::getInstance()->delete(
             'hook_module_exceptions',
-            '`id_module` = '.(int) $this->id.' AND `id_hook` = '.(int) $hookId.(($shopList) ? ' AND `id_shop` IN('.implode(', ', array_map('intval', $shopList)).')' : '')
+            '`id_module` = '.(int) $this->id.' AND `id_hook` = '.(int) $hookId.(($shopList) ? ' AND `id_shop` IN('.implode(', ', array_map(intval(...), $shopList)).')' : '')
         );
     }
 
@@ -2446,7 +2430,7 @@ abstract class ModuleCore
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function displayFlags($languages, $defaultLanguage, $ids, $id, $return = false, $useVarsInsteadOfIds = false)
+    public function displayFlags($languages, $defaultLanguage, string $ids, string $id, $return = false, $useVarsInsteadOfIds = false)
     {
         if (count($languages) == 1) {
             return false;
@@ -2491,7 +2475,7 @@ abstract class ModuleCore
             return $string;
         }
 
-        return Translate::getModuleTranslation($this, $string, ($specific) ? $specific : $this->name);
+        return Translate::getModuleTranslation($this, $string, $specific ?: $this->name);
     }
 
     /**
@@ -2787,21 +2771,17 @@ abstract class ModuleCore
     }
 
     /**
-     * @param string $string
-     *
      * @return string
      */
-    public function displayConfirmation($string)
+    public function displayConfirmation(string $string)
     {
-        $output = '
+        return '
 		<div class="bootstrap">
 		<div class="module_confirmation conf confirm alert alert-success">
 			<button type="button" class="close" data-dismiss="alert">&times;</button>
 			'.$string.'
 		</div>
 		</div>';
-
-        return $output;
     }
 
     /**
@@ -2917,7 +2897,7 @@ abstract class ModuleCore
                 ->select('COUNT(*) n')
                 ->from('module_shop')
                 ->where('`id_module` = '.(int) $moduleId)
-                ->where('`id_shop` IN ('.implode(',', array_map('intval', $shops)).')')
+                ->where('`id_shop` IN ('.implode(',', array_map(intval(...), $shops)).')')
                 ->groupBy('`id_module`')
                 ->having('n = '. count($shops))
         )) {
@@ -2977,7 +2957,6 @@ abstract class ModuleCore
 
     /**
      * @param string $file
-     * @param string $template
      * @param string|null $cache_id
      * @param string|null $compile_id
      *
@@ -2986,63 +2965,58 @@ abstract class ModuleCore
      * @throws PrestaShopException
      * @throws SmartyException
      */
-    public function display($file, $template, $cache_id = null, $compile_id = null)
+    public function display($file, string $template, $cache_id = null, $compile_id = null)
     {
         $moduleName = basename($file, '.php');
         if (($overloaded = Module::_isTemplateOverloadedStatic($moduleName, $template)) === null) {
             return Tools::displayError('No template found for module').' '. $moduleName . ': ' .$template;
-        } else {
-            if (Tools::getIsset('live_edit') || Tools::getIsset('live_configurator_token')) {
-                $cache_id = null;
-            }
-
-            $this->smarty->assign(
-                [
-                    'module_dir'          => __PS_BASE_URI__.'modules/'. $moduleName .'/',
-                    'module_template_dir' => ($overloaded ? _THEME_DIR_ : __PS_BASE_URI__).'modules/'. $moduleName .'/'
-                ]
-            );
-
-            if ($cache_id !== null) {
-                Tools::enableCache();
-            }
-
-            $result = $this->getCurrentSubTemplate($template, $cache_id, $compile_id)->fetch();
-
-            if ($cache_id !== null) {
-                Tools::restoreCacheSettings();
-            }
-
-            $this->resetCurrentSubTemplate($template, $cache_id, $compile_id);
-
-            if ($result && _PS_MODE_DEV_ && !Validate::isJSON($result)) {
-                $tplPath = $this->getTemplatePath($template);
-                $result = '<!-- START '.$tplPath.' -->'.$result.'<!-- END '.$tplPath.' -->';
-            }
-
-            return $result;
         }
+        if (Tools::getIsset('live_edit') || Tools::getIsset('live_configurator_token')) {
+            $cache_id = null;
+        }
+        $this->smarty->assign(
+            [
+                'module_dir'          => __PS_BASE_URI__.'modules/'. $moduleName .'/',
+                'module_template_dir' => ($overloaded ? _THEME_DIR_ : __PS_BASE_URI__).'modules/'. $moduleName .'/',
+            ]
+        );
+        if ($cache_id !== null) {
+            Tools::enableCache();
+        }
+        $result = $this->getCurrentSubTemplate($template, $cache_id, $compile_id)->fetch();
+        if ($cache_id !== null) {
+            Tools::restoreCacheSettings();
+        }
+        $this->resetCurrentSubTemplate($template, $cache_id, $compile_id);
+        if ($result && _PS_MODE_DEV_ && !Validate::isJSON($result)) {
+            $tplPath = $this->getTemplatePath($template);
+            $result = '<!-- START '.$tplPath.' -->'.$result.'<!-- END '.$tplPath.' -->';
+        }
+        return $result;
     }
 
     /**
-     * @param string $module_name
-     * @param string $template
      *
      * @return bool|null|string
      */
-    protected static function _isTemplateOverloadedStatic($module_name, $template)
+    protected static function _isTemplateOverloadedStatic(string $module_name, string $template)
     {
         if (file_exists(_PS_THEME_DIR_.'modules/'.$module_name.'/'.$template)) {
             return _PS_THEME_DIR_.'modules/'.$module_name.'/'.$template;
-        } elseif (file_exists(_PS_THEME_DIR_.'modules/'.$module_name.'/views/templates/hook/'.$template)) {
+        }
+        if (file_exists(_PS_THEME_DIR_.'modules/'.$module_name.'/views/templates/hook/'.$template)) {
             return _PS_THEME_DIR_.'modules/'.$module_name.'/views/templates/hook/'.$template;
-        } elseif (file_exists(_PS_THEME_DIR_.'modules/'.$module_name.'/views/templates/front/'.$template)) {
+        }
+        if (file_exists(_PS_THEME_DIR_.'modules/'.$module_name.'/views/templates/front/'.$template)) {
             return _PS_THEME_DIR_.'modules/'.$module_name.'/views/templates/front/'.$template;
-        } elseif (file_exists(_PS_MODULE_DIR_.$module_name.'/views/templates/hook/'.$template)) {
+        }
+        if (file_exists(_PS_MODULE_DIR_.$module_name.'/views/templates/hook/'.$template)) {
             return false;
-        } elseif (file_exists(_PS_MODULE_DIR_.$module_name.'/views/templates/front/'.$template)) {
+        }
+        if (file_exists(_PS_MODULE_DIR_.$module_name.'/views/templates/front/'.$template)) {
             return false;
-        } elseif (file_exists(_PS_MODULE_DIR_.$module_name.'/'.$template)) {
+        }
+        if (file_exists(_PS_MODULE_DIR_.$module_name.'/'.$template)) {
             return false;
         }
 
@@ -3050,15 +3024,13 @@ abstract class ModuleCore
     }
 
     /**
-     * @param string $template
      * @param string|null $cache_id
      * @param string|null $compile_id
      *
      * @return Smarty_Internal_Template
-     *
      * @throws SmartyException
      */
-    protected function getCurrentSubTemplate($template, $cache_id = null, $compile_id = null)
+    protected function getCurrentSubTemplate(string $template, $cache_id = null, $compile_id = null)
     {
         if (!isset($this->current_subtemplate[$template.'_'.$cache_id.'_'.$compile_id])) {
             $this->current_subtemplate[$template.'_'.$cache_id.'_'.$compile_id] = $this->context->smarty->createTemplate(
@@ -3075,28 +3047,29 @@ abstract class ModuleCore
     /**
      * Get realpath of a template of current module (check if template is overriden too)
      *
-     * @param string $template
      *
      * @return string
      */
-    public function getTemplatePath($template)
+    public function getTemplatePath(string $template)
     {
         $overloaded = $this->_isTemplateOverloaded($template);
         if ($overloaded === null) {
             return null;
         }
-
         if ($overloaded) {
             return $overloaded;
-        } elseif (file_exists(_PS_MODULE_DIR_.$this->name.'/views/templates/hook/'.$template)) {
-            return _PS_MODULE_DIR_.$this->name.'/views/templates/hook/'.$template;
-        } elseif (file_exists(_PS_MODULE_DIR_.$this->name.'/views/templates/front/'.$template)) {
-            return _PS_MODULE_DIR_.$this->name.'/views/templates/front/'.$template;
-        } elseif (file_exists(_PS_MODULE_DIR_.$this->name.'/'.$template)) {
-            return _PS_MODULE_DIR_.$this->name.'/'.$template;
-        } else {
-            return null;
         }
+        if (file_exists(_PS_MODULE_DIR_.$this->name.'/views/templates/hook/'.$template)) {
+            return _PS_MODULE_DIR_.$this->name.'/views/templates/hook/'.$template;
+        }
+        if (file_exists(_PS_MODULE_DIR_.$this->name.'/views/templates/front/'.$template)) {
+            return _PS_MODULE_DIR_.$this->name.'/views/templates/front/'.$template;
+        }
+
+        if (file_exists(_PS_MODULE_DIR_.$this->name.'/'.$template)) {
+            return _PS_MODULE_DIR_.$this->name.'/'.$template;
+        }
+        return null;
     }
 
     /**
@@ -3110,12 +3083,9 @@ abstract class ModuleCore
     }
 
     /**
-     * @param string $template
-     * @param string $cache_id
-     * @param string $compile_id
      * @return void
      */
-    protected function resetCurrentSubTemplate($template, $cache_id, $compile_id)
+    protected function resetCurrentSubTemplate(string $template, string $cache_id, string $compile_id)
     {
         $this->current_subtemplate[$template.'_'.$cache_id.'_'.$compile_id] = null;
     }
@@ -3275,16 +3245,14 @@ abstract class ModuleCore
      * add a warning message to display at the top of the admin page
      *
      * @param string $msg
-     *
-     * @return void
      */
-    public function adminDisplayWarning($msg)
+    public function adminDisplayWarning($msg): void
     {
         $controller = $this->context->controller;
         if ($controller instanceof AdminController) {
             $controller->warnings[] = $msg;
         } else {
-            trigger_error("Method adminDisplayWarning can be called in back-office context only", E_USER_NOTICE);
+            trigger_error('Method adminDisplayWarning can be called in back-office context only', E_USER_NOTICE);
         }
     }
 
@@ -3304,7 +3272,7 @@ abstract class ModuleCore
             $hook_name = $current_hook['name'];
             $retro_hook_name = Hook::getRetroHookName($hook_name);
 
-            if (is_callable([$this, 'hook'.ucfirst($hook_name)]) || is_callable([$this, 'hook'.ucfirst($retro_hook_name)])) {
+            if (is_callable([$this, 'hook'.ucfirst((string) $hook_name)]) || is_callable([$this, 'hook'.ucfirst($retro_hook_name)])) {
                 $possible_hooks_list[] = [
                     'id_hook' => $current_hook['id_hook'],
                     'name'    => $hook_name,
@@ -3328,11 +3296,9 @@ abstract class ModuleCore
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function getDisplayableHookList($includeBackOfficeHooks=false)
+    public function getDisplayableHookList($includeBackOfficeHooks = false)
     {
-        return array_filter($this->getPossibleHooksList(), function($hook) use ($includeBackOfficeHooks) {
-            return Hook::isDisplayableHook($hook['name'], $includeBackOfficeHooks);
-        });
+        return array_filter($this->getPossibleHooksList(), fn (array $hook) => Hook::isDisplayableHook($hook['name'], $includeBackOfficeHooks));
     }
 
     /**
@@ -3369,7 +3335,7 @@ abstract class ModuleCore
             $suffix = '|' . implode('|', $cache_array);
         }
 
-        return ($name !== null ? $name : $this->name) . $suffix;
+        return ($name ?? $this->name) . $suffix;
     }
 
     /**
@@ -3393,7 +3359,7 @@ abstract class ModuleCore
      *
      * @throws PrestaShopException
      */
-    protected function _clearCache($template, $cacheId = null, $compileId = null)
+    protected function _clearCache(string $template, $cacheId = null, $compileId = null)
     {
         static $ps_smarty_clear_cache = null;
         if ($ps_smarty_clear_cache === null) {
@@ -3479,14 +3445,14 @@ abstract class ModuleCore
             }
 
             if (is_writable(_PS_MODULE_DIR_ . $this->name . '/')) {
-                $iso = substr(Context::getContext()->language->iso_code, 0, 2);
+                $iso = substr((string) Context::getContext()->language->iso_code, 0, 2);
                 $file = _PS_MODULE_DIR_ . $this->name . '/' . ($iso == 'en' ? 'config.xml' : 'config_' . $iso . '.xml');
                 Tools::deleteFile($file);
                 @file_put_contents($file, $xml->saveXml());
                 @chmod($file, 0664);
             }
         } catch (DOMException $e) {
-            throw new PrestaShopException("Failed to generate module config.xml file", 0, $e);
+            throw new PrestaShopException('Failed to generate module config.xml file', 0, $e);
         }
     }
 
@@ -3503,7 +3469,7 @@ abstract class ModuleCore
         if ($controller instanceof AdminController) {
             $controller->informations[] = $msg;
         } else {
-            trigger_error("Method adminDisplayInformation can be called in back-office context only", E_USER_NOTICE);
+            trigger_error('Method adminDisplayInformation can be called in back-office context only', E_USER_NOTICE);
         }
     }
 
@@ -3518,7 +3484,7 @@ abstract class ModuleCore
      *
      * @throws PrestaShopException
      */
-    protected function getOverrideFileReflectionClass($classname, $fileLines, $tempClassSuffix, $filename): ReflectionClass
+    protected function getOverrideFileReflectionClass(string $classname, $fileLines, string $tempClassSuffix, $filename): ReflectionClass
     {
         // generate temp class name for override
         $overrideClassName = $classname . $tempClassSuffix;
@@ -3529,11 +3495,11 @@ abstract class ModuleCore
         $overrideContent = preg_replace(
             [
                 '#^\s*<\?(?:php)?#',
-                '#class\s+' . $classname . '(\s+extends\s+([a-z0-9_]+)(\s+implements\s+([a-z0-9_]+))?)?#i'
+                '#class\s+' . $classname . '(\s+extends\s+([a-z0-9_]+)(\s+implements\s+([a-z0-9_]+))?)?#i',
             ],
             [
                 ' ',
-                'class ' . $overrideClassName . ' extends \stdClass'
+                'class ' . $overrideClassName . ' extends \stdClass',
             ],
             implode('', $fileLines)
         );
@@ -3541,39 +3507,27 @@ abstract class ModuleCore
         try {
             eval($overrideContent);
         } catch (Throwable $e) {
-            $message = $e->getMessage() . " at line " . $e->getLine();
-            throw new PrestaShopException(sprintf(Tools::displayError("Failed to evaluate override file %s: %s"), $filename, $message));
+            $message = $e->getMessage() . ' at line ' . $e->getLine();
+            throw new PrestaShopException(sprintf(Tools::displayError('Failed to evaluate override file %s: %s'), $filename, $message));
         }
-
-        if (! class_exists($overrideClassName, false)) {
-            throw new PrestaShopException(sprintf(Tools::displayError('Override file %s does not contain class %s'), $filename, $classname));
-        }
-
-        try {
-            return new ReflectionClass($overrideClassName);
-        } catch (ReflectionException $e) {
-            throw new PrestaShopException(sprintf(Tools::displayError("Failed to create reflection class for file %s"), $filename), 0, $e);
-        }
+        throw new PrestaShopException(sprintf(Tools::displayError('Override file %s does not contain class %s'), $filename, $classname));
     }
 
     /**
-     * @param string $filePath
      * @return string[]
      * @throws PrestaShopException
      */
     protected function loadOverrideFile(string $filePath)
     {
         if (! file_exists($filePath)) {
-            throw new PrestaShopException(sprintf(Tools::displayError("Override file %s does not exists"), $filePath));
+            throw new PrestaShopException(sprintf(Tools::displayError('Override file %s does not exists'), $filePath));
         }
         $contentLines = file($filePath);
         if ($contentLines === false) {
             return [];
         }
         // remove empty lines
-        return array_filter($contentLines, function($line) {
-            return !preg_match("/^\s*$/", $line);
-        });
+        return array_filter($contentLines, fn (string $line) => !preg_match("/^\s*$/", $line));
     }
 
     /**
@@ -3637,10 +3591,10 @@ abstract class ModuleCore
             ]);
 
             try {
-                $response = (string)$guzzle->get("updates/modules/all.json", [
+                $response = (string)$guzzle->get('updates/modules/all.json', [
                     'headers' => [
-                        'X-SID' => Configuration::getServerTrackingId()
-                    ]
+                        'X-SID' => Configuration::getServerTrackingId(),
+                    ],
                 ])->getBody();
                 $modules = json_decode($response, true);
                 $cache = [];
@@ -3718,7 +3672,7 @@ abstract class ModuleCore
             return true;
         }
         $compatibility = $versionInfo['compatibility'];
-        $split = explode(' ', $compatibility);
+        $split = explode(' ', (string) $compatibility);
         if (count($split) === 2) {
             $operator = trim($split[0]);
             $operand = trim($split[1]);
@@ -3728,12 +3682,11 @@ abstract class ModuleCore
     }
 
     /**
-     * @return void
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function processPremiumModules()
+    public static function processPremiumModules(): void
     {
         Module::checkApiModulesUpdates(true);
         foreach (static::getModulesOnDisk(true) as $module) {
@@ -3747,12 +3700,7 @@ abstract class ModuleCore
     }
 }
 
-/**
- * @param array $a
- * @param array $b
- * @return bool|int
- */
-function ps_module_version_sort($a, $b)
+function ps_module_version_sort(array $a, array $b): int
 {
     return version_compare($a['version'], $b['version']);
 }

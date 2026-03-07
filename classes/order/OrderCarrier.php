@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -191,9 +193,8 @@ class OrderCarrierCore extends ObjectModel
                 $orderObject->id_shop
             );
             return true;
-        } else {
-            $errors[] = Tools::displayError('The order carrier cannot be updated.');
         }
+        $errors[] = Tools::displayError('The order carrier cannot be updated.');
         return false;
     }
 }

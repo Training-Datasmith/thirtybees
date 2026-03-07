@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -50,8 +52,6 @@ class HTMLTemplateOrderSlipCore extends HTMLTemplate
     public $order_slip;
 
     /**
-     * @param OrderSlip $orderSlip
-     * @param Smarty $smarty
      *
      * @throws PrestaShopException
      */

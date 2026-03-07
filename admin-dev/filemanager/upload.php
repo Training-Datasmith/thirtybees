@@ -1,8 +1,9 @@
 <?php
+
+declare(strict_types=1);
 /** @noinspection PhpUnhandledExceptionInspection */
 
 include('config/config.php');
-
 
 $storeFolder = rtrim(FILE_MANAGER_BASE_DIR . normalizePath(Tools::getValue('path', '')), '/') . '/';
 $storeFolderThumb = rtrim(FILE_MANAGER_THUMB_BASE_DIR . normalizePath(Tools::getValue('path_thumb', '')), '/') . '/';
@@ -33,7 +34,7 @@ if (!empty($_FILES) && isset($_FILES['file']) && $_FILES['file']['tmp_name']) {
         $targetFile = $targetPath.$_FILES['file']['name'];
         $targetFileThumb = $targetPathThumb.$_FILES['file']['name'];
 
-        if (in_array($fileExtension,getFileExtensions('image')) && @getimagesize($tempFile) != false) {
+        if (in_array($fileExtension, getFileExtensions('image')) && @getimagesize($tempFile) != false) {
             $is_img = true;
         } else {
             $is_img = false;

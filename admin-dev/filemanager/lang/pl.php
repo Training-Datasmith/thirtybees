@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 define('lang_Select', 'Wybierz');
 define('lang_Erase', 'Usuń');
 define('lang_Open', 'Otwórz');
@@ -38,7 +40,7 @@ define('lang_Swipe_help', 'Kliknij w nazwę pliku/folderu by wyświetlić dostę
 define('lang_Upload_base', 'Wgrywanie standardowe');
 define('lang_Upload_java', 'Wgrywanie przez skrypty JS (dla dużych plików)');
 define('lang_Upload_java_help', "Jeżeli ten aplet JS nie powoduje wgrywania 1. Sprawdź czy masz pobraną i uruchomioną obsługę skryptów w JAVA na stronie JAVA <a href='https://java.com/en/download/'>[pobierz]</a> 2. Upewnij się, że nie jest to blokada wynikająca z ustawień zapory firewall");
-define('lang_Upload_base_help', "Przeciągnij i upuść pliki w poniższy obszar, lub kliknij weń (dotyczy tylko najnowszych przeglądarek), lub wybierz plik i kliknij w przycisk. Kiedy zakończy się proces wgrywania, kliknij wyżej na przycisk by zakończyć.");
+define('lang_Upload_base_help', 'Przeciągnij i upuść pliki w poniższy obszar, lub kliknij weń (dotyczy tylko najnowszych przeglądarek), lub wybierz plik i kliknij w przycisk. Kiedy zakończy się proces wgrywania, kliknij wyżej na przycisk by zakończyć.');
 define('lang_Type_dir', 'FLD');
 define('lang_Type', 'Typ');
 define('lang_Dimension', 'Wymiary');

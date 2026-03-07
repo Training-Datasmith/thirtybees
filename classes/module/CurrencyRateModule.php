@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -162,13 +164,13 @@ abstract class CurrencyRateModuleCore extends Module
             $module = Module::getInstanceById($result['id_module']);
             if (Validate::isLoadedObject($currency) && Validate::isLoadedObject($module)) {
                 if ($codesOnly) {
-                    $return[mb_strtoupper($currency->iso_code)] = null;
+                    $return[mb_strtoupper((string) $currency->iso_code)] = null;
 
                 } else {
-                    $return[mb_strtoupper($currency->iso_code)] = $module;
+                    $return[mb_strtoupper((string) $currency->iso_code)] = $module;
                 }
             } elseif (!$registeredOnly && Validate::isLoadedObject($currency)) {
-                $return[mb_strtoupper($currency->iso_code)] = null;
+                $return[mb_strtoupper((string) $currency->iso_code)] = null;
             }
         }
 
@@ -288,7 +290,7 @@ abstract class CurrencyRateModuleCore extends Module
     {
         if (!$from) {
             $fromCurrency = Currency::getDefaultCurrency();
-            $from = mb_strtoupper($fromCurrency->iso_code);
+            $from = mb_strtoupper((string) $fromCurrency->iso_code);
         }
 
         $modules = static::getCurrencyRateModules();
@@ -379,7 +381,7 @@ abstract class CurrencyRateModuleCore extends Module
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function setModule($idCurrency, $idModule)
+    public static function setModule($idCurrency, $idModule): void
     {
         $conn = Db::getInstance();
         $conn->delete(

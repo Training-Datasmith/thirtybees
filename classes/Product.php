@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -46,19 +48,19 @@ define('_CUSTOMIZE_TEXTFIELD_', 1);
  */
 class ProductCore extends ObjectModel implements InitializationCallback
 {
-    const CUSTOMIZE_FILE = 0;
-    const CUSTOMIZE_TEXTFIELD = 1;
+    public const CUSTOMIZE_FILE = 0;
+    public const CUSTOMIZE_TEXTFIELD = 1;
     /**
      * Note:  prefix is "PTYPE" because TYPE_ is used in ObjectModel (definition)
      */
-    const PTYPE_SIMPLE = 0;
-    const PTYPE_PACK = 1;
-    const PTYPE_VIRTUAL = 2;
+    public const PTYPE_SIMPLE = 0;
+    public const PTYPE_PACK = 1;
+    public const PTYPE_VIRTUAL = 2;
 
     /**
      * @var int|null
      */
-    public static $_taxCalculationMethod = null;
+    public static $_taxCalculationMethod;
 
     /**
      * @var float
@@ -221,7 +223,7 @@ class ProductCore extends ObjectModel implements InitializationCallback
     /**
      * @var string unity
      */
-    public $unity = null;
+    public $unity;
 
     /**
      * @var float price for product's unity
@@ -316,7 +318,7 @@ class ProductCore extends ObjectModel implements InitializationCallback
     /**
      * @var bool Product is new
      */
-    public $new = null;
+    public $new;
 
     /**
      * @var int Number of uploadable files (concerning customizable products)
@@ -412,7 +414,6 @@ class ProductCore extends ObjectModel implements InitializationCallback
      */
     public $advanced_stock_management = 0;
 
-
     /**
      * @var int
      */
@@ -476,7 +477,7 @@ class ProductCore extends ObjectModel implements InitializationCallback
     /**
      * @var int|null
      */
-    public $pack_quantity = null;
+    public $pack_quantity;
 
     /**
      * @var array
@@ -579,8 +580,8 @@ class ProductCore extends ObjectModel implements InitializationCallback
             ImageEntity::ENTITY_TYPE_PRODUCTS => [
                 'path' => _PS_PROD_IMG_DIR_,
                 'imageTypes' => [
-                    ['name' => 'backoffice_product_medium', 'width' => 150, 'height' => 150]
-                ]
+                    ['name' => 'backoffice_product_medium', 'width' => 150, 'height' => 150],
+                ],
             ],
         ],
     ];
@@ -706,7 +707,7 @@ class ProductCore extends ObjectModel implements InitializationCallback
                 'fields'   => [
                     'id'       => ['required' => true],
                     'quantity' => [],
-                    'combination_id' => ['xlink_resource' => 'combinations']
+                    'combination_id' => ['xlink_resource' => 'combinations'],
                 ],
             ],
         ],
@@ -719,7 +720,6 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @param bool $full
      * @param int|null $idLang
      * @param int|null $idShop
-     * @param Context|null $context
      *
      * @throws PrestaShopException
      */
@@ -762,7 +762,8 @@ class ProductCore extends ObjectModel implements InitializationCallback
                 null,
                 $this->specificPrice
             );
-            $this->unit_price = ($this->unit_price_ratio != 0 ?
+            $this->unit_price = (
+                $this->unit_price_ratio != 0 ?
                 round(
                     $this->price / $this->unit_price_ratio,
                     _TB_PRICE_DATABASE_PRECISION_
@@ -782,10 +783,8 @@ class ProductCore extends ObjectModel implements InitializationCallback
     /**
      * Returns tax rate.
      *
-     * @param Address|null $address
      *
      * @return float The total taxes rate applied to the product
-     *
      * @throws PrestaShopException
      */
     public function getTaxesRate(?Address $address = null)
@@ -821,7 +820,8 @@ class ProductCore extends ObjectModel implements InitializationCallback
 					INTERVAL '.(Validate::isUnsignedInt(Configuration::get('PS_NB_DAYS_NEW_PRODUCT')) ? Configuration::get('PS_NB_DAYS_NEW_PRODUCT') : 20).' DAY
 				)
 			) > 0
-		');
+		'
+        );
 
         return count($result) > 0;
     }
@@ -850,7 +850,6 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *                                      this variable is filled with the corresponding SpecificPrice object
      * @param bool $withEcotax Insert ecotax in price output.
      * @param bool $useGroupReduction
-     * @param Context|null $context
      * @param bool $useCustomerPrice
      *
      * @return float Product price
@@ -911,7 +910,7 @@ class ProductCore extends ObjectModel implements InitializationCallback
             * When called from the back office, cart ID can be inexistant
             */
             if (!$idCart && !isset($context->employee)) {
-                throw new PrestaShopException("ID cart not provided in front office context");
+                throw new PrestaShopException('ID cart not provided in front office context');
             }
             $curCart = new Cart($idCart);
             // Store cart in context to avoid multiple instantiations in BO
@@ -972,7 +971,7 @@ class ProductCore extends ObjectModel implements InitializationCallback
             $idCustomer = $context->customer->id;
         }
 
-        $return = static::priceCalculation(
+        return static::priceCalculation(
             $context->shop->id,
             $idProduct,
             $idProductAttribute,
@@ -994,8 +993,6 @@ class ProductCore extends ObjectModel implements InitializationCallback
             $idCart,
             $cartQuantity
         );
-
-        return $return;
     }
 
     /**
@@ -1242,9 +1239,8 @@ class ProductCore extends ObjectModel implements InitializationCallback
                     $specificPriceReduction,
                     _TB_PRICE_DATABASE_PRECISION_
                 );
-            } else {
-                return Tools::ps_round($specificPriceReduction, $decimals);
             }
+            return Tools::ps_round($specificPriceReduction, $decimals);
         }
 
         // Eco Tax
@@ -1373,7 +1369,6 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @param string $productAlias Alias of product table
      * @param string|int|null $productAttribute If string : alias of PA table ; if int : value of PA ; if null : nothing about PA
      * @param bool $innerJoin LEFT JOIN or INNER JOIN
-     * @param Shop|null $shop
      *
      * @return string
      *
@@ -1397,17 +1392,13 @@ class ProductCore extends ObjectModel implements InitializationCallback
             }
         }
 
-        $sql .= StockAvailable::addSqlShopRestriction(null, $idShop, 'stock').' )';
-
-        return $sql;
+        return $sql . (StockAvailable::addSqlShopRestriction(null, $idShop, 'stock') . ' )');
     }
 
     /**
      * @param int $idProduct
-     * @param Context|null $context
      *
      * @return int
-     *
      * @throws PrestaShopException
      */
     public static function getIdTaxRulesGroupByIdProduct($idProduct, ?Context $context = null)
@@ -1436,7 +1427,7 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public function loadStockData()
+    public function loadStockData(): void
     {
         if (Validate::isLoadedObject($this)) {
             // By default, the product quantity correspond to the available quantity to sell in the current shop
@@ -1486,13 +1477,13 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public static function initPricesComputation($idCustomer = null)
+    public static function initPricesComputation($idCustomer = null): void
     {
         if ($idCustomer) {
             $idCustomer = (int)$idCustomer;
             $customer = new Customer($idCustomer);
             if (!Validate::isLoadedObject($customer)) {
-                throw new PrestaShopException(sprintf(Tools::displayError("Customer [%s] not found"), $idCustomer));
+                throw new PrestaShopException(sprintf(Tools::displayError('Customer [%s] not found'), $idCustomer));
             }
             static::$_taxCalculationMethod = Group::getPriceDisplayMethod((int) $customer->id_default_group);
             $curCart = Context::getContext()->cart;
@@ -1557,7 +1548,7 @@ class ProductCore extends ObjectModel implements InitializationCallback
         $result = Db::readOnly()->getValue($sql);
 
         if ($result == '0000-00-00') {
-            $result = null;
+            return null;
         }
 
         return $result;
@@ -1570,12 +1561,14 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function updateIsVirtual($idProduct, $isVirtual = true)
+    public static function updateIsVirtual($idProduct, $isVirtual = true): void
     {
         Db::getInstance()->update(
-            'product', [
+            'product',
+            [
                 'is_virtual' => (bool) $isVirtual,
-            ], 'id_product = '.(int) $idProduct
+            ],
+            'id_product = '.(int) $idProduct
         );
     }
 
@@ -1590,7 +1583,6 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @param bool $idCategory
      * @param bool $onlyActive
-     * @param Context|null $context
      *
      * @return array Products details
      *
@@ -1650,10 +1642,8 @@ class ProductCore extends ObjectModel implements InitializationCallback
 
     /**
      * @param array $row
-     * @param Context|null $context
      *
      * @return array
-     *
      * @throws PrestaShopException
      */
     public static function getTaxesInformations($row, ?Context $context = null)
@@ -1680,7 +1670,6 @@ class ProductCore extends ObjectModel implements InitializationCallback
 
     /**
      * @param int $idLang
-     * @param Context|null $context
      *
      * @return array
      *
@@ -1734,7 +1723,6 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @param bool $count
      * @param string|null $orderBy
      * @param string|null $orderWay
-     * @param Context|null $context
      *
      * @return array|false New products
      *
@@ -1866,7 +1854,7 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function cacheFrontFeatures($productIds, $idLang)
+    public static function cacheFrontFeatures($productIds, $idLang): void
     {
         if (!Feature::isFeatureActive()) {
             return;
@@ -1931,10 +1919,8 @@ class ProductCore extends ObjectModel implements InitializationCallback
     /**
      * @param int $idLang
      * @param array $row
-     * @param Context|null $context
      *
      * @return array|false
-     *
      * @throws PrestaShopException
      */
     public static function getProductProperties($idLang, $row, ?Context $context = null)
@@ -2062,7 +2048,6 @@ class ProductCore extends ObjectModel implements InitializationCallback
             }
         }
 
-
         $row['features'] = static::getFrontFeaturesStatic((int) $idLang, $row['id_product']);
 
         $row['attachments'] = [];
@@ -2110,14 +2095,12 @@ class ProductCore extends ObjectModel implements InitializationCallback
 
         if (!$psStockManagement) {
             return true;
-        } else {
-            static $psOrderOutOfStock = null;
-            if ($psOrderOutOfStock === null) {
-                $psOrderOutOfStock = Configuration::get('PS_ORDER_OUT_OF_STOCK');
-            }
-
-            return (int) $outOfStock == 2 ? (int) $psOrderOutOfStock : (int) $outOfStock;
         }
+        static $psOrderOutOfStock = null;
+        if ($psOrderOutOfStock === null) {
+            $psOrderOutOfStock = Configuration::get('PS_ORDER_OUT_OF_STOCK');
+        }
+        return (int) $outOfStock == 2 ? (int) $psOrderOutOfStock : (int) $outOfStock;
     }
 
     /**
@@ -2148,10 +2131,11 @@ class ProductCore extends ObjectModel implements InitializationCallback
      */
     public static function getQuantity($idProduct, $idProductAttribute = null, $cacheIsPack = null)
     {
-        if ((int) $cacheIsPack || ($cacheIsPack === null && Pack::isPack((int) $idProduct))) {
-            if (!Pack::isInStock((int) $idProduct)) {
-                return 0;
-            }
+        if (!((int) $cacheIsPack || $cacheIsPack === null && Pack::isPack((int) $idProduct))) {
+            return (StockAvailable::getQuantityAvailableByProduct($idProduct, $idProductAttribute));
+        }
+        if (!Pack::isInStock((int) $idProduct)) {
+            return 0;
         }
 
         return (StockAvailable::getQuantityAvailableByProduct($idProduct, $idProductAttribute));
@@ -2216,8 +2200,7 @@ class ProductCore extends ObjectModel implements InitializationCallback
                     $feature_values_helper[$id_feature]['values_string'] = $display_value;
                     $feature_values_helper[$id_feature]['min_value'] = $feature_value;
                     $feature_values_helper[$id_feature]['max_value'] = $feature_value;
-                }
-                else {
+                } else {
                     $feature_values_helper[$id_feature]['multiple_schema'] = $feature_value['multiple_schema']; // Multiple Schema should only apply, if really multiple values were selected
                     $feature_values_helper[$id_feature]['values'][] = $display_value;
 
@@ -2252,8 +2235,7 @@ class ProductCore extends ObjectModel implements InitializationCallback
                     $value = str_replace('{max_displayable}', $display_value_max, $value);
 
                     $feature_value_helper['value'] = $value;
-                }
-                else {
+                } else {
                     $feature_value_helper['value'] = $feature_value_helper['values_string'];
                 }
             }
@@ -2314,7 +2296,6 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @param int $idLang Language id
      * @param bool $beginning
      * @param bool $ending
-     * @param Context|null $context
      *
      * @return array|false Special
      *
@@ -2396,15 +2377,13 @@ class ProductCore extends ObjectModel implements InitializationCallback
             $row['id_product_attribute'] = (int) $result['id_product_attribute'];
 
             return static::getProductProperties($idLang, $row);
-        } else {
-            return false;
         }
+        return false;
     }
 
     /**
      * @param string $beginning
      * @param string $ending
-     * @param Context|null $context
      * @param bool $withCombination
      *
      * @return array
@@ -2447,7 +2426,6 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @param string|null $orderWay
      * @param bool $beginning
      * @param bool $ending
-     * @param Context|null $context
      *
      * @return array|false Prices drop
      *
@@ -2617,10 +2595,8 @@ class ProductCore extends ObjectModel implements InitializationCallback
     /**
      * @param float $price
      * @param bool $currency
-     * @param Context|null $context
      *
      * @return string
-     *
      * @throws PrestaShopException
      */
     public static function convertAndFormatPrice($price, $currency = false, ?Context $context = null)
@@ -2638,10 +2614,8 @@ class ProductCore extends ObjectModel implements InitializationCallback
     /**
      * @param int $idProduct
      * @param int $quantity
-     * @param Context|null $context
      *
      * @return bool
-     *
      * @throws PrestaShopException
      */
     public static function isDiscounted($idProduct, $quantity = 1, ?Context $context = null)
@@ -2657,7 +2631,7 @@ class ProductCore extends ObjectModel implements InitializationCallback
 			FROM `'._DB_PREFIX_.'cart_product`
 			WHERE `id_product` = '.(int) $idProduct.' AND `id_cart` = '.(int) $context->cart->id
         );
-        $quantity = $cartQuantity ? $cartQuantity : $quantity;
+        $quantity = $cartQuantity ?: $quantity;
 
         $idCurrency = (int) $context->currency->id;
         $ids = Address::getCountryAndState((int) $context->cart->{Configuration::get('PS_TAX_ADDRESS_TYPE')});
@@ -2760,7 +2734,6 @@ class ProductCore extends ObjectModel implements InitializationCallback
     }
 
     /**
-     * @param array $products
      * @param bool $haveStock
      *
      * @return array|false
@@ -2786,7 +2759,7 @@ class ProductCore extends ObjectModel implements InitializationCallback
 			JOIN `'._DB_PREFIX_.'attribute` a ON (a.`id_attribute` = pac.`id_attribute`)
 			JOIN `'._DB_PREFIX_.'attribute_lang` al ON (a.`id_attribute` = al.`id_attribute` AND al.`id_lang` = '.(int) $idLang.')
 			JOIN `'._DB_PREFIX_.'attribute_group` ag ON (a.id_attribute_group = ag.`id_attribute_group`)
-			WHERE pa.`id_product` IN ('.implode(',', array_map('intval', $products)).') AND ag.`is_color_group` = 1
+			WHERE pa.`id_product` IN ('.implode(',', array_map(intval(...), $products)).') AND ag.`is_color_group` = 1
 			GROUP BY pa.`id_product`, a.`id_attribute`, `group_by`
 			'.($checkStock ? 'HAVING qty > 0' : '').'
 			ORDER BY a.`position` ASC;'
@@ -2884,7 +2857,7 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function cacheProductsFeatures($productIds)
+    public static function cacheProductsFeatures($productIds): void
     {
         if (!Feature::isFeatureActive()) {
             return;
@@ -2919,7 +2892,6 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @param int $idLang Language id
      * @param string $query Search query
-     * @param Context|null $context
      *
      * @return array Matching products
      *
@@ -3010,14 +2982,14 @@ class ProductCore extends ObjectModel implements InitializationCallback
 
         foreach ($result as $row) {
             $idProductAttributeOld = (int) $row['id_product_attribute'];
-	        $quantityAttributeOld = $conn->getValue(
-		        (new DbQuery())
-		            ->select('`quantity`')
-		            ->from('stock_available')
-		            ->where('`id_product` = '.(int) $idProductOld)
-		            ->where('`id_product_attribute` = '.(int) $row['id_product_attribute'])
-	        );
-	        if (!isset($combinations[$idProductAttributeOld])) {
+            $quantityAttributeOld = $conn->getValue(
+                (new DbQuery())
+                    ->select('`quantity`')
+                    ->from('stock_available')
+                    ->where('`id_product` = '.(int) $idProductOld)
+                    ->where('`id_product_attribute` = '.(int) $row['id_product_attribute'])
+            );
+            if (!isset($combinations[$idProductAttributeOld])) {
                 $idCombination = null;
                 $idShop = null;
                 $result2 = $conn->getArray(
@@ -3027,7 +2999,7 @@ class ProductCore extends ObjectModel implements InitializationCallback
 					WHERE `id_product_attribute` = '.$idProductAttributeOld
                 );
             } else {
-                $idCombination = (int) $combinations[$idProductAttributeOld];
+                $idCombination = $combinations[$idProductAttributeOld];
                 $idShop = (int) $row['id_shop'];
                 $contextOld = Shop::getContext();
                 $contextShopIdOld = Shop::getContextShopID();
@@ -3045,8 +3017,8 @@ class ProductCore extends ObjectModel implements InitializationCallback
 
             $idProductAttributeNew = (int) $combination->id;
 
-	        // Set stock quantity
-	        StockAvailable::setQuantity((int) $idProductNew, $idProductAttributeNew, (int) $quantityAttributeOld, $idShop);
+            // Set stock quantity
+            StockAvailable::setQuantity((int) $idProductNew, $idProductAttributeNew, (int) $quantityAttributeOld, $idShop);
 
             StockAvailable::setProductOutOfStock((int)$idProductNew, StockAvailable::outOfStock($idProductOld), $idShop, $idProductAttributeNew);
 
@@ -3056,7 +3028,7 @@ class ProductCore extends ObjectModel implements InitializationCallback
             }
 
             if (!isset($combinations[$idProductAttributeOld])) {
-                $combinations[$idProductAttributeOld] = (int) $idProductAttributeNew;
+                $combinations[$idProductAttributeOld] = $idProductAttributeNew;
                 foreach ($result2 as $row2) {
                     $row2['id_product_attribute'] = $idProductAttributeNew;
                     $return = $conn->insert('product_attribute_combination', $row2) && $return;
@@ -3070,7 +3042,7 @@ class ProductCore extends ObjectModel implements InitializationCallback
                 '
 			SELECT *
 			FROM `'._DB_PREFIX_.'product_supplier`
-			WHERE `id_product_attribute` = '.(int) $idProductAttributeOld.'
+			WHERE `id_product_attribute` = '.$idProductAttributeOld.'
 			AND `id_product` = '.(int) $idProductOld
             );
 
@@ -3092,7 +3064,7 @@ class ProductCore extends ObjectModel implements InitializationCallback
                 'price' => (float)$impact['price'],
                 'width' => (float)$impact['width'],
                 'height' => (float)$impact['height'],
-                'depth' => (float)$impact['depth']
+                'depth' => (float)$impact['depth'],
             ]);
         }
 
@@ -3136,7 +3108,8 @@ class ProductCore extends ObjectModel implements InitializationCallback
     public static function getAttributesImpacts($idProduct)
     {
         $return = [];
-        $result = Db::readOnly()->getArray((new DbQuery())
+        $result = Db::readOnly()->getArray(
+            (new DbQuery())
             ->select('ai.id_attribute')
             ->select('ai.price')
             ->select('ai.weight')
@@ -3463,7 +3436,7 @@ class ProductCore extends ObjectModel implements InitializationCallback
         $customizations = [];
         $conn = Db::readOnly();
         $customizations['fields'] = $conn->getArray(
-                '
+            '
 			SELECT `id_customization_field`, `type`, `required`
 			FROM `'._DB_PREFIX_.'customization_field`
 			WHERE `id_product` = '.(int) $productId.'
@@ -3480,7 +3453,7 @@ class ProductCore extends ObjectModel implements InitializationCallback
         }
 
         $customizationLabels = $conn->getArray(
-                '
+            '
 			SELECT `id_customization_field`, `id_lang`, `id_shop`, `name`
 			FROM `'._DB_PREFIX_.'customization_field_lang`
 			WHERE `id_customization_field` IN ('.implode(', ', $customizationFieldIds).')'.($idShop ? ' AND `id_shop` = '.$idShop : '').'
@@ -3601,7 +3574,7 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public static function addCustomizationPrice(&$products, &$customizedDatas)
+    public static function addCustomizationPrice(&$products, &$customizedDatas): void
     {
         if (!$customizedDatas) {
             return;
@@ -3937,9 +3910,8 @@ class ProductCore extends ObjectModel implements InitializationCallback
             StockAvailable::dependsOnStock($idProduct, $idShop)
         ) {
             return $manager->getProductRealQuantities($idProduct, $idProductAttribute, $idWarehouse, true);
-        } else {
-            return StockAvailable::getQuantityAvailableByProduct($idProduct, $idProductAttribute, $idShop);
         }
+        return StockAvailable::getQuantityAvailableByProduct($idProduct, $idProductAttribute, $idShop);
     }
 
     /**
@@ -3964,10 +3936,8 @@ class ProductCore extends ObjectModel implements InitializationCallback
 
     /**
      * This method allows to flush price cache
-     *
-     * @return void
      */
-    public static function flushPriceCache()
+    public static function flushPriceCache(): void
     {
         static::$_prices = [];
         static::$_pricesLevel2 = [];
@@ -4125,24 +4095,27 @@ class ProductCore extends ObjectModel implements InitializationCallback
         $productId = (int)$this->id;
 
         $newPosition = (int)$position;
-        $currentPosition = (int)$conn->getValue((new DbQuery())
+        $currentPosition = (int)$conn->getValue(
+            (new DbQuery())
             ->select('position')
             ->from('category_product')
             ->where('id_category = ' . $categoryId)
             ->where('id_product = ' . $productId)
         );
 
-        $result = $conn->execute('
+        $result = $conn->execute(
+            '
             UPDATE `'._DB_PREFIX_.'category_product`
             SET `position`= `position` '.($way ? '-1' : '+1').'
-            WHERE `position` '.($way ? '>': '<').$currentPosition.'
+            WHERE `position` '.($way ? '>' : '<').$currentPosition.'
               AND `position` '.($way ? '<=' : '>=').$newPosition.'
               AND `id_category` ='.$categoryId
         );
 
-        $result = $conn->execute('
+        $result = $conn->execute(
+            '
             UPDATE `'._DB_PREFIX_.'category_product`
-            SET `position` = '.(int) $newPosition.'
+            SET `position` = '.$newPosition.'
             WHERE `id_product` = '.$productId.'
               AND `id_category` ='.$categoryId
         ) && $result;
@@ -4362,7 +4335,8 @@ class ProductCore extends ObjectModel implements InitializationCallback
 
         $categories = [];
         if ($cleanPositions) {
-            $categories = Db::readOnly()->getArray((new DbQuery())
+            $categories = Db::readOnly()->getArray(
+                (new DbQuery())
                 ->select('id_category')
                 ->from('category_product')
                 ->where('id_product = ' . $productId)
@@ -4496,9 +4470,8 @@ class ProductCore extends ObjectModel implements InitializationCallback
 
             $conn = Db::getInstance();
             $result = $conn->delete('feature_product', "id_product = $productId AND id_feature = $featureId");
-            $result = $conn->delete('feature_product_lang', "id_product = $productId AND id_feature = $featureId") && $result;
 
-            return $result;
+            return $conn->delete('feature_product_lang', "id_product = $productId AND id_feature = $featureId") && $result;
         }
         return false;
     }
@@ -4767,7 +4740,7 @@ class ProductCore extends ObjectModel implements InitializationCallback
         $sql->from('category_product', 'cp');
         $sql->leftJoin('category', 'c', 'c.`id_category` = cp.`id_category`');
         $sql->join(Shop::addSqlAssociation('category', 'c', true));
-        $sql->where('cp.`id_category` NOT IN ('.implode(',', array_map('intval', $categories)).')');
+        $sql->where('cp.`id_category` NOT IN ('.implode(',', array_map(intval(...), $categories)).')');
         $sql->where('cp.`id_product` = '.(int) $this->id);
         $result = Db::readOnly()->getArray($sql);
 
@@ -4830,10 +4803,10 @@ class ProductCore extends ObjectModel implements InitializationCallback
             return false;
         }
 
-        $categories = array_map('intval', $categories);
+        $categories = array_map(intval(...), $categories);
 
         $currentCategories = $this->getCategories();
-        $currentCategories = array_map('intval', $currentCategories);
+        $currentCategories = array_map(intval(...), $currentCategories);
 
         // for new categ, put product at last position
         $resCategNewPos = Db::readOnly()->getArray(
@@ -4859,7 +4832,7 @@ class ProductCore extends ObjectModel implements InitializationCallback
                     [
                         'id_category' => (int) $newIdCateg,
                         'id_product'  => (int) $this->id,
-                        'position'    => (int) $newCategoryPos[$newIdCateg],
+                        'position'    => $newCategoryPos[$newIdCateg],
                     ],
                     false,
                     true,
@@ -4987,7 +4960,6 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @param string $location Location
      * @param string|null $upc
      * @param int $minimalQuantity Minimal quantity to add to cart
-     * @param array $idShopList
      * @param string|null $availableDate
      *
      * @return false|int $id_product_attribute or false
@@ -5107,9 +5079,8 @@ class ProductCore extends ObjectModel implements InitializationCallback
 
         if ($result && $idDefaultAttribute) {
             return $idDefaultAttribute;
-        } else {
-            return $result;
         }
+        return $result;
     }
 
     /**
@@ -5169,15 +5140,13 @@ class ProductCore extends ObjectModel implements InitializationCallback
                 $res = Db::getInstance()->insert('product_attribute_combination', $attributeList) && $res;
             }
         }
-        $res = $this->checkDefaultAttributes() && $res;
 
-        return $res;
+        return $this->checkDefaultAttributes() && $res;
     }
 
     /**
      * @param array $attributesList
      * @param bool $currentProductAttribute
-     * @param Context|null $context
      * @param bool $allShops
      * @param bool $returnId
      *
@@ -5351,7 +5320,6 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @param string|null $location
      * @param string|null $upc
      * @param int $minimalQuantity
-     * @param array $idShopList
      * @param string|null $availableDate
      *
      * @return false|int
@@ -5417,7 +5385,7 @@ class ProductCore extends ObjectModel implements InitializationCallback
         $idCurrency = null,
         $supplierProductName = null,
         $comment = null
-    ) {
+    ): void {
         //Try to set the default supplier reference
         if (($idSupplier > 0) && ($this->id > 0)) {
             $idProductSupplier = (int) ProductSupplier::getIdByProductAndSupplier($this->id, $idProductAttribute, $idSupplier);
@@ -5573,7 +5541,6 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @param string $minimalQuantity Minimal quantity
      * @param string|null $availableDate
      * @param bool $updateAllFields
-     * @param array $idShopList
      * @param float|null $widthImpact
      * @param float|null $heightImpact
      * @param float|null $depthImpact
@@ -5958,7 +5925,7 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public function setCarriers($carrierList)
+    public function setCarriers($carrierList): void
     {
         static::associateProductWithCarriers($this->id, $carrierList, [$this->id_shop]);
     }
@@ -5972,16 +5939,16 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public static function associateProductWithCarriers($productId, array $carrierIds, array $shopIds)
+    public static function associateProductWithCarriers($productId, array $carrierIds, array $shopIds): void
     {
         $productId = (int)$productId;
         $conn = Db::getInstance();
 
         /** @var int[] $carrierIds */
-        $carrierIds = array_unique(array_filter(array_map('intval', $carrierIds)));
+        $carrierIds = array_unique(array_filter(array_map(intval(...), $carrierIds)));
 
         /** @var int[] $shopIds */
-        $shopIds = array_unique(array_filter(array_map('intval', $shopIds)));
+        $shopIds = array_unique(array_filter(array_map(intval(...), $shopIds)));
 
         $data = [];
         foreach ($shopIds as $shopId) {
@@ -6004,7 +5971,6 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * Get product images and legends
      *
      * @param int $idLang Language id for multilingual legends
-     * @param Context|null $context
      *
      * @return array Product images and legends
      *
@@ -6112,9 +6078,7 @@ class ProductCore extends ObjectModel implements InitializationCallback
     }
 
     /**
-     * @param int $productId
      *
-     * @return int
      *
      * @throws PrestaShopException
      */
@@ -6124,14 +6088,14 @@ class ProductCore extends ObjectModel implements InitializationCallback
             return 0;
         }
 
-        $cacheId = 'Product::getProductDefaultCombinationId_' . (int)$productId;
+        $cacheId = 'Product::getProductDefaultCombinationId_' . $productId;
         if (! Cache::isStored($cacheId)) {
             $result = (int)Db::readOnly()->getValue(
                 (new DbQuery())
                     ->select('pa.`id_product_attribute`')
                     ->from('product_attribute', 'pa')
                     ->join(Shop::addSqlAssociation('product_attribute', 'pa'))
-                    ->where('pa.`id_product` = ' . (int)$productId)
+                    ->where('pa.`id_product` = ' . $productId)
                     ->where('product_attribute_shop.default_on = 1')
             );
             Cache::store($cacheId, $result);
@@ -6169,7 +6133,7 @@ class ProductCore extends ObjectModel implements InitializationCallback
             return false;
         }
 
-        if ($this->isAvailableWhenOutOfStock(StockAvailable::outOfStock($this->id))) {
+        if (static::isAvailableWhenOutOfStock(StockAvailable::outOfStock($this->id))) {
             return true;
         }
 
@@ -6198,9 +6162,9 @@ class ProductCore extends ObjectModel implements InitializationCallback
         $conn = Db::getInstance();
         $result = true;
 
-
         // update shop data
-        $data = $conn->getArray((new DbQuery)
+        $data = $conn->getArray(
+            (new DbQuery())
             ->select('pas.id_shop')
             ->select('SUM(CASE WHEN pas.default_on THEN 1 ELSE 0 END) AS has_default_on')
             ->select('MIN(pas.id_product_attribute) AS min_id_product_attribute')
@@ -6219,7 +6183,8 @@ class ProductCore extends ObjectModel implements InitializationCallback
         }
 
         // update base table entry
-        $row = $conn->getRow((new DbQuery)
+        $row = $conn->getRow(
+            (new DbQuery())
             ->select('SUM(CASE WHEN pa.default_on THEN 1 ELSE 0 END) AS has_default_on')
             ->select('MIN(pa.id_product_attribute) AS min_id_product_attribute')
             ->from('product_attribute', 'pa')
@@ -6328,7 +6293,7 @@ class ProductCore extends ObjectModel implements InitializationCallback
             $row['id_product_attribute'] = static::getDefaultAttribute((int) $row['id_product']);
         }
 
-        return $this->getProductsProperties($idLang, $result);
+        return static::getProductsProperties($idLang, $result);
     }
 
     /**
@@ -6339,7 +6304,7 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function changeAccessories($accessoriesId)
+    public function changeAccessories($accessoriesId): void
     {
         foreach ($accessoriesId as $idProduct2) {
             Db::getInstance()->insert(
@@ -6389,14 +6354,13 @@ class ProductCore extends ObjectModel implements InitializationCallback
             'id_product' => (int)$this->id,
             'id_feature_value' => (int)$featureValueId,
             'id_lang' => (int)$langId,
-            'displayable' => $displayable
+            'displayable' => $displayable,
         ]);
     }
 
     /**
      * Get the link of the product page of this product
      *
-     * @param Context|null $context
      *
      * @return string
      * @throws PrestaShopException
@@ -6505,10 +6469,10 @@ class ProductCore extends ObjectModel implements InitializationCallback
         // Label insertion
         $conn = Db::getInstance();
         if (!$conn->execute(
-                '
+            '
 			INSERT INTO `'._DB_PREFIX_.'customization_field` (`id_product`, `type`, `required`)
 			VALUES ('.(int) $this->id.', '.(int) $type.', 0)'
-            ) ||
+        ) ||
             !$idCustomizationField = (int) $conn->Insert_ID()
         ) {
             return false;
@@ -6550,7 +6514,7 @@ class ProductCore extends ObjectModel implements InitializationCallback
         $conn = Db::getInstance();
         foreach ($_POST as $field => $value) {
             /* Label update */
-            if (strncmp($field, 'label_', 6) == 0) {
+            if (str_starts_with((string) $field, 'label_')) {
                 if (!$tmp = $this->_checkLabelField($field, $value)) {
                     return false;
                 }
@@ -6624,7 +6588,7 @@ class ProductCore extends ObjectModel implements InitializationCallback
 
         /* Get customization field ids */
         $result = Db::readOnly()->getArray(
-                'SELECT `id_customization_field`, `type`
+            'SELECT `id_customization_field`, `type`
 			FROM `'._DB_PREFIX_.'customization_field`
 			WHERE `id_product` = '.(int) $this->id.'
 			ORDER BY `id_customization_field`'
@@ -6655,7 +6619,7 @@ class ProductCore extends ObjectModel implements InitializationCallback
 			WHERE `'._DB_PREFIX_.'customization_field`.`id_product` = '.(int) $this->id.'
 			AND `'._DB_PREFIX_.'customization_field`.`type` = '.static::CUSTOMIZE_FILE.'
 			AND `'._DB_PREFIX_.'customization_field_lang`.`id_customization_field` = `'._DB_PREFIX_.'customization_field`.`id_customization_field`
-			AND `'._DB_PREFIX_.'customization_field`.`id_customization_field` >= '.(int) $customizationFields[static::CUSTOMIZE_FILE][count($customizationFields[static::CUSTOMIZE_FILE]) - $extraFile]
+			AND `'._DB_PREFIX_.'customization_field`.`id_customization_field` >= '.$customizationFields[static::CUSTOMIZE_FILE][count($customizationFields[static::CUSTOMIZE_FILE]) - $extraFile]
             ))
         ) {
             return false;
@@ -6668,7 +6632,7 @@ class ProductCore extends ObjectModel implements InitializationCallback
 			WHERE `'._DB_PREFIX_.'customization_field`.`id_product` = '.(int) $this->id.'
 			AND `'._DB_PREFIX_.'customization_field`.`type` = '.static::CUSTOMIZE_TEXTFIELD.'
 			AND `'._DB_PREFIX_.'customization_field_lang`.`id_customization_field` = `'._DB_PREFIX_.'customization_field`.`id_customization_field`
-			AND `'._DB_PREFIX_.'customization_field`.`id_customization_field` >= '.(int) $customizationFields[static::CUSTOMIZE_TEXTFIELD][count($customizationFields[static::CUSTOMIZE_TEXTFIELD]) - $extraText]
+			AND `'._DB_PREFIX_.'customization_field`.`id_customization_field` >= '.$customizationFields[static::CUSTOMIZE_TEXTFIELD][count($customizationFields[static::CUSTOMIZE_TEXTFIELD]) - $extraText]
             ))
         ) {
             return false;
@@ -6745,7 +6709,6 @@ class ProductCore extends ObjectModel implements InitializationCallback
     }
 
     /**
-     * @param Context|null $context
      *
      * @return bool
      *
@@ -7063,7 +7026,7 @@ class ProductCore extends ObjectModel implements InitializationCallback
             $row = [
                 'id_feature' => $id_feature,
                 'custom' => 0,
-                'position' => (int)FeatureValue::getHighestPosition($id_feature)+1,
+                'position' => (int)FeatureValue::getHighestPosition($id_feature) + 1,
             ];
             $conn->insert('feature_value', $row);
             $id_feature_value = (int)$conn->Insert_ID();
@@ -7073,7 +7036,7 @@ class ProductCore extends ObjectModel implements InitializationCallback
             $row = [
                 'id_feature' => $id_feature,
                 'id_product' => (int)$this->id,
-                'id_feature_value' => $id_feature_value
+                'id_feature_value' => $id_feature_value,
             ];
             $conn->insert('feature_product', $row);
             SpecificPriceRule::applyAllRules([(int)$this->id]);
@@ -7124,14 +7087,13 @@ class ProductCore extends ObjectModel implements InitializationCallback
             $res = ObjectModel::updateMultishopTable(
                 'Combination',
                 [
-                    'default_on' => null
+                    'default_on' => null,
                 ],
                 'a.`id_product` = '.$id
             );
             return $conn->update('product_attribute', ['default_on' => null], "id_product = $id", 0, true) && $res;
-        } else {
-            return false;
         }
+        return false;
     }
 
     /**
@@ -7194,7 +7156,7 @@ class ProductCore extends ObjectModel implements InitializationCallback
      */
     public function setWsCategories($categories)
     {
-        $ids = array_filter(array_map('intval', array_column($categories, 'id')));
+        $ids = array_filter(array_map(intval(...), array_column($categories, 'id')));
         if ($ids) {
             $result = $this->updateCategories($ids);
         } else {
@@ -7259,14 +7221,12 @@ class ProductCore extends ObjectModel implements InitializationCallback
      */
     public function getWsCombinations()
     {
-        $result = Db::readOnly()->getArray(
+        return Db::readOnly()->getArray(
             'SELECT pa.`id_product_attribute` AS id
 			FROM `'._DB_PREFIX_.'product_attribute` pa
 			'.Shop::addSqlAssociation('product_attribute', 'pa').'
 			WHERE pa.`id_product` = '.(int) $this->id
         );
-
-        return $result;
     }
 
     /**
@@ -7321,11 +7281,9 @@ class ProductCore extends ObjectModel implements InitializationCallback
         }
 
         // Delete rows
-        if (count($toDelete) > 0) {
-            foreach ($toDelete as $id) {
-                $combination = new Combination($id);
-                $combination->delete();
-            }
+        foreach ($toDelete as $id) {
+            $combination = new Combination($id);
+            $combination->delete();
         }
 
         foreach ($toAdd as $id) {
@@ -7350,15 +7308,13 @@ class ProductCore extends ObjectModel implements InitializationCallback
      */
     public function getWsProductOptionValues()
     {
-        $result = Db::readOnly()->getArray(
+        return Db::readOnly()->getArray(
             'SELECT DISTINCT pac.id_attribute AS id
 			FROM `'._DB_PREFIX_.'product_attribute` pa
 			'.Shop::addSqlAssociation('product_attribute', 'pa').'
 			LEFT JOIN `'._DB_PREFIX_.'product_attribute_combination` pac ON (pac.id_product_attribute = pa.id_product_attribute)
 			WHERE pa.id_product = '.(int) $this->id
         );
-
-        return $result;
     }
 
     /**
@@ -7399,7 +7355,7 @@ class ProductCore extends ObjectModel implements InitializationCallback
         if ($currentPosition && isset($result[$currentPosition])) {
             $save = $result[$currentPosition];
             unset($result[$currentPosition]);
-            array_splice($result, (int) $position, 0, $save);
+            array_splice($result, $position, 0, $save);
         }
 
         foreach ($result as $position => $idProduct) {
@@ -7457,7 +7413,6 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * Get product cover image
      *
      * @param int $idProduct
-     * @param Context|null $context
      *
      * @return array|false Product cover image
      *
@@ -7507,7 +7462,7 @@ class ProductCore extends ObjectModel implements InitializationCallback
         );
         $conn->execute(
             'UPDATE `'._DB_PREFIX_.'image_shop`
-			SET `cover` = 1 WHERE `id_image` = '.(int) $idImage
+			SET `cover` = 1 WHERE `id_image` = '.$idImage
         );
 
         return true;
@@ -7586,9 +7541,9 @@ class ProductCore extends ObjectModel implements InitializationCallback
                 $conn = Db::getInstance();
                 $sqlValues = [];
                 foreach ($ids as $id) {
-                    $idLang = (int)$conn->getValue('SELECT `id_lang` FROM `'._DB_PREFIX_.'tag` WHERE `id_tag`='.(int) $id);
+                    $idLang = (int)$conn->getValue('SELECT `id_lang` FROM `'._DB_PREFIX_.'tag` WHERE `id_tag`='.$id);
                     if ($idLang) {
-                        $sqlValues[] = '('.(int) $this->id.', '.(int) $id.', '.(int) $idLang.')';
+                        $sqlValues[] = '('.(int) $this->id.', '.$id.', '.(int) $idLang.')';
                     }
                 }
                 if ($sqlValues) {
@@ -7681,7 +7636,7 @@ class ProductCore extends ObjectModel implements InitializationCallback
     {
         $idLang = (int) Context::getContext()->language->id;
         $idShop = (int) Context::getContext()->shop->id;
-        $cacheId = 'Product::getAttributesParams_'.(int) $idProduct.'-'.(int) $idProductAttribute.'-'.(int) $idLang.'-'.(int) $idShop;
+        $cacheId = 'Product::getAttributesParams_'.(int) $idProduct.'-'.(int) $idProductAttribute.'-'.$idLang.'-'.$idShop;
 
         // if blocklayered module is installed we check if user has set custom attribute name
         $conn = Db::readOnly();
@@ -7696,7 +7651,7 @@ class ProductCore extends ObjectModel implements InitializationCallback
 				ON (pac.`id_product_attribute` = pa.`id_product_attribute`)
 			'.Shop::addSqlAssociation('product_attribute', 'pa').'
 			LEFT JOIN `'._DB_PREFIX_.'layered_indexable_attribute_lang_value` la
-				ON (la.`id_attribute` = a.`id_attribute` AND la.`id_lang` = '.(int) $idLang.')
+				ON (la.`id_attribute` = a.`id_attribute` AND la.`id_lang` = '.$idLang.')
 			WHERE la.`url_name` IS NOT NULL AND la.`url_name` != \'\'
 			AND pa.`id_product` = '.(int) $idProduct.'
 			AND pac.`id_product_attribute` = '.(int) $idProductAttribute
@@ -7714,7 +7669,7 @@ class ProductCore extends ObjectModel implements InitializationCallback
 					LEFT JOIN `'._DB_PREFIX_.'attribute` a
 						ON (a.`id_attribute_group` = g.`id_attribute_group`)
 					WHERE a.`id_attribute` = '.(int) $attribute['id_attribute'].'
-					AND g.`id_lang` = '.(int) $idLang.'
+					AND g.`id_lang` = '.$idLang.'
 					AND g.`url_name` IS NOT NULL AND g.`url_name` != \'\''
                     );
                     if (empty($group)) {
@@ -7725,7 +7680,7 @@ class ProductCore extends ObjectModel implements InitializationCallback
 						LEFT JOIN `'._DB_PREFIX_.'attribute` a
 							ON (a.`id_attribute_group` = g.`id_attribute_group`)
 						WHERE a.`id_attribute` = '.(int) $attribute['id_attribute'].'
-						AND g.`id_lang` = '.(int) $idLang.'
+						AND g.`id_lang` = '.$idLang.'
 						AND g.`name` IS NOT NULL'
                         );
                     }
@@ -7736,9 +7691,9 @@ class ProductCore extends ObjectModel implements InitializationCallback
 				SELECT DISTINCT a.`id_attribute`, a.`id_attribute_group`, al.`name`, agl.`name` AS `group`
 				FROM `'._DB_PREFIX_.'attribute` a
 				LEFT JOIN `'._DB_PREFIX_.'attribute_lang` al
-					ON (a.`id_attribute` = al.`id_attribute` AND al.`id_lang` = '.(int) $idLang.')
+					ON (a.`id_attribute` = al.`id_attribute` AND al.`id_lang` = '.$idLang.')
 				LEFT JOIN `'._DB_PREFIX_.'attribute_group_lang` agl
-					ON (a.`id_attribute_group` = agl.`id_attribute_group` AND agl.`id_lang` = '.(int) $idLang.')
+					ON (a.`id_attribute_group` = agl.`id_attribute_group` AND agl.`id_lang` = '.$idLang.')
 				LEFT JOIN `'._DB_PREFIX_.'product_attribute_combination` pac
 					ON (a.`id_attribute` = pac.`id_attribute`)
 				LEFT JOIN `'._DB_PREFIX_.'product_attribute` pa
@@ -7759,17 +7714,17 @@ class ProductCore extends ObjectModel implements InitializationCallback
 			SELECT a.`id_attribute`, a.`id_attribute_group`, al.`name`, agl.`name` AS `group`
 			FROM `'._DB_PREFIX_.'attribute` a
 			LEFT JOIN `'._DB_PREFIX_.'attribute_lang` al
-				ON (al.`id_attribute` = a.`id_attribute` AND al.`id_lang` = '.(int) $idLang.')
+				ON (al.`id_attribute` = a.`id_attribute` AND al.`id_lang` = '.$idLang.')
 			LEFT JOIN `'._DB_PREFIX_.'product_attribute_combination` pac
 				ON (pac.`id_attribute` = a.`id_attribute`)
 			LEFT JOIN `'._DB_PREFIX_.'product_attribute` pa
 				ON (pa.`id_product_attribute` = pac.`id_product_attribute`)
 			'.Shop::addSqlAssociation('product_attribute', 'pa').'
 			LEFT JOIN `'._DB_PREFIX_.'attribute_group_lang` agl
-				ON (a.`id_attribute_group` = agl.`id_attribute_group` AND agl.`id_lang` = '.(int) $idLang.')
+				ON (a.`id_attribute_group` = agl.`id_attribute_group` AND agl.`id_lang` = '.$idLang.')
 			WHERE pa.`id_product` = '.(int) $idProduct.'
 				AND pac.`id_product_attribute` = '.(int) $idProductAttribute.'
-				AND agl.`id_lang` = '.(int) $idLang
+				AND agl.`id_lang` = '.$idLang
             );
             Cache::store($cacheId, $result);
         } else {
@@ -7885,7 +7840,7 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public function setAdvancedStockManagement($value)
+    public function setAdvancedStockManagement($value): void
     {
         $value = (bool)$value;
         $this->advanced_stock_management = $value;
@@ -7919,9 +7874,8 @@ class ProductCore extends ObjectModel implements InitializationCallback
 
         if (!$defaultCategory) {
             return ['id_category_default' => Context::getContext()->shop->id_category];
-        } else {
-            return $defaultCategory;
         }
+        return $defaultCategory;
     }
 
     /**
@@ -8185,7 +8139,7 @@ class ProductCore extends ObjectModel implements InitializationCallback
     /**
      * @param TableSchema $table
      */
-    public static function processTableSchema($table)
+    public static function processTableSchema($table): void
     {
         if ($table->getNameWithoutPrefix() === 'product_lang') {
             $table->reorderColumns(['id_product', 'id_shop', 'id_lang']);
@@ -8196,7 +8150,7 @@ class ProductCore extends ObjectModel implements InitializationCallback
                 'minimal_quantity', 'price', 'wholesale_price', 'unity', 'unit_price_ratio', 'additional_shipping_cost',
                 'customizable', 'uploadable_files', 'text_fields', 'active', 'redirect_type', 'id_product_redirected',
                 'available_for_order', 'available_date', 'condition', 'show_price', 'indexed', 'visibility',
-                'cache_default_attribute', 'advanced_stock_management', 'date_add', 'date_upd', 'pack_stock_type'
+                'cache_default_attribute', 'advanced_stock_management', 'date_add', 'date_upd', 'pack_stock_type',
             ]);
         }
     }
@@ -8229,16 +8183,12 @@ class ProductCore extends ObjectModel implements InitializationCallback
      */
     public function shouldAdjustPackItemsQuantities()
     {
-        switch ($this->getPackStockType()) {
-            case Pack::STOCK_TYPE_DECREMENT_PACK:
-                return false;
-            case Pack::STOCK_TYPE_DECREMENT_PRODUCTS:
-                return true;
-            case Pack::STOCK_TYPE_DECREMENT_PACK_AND_PRODUCTS:
-                return true;
-            default:
-                throw new RuntimeException('Invariant: getPackStockType returned invalid value');
-        }
+        return match ($this->getPackStockType()) {
+            Pack::STOCK_TYPE_DECREMENT_PACK => false,
+            Pack::STOCK_TYPE_DECREMENT_PRODUCTS => true,
+            Pack::STOCK_TYPE_DECREMENT_PACK_AND_PRODUCTS => true,
+            default => throw new RuntimeException('Invariant: getPackStockType returned invalid value'),
+        };
     }
 
     /**
@@ -8248,16 +8198,12 @@ class ProductCore extends ObjectModel implements InitializationCallback
      */
     public function shouldAdjustPackQuantity()
     {
-        switch ($this->getPackStockType()) {
-            case Pack::STOCK_TYPE_DECREMENT_PACK:
-                return true;
-            case Pack::STOCK_TYPE_DECREMENT_PRODUCTS:
-                return false;
-            case Pack::STOCK_TYPE_DECREMENT_PACK_AND_PRODUCTS:
-                return true;
-            default:
-                throw new RuntimeException('Invariant: getPackStockType returned invalid value');
-        }
+        return match ($this->getPackStockType()) {
+            Pack::STOCK_TYPE_DECREMENT_PACK => true,
+            Pack::STOCK_TYPE_DECREMENT_PRODUCTS => false,
+            Pack::STOCK_TYPE_DECREMENT_PACK_AND_PRODUCTS => true,
+            default => throw new RuntimeException('Invariant: getPackStockType returned invalid value'),
+        };
     }
 
     /**
@@ -8272,8 +8218,9 @@ class ProductCore extends ObjectModel implements InitializationCallback
         if (! $this->isAssociatedToShop($shopId)) {
             $conn = Db::getInstance();
             $cond = 'id_product = ' . (int)$this->id;
-            $shopId = (int)$conn->getValue((new DbQuery)
-                ->select("MIN(id_shop)")
+            $shopId = (int)$conn->getValue(
+                (new DbQuery())
+                ->select('MIN(id_shop)')
                 ->from('product_shop')
                 ->where($cond)
             );
@@ -8295,7 +8242,8 @@ class ProductCore extends ObjectModel implements InitializationCallback
     public function isCustomizationRequired()
     {
         if ($this->customizable) {
-            return (bool)Db::readOnly()->getValue((new DbQuery)
+            return (bool)Db::readOnly()->getValue(
+                (new DbQuery())
                 ->select('1')
                 ->from('customization_field', 'cf')
                 ->where('cf.id_product = '.(int)$this->id)
@@ -8309,8 +8257,6 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * Returns true, if Context represents front office context
      *
      * @param Context|null $context
-     *
-     * @return bool
      */
     protected static function isFrontOfficeContext($context): bool
     {
@@ -8330,11 +8276,9 @@ class ProductCore extends ObjectModel implements InitializationCallback
     /**
      * Database initialization callback
      *
-     * @param Db $conn
-     * @return void
      * @throws PrestaShopException
      */
-    public static function initializationCallback(Db $conn)
+    public static function initializationCallback(Db $conn): void
     {
         ImageEntity::rebuildImageEntities('Product', self::$definition['images']);
     }
@@ -8342,8 +8286,6 @@ class ProductCore extends ObjectModel implements InitializationCallback
     /**
      * Returns weight of product, including combination impact
      *
-     * @param int $combinationId
-     * @return float
      *
      * @throws PrestaShopException
      */
@@ -8365,8 +8307,6 @@ class ProductCore extends ObjectModel implements InitializationCallback
     /**
      * Returns width of product, including combination impact
      *
-     * @param int $combinationId
-     * @return float
      *
      * @throws PrestaShopException
      */
@@ -8388,8 +8328,6 @@ class ProductCore extends ObjectModel implements InitializationCallback
     /**
      * Returns height of product, including combination impact
      *
-     * @param int $combinationId
-     * @return float
      *
      * @throws PrestaShopException
      */
@@ -8411,8 +8349,6 @@ class ProductCore extends ObjectModel implements InitializationCallback
     /**
      * Returns depth of product, including combination impact
      *
-     * @param int $combinationId
-     * @return float
      *
      * @throws PrestaShopException
      */
@@ -8441,7 +8377,6 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @param $fresh bool If true, then cache is refreshed
      * @param $idShop int|null ID shop for which to take stocks from
      *
-     * @return int
      *
      * @throws PrestaShopException
      * @since thirty bees 1.7.0

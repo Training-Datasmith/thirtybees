@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -157,8 +159,7 @@ class AdminCmsCategoriesControllerCore extends AdminController
             }
 
             return $object;
-        } /* Change object statuts (active, inactive) */
-        elseif (Tools::isSubmit('statuscms_category') && Tools::getValue($this->identifier)) {
+        } /* Change object statuts (active, inactive) */ elseif (Tools::isSubmit('statuscms_category') && Tools::getValue($this->identifier)) {
             if ($this->hasEditPermission()) {
                 if (Validate::isLoadedObject($object = $this->loadObject())) {
                     /** @var CMSCategory $object */
@@ -174,8 +175,7 @@ class AdminCmsCategoriesControllerCore extends AdminController
             } else {
                 $this->errors[] = Tools::displayError('You do not have permission to edit this.');
             }
-        } /* Delete object */
-        elseif (Tools::isSubmit('delete'.$this->table)) {
+        } /* Delete object */ elseif (Tools::isSubmit('delete'.$this->table)) {
             if ($this->hasDeletePermission()) {
                 if (Validate::isLoadedObject($object = $this->loadObject())) {
                     /** @var CMSCategory $object */
@@ -210,8 +210,7 @@ class AdminCmsCategoriesControllerCore extends AdminController
                     static::$currentIndex.'&'.$this->table.'Orderby=position&'.$this->table.'Orderway=asc&conf=5'.$identifier.'&token='.$token
                 );
             }
-        } /* Delete multiple objects */
-        elseif (Tools::getValue('submitDel'.$this->table) || Tools::isSubmit('submitBulkdelete'.$this->table)) {
+        } /* Delete multiple objects */ elseif (Tools::getValue('submitDel'.$this->table) || Tools::isSubmit('submitBulkdelete'.$this->table)) {
             if ($this->hasDeletePermission()) {
                 if (Tools::isSubmit($this->table.'Box')) {
                     $cmsCategory = new CMSCategory();

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Unit;
 
 use Codeception\Test\Unit;
@@ -30,7 +32,7 @@ class InstallFixturesTest extends Unit
         foreach (scandir($rootDir) as $item) {
             if (preg_match('/^(.*)\.xml$/', $item, $m)) {
                 $files[$m[1]] = [
-                    'base' => $rootDir . $item
+                    'base' => $rootDir . $item,
                 ];
                 $langFiles = [];
                 foreach ($langs as $lang) {
@@ -65,7 +67,6 @@ class InstallFixturesTest extends Unit
         }
         return $result;
     }
-
 
     /**
      * This tests verifies that for each entry in /data/xml/<entity>.xml

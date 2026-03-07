@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -60,12 +62,11 @@ class AliasCore extends ObjectModel
      * @param int|null $id
      * @param string|null $alias
      * @param string|null $search
-     * @param int|null $idLang
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function __construct($id = null, $alias = null, $search = null, $idLang = null)
+    public function __construct($id = null, $alias = null, $search = null)
     {
         $this->def = static::getDefinition($this);
         $this->setDefinitionRetrocompatibility();
@@ -89,7 +90,7 @@ class AliasCore extends ObjectModel
 
                 if ($row) {
                     $this->id = (int) $row['id_alias'];
-                    $this->search = $search ? $search : $row['search'];
+                    $this->search = $search ?: $row['search'];
                     $this->alias = $row['alias'];
                 } else {
                     $this->alias = $alias;
@@ -158,7 +159,7 @@ class AliasCore extends ObjectModel
                 ->where('a.`search` = \''.pSQL($this->search).'\'')
         );
 
-        $aliases = array_map('implode', $aliases);
+        $aliases = array_map(implode(...), $aliases);
 
         return implode(', ', $aliases);
     }

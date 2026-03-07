@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -35,7 +37,6 @@
 interface WebserviceSpecificManagementInterface
 {
     /**
-     * @param WebserviceOutputBuilderCore $obj
      * @return static
      */
     public function setObjectOutput(WebserviceOutputBuilderCore $obj);
@@ -46,7 +47,6 @@ interface WebserviceSpecificManagementInterface
     public function getObjectOutput();
 
     /**
-     * @param WebserviceRequestCore $obj
      * @return static
      */
     public function setWsObject(WebserviceRequestCore $obj);
@@ -58,7 +58,7 @@ interface WebserviceSpecificManagementInterface
 
     /**
      * WebserviceRequestCore
-     * 
+     *
      * @return void
      *
      * @throws PrestaShopException

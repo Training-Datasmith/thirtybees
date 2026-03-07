@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -34,9 +36,9 @@
  */
 class HelperTreeShopsCore extends TreeCore
 {
-    const DEFAULT_TEMPLATE             = 'tree_shops.tpl';
-    const DEFAULT_NODE_FOLDER_TEMPLATE = 'tree_node_folder_checkbox_shops.tpl';
-    const DEFAULT_NODE_ITEM_TEMPLATE   = 'tree_node_item_checkbox_shops.tpl';
+    public const DEFAULT_TEMPLATE             = 'tree_shops.tpl';
+    public const DEFAULT_NODE_FOLDER_TEMPLATE = 'tree_node_folder_checkbox_shops.tpl';
+    public const DEFAULT_NODE_ITEM_TEMPLATE   = 'tree_node_item_checkbox_shops.tpl';
 
     /**
      * @var int|null
@@ -81,10 +83,8 @@ class HelperTreeShopsCore extends TreeCore
 
     /**
      * @param int $value
-     *
-     * @return static
      */
-    public function setLang($value)
+    public function setLang($value): static
     {
         $this->_lang = $value;
 
@@ -130,10 +130,9 @@ class HelperTreeShopsCore extends TreeCore
     /**
      * @param int[] $value
      *
-     * @return static
      * @throws PrestaShopException
      */
-    public function setSelectedShops($value)
+    public function setSelectedShops($value): static
     {
         if (!is_array($value)) {
             throw new PrestaShopException('Selected shops value must be an array');
@@ -225,11 +224,10 @@ class HelperTreeShopsCore extends TreeCore
     /**
      * @param array|null $data
      *
-     * @return string
      * @throws PrestaShopException
      * @throws SmartyException
      */
-    public function renderNodes($data = null)
+    public function renderNodes($data = null): string
     {
         if (!isset($data)) {
             $data = $this->getData();

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Copyright (C) 2025-2025 thirty bees
  *
@@ -30,51 +32,31 @@ use Throwable;
 
 class MobileDetectHelperCore
 {
-    /**
-     * @var bool|null
-     */
-    private static $isTablet = null;
+    private static ?bool $isTablet = null;
 
-    /**
-     * @var bool|null
-     */
-    private static $isMobile = null;
+    private static ?bool $isMobile = null;
 
-    /**
-     * @var string|null
-     */
-    private static $userAgent = null;
+    private static ?string $userAgent = null;
 
-    /**
-     * @return bool
-     */
     public function isTablet(): bool
     {
         static::detect();
         return (bool)static::$isTablet;
     }
 
-    /**
-     * @return bool
-     */
     public function isMobile(): bool
     {
         static::detect();
         return (bool)static::$isMobile;
     }
 
-    /**
-     * @return string
-     */
     public function getUserAgent(): string
     {
-        static::detect();;
+        static::detect();
+        ;
         return (string)static::$userAgent;
     }
 
-    /**
-     * @return void
-     */
     protected static function detect(): void
     {
         if (is_null(static::$isTablet)) {
@@ -108,7 +90,6 @@ class MobileDetectHelperCore
      * depends on device type information, which would cause infinite recursion. So we have to
      * call the hook handlers manually in this specific case
      *
-     * @return array
      *
      * @throws PrestaShopException
      */

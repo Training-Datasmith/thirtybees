@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -37,12 +39,12 @@ class PageCacheCore
     /**
      * How many seconds should the page remain in cache
      */
-    const CACHE_ENTRY_TTL = 86400;
+    public const CACHE_ENTRY_TTL = 86400;
 
     /**
      * @var PageCacheEntry|null holds current page cache entry
      */
-    protected static $entry = null;
+    protected static $entry;
 
     /**
      * @return bool true if full page cache is enabled and user user is not
@@ -50,7 +52,7 @@ class PageCacheCore
      *
      * @throws PrestaShopException
      */
-    public static function isEnabled()
+    public static function isEnabled(): bool
     {
         $pageCacheEnabled = Cache::isEnabled()
             && Configuration::get('TB_PAGE_CACHE_ENABLED');
@@ -60,14 +62,13 @@ class PageCacheCore
         return $pageCacheEnabled && ! $userLoggedIn;
     }
 
-
     /**
      * Insert new entry for current request into full page cache
      *
      * @param string $template
      * @throws PrestaShopException
      */
-    public static function set($template)
+    public static function set($template): void
     {
         if (static::isEnabled()) {
             $key = PageCacheKey::get();
@@ -130,7 +131,7 @@ class PageCacheCore
      * @param string $entityType
      * @param int $idEntity
      */
-    public static function cacheKey($key, $idCurrency, $idLanguage, $idCountry, $idShop, $entityType, $idEntity)
+    public static function cacheKey($key, $idCurrency, $idLanguage, $idCountry, $idShop, $entityType, $idEntity): void
     {
         try {
             Db::getInstance()->insert(
@@ -148,7 +149,7 @@ class PageCacheCore
                 true,
                 Db::ON_DUPLICATE_KEY
             );
-        } catch (Exception $e) {
+        } catch (Exception) {
             // Hash already inserted
         }
     }
@@ -162,7 +163,7 @@ class PageCacheCore
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function invalidateEntity($entityType, $idEntity = null)
+    public static function invalidateEntity($entityType, $idEntity = null): void
     {
         $keysToInvalidate = [];
 
@@ -200,7 +201,7 @@ class PageCacheCore
                     $keysToInvalidate,
                     static::getKeysToInvalidate('category')
                 );
-                 $conn->delete(
+                $conn->delete(
                     'page_cache',
                     '`entity_type` = \'category\''
                 );
@@ -228,7 +229,7 @@ class PageCacheCore
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function flush()
+    public static function flush(): void
     {
         if (static::isEnabled()) {
             Cache::getInstance()->flush();
@@ -243,12 +244,11 @@ class PageCacheCore
      * @param string $entityType
      * @param int|null $idEntity
      *
-     * @return array
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    protected static function getKeysToInvalidate($entityType, $idEntity = null)
+    protected static function getKeysToInvalidate($entityType, $idEntity = null): array
     {
         $sql = new DbQuery();
         $sql->select('`cache_hash`');
@@ -266,12 +266,13 @@ class PageCacheCore
     /**
      * Return normalized list of all hooks that should be cached
      * @throws PrestaShopException
+     * @return mixed[]|array<int, non-empty-array<(int<min, -1> | int<1, max>), 1>>
      */
-    public static function getCachedHooks()
+    public static function getCachedHooks(): array
     {
         $hookSettings = json_decode(Configuration::get('TB_PAGE_CACHE_HOOKS'), true);
         if (! is_array($hookSettings)) {
-          return [];
+            return [];
         }
 
         $cachedHooks = [];
@@ -304,10 +305,9 @@ class PageCacheCore
      * @param int $idHook
      * @param bool $status
      *
-     * @return boolean
      * @throws PrestaShopException
      */
-    public static function setHookCacheStatus($idModule, $idHook, $status)
+    public static function setHookCacheStatus($idModule, $idHook, $status): bool
     {
         $hookSettings = static::getCachedHooks();
         $idModule = (int) $idModule;
@@ -342,19 +342,18 @@ class PageCacheCore
      * In multistore environment, every shop will have different hash. That's fine,
      * because PageCacheKey has id_shop as a dimension
      *
-     * @return string
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getHookListFingerprint()
+    public static function getHookListFingerprint(): string
     {
         $hookList = Hook::getHookModuleList();
         $ctx = hash_init('md5');
         foreach ($hookList as $idHook => $moduleList) {
             hash_update($ctx, $idHook);
             foreach ($moduleList as $idModule => $moduleInfo) {
-              hash_update($ctx, $idModule);
-              hash_update($ctx, $moduleInfo['active']);
+                hash_update($ctx, $idModule);
+                hash_update($ctx, (string) $moduleInfo['active']);
             }
         }
         return hash_final($ctx);

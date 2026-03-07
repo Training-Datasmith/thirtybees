@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Integration;
 
 use Codeception\Test\Unit;
@@ -46,8 +48,8 @@ class PrestaShopCollectionTest extends Unit
         foreach ($iterator as $path) {
             $file = basename($path);
             if (preg_match("/^.+\.php$/i", $file)) {
-                $className = str_replace(".php", "", $file);
-                if ($className !== "index") {
+                $className = str_replace('.php', '', $file);
+                if ($className !== 'index') {
                     if (! class_exists($className)) {
                         require_once($path);
                     }
@@ -57,9 +59,9 @@ class PrestaShopCollectionTest extends Unit
                             $definition = ObjectModel::getDefinition($className);
                             if ($definition && isset($definition['associations'])) {
                                 foreach ($definition['associations'] as $key => $assoc) {
-                                   if ($key !== PrestaShopCollection::LANG_ALIAS) {
-                                       $ret[$className.':'.$key] = [$className, $key, $assoc];
-                                   }
+                                    if ($key !== PrestaShopCollection::LANG_ALIAS) {
+                                        $ret[$className.':'.$key] = [$className, $key, $assoc];
+                                    }
                                 }
                             }
                         }

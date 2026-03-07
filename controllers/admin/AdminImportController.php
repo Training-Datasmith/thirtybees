@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -38,21 +40,21 @@ use Thirtybees\Core\Import\ImportEntityType;
  */
 class AdminImportControllerCore extends AdminController
 {
-    const MAX_COLUMNS = 6;
-    const UNFRIENDLY_ERROR = false;
-    const MAX_LINE_SIZE = 0;
+    public const MAX_COLUMNS = 6;
+    public const UNFRIENDLY_ERROR = false;
+    public const MAX_LINE_SIZE = 0;
 
-    const ENTITY_TYPE_CATEGORIES = 'categories';
-    const ENTITY_TYPE_PRODUCTS = 'products';
-    const ENTITY_TYPE_COMBINATIONS = 'combinations';
-    const ENTITY_TYPE_CUSTOMERS = 'customers';
-    const ENTITY_TYPE_ADDRESSES = 'addresses';
-    const ENTITY_TYPE_MANUFACTURERS = 'manufacturers';
-    const ENTITY_TYPE_SUPPLIERS = 'suppliers';
-    const ENTITY_TYPE_ALIAS = 'alias';
-    const ENTITY_TYPE_STORE_CONTACTS = 'store_contacts';
-    const ENTITY_TYPE_SUPPLY_ORDERS = 'supply_orders';
-    const ENTITY_TYPE_SUPPLY_ORDER_DETAILS = 'supply_order_details';
+    public const ENTITY_TYPE_CATEGORIES = 'categories';
+    public const ENTITY_TYPE_PRODUCTS = 'products';
+    public const ENTITY_TYPE_COMBINATIONS = 'combinations';
+    public const ENTITY_TYPE_CUSTOMERS = 'customers';
+    public const ENTITY_TYPE_ADDRESSES = 'addresses';
+    public const ENTITY_TYPE_MANUFACTURERS = 'manufacturers';
+    public const ENTITY_TYPE_SUPPLIERS = 'suppliers';
+    public const ENTITY_TYPE_ALIAS = 'alias';
+    public const ENTITY_TYPE_STORE_CONTACTS = 'store_contacts';
+    public const ENTITY_TYPE_SUPPLY_ORDERS = 'supply_orders';
+    public const ENTITY_TYPE_SUPPLY_ORDER_DETAILS = 'supply_order_details';
 
     /** @var array $columnMask */
     public static $columnMask;
@@ -700,7 +702,7 @@ class AdminImportControllerCore extends AdminController
         if (isset($_FILES['file']) && !empty($_FILES['file']['error'])) {
             $_FILES['file']['error'] = Tools::decodeUploadError($_FILES['file']['error']);
         } elseif (!preg_match('#([^.]*?)\.('.$extensionsRegexp.')$#is', $filename)) {
-            $_FILES['file']['error'] = $this->l('Unsupported file type. Supported extensions: ') . implode(', ' , $extensions);
+            $_FILES['file']['error'] = $this->l('Unsupported file type. Supported extensions: ') . implode(', ', $extensions);
         } elseif (!@filemtime($_FILES['file']['tmp_name']) ||
             !@move_uploaded_file($_FILES['file']['tmp_name'], static::getPath().$filenamePrefix.str_replace("\0", '', $filename))
         ) {
@@ -814,7 +816,7 @@ class AdminImportControllerCore extends AdminController
         }
 
         $previewRows = [];
-        for ($i = 0; $i<10; $i++) {
+        for ($i = 0; $i < 10; $i++) {
             $previewRow = $datasource->getRow();
             if ($previewRow) {
                 $previewRows[] = $previewRow;
@@ -835,7 +837,7 @@ class AdminImportControllerCore extends AdminController
         // Show date format select only in Products,Combinations and Customer import
         $dateFormats = null;
         if (in_array(Tools::getIntValue('entity'), [1, 2, 3])) {
-            if ( ! empty($this->context->language)
+            if (! empty($this->context->language)
                 && ! empty($this->context->language->date_format_lite)
             ) {
                 $dateFormats[$this->context->language->date_format_lite] = [
@@ -1035,7 +1037,6 @@ class AdminImportControllerCore extends AdminController
 
         // adds fancybox
         $this->addJqueryPlugin(['fancybox']);
-
 
         $entitySelected = $this->getSelectedEntity();
 
@@ -3237,10 +3238,10 @@ class AdminImportControllerCore extends AdminController
             $customer->date_upd = date('Y-m-d H:i:s');
         }
 
-        if($birthday = Tools::getDateFromDateFormat(Tools::getValue('date_format', 'Y-m-d'), $info['birthday'], 'Y-m-d')) {
+        if ($birthday = Tools::getDateFromDateFormat(Tools::getValue('date_format', 'Y-m-d'), $info['birthday'], 'Y-m-d')) {
             $customer->birthday = $birthday;
         }
-        if($dateAdd = Tools::getDateFromDateFormat(Tools::getValue('date_format', 'Y-m-d'), $info['date_add'], 'Y-m-d')) {
+        if ($dateAdd = Tools::getDateFromDateFormat(Tools::getValue('date_format', 'Y-m-d'), $info['date_add'], 'Y-m-d')) {
             $customer->date_add = $dateAdd;
         }
 
@@ -3550,10 +3551,10 @@ class AdminImportControllerCore extends AdminController
                 } else {
                     if (!$validateOnly) {
                         $this->errors[] = Db::getInstance()->getMsgError().' '.sprintf(
-                                $this->l('%1$s (ID: %2$s) cannot be saved'),
-                                $supplier->name,
-                                (!empty($supplier->id)) ? $supplier->id : 'null'
-                            );
+                            $this->l('%1$s (ID: %2$s) cannot be saved'),
+                            $supplier->name,
+                            (!empty($supplier->id)) ? $supplier->id : 'null'
+                        );
                     }
                     if ($fieldError !== true || isset($langFieldError) && $langFieldError !== true) {
                         $this->errors[] = ($fieldError !== true ? $fieldError : '').(isset($langFieldError) && $langFieldError !== true ? $langFieldError : '').Db::getInstance()->getMsgError();
@@ -3646,7 +3647,6 @@ class AdminImportControllerCore extends AdminController
         $lineCount = 0;
         for ($currentLine = 0; ($line = $datasource->getRow()) && (!$limit || $currentLine < $limit); $currentLine++) {
             $lineCount++;
-
 
             if (count($line) == 1 && $line[0] == null) {
                 $this->warnings[] = $this->l('There is an empty row in the file that won\'t be imported.');
@@ -3779,14 +3779,14 @@ class AdminImportControllerCore extends AdminController
                         $image->add()
                     ) {
                         $image->associateTo($idShopList);
-// FIXME: 2s/image !
+                        // FIXME: 2s/image !
                         if (!static::copyImg($product->id, $image->id, $url, static::ENTITY_TYPE_PRODUCTS, !$regenerate, $this->warnings)) {
                             $this->warnings[] = sprintf($this->l('Error copying image: %s'), $url);
                             $image->delete();
                         } else {
                             $idImage[] = (int) $image->id;
                         }
-// until here
+                        // until here
                     } else {
                         if (!$validateOnly) {
                             $this->warnings[] = sprintf(
@@ -3982,7 +3982,7 @@ class AdminImportControllerCore extends AdminController
                                     if (!empty($info['supplier_reference'])) {
                                         $product->addSupplierReference($product->id_supplier, $idProductAttribute, $info['supplier_reference']);
                                     }
-// until here
+                                    // until here
                                 }
                             }
                         }
@@ -5090,12 +5090,12 @@ class AdminImportControllerCore extends AdminController
                 $this->ajaxDie(json_encode([
                     'id' => $return[0]['id_import_match'],
                     'matchs' => $return[0]['match'],
-                    'skip' => $return[0]['skip']
+                    'skip' => $return[0]['skip'],
                 ]));
             } catch (PrestaShopException $e) {
                 $this->ajaxDie(json_encode([
                     'hasError' => true,
-                    'error' => $e->getMessage()
+                    'error' => $e->getMessage(),
                 ]));
             }
         }
@@ -5182,8 +5182,8 @@ class AdminImportControllerCore extends AdminController
                 'buildin-csv' => [
                     'name' => $this->l('Build-in CSV import'),
                     'extensions' => [ 'csv' ],
-                    'constructor' => [static::class, 'createCsvDataSource']
-                ]
+                    'constructor' => [static::class, 'createCsvDataSource'],
+                ],
             ];
 
             $result = Hook::getResponses('actionRegisterImportDataSource');
@@ -5351,7 +5351,7 @@ class AdminImportControllerCore extends AdminController
      * @return ImportEntityType
      * @throws PrestaShopException
      */
-    protected static function getEntityType(string $entityTypeId):ImportEntityType
+    protected static function getEntityType(string $entityTypeId): ImportEntityType
     {
         $entityTypes = static::getEntityTypes();
         if (! array_key_exists($entityTypeId, $entityTypes)) {
@@ -5376,7 +5376,7 @@ class AdminImportControllerCore extends AdminController
             AdminImportController::ENTITY_TYPE_ADDRESSES,
             AdminImportController::ENTITY_TYPE_MANUFACTURERS,
             AdminImportController::ENTITY_TYPE_SUPPLIERS,
-            AdminImportController::ENTITY_TYPE_ALIAS
+            AdminImportController::ENTITY_TYPE_ALIAS,
         ];
         foreach (static::getEntityTypes() as $key => $entityType) {
             if ($entityType->supportTruncate()) {

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 define('lang_Select', 'Сонгох');
 define('lang_Erase', 'Устгах');
 define('lang_Open', 'Нээх');

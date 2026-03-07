@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -80,7 +82,7 @@ class CMSCategoryCore extends ObjectModel
         'objectsNodeName' => 'cms_categories',
         'fields'          => [
             'id_parent' => [
-                'xlink_resource' => 'cms_categories'
+                'xlink_resource' => 'cms_categories',
             ],
         ],
         'associations'    => [
@@ -132,7 +134,6 @@ class CMSCategoryCore extends ObjectModel
      * @param int $current
      * @param int $active
      * @param int $links
-     * @param Link|null $link
      *
      * @return array
      *
@@ -210,7 +211,7 @@ class CMSCategoryCore extends ObjectModel
     {
         $html = '<option value="'.$idCmsCategory.'"'.(($idSelected == $idCmsCategory) ? ' selected="selected"' : '').'>'
             .str_repeat('&nbsp;', $current['infos']['level_depth'] * 5)
-            .CMSCategory::hideCMSCategoryPosition(stripslashes($current['infos']['name'])).'</option>';
+            .CMSCategory::hideCMSCategoryPosition(stripslashes((string) $current['infos']['name'])).'</option>';
         if (!$isHtml) {
             echo $html;
         }
@@ -419,15 +420,14 @@ class CMSCategoryCore extends ObjectModel
 			LEFT JOIN `'._DB_PREFIX_.'cms_category_lang` cl ON (c.`id_cms_category` = cl.`id_cms_category`)
 			WHERE `name` = \''.pSQL($query).'\''
             );
-        } else {
-            return $connection->getArray(
-                '
+        }
+        return $connection->getArray(
+            '
 			SELECT c.*, cl.*
 			FROM `'._DB_PREFIX_.'cms_category` c
 			LEFT JOIN `'._DB_PREFIX_.'cms_category_lang` cl ON (c.`id_cms_category` = cl.`id_cms_category` AND `id_lang` = '.(int) $idLang.')
 			WHERE `name` LIKE \'%'.pSQL($query).'%\' AND c.`id_cms_category` != 1'
-            );
-        }
+        );
     }
 
     /**
@@ -497,7 +497,7 @@ class CMSCategoryCore extends ObjectModel
             }
         }
         $ret = parent::add($autoDate, $nullValues);
-        $this->cleanPositions($this->id_parent);
+        static::cleanPositions($this->id_parent);
 
         return $ret;
     }
@@ -554,7 +554,7 @@ class CMSCategoryCore extends ObjectModel
         for ($i = 0; $i < $sizeof; ++$i) {
             $sql = '
 			UPDATE `'._DB_PREFIX_.'cms_category`
-			SET `position` = '.(int) $i.'
+			SET `position` = '.$i.'
 			WHERE `id_parent` = '.(int) $idCategoryParent.'
 			AND `id_cms_category` = '.(int) $result[$i]['id_cms_category'];
             Db::getInstance()->execute($sql);
@@ -583,9 +583,8 @@ class CMSCategoryCore extends ObjectModel
                 $this->name[$k] = '0'.$value;
             }
         }
-        $return = parent::update($nullValues);
 
-        return $return;
+        return parent::update($nullValues);
     }
 
     /**
@@ -595,7 +594,6 @@ class CMSCategoryCore extends ObjectModel
      * @param int $currentDepth specify the current depth in the tree (don't use it, only for rucursivity!)
      * @param int $idLang Specify the id of the language used
      * @param array $excludedIdsArray specify a list of ids to exclude of results
-     * @param Link|null $link
      *
      * @return array Subcategories lite tree
      *
@@ -725,9 +723,7 @@ class CMSCategoryCore extends ObjectModel
 
         // Delete CMS Category and its child from database
         $list = count($toDelete) > 1 ? implode(',', $toDelete) : (int) $this->id;
-        $idShopList = $this->id_shop_list
-            ? $this->id_shop_list
-            : Shop::getContextListShopID();
+        $idShopList = $this->id_shop_list ?: Shop::getContextListShopID();
 
         $conn = Db::getInstance();
         $conn->delete($this->def['table'].'_shop', '`'.$this->def['primary'].'` IN ('.$list.') AND id_shop IN ('.implode(', ', $idShopList).')');
@@ -769,7 +765,7 @@ class CMSCategoryCore extends ObjectModel
     protected function recursiveDelete(&$toDelete, $idCmsCategory)
     {
         if (!is_array($toDelete) || !$idCmsCategory) {
-            throw new PrestaShopException("Invalid input parameters");
+            throw new PrestaShopException('Invalid input parameters');
         }
 
         $result = Db::readOnly()->getArray(
@@ -785,10 +781,8 @@ class CMSCategoryCore extends ObjectModel
     }
 
     /**
-     * @param Link|null $link
      *
      * @return string
-     *
      * @throws PrestaShopException
      */
     public function getLink(?Link $link = null)
@@ -890,7 +884,7 @@ class CMSCategoryCore extends ObjectModel
         // since BETWEEN is treated differently according to databases
         $conn = Db::getInstance();
         return ($conn->execute(
-                '
+            '
 			UPDATE `'._DB_PREFIX_.'cms_category`
 			SET `position`= `position` '.($way ? '- 1' : '+ 1').'
 			WHERE `position`
@@ -898,7 +892,7 @@ class CMSCategoryCore extends ObjectModel
                     ? '> '.(int) $movedCategory['position'].' AND `position` <= '.(int) $position
                     : '< '.(int) $movedCategory['position'].' AND `position` >= '.(int) $position).'
 			AND `id_parent`='.(int) $movedCategory['id_parent']
-            )
+        )
             && $conn->execute(
                 '
 			UPDATE `'._DB_PREFIX_.'cms_category`
@@ -919,7 +913,7 @@ class CMSCategoryCore extends ObjectModel
         $children = $this->getSubCategories(Configuration::get('PS_LANG_DEFAULT'), false);
         foreach ($children as $category) {
             $result[] = [
-                'id' => $category['id_cms_category']
+                'id' => $category['id_cms_category'],
             ];
         }
         return $result;
@@ -936,7 +930,7 @@ class CMSCategoryCore extends ObjectModel
         $pages = Cms::getCMSPages((int)Configuration::get('PS_LANG_DEFAULT'), (int)$this->id, false);
         foreach ($pages as $cms) {
             $result[] = [
-                'id' => $cms['id_cms']
+                'id' => $cms['id_cms'],
             ];
         }
         return $result;

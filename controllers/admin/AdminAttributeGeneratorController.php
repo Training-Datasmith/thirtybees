@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -167,7 +169,6 @@ class AdminAttributeGeneratorControllerCore extends AdminController
             if (count($tab) && Validate::isLoadedObject($this->product)) {
                 static::setAttributesImpacts($this->product->id, $tab);
                 $this->combinations = array_values(static::createCombinations($tab));
-
 
                 // @since 1.5.0
                 if ($this->product->depends_on_stock == 0) {

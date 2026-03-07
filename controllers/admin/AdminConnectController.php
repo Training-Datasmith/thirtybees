@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -24,7 +26,7 @@
  */
 class AdminConnectControllerCore extends AdminController
 {
-    const ACTION_CONNECT = 'connect';
+    public const ACTION_CONNECT = 'connect';
 
     /**
      * AdminConnectControllerCore constructor.
@@ -86,10 +88,9 @@ class AdminConnectControllerCore extends AdminController
         $this->context->smarty->assign([
             'sid' => Configuration::getServerTrackingId(),
             'redirectUrl' => Configuration::getAccountsServer() . '/connect/init',
-            'connectUrls' => $urls
+            'connectUrls' => $urls,
         ]);
         die($this->getSmartyOutputContent('controllers/connect/redirect.tpl'));
     }
-
 
 }

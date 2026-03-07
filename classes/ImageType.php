@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -88,7 +90,6 @@ class ImageTypeCore extends ObjectModel
      * @deprecated since 1.5 -> imageEntities are handled by table image_entity
      */
     public $scenes;
-
 
     /**
      * @var bool Apply to store
@@ -258,10 +259,10 @@ class ImageTypeCore extends ObjectModel
         }
 
         if ($orderBySize) {
-            usort($imageTypes, function($a, $b) {
+            usort($imageTypes, function (array $a, array $b): float|int {
                 $ret = $a['width'] - $b['width'];
                 if (! $ret) {
-                    $ret = $a['height'] - $b['height'];
+                    return $a['height'] - $b['height'];
                 }
                 return $ret;
             });
@@ -310,7 +311,7 @@ class ImageTypeCore extends ObjectModel
                 $byId[$id] = $type;
             }
 
-            static::$typeNameCache = array_map(function($type) use ($byId) {
+            static::$typeNameCache = array_map(function (array $type) use ($byId) {
                 for ($i = 0; $i < 20; $i++) {
                     $parentId = (int)$type['id_image_type_parent'];
                     if ($parentId && array_key_exists($parentId, $byId)) {
@@ -398,7 +399,7 @@ class ImageTypeCore extends ObjectModel
         }
         $nameWithoutTheme = $name;
         do {
-            $nameWithoutTheme = preg_replace($regexps, '', $nameWithoutTheme, -1, $count);
+            $nameWithoutTheme = preg_replace($regexps, '', (string) $nameWithoutTheme, -1, $count);
         } while ($count > 0);
 
         // possible variants of the input image type name that we accept, ordered by priority
@@ -419,7 +420,7 @@ class ImageTypeCore extends ObjectModel
 
         // image type is not case sensitive
         foreach ($imageTypes as $key => $value) {
-            $lower = strtolower($key);
+            $lower = strtolower((string) $key);
             if ($lower != $key && !in_array($lower, $imageTypes)) {
                 $imageTypes[$lower] = $value;
             }
@@ -456,9 +457,8 @@ class ImageTypeCore extends ObjectModel
             $query->from(self::$definition['table']);
             $query->where('id_image_type_parent = ' . (int)$imageTypeId);
             return Db::getInstance()->getArray($query);
-        } else {
-            return [];
         }
+        return [];
     }
 
     /**
@@ -514,10 +514,7 @@ class ImageTypeCore extends ObjectModel
         return $result;
     }
 
-    /**
-     * @return void
-     */
-    public static function cleanCache()
+    public static function cleanCache(): void
     {
         static::$typeNameCache = null;
         Cache::clean('ImageType::*');

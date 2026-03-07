@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -55,7 +57,7 @@ class ScheduledTaskCore extends ObjectModel
             'id_language_context'     => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedInt', 'required' => false],
             'date_add'                => ['type' => self::TYPE_DATE, 'validate' => 'isDate', 'dbNullable' => false],
             'date_upd'                => ['type' => self::TYPE_DATE, 'validate' => 'isDate', 'dbNullable' => false],
-        ]
+        ],
     ];
 
     /**
@@ -158,19 +160,18 @@ class ScheduledTaskCore extends ObjectModel
      * Mark scheduled tasks $taskIds as checked at timestamp $ts
      *
      * @param int[] $taskIds
-     * @param DateTime $ts
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function markTasksChecked(array $taskIds, DateTime $ts)
+    public static function markTasksChecked(array $taskIds, DateTime $ts): void
     {
-        $taskIds = array_filter(array_map('intval', $taskIds));
+        $taskIds = array_filter(array_map(intval(...), $taskIds));
         if ($taskIds) {
             Db::getInstance()->update(
                 static::$definition['table'],
                 [
-                    'last_checked' => $ts->getTimestamp()
+                    'last_checked' => $ts->getTimestamp(),
                 ],
                 static::$definition['primary'] . ' IN (' . implode(',', $taskIds). ')'
             );
@@ -183,7 +184,6 @@ class ScheduledTaskCore extends ObjectModel
      * Actual task execution is deferred to work queue. This method only creates new work queue task,
      * and mark scheduled task as executed
      *
-     * @param WorkQueueClient $workQueueClient
      * @return WorkQueueFuture
      *
      * @throws PrestaShopDatabaseException
@@ -243,7 +243,7 @@ class ScheduledTaskCore extends ObjectModel
                 return static::eventOccurredInRange($this->frequency, $from, $asOf);
             }
             return false;
-        } catch (Exception $e) {
+        } catch (Exception) {
             return false;
         }
     }
@@ -272,7 +272,7 @@ class ScheduledTaskCore extends ObjectModel
                 $ts += 60;
             }
         } catch (Exception $e) {
-            throw new PrestaShopException("Error occurred when checking cron range", 0, $e);
+            throw new PrestaShopException('Error occurred when checking cron range', 0, $e);
         }
         return false;
     }
@@ -320,7 +320,7 @@ class ScheduledTaskCore extends ObjectModel
      */
     protected static function parseCronExpression($expression)
     {
-        $parts = array_map('trim', explode(' ', $expression));
+        $parts = array_map(trim(...), explode(' ', $expression));
         if (count($parts) != 5) {
             throw new PrestaShopException("Invalid cron expression: '" . $expression . "'");
         }
@@ -343,25 +343,21 @@ class ScheduledTaskCore extends ObjectModel
     protected static function getMatcher($expression)
     {
         // any character
-        if ($expression === "*") {
-            return function() {
-                return true;
-            };
+        if ($expression === '*') {
+            return fn () => true;
         }
 
         // specific number, ie: '3'
         $intValue = (int)$expression;
         if ($intValue >= 0 && "$intValue" === $expression) {
-            return function($input) use ($intValue) {
-                return (int)$input === $intValue;
-            };
+            return fn ($input) => (int)$input === $intValue;
         }
 
         // numeric interval, ie: '2-5'
-        if (preg_match("/^([0-9]+)-([0-9]+)/", $expression, $matches)) {
+        if (preg_match('/^([0-9]+)-([0-9]+)/', $expression, $matches)) {
             $min = (int)$matches[1];
             $max = (int)$matches[2];
-            return function($input) use ($min, $max) {
+            return function ($input) use ($min, $max): bool {
                 $input = (int)$input;
                 return $input >= $min && $input <= $max;
             };
@@ -373,9 +369,7 @@ class ScheduledTaskCore extends ObjectModel
             if ($modulo === 0) {
                 throw new PrestaShopException("Invalid expression: $expression': division by zero");
             }
-            return function ($input) use ($modulo) {
-                return ($input % $modulo) === 0;
-            };
+            return fn ($input) => ($input % $modulo) === 0;
         }
 
         throw new PrestaShopException("Invalid expression: $expression'");
@@ -397,56 +391,51 @@ class ScheduledTaskCore extends ObjectModel
     /**
      * Helper method to return minute part of the datetime object
      *
-     * @param DateTime $ts
      * @return int minute of the hour, in rage 0-59
      */
     protected static function getMinute(DateTime $ts)
     {
-        return (int)$ts->format("i");
+        return (int)$ts->format('i');
     }
 
     /**
      * Helper method to return hour part of the datetime object
      *
-     * @param DateTime $ts
      * @return int hour of the day, in range 0-23
      */
     protected static function getHour(DateTime $ts)
     {
-        return (int)$ts->format("G");
+        return (int)$ts->format('G');
     }
 
     /**
      * Helper method to return day of month part of the datetime object
      *
-     * @param DateTime $ts
      * @return int day of month, in range 1-31
      */
     protected static function getDayOfMonth(DateTime $ts)
     {
-        return (int)$ts->format("j");
+        return (int)$ts->format('j');
     }
 
     /**
      * Helper method to return month the year part of the datetime object
      *
-     * @param DateTime $ts
      * @return int month index, in range 1-12
      */
     protected static function getMonth(DateTime $ts)
     {
-        return (int)$ts->format("n");
+        return (int)$ts->format('n');
     }
 
     /**
      * Helper method to return day of the week part of the datetime object
      *
-     * @param DateTime $ts
      * @return int day of the week, in range 0-6. 0 represents Sunday, 6 represents Saturday
      */
     protected static function getDayOfWeek(DateTime $ts)
     {
-        return (int)$ts->format("w");
+        return (int)$ts->format('w');
     }
 
     /**

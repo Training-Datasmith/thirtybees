@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -186,15 +188,13 @@ class OrderDetailCore extends ObjectModel
     /** @var bool $outOfStock */
     protected $outOfStock = false;
     /** @var TaxCalculator|null $tax_calculator */
-    protected $tax_calculator = null;
+    protected $tax_calculator;
     /** @var Address|null $vat_address */
-    protected $vat_address = null;
+    protected $vat_address;
     /** @var Address|null $specificPrice */
-    protected $specificPrice = null;
+    protected $specificPrice;
     /** @var Customer|null $customer */
-    protected $customer = null;
-    /** @var Context|null $context */
-    protected $context = null;
+    protected $customer;
 
     /**
      * @var array Webservice parameters
@@ -241,19 +241,18 @@ class OrderDetailCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function __construct($id = null, $idLang = null, $context = null)
+    public function __construct($id = null, $idLang = null, protected $context = null)
     {
-        $this->context = $context;
         $idShop = null;
         if ($this->context != null && isset($this->context->shop)) {
             $idShop = $this->context->shop->id;
         }
         parent::__construct($id, $idLang, $idShop);
 
-        if ($context == null) {
-            $context = Context::getContext();
+        if ($this->context == null) {
+            $this->context = Context::getContext();
         }
-        $this->context = $context->cloneContext();
+        $this->context = $this->context->cloneContext();
     }
 
     /**
@@ -364,7 +363,6 @@ class OrderDetailCore extends ObjectModel
     /**
      * Save the tax calculator
      *
-     * @param Order $order
      * @param bool $replace
      *
      * @return bool
@@ -428,7 +426,6 @@ class OrderDetailCore extends ObjectModel
     }
 
     /**
-     * @param Order $order
      *
      * @return bool
      *
@@ -502,18 +499,15 @@ class OrderDetailCore extends ObjectModel
      *
      * This is an excellent example of how NOT TO WRITE a code.
      *
-     * @param Order $order
-     * @param Cart $cart
      * @param int $idOrderState
      * @param array[] $productList
      * @param int $idOrderInvoice
      * @param bool $useTaxes set to false if you don't want to use taxes
      * @param int $idWarehouse
-     *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function createList(Order $order, Cart $cart, $idOrderState, $productList, $idOrderInvoice = 0, $useTaxes = true, $idWarehouse = 0)
+    public function createList(Order $order, Cart $cart, $idOrderState, $productList, $idOrderInvoice = 0, $useTaxes = true, $idWarehouse = 0): void
     {
         $this->vat_address = new Address((int) $order->{Configuration::get('PS_TAX_ADDRESS_TYPE')});
         $this->customer = new Customer((int) $order->id_customer);
@@ -542,14 +536,12 @@ class OrderDetailCore extends ObjectModel
     /**
      * Set the additional shipping information
      *
-     * @param Order $order
      * @param array $product
      *
-     * @return void
      *
      * @throws PrestaShopException
      */
-    public function setShippingCost(Order $order, $product)
+    public function setShippingCost(Order $order, $product): void
     {
         $taxRate = 0;
 
@@ -775,9 +767,7 @@ class OrderDetailCore extends ObjectModel
     /**
      * Apply tax to the product
      *
-     * @param Order $order
      * @param array $product
-     *
      * @throws PrestaShopException
      */
     protected function setProductTax(Order $order, $product)
@@ -806,9 +796,7 @@ class OrderDetailCore extends ObjectModel
     /**
      * Set specific price of the product
      *
-     * @param Order $order
      * @param array|null $product
-     *
      * @throws PrestaShopException
      */
     protected function setSpecificPrice(Order $order, $product = null)
@@ -849,10 +837,7 @@ class OrderDetailCore extends ObjectModel
     /**
      * Set detailed product price to the order detail
      *
-     * @param Order $order
-     * @param Cart $cart
      * @param array $product
-     *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
@@ -983,14 +968,11 @@ class OrderDetailCore extends ObjectModel
     /**
      * Create an order detail liable to an id_order
      *
-     * @param Order $order
-     * @param Cart $cart
      * @param array $product
      * @param int $idOrderState
      * @param int $idOrderInvoice
      * @param bool $useTaxes set to false if you don't want to use taxes
      * @param int $idWarehouse
-     *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */

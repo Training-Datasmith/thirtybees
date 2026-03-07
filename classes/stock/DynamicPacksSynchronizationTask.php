@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -19,13 +21,13 @@
 
 namespace Thirtybees\Core\Stock\Synchronization;
 
-use Pack;
+use Context;
 use Db;
 use DbQuery;
+use Pack;
 use PrestaShopDatabaseException;
 use PrestaShopException;
 use StockAvailable;
-use Context;
 use Thirtybees\Core\InitializationCallback;
 use Thirtybees\Core\WorkQueue\ScheduledTask;
 use Thirtybees\Core\WorkQueue\WorkQueueContext;
@@ -49,7 +51,7 @@ class DynamicPacksSynchronizationTaskCore implements WorkQueueTaskCallable, Init
     {
         $parameters = [];
         if (! is_null($productIds)) {
-            $parameters['productIds'] = array_filter(array_map('intval', $productIds));
+            $parameters['productIds'] = array_filter(array_map(intval(...), $productIds));
         }
         return WorkQueueTask::createTask(
             static::getTaskName(),
@@ -63,25 +65,22 @@ class DynamicPacksSynchronizationTaskCore implements WorkQueueTaskCallable, Init
      *
      * Synchronizes all dynamic packs
      *
-     * @param WorkQueueContext $context
-     * @param array $parameters
      *
-     * @return int
      * @throws PrestaShopException
      * @throws PrestaShopDatabaseException
      */
-    public function execute(WorkQueueContext $context, array $parameters)
+    public function execute(WorkQueueContext $context, array $parameters): int
     {
         $conn = Db::getInstance();
 
         if (isset($parameters['productIds'])) {
-            $productIds = array_filter(array_map('intval', $parameters['productIds']));
+            $productIds = array_filter(array_map(intval(...), $parameters['productIds']));
             $productIdsSql = (new DbQuery())
                 ->select('DISTINCT id_product')
                 ->from('product_shop')
                 ->where('pack_dynamic')
                 ->where('id_product IN (' .implode(',', $productIds). ')');
-            $productIds = array_map('intval', array_column($conn->getArray($productIdsSql), 'id_product'));
+            $productIds = array_map(intval(...), array_column($conn->getArray($productIdsSql), 'id_product'));
         } else {
             $productIds = Pack::getDynamicPacks();
         }
@@ -168,11 +167,9 @@ class DynamicPacksSynchronizationTaskCore implements WorkQueueTaskCallable, Init
     /**
      * Callback method to initialize class
      *
-     * @param Db $conn
-     * @return void
      * @throws PrestaShopException
      */
-    public static function initializationCallback(Db $conn)
+    public static function initializationCallback(Db $conn): void
     {
         $task = static::getTaskName();
         $trackingTasks = ScheduledTask::getTasksForCallable($task);
@@ -190,8 +187,8 @@ class DynamicPacksSynchronizationTaskCore implements WorkQueueTaskCallable, Init
     /**
      * @return string
      */
-    public static function getTaskName()
+    public static function getTaskName(): ?string
     {
-        return preg_replace("/Core$/", "", static::class);
+        return preg_replace('/Core$/', '', static::class);
     }
 }

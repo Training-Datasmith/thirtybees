@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -126,7 +128,6 @@ class Core_Business_Payment_PaymentOption
     {
         return $this->action;
     }
-
 
     /**
      * Set action to be performed by this option

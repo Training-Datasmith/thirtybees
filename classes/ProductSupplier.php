@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -167,11 +169,8 @@ class ProductSupplierCore extends ObjectModel
         }
 
         $res = Db::readOnly()->getArray($query);
-        if (isset($res[0])) {
-            return $res[0];
-        }
 
-        return $res;
+        return $res[0] ?? $res;
     }
 
     /**

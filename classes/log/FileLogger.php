@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -45,7 +47,7 @@ class FileLoggerCore extends AbstractLogger
      * @param string $filename
      *
      */
-    public function setFilename($filename)
+    public function setFilename($filename): void
     {
         if (is_writable(dirname($filename))) {
             $this->filename = $filename;
@@ -83,7 +85,7 @@ class FileLoggerCore extends AbstractLogger
         $result = false;
         $path = $this->getFilename();
         if ($path) {
-            $result = (bool) file_put_contents($path, $formattedMessage, FILE_APPEND);
+            return (bool) file_put_contents($path, $formattedMessage, FILE_APPEND);
         }
 
         return $result;

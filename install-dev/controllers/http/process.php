@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -34,7 +36,7 @@
  */
 class InstallControllerHttpProcess extends InstallControllerHttp
 {
-    const SETTINGS_FILE = 'config/settings.inc.php';
+    public const SETTINGS_FILE = 'config/settings.inc.php';
 
     /**
      * @var array
@@ -379,7 +381,7 @@ class InstallControllerHttpProcess extends InstallControllerHttp
             $this->processSteps[] = $fixturesStep;
             $this->processSteps[] = [
                 'key' => 'initializeClasses',
-                'lang' => $this->l('Initialize classes')
+                'lang' => $this->l('Initialize classes'),
             ];
         }
 

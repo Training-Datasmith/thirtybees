@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Integration;
 
 use Adapter_ServiceLocator;
@@ -19,8 +21,7 @@ use WarehouseProductLocation;
 
 class CartPackageListTest extends Unit
 {
-
-    const ZONE_EUROPE = 1;
+    public const ZONE_EUROPE = 1;
 
     /**
      * @var UnitTester
@@ -48,7 +49,6 @@ class CartPackageListTest extends Unit
         $this->reset();
     }
 
-
     /**
      * Cart with single product
      *
@@ -58,19 +58,19 @@ class CartPackageListTest extends Unit
     public function testSingleProduct()
     {
         $cart = $this->createCart([
-            [ 'productId' => 1, 'combinationId' => 2, 'quantity' => 1 ]
+            [ 'productId' => 1, 'combinationId' => 2, 'quantity' => 1 ],
         ]);
 
         $this->verify([
             0 => [
                 [
                     'products' => [
-                        [ 'productId' => 1, 'combinationId' => 2, 'quantity' => 1 ]
+                        [ 'productId' => 1, 'combinationId' => 2, 'quantity' => 1 ],
                     ],
                     'carriers' => [ 1, 2, ],
                     'warehouse' => 0,
                 ],
-            ]
+            ],
         ], $cart->getPackageList(true));
     }
 
@@ -99,7 +99,7 @@ class CartPackageListTest extends Unit
                     'carriers' => [ 1, 2, ],
                     'warehouse' => 0,
                 ],
-            ]
+            ],
         ], $cart->getPackageList(true));
     }
 
@@ -135,7 +135,7 @@ class CartPackageListTest extends Unit
                     'carriers' => [ 1 ],
                     'warehouse' => 0,
                 ],
-            ]
+            ],
         ], $cart->getPackageList(true));
     }
 
@@ -178,7 +178,7 @@ class CartPackageListTest extends Unit
                     'carriers' => [ 1 ],
                     'warehouse' => 0,
                 ],
-            ]
+            ],
         ], $cart->getPackageList(true));
     }
 
@@ -196,21 +196,20 @@ class CartPackageListTest extends Unit
         $product = new Product(1);
         $product->setAdvancedStockManagement(true);
 
-
         $cart = $this->createCart([
-            [ 'productId' => 1, 'combinationId' => 2, 'quantity' => 1 ]
+            [ 'productId' => 1, 'combinationId' => 2, 'quantity' => 1 ],
         ]);
 
         $this->verify([
             0 => [
                 [
                     'products' => [
-                        [ 'productId' => 1, 'combinationId' => 2, 'quantity' => 1 ]
+                        [ 'productId' => 1, 'combinationId' => 2, 'quantity' => 1 ],
                     ],
                     'carriers' => [ 1, 2 ],
                     'warehouse' => 0,
                 ],
-            ]
+            ],
         ], $cart->getPackageList(true));
     }
 
@@ -227,23 +226,23 @@ class CartPackageListTest extends Unit
         $this->setASM(true);
         $product = new Product(1);
         $product->setAdvancedStockManagement(true);
-        $warehouse = $this->createWarehouse("w1", [2]);
+        $warehouse = $this->createWarehouse('w1', [2]);
         $this->associateWarehouse($warehouse, 1, 2);
 
         $cart = $this->createCart([
-            [ 'productId' => 1, 'combinationId' => 2, 'quantity' => 1 ]
+            [ 'productId' => 1, 'combinationId' => 2, 'quantity' => 1 ],
         ]);
 
         $this->verify([
             0 => [
                 [
                     'products' => [
-                        [ 'productId' => 1, 'combinationId' => 2, 'quantity' => 1 ]
+                        [ 'productId' => 1, 'combinationId' => 2, 'quantity' => 1 ],
                     ],
                     'carriers' => [ 2 ],
                     'warehouse' => (int)$warehouse->id,
                 ],
-            ]
+            ],
         ], $cart->getPackageList(true));
     }
 
@@ -262,23 +261,23 @@ class CartPackageListTest extends Unit
         $product = new Product(1);
         $product->setAdvancedStockManagement(true);
         $product->setCarriers([1]);
-        $warehouse = $this->createWarehouse("w1", [1, 2]);
+        $warehouse = $this->createWarehouse('w1', [1, 2]);
         $this->associateWarehouse($warehouse, 1, 2);
 
         $cart = $this->createCart([
-            [ 'productId' => 1, 'combinationId' => 2, 'quantity' => 1 ]
+            [ 'productId' => 1, 'combinationId' => 2, 'quantity' => 1 ],
         ]);
 
         $this->verify([
             0 => [
                 [
                     'products' => [
-                        [ 'productId' => 1, 'combinationId' => 2, 'quantity' => 1 ]
+                        [ 'productId' => 1, 'combinationId' => 2, 'quantity' => 1 ],
                     ],
                     'carriers' => [ 1 ],
                     'warehouse' => (int)$warehouse->id,
                 ],
-            ]
+            ],
         ], $cart->getPackageList(true));
     }
 
@@ -300,14 +299,14 @@ class CartPackageListTest extends Unit
         $product8 = new Product(8);
         $product8->setAdvancedStockManagement(true);
 
-        $warehouse = $this->createWarehouse("w1", [1, 2]);
+        $warehouse = $this->createWarehouse('w1', [1, 2]);
 
         $this->associateWarehouse($warehouse, 1, 2);
         $this->associateWarehouse($warehouse, 8, 0);
 
         $cart = $this->createCart([
             [ 'productId' => 1, 'combinationId' => 2, 'quantity' => 1 ],
-            [ 'productId' => 8, 'combinationId' => 0, 'quantity' => 1 ]
+            [ 'productId' => 8, 'combinationId' => 0, 'quantity' => 1 ],
         ]);
 
         $this->verify([
@@ -315,12 +314,12 @@ class CartPackageListTest extends Unit
                 [
                     'products' => [
                         [ 'productId' => 1, 'combinationId' => 2, 'quantity' => 1 ],
-                        [ 'productId' => 8, 'combinationId' => 0, 'quantity' => 1 ]
+                        [ 'productId' => 8, 'combinationId' => 0, 'quantity' => 1 ],
                     ],
                     'carriers' => [ 1, 2 ],
                     'warehouse' => (int)$warehouse->id,
                 ],
-            ]
+            ],
         ], $cart->getPackageList(true));
     }
 
@@ -341,8 +340,8 @@ class CartPackageListTest extends Unit
         $product8 = new Product(8);
         $product8->setAdvancedStockManagement(true);
 
-        $w1 = $this->createWarehouse("w1", [1, 2]);
-        $w2 = $this->createWarehouse("w2", [2]);
+        $w1 = $this->createWarehouse('w1', [1, 2]);
+        $w2 = $this->createWarehouse('w2', [2]);
 
         $this->associateWarehouse($w1, 1, 2);
         $this->associateWarehouse($w2, 8, 0);
@@ -350,33 +349,33 @@ class CartPackageListTest extends Unit
         $cart = $this->createCart([
             [ 'productId' => 1, 'combinationId' => 2, 'quantity' => 1 ],
             [ 'productId' => 2, 'combinationId' => 8, 'quantity' => 1 ],
-            [ 'productId' => 8, 'combinationId' => 0, 'quantity' => 1 ]
+            [ 'productId' => 8, 'combinationId' => 0, 'quantity' => 1 ],
         ]);
 
         $this->verify([
             0 => [
                 [
                     'products' => [
-                        [ 'productId' => 1, 'combinationId' => 2, 'quantity' => 1 ]
+                        [ 'productId' => 1, 'combinationId' => 2, 'quantity' => 1 ],
                     ],
                     'carriers' => [ 1, 2 ],
                     'warehouse' => (int)$w1->id,
                 ],
                 [
                     'products' => [
-                        [ 'productId' => 2, 'combinationId' => 8, 'quantity' => 1 ]
+                        [ 'productId' => 2, 'combinationId' => 8, 'quantity' => 1 ],
                     ],
                     'carriers' => [ 1, 2 ],
-                    'warehouse' => 0
+                    'warehouse' => 0,
                 ],
                 [
                     'products' => [
-                        [ 'productId' => 8, 'combinationId' => 0, 'quantity' => 1 ]
+                        [ 'productId' => 8, 'combinationId' => 0, 'quantity' => 1 ],
                     ],
                     'carriers' => [ 2 ],
                     'warehouse' => (int)$w2->id,
                 ],
-            ]
+            ],
         ], $cart->getPackageList(true));
     }
 
@@ -393,7 +392,7 @@ class CartPackageListTest extends Unit
         // allow ordering out of stock for all products
         $this->setOOS(1);
 
-        $currentQuantity = StockAvailable::getQuantityAvailableByProduct(1,2);
+        $currentQuantity = StockAvailable::getQuantityAvailableByProduct(1, 2);
         $extraQuantity = 100;
         $orderQuantity = $currentQuantity + $extraQuantity;
 
@@ -405,12 +404,12 @@ class CartPackageListTest extends Unit
             0 => [
                 [
                     'products' => [
-                        [ 'productId' => 1, 'combinationId' => 2, 'quantity' => $orderQuantity ]
+                        [ 'productId' => 1, 'combinationId' => 2, 'quantity' => $orderQuantity ],
                     ],
                     'carriers' => [ 1, 2 ],
-                    'warehouse' => 0
+                    'warehouse' => 0,
                 ],
-            ]
+            ],
         ], $cart->getPackageList(true));
     }
 
@@ -428,7 +427,7 @@ class CartPackageListTest extends Unit
         // allow ordering out of stock for all products
         $this->setOOS(1);
 
-        $currentQuantity = StockAvailable::getQuantityAvailableByProduct(1,2);
+        $currentQuantity = StockAvailable::getQuantityAvailableByProduct(1, 2);
         $extraQuantity = 100;
         $orderQuantity = $currentQuantity + $extraQuantity;
 
@@ -443,19 +442,19 @@ class CartPackageListTest extends Unit
             0 => [
                 [
                     'products' => [
-                        [ 'productId' => 1, 'combinationId' => 2, 'quantity' => $currentQuantity ]
+                        [ 'productId' => 1, 'combinationId' => 2, 'quantity' => $currentQuantity ],
                     ],
                     'carriers' => [ 1, 2 ],
-                    'warehouse' => 0
+                    'warehouse' => 0,
                 ],
                 [
                     'products' => [
-                        [ 'productId' => 1, 'combinationId' => 2, 'quantity' => $extraQuantity ]
+                        [ 'productId' => 1, 'combinationId' => 2, 'quantity' => $extraQuantity ],
                     ],
                     'carriers' => [ 1, 2 ],
-                    'warehouse' => 0
+                    'warehouse' => 0,
                 ],
-            ]
+            ],
         ], $cart->getPackageList(true));
     }
 
@@ -500,10 +499,9 @@ class CartPackageListTest extends Unit
                     'carriers' => [ 2 ],
                     'warehouse' => 0,
                 ],
-            ]
+            ],
         ], $cart->getPackageList(true));
     }
-
 
     /**
      * Verification of actual package list against expectation
@@ -530,7 +528,7 @@ class CartPackageListTest extends Unit
                 $actualPackage = $actualPackageList[$i];
 
                 // test product list
-                $actualProducts = array_map(function($product) {
+                $actualProducts = array_map(function ($product) {
                     return [
                         'productId' => (int)$product['id_product'],
                         'combinationId' => (int)$product['id_product_attribute'],
@@ -539,12 +537,12 @@ class CartPackageListTest extends Unit
                 }, $actualPackage['product_list']);
                 $expectedProducts = $expectedPackage['products'];
 
-                $this->assertSame($expectedProducts, $actualProducts, "Product list in the package does not match");
+                $this->assertSame($expectedProducts, $actualProducts, 'Product list in the package does not match');
 
                 // test carrier list
                 $actualCarrierList = array_values($actualPackage['carrier_list']);
                 $expectedCarrierList = array_values($expectedPackage['carriers']);
-                $this->assertEquals($expectedCarrierList, $actualCarrierList, "Carrier list does not match");
+                $this->assertEquals($expectedCarrierList, $actualCarrierList, 'Carrier list does not match');
 
                 // test warehouse
                 $this->assertEquals($expectedPackage['warehouse'], $actualPackage['id_warehouse'], 'Package warehouse does not match');
@@ -581,11 +579,10 @@ class CartPackageListTest extends Unit
         $wl = new WarehouseProductLocation();
         $wl->id_product = $productId;
         $wl->id_warehouse = $warehouse->id;
-        $wl->location = "loc-" . $productId . "-" . $combinationId;
+        $wl->location = 'loc-' . $productId . '-' . $combinationId;
         $wl->id_product_attribute = $combinationId;
         $wl->save();
     }
-
 
     /**
      * Helper method to restore products settings
@@ -630,8 +627,8 @@ class CartPackageListTest extends Unit
      */
     private function setOOS($value)
     {
-        Db::getInstance()->update("stock_available", ['out_of_stock' => $value]);
-        Cache::clean("*");
+        Db::getInstance()->update('stock_available', ['out_of_stock' => $value]);
+        Cache::clean('*');
     }
 
     /**
@@ -671,7 +668,7 @@ class CartPackageListTest extends Unit
         $warehouse->id_employee = 1;
         $warehouse->name = $name;
         $warehouse->reference = $name;
-        $warehouse->management_type = "WA";
+        $warehouse->management_type = 'WA';
         $warehouse->save();
         if ($carriers) {
             $warehouse->setCarriers($carriers);
@@ -708,7 +705,7 @@ class CartPackageListTest extends Unit
     {
         $carrier = new Carrier($carrierId);
         $carrier->addZone($zoneId);
-        Cache::clean("*");
+        Cache::clean('*');
     }
 
     /**
@@ -723,8 +720,7 @@ class CartPackageListTest extends Unit
     {
         $carrier = new Carrier($carrierId);
         $carrier->deleteZone($zoneId);
-        Cache::clean("*");
+        Cache::clean('*');
     }
-
 
 }

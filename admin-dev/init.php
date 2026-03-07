@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -49,7 +51,7 @@ if (!isset($context->employee) || !$context->employee->isLoggedBack()) {
 // Set current index
 // @deprecated global
 global $currentIndex; // retrocompatibility;
-$currentIndex = $_SERVER['SCRIPT_NAME'].(($controller = Tools::getValue('controller')) ? '?controller='.$controller: '');
+$currentIndex = $_SERVER['SCRIPT_NAME'].(($controller = Tools::getValue('controller')) ? '?controller='.$controller : '');
 
 if ($back = Tools::getValue('back')) {
     $currentIndex .= '&back='.urlencode($back);
@@ -115,7 +117,6 @@ if (Shop::isFeatureActive() && Tools::getValue('setShopContext') !== false) {
 }
 
 $context->currency = new Currency(Configuration::get('PS_CURRENCY_DEFAULT'));
-
 
 if ($context->employee->isLoggedBack()) {
     $shop_id = '';

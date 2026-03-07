@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -96,7 +98,7 @@ class AdminWebserviceControllerCore extends AdminController
                         'desc'  => Translate::ppTags(sprintf($this->l('All webservice requests and responses will be saved in directory [1]%s[/1]'), WebserviceLogger::getDirectory()), ['<code>']),
                         'cast'  => 'intval',
                         'type'  => 'bool',
-                    ]
+                    ],
                 ],
                 'submit' => ['title' => $this->l('Save')],
             ],
@@ -140,23 +142,23 @@ class AdminWebserviceControllerCore extends AdminController
         }
 
         // retrieve list of employees
-        $employees = array_map(function($row) {
+        $employees = array_map(function ($row) {
             return [
                 'id_employee' => $row['id_employee'],
-                'name' => $row['firstname'] . ' ' . $row['lastname']
+                'name' => $row['firstname'] . ' ' . $row['lastname'],
             ];
         }, Employee::getEmployees(false));
 
         $imageFormats = [
             [
                 'id' => '',
-                'name' => $this->l('Default image extension')
-            ]
+                'name' => $this->l('Default image extension'),
+            ],
         ];
         foreach (ImageManager::getAllowedImageExtensions(true, true) as $imageExtension) {
             $imageFormats[] = [
                 'id' => $imageExtension,
-                'name' => $imageExtension
+                'name' => $imageExtension,
             ];
         }
 
@@ -199,7 +201,7 @@ class AdminWebserviceControllerCore extends AdminController
                         'name'  => 'name',
                     ],
                     'desc'    => $this->l('Select employee in which context API request will be executed'),
-                    'hint'    => $this->l('This is useful for audit trail, as changes created by API calls can be associated with dedicated user')
+                    'hint'    => $this->l('This is useful for audit trail, as changes created by API calls can be associated with dedicated user'),
                 ],
                 [
                     'type'       => 'select',
@@ -211,7 +213,7 @@ class AdminWebserviceControllerCore extends AdminController
                         'name'  => 'name',
                     ],
                     'desc'    => $this->l('Select image format in which the images will be returned'),
-                    'hint'    => $this->l('Select image format in which the images will be returned')
+                    'hint'    => $this->l('Select image format in which the images will be returned'),
                 ],
                 [
                     'type'     => 'switch',
@@ -261,7 +263,7 @@ class AdminWebserviceControllerCore extends AdminController
         ];
 
         $this->fields_value = [
-            'resources' => $resources
+            'resources' => $resources,
         ];
         return parent::renderForm();
     }

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -47,8 +49,6 @@ class HTMLTemplateInvoiceCore extends HTMLTemplate
     public $available_in_your_account = false;
 
     /**
-     * @param OrderInvoice $orderInvoice
-     * @param Smarty $smarty
      * @param bool $bulkMode
      *
      * @throws PrestaShopException
@@ -318,7 +318,7 @@ class HTMLTemplateInvoiceCore extends HTMLTemplate
         $ecoTaxBreakdowns = $this->order_invoice->getEcoTaxTaxesBreakdown();
         $wrappingTaxBreakdowns = $this->order_invoice->getWrappingTaxesBreakdown();
         foreach (array_merge($shippingTaxBreakdowns, $ecoTaxBreakdowns, $wrappingTaxBreakdowns) as &$breakdown) {
-            $breakdown['rate'] = (float) round($breakdown['rate'], 3);
+            $breakdown['rate'] = round($breakdown['rate'], 3);
         }
 
         $data = [
@@ -367,7 +367,7 @@ class HTMLTemplateInvoiceCore extends HTMLTemplate
             $format,
             Configuration::get('PS_INVOICE_PREFIX', $idLang, null, $idShop),
             $this->order_invoice->number,
-            date('Y', strtotime($this->order_invoice->date_add))
+            date('Y', strtotime((string) $this->order_invoice->date_add))
         ).'.pdf';
     }
 
@@ -435,7 +435,7 @@ class HTMLTemplateInvoiceCore extends HTMLTemplate
 
         // else use the default one
         if (!$template) {
-            $template = $this->getTemplate($file);
+            return $this->getTemplate($file);
         }
 
         return $template;

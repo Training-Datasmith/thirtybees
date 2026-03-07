@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -47,7 +49,6 @@ class AverageTaxOfProductsTaxCalculatorCore
      * AverageTaxOfProductsTaxCalculator constructor.
      *
      * @param Core_Foundation_Database_DatabaseInterface $db Making sure we stay connected to the same db instance
-     * @param Core_Business_ConfigurationInterface $configuration
      */
     public function __construct(Core_Foundation_Database_DatabaseInterface $db, Core_Business_ConfigurationInterface $configuration)
     {
@@ -57,10 +58,8 @@ class AverageTaxOfProductsTaxCalculatorCore
 
     /**
      * @param int $idOrder
-     *
-     * @return static
      */
-    public function setIdOrder($idOrder)
+    public function setIdOrder($idOrder): static
     {
         $this->id_order = $idOrder;
 
@@ -70,12 +69,11 @@ class AverageTaxOfProductsTaxCalculatorCore
     /**
      * @param float $priceBeforeTax
      *
-     * @return array
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function getTaxesAmount($priceBeforeTax)
+    public function getTaxesAmount($priceBeforeTax): array
     {
         $taxBreakdown = [];
         $totalBase = 0;
@@ -85,7 +83,7 @@ class AverageTaxOfProductsTaxCalculatorCore
             $base = (float)$row['total_price_tax_excl'];
             $taxBreakdown[$taxId] = [
                 'rate' => $rate,
-                'base' => $base
+                'base' => $base,
             ];
             $totalBase += $base;
         }

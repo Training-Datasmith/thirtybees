@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -70,16 +72,16 @@ class SceneCore extends ObjectModel implements InitializationCallback
                 'inputName' => 'image',
                 'path' => _PS_SCENE_IMG_DIR_,
                 'imageTypes' => [
-                    ['name' => 'scene_default', 'width' => 870, 'height' => 270]
-                ]
+                    ['name' => 'scene_default', 'width' => 870, 'height' => 270],
+                ],
             ],
             ImageEntity::ENTITY_TYPE_SCENES_THUMB => [
                 'inputName' => 'thumb',
                 'path' => _PS_SCENE_IMG_DIR_.'thumbs/',
                 'displayName' => 'Scenes Thumbnails',
                 'imageTypes' => [
-                    ['name' => 'm_scene_default', 'width' => 161, 'height' => 58]
-                ]
+                    ['name' => 'm_scene_default', 'width' => 161, 'height' => 58],
+                ],
             ],
         ],
     ];
@@ -114,7 +116,6 @@ class SceneCore extends ObjectModel implements InitializationCallback
      * @param bool $onlyActive
      * @param int|null $idLang
      * @param bool $liteResult
-     * @param Context|null $context
      * @return array Products
      *
      * @throws PrestaShopDatabaseException
@@ -193,7 +194,6 @@ class SceneCore extends ObjectModel implements InitializationCallback
      * @param bool $onlyActive
      * @param bool $liteResult
      * @param bool $hideScenePosition
-     * @param Context|null $context
      * @return array Products
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
@@ -468,11 +468,9 @@ class SceneCore extends ObjectModel implements InitializationCallback
     /**
      * Database initialization callback
      *
-     * @param Db $conn
-     * @return void
      * @throws PrestaShopException
      */
-    public static function initializationCallback(Db $conn)
+    public static function initializationCallback(Db $conn): void
     {
         ImageEntity::rebuildImageEntities(static::class, self::$definition['images']);
     }

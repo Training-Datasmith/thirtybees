@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -145,10 +147,9 @@ class LocalizationPackCore
     /**
      * @param SimpleXMLElement $xml
      *
-     * @return bool
      * @throws PrestaShopException
      */
-    protected function _installStates($xml)
+    protected function _installStates($xml): bool
     {
         if (isset($xml->states->state)) {
             foreach ($xml->states->state as $data) {
@@ -216,10 +217,9 @@ class LocalizationPackCore
     /**
      * @param SimpleXMLElement $xml
      *
-     * @return bool
      * @throws PrestaShopException
      */
-    protected function _installTaxes($xml)
+    protected function _installTaxes($xml): bool
     {
         if (isset($xml->taxes->tax)) {
             $assocTaxes = [];
@@ -284,8 +284,10 @@ class LocalizationPackCore
                     if (!$idCountry) {
                         continue;
                     }
-
-                    if (!isset($ruleAttributes['id_tax']) || !array_key_exists(strval($ruleAttributes['id_tax']), $assocTaxes)) {
+                    if (!isset($ruleAttributes['id_tax'])) {
+                        continue;
+                    }
+                    if (!array_key_exists(strval($ruleAttributes['id_tax']), $assocTaxes)) {
                         continue;
                     }
 
@@ -324,10 +326,9 @@ class LocalizationPackCore
      * @param SimpleXMLElement $xml
      * @param bool $installMode
      *
-     * @return bool
      * @throws PrestaShopException
      */
-    protected function _installCurrencies($xml, $installMode = false)
+    protected function _installCurrencies($xml, $installMode = false): bool
     {
         if (isset($xml->currencies->currency)) {
             foreach ($xml->currencies->currency as $data) {
@@ -382,11 +383,10 @@ class LocalizationPackCore
      *
      * @param SimpleXMLElement $xml
      *
-     * @return bool
      *
      * @throws PrestaShopException
      */
-    protected function installConfiguration($xml)
+    protected function installConfiguration($xml): bool
     {
         if (isset($xml->configurations)) {
             foreach ($xml->configurations->configuration as $data) {
@@ -412,12 +412,11 @@ class LocalizationPackCore
      *
      * @param SimpleXMLElement $xml
      *
-     * @return bool
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    protected function installModules($xml)
+    protected function installModules($xml): bool
     {
         if (isset($xml->modules)) {
             foreach ($xml->modules->module as $data) {
@@ -452,11 +451,10 @@ class LocalizationPackCore
     /**
      * @param SimpleXMLElement $xml
      *
-     * @return bool
      *
      * @throws PrestaShopException
      */
-    protected function updateDefaultGroupDisplayMethod($xml)
+    protected function updateDefaultGroupDisplayMethod($xml): bool
     {
         if (isset($xml->group_default)) {
             $attributes = $xml->group_default->attributes();
@@ -464,7 +462,7 @@ class LocalizationPackCore
                 Configuration::updateValue('PRICE_DISPLAY_METHOD', (int) $attributes['price_display_method']);
 
                 foreach ([(int) Configuration::get('PS_CUSTOMER_GROUP'), (int) Configuration::get('PS_GUEST_GROUP'), (int) Configuration::get('PS_UNIDENTIFIED_GROUP')] as $idGroup) {
-                    $group = new Group((int) $idGroup);
+                    $group = new Group($idGroup);
                     $group->price_display_method = (int) $attributes['price_display_method'];
                     if (!$group->save()) {
                         $this->_errors[] = Tools::displayError('An error occurred during the default group update');
@@ -482,11 +480,10 @@ class LocalizationPackCore
      * @param SimpleXMLElement $xml
      * @param bool $installMode
      *
-     * @return bool
      *
      * @throws PrestaShopException
      */
-    protected function _installLanguages($xml, $installMode = false)
+    protected function _installLanguages($xml, $installMode = false): bool
     {
         $attributes = [];
         if (isset($xml->languages->language)) {
@@ -515,11 +512,10 @@ class LocalizationPackCore
     /**
      * @param SimpleXMLElement $xml
      *
-     * @return bool
      *
      * @throws PrestaShopException
      */
-    protected function _installUnits($xml)
+    protected function _installUnits($xml): bool
     {
         $varNames = ['weight' => 'PS_WEIGHT_UNIT', 'volume' => 'PS_VOLUME_UNIT', 'short_distance' => 'PS_DIMENSION_UNIT', 'base_distance' => 'PS_BASE_DISTANCE_UNIT', 'long_distance' => 'PS_DISTANCE_UNIT'];
         if (isset($xml->units->unit)) {

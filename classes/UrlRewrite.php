@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -34,20 +36,20 @@
  */
 class UrlRewriteCore extends ObjectModel
 {
-    const CANONICAL = 1;
-    const DIRECT_SERVE = 2;
-    const REDIRECT_301 = 3;
-    const REDIRECT_302 = 4;
+    public const CANONICAL = 1;
+    public const DIRECT_SERVE = 2;
+    public const REDIRECT_301 = 3;
+    public const REDIRECT_302 = 4;
 
-    const ENTITY_PRODUCT = 1;
-    const ENTITY_CATEGORY = 2;
-    const ENTITY_SUPPLIER = 3;
-    const ENTITY_MANUFACTURER = 4;
-    const ENTITY_CMS = 5;
-    const ENTITY_CMS_CATEGORY = 6;
-    const ENTITY_PAGE = 7;
+    public const ENTITY_PRODUCT = 1;
+    public const ENTITY_CATEGORY = 2;
+    public const ENTITY_SUPPLIER = 3;
+    public const ENTITY_MANUFACTURER = 4;
+    public const ENTITY_CMS = 5;
+    public const ENTITY_CMS_CATEGORY = 6;
+    public const ENTITY_PAGE = 7;
 
-    const MAX_CATEGORY_DEPTH = 10;
+    public const MAX_CATEGORY_DEPTH = 10;
 
     /**
      * @var array Object model definition
@@ -65,13 +67,10 @@ class UrlRewriteCore extends ObjectModel
     /**
      * UrlRewriteCore constructor.
      *
-     * @param int|null $id
-     * @param int|null $idLang
-     * @param int|null $idShop
      *
      * @deprecated 1.0.1
      */
-    public function __construct($id = null, $idLang = null, $idShop = null)
+    public function __construct()
     {
         Tools::displayAsDeprecated('UrlRewrite class has been removed');
     }
@@ -79,9 +78,7 @@ class UrlRewriteCore extends ObjectModel
     /**
      * @param int|null $idLang
      * @param int|null $idShop
-     * @param array $entities
      *
-     * @return void
      * @deprecated 1.0.1
      */
     public static function regenerateUrlRewrites(
@@ -96,7 +93,7 @@ class UrlRewriteCore extends ObjectModel
             self::ENTITY_CMS_CATEGORY,
             self::ENTITY_PAGE,
         ]
-    ) {
+    ): void {
         Tools::displayAsDeprecated('UrlRewrite class has been removed');
     }
 
@@ -106,10 +103,9 @@ class UrlRewriteCore extends ObjectModel
      * @param int|null $idLang
      * @param int|null $idShop
      *
-     * @return void
      * @deprecated 1.0.1
      */
-    public static function regenerateUrlRewrite($entityType, $idEntity = null, $idLang = null, $idShop = null)
+    public static function regenerateUrlRewrite($entityType, $idEntity = null, $idLang = null, $idShop = null): void
     {
         Tools::displayAsDeprecated('UrlRewrite class has been removed');
     }
@@ -118,10 +114,9 @@ class UrlRewriteCore extends ObjectModel
      * @param string $route
      * @param array $params
      *
-     * @return void
      * @deprecated 1.0.1
      */
-    public static function createBaseUrl($route, $params)
+    public static function createBaseUrl($route, $params): void
     {
         Tools::displayAsDeprecated('UrlRewrite class has been removed');
     }
@@ -134,10 +129,9 @@ class UrlRewriteCore extends ObjectModel
      * @param int $idShop
      * @param int|null $idEntity
      *
-     * @return void
      * @deprecated 1.0.1
      */
-    public static function deleteUrlRewrites($entityType, $idLang, $idShop, $idEntity = null)
+    public static function deleteUrlRewrites($entityType, $idLang, $idShop, $idEntity = null): void
     {
         Tools::displayAsDeprecated('UrlRewrite class has been removed');
     }
@@ -148,10 +142,9 @@ class UrlRewriteCore extends ObjectModel
      * @param int|null $idLang
      * @param int|null $idShop
      *
-     * @return void
      * @deprecated 1.0.1
      */
-    public static function deleteUrlRewrite($entityType, $idEntity, $idLang = null, $idShop = null)
+    public static function deleteUrlRewrite($entityType, $idEntity, $idLang = null, $idShop = null): void
     {
         Tools::displayAsDeprecated('UrlRewrite class has been removed');
     }
@@ -162,10 +155,8 @@ class UrlRewriteCore extends ObjectModel
      * @param int $idShop
      * @param int|null $redirect
      * @param int|null $entityType
-     *
-     * @return void
      */
-    public static function lookup($rewrite, $idLang, $idShop, $redirect = null, $entityType = null)
+    public static function lookup($rewrite, $idLang, $idShop, $redirect = null, $entityType = null): void
     {
         Tools::displayAsDeprecated('UrlRewrite class has been removed');
     }
@@ -176,10 +167,8 @@ class UrlRewriteCore extends ObjectModel
      * @param int $idLang
      * @param int $idShop
      * @param int|null $redirect
-     *
-     * @return void
      */
-    public static function reverseLookup($idEntity, $entityType, $idLang, $idShop, $redirect = null)
+    public static function reverseLookup($idEntity, $entityType, $idLang, $idShop, $redirect = null): void
     {
         Tools::displayAsDeprecated('UrlRewrite class has been removed');
     }
@@ -336,10 +325,9 @@ class UrlRewriteCore extends ObjectModel
      * @param int $idShop
      * @param int|null $idProduct
      *
-     * @return void
      * @deprecated 1.0.1
      */
-    public static function updateProductRewrite($idLang, $idShop, $idProduct = null)
+    public static function updateProductRewrite($idLang, $idShop, $idProduct = null): void
     {
         Tools::displayAsDeprecated('UrlRewrite class has been removed');
     }

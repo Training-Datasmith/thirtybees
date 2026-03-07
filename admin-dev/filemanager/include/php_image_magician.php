@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 # ======================================================================== #
 #
 #  This work is licensed under the Creative Commons Attribution 3.0 Unported
@@ -241,7 +243,7 @@ class imageLib
      * @param string $fileName
      * @throws PrestaShopException
      */
-    function __construct($fileName)
+    public function __construct($fileName)
     {
         if (!$this->testGDInstalled()) {
             throw new PrestaShopException('The GD Library is not installed.');
@@ -498,7 +500,7 @@ class imageLib
         }
         return [
             'optimalWidth' => $optimalWidth,
-            'optimalHeight' => $optimalHeight
+            'optimalHeight' => $optimalHeight,
         ];
     }
 
@@ -604,7 +606,7 @@ class imageLib
             $sharpenMatrix = [
                 [-1, -1, -1],
                 [-1, 16, -1],
-                [-1, -1, -1]
+                [-1, -1, -1],
             ];
             $divisor = 8;
             $offset = 0;
@@ -614,7 +616,7 @@ class imageLib
             $sharpenMatrix = [
                 [-1, -2, -1 ],
                 [-2, $sharpness + 12, -2],
-                [-1, -2, -1]
+                [-1, -2, -1],
             ];
             $divisor = $sharpness;
             $offset = 0;
@@ -777,9 +779,9 @@ class imageLib
             $total = imagecolorstotal($this->imageResized);
             for ($i = 0; $i < $total; $i++) {
                 $index = imagecolorsforindex($this->imageResized, $i);
-                $red = ($index["red"] * 0.393 + $index["green"] * 0.769 + $index["blue"] * 0.189) / 1.351;
-                $green = ($index["red"] * 0.349 + $index["green"] * 0.686 + $index["blue"] * 0.168) / 1.203;
-                $blue = ($index["red"] * 0.272 + $index["green"] * 0.534 + $index["blue"] * 0.131) / 2.140;
+                $red = ($index['red'] * 0.393 + $index['green'] * 0.769 + $index['blue'] * 0.189) / 1.351;
+                $green = ($index['red'] * 0.349 + $index['green'] * 0.686 + $index['blue'] * 0.168) / 1.203;
+                $blue = ($index['red'] * 0.272 + $index['green'] * 0.534 + $index['blue'] * 0.131) / 2.140;
                 imagecolorset($this->imageResized, $i, $red, $green, $blue);
             }
         }
@@ -858,7 +860,9 @@ class imageLib
         for ($x = 0; $x < $numColors; $x++) {
             list($r, $g, $b) = array_values(imageColorsForIndex($this->imageResized, $x));
             $grayscale = ($r + $g + $b) / 3 / 0xff;
-            imageColorSet($this->imageResized, $x,
+            imageColorSet(
+                $this->imageResized,
+                $x,
                 $grayscale * $rgb[0],
                 $grayscale * $rgb[1],
                 $grayscale * $rgb[2]
@@ -1061,7 +1065,7 @@ class imageLib
                 $width, $height + $blurHeight * (1 - $t),
                 $blurWidth, $height + $blurHeight * (1 - $t),
                 $blurWidth * $t,
-                $height
+                $height,
             ];
             imagepolygon($shadow, $points, 8, $colour);
         }
@@ -2072,7 +2076,7 @@ class imageLib
                     'r' => 255,
                     'g' => 255,
                     'b' => 255,
-                    'a' => 127
+                    'a' => 127,
                 ];
             } else {
                 $rgbArray = $this->hex2dec($value);
@@ -2085,7 +2089,7 @@ class imageLib
      * @param string $hex
      * @return array
      */
-    function hex2dec($hex)
+    public function hex2dec($hex)
     {
         $color = str_replace('#', '', $hex);
         if (strlen($color) == 3) {
@@ -2095,7 +2099,7 @@ class imageLib
             'r' => hexdec(substr($color, 0, 2)),
             'g' => hexdec(substr($color, 2, 2)),
             'b' => hexdec(substr($color, 4, 2)),
-            'a' => 0
+            'a' => 0,
         ];
         return $rgb;
     }
@@ -2183,7 +2187,7 @@ class imageLib
      * @param string $haystack
      * @return bool
      */
-    function checkStringStartsWith($needle, $haystack)
+    public function checkStringStartsWith($needle, $haystack)
     {
         return (substr($haystack, 0, strlen($needle)) == $needle);
     }
@@ -2263,10 +2267,10 @@ class imageLib
      */
     private function ImageCreateFromBMP($filename)
     {
-        if (!$f1 = fopen($filename, "rb")) {
+        if (!$f1 = fopen($filename, 'rb')) {
             return false;
         }
-        $FILE = unpack("vfile_type/Vfile_size/Vreserved/Vbitmap_offset", fread($f1, 14));
+        $FILE = unpack('vfile_type/Vfile_size/Vreserved/Vbitmap_offset', fread($f1, 14));
         if ($FILE['file_type'] != 19778) {
             return false;
         }
@@ -2297,18 +2301,18 @@ class imageLib
             $X = 0;
             while ($X < $BMP['width']) {
                 if ($BMP['bits_per_pixel'] == 24) {
-                    $COLOR = unpack("V", substr($IMG, $P, 3).$VIDE);
+                    $COLOR = unpack('V', substr($IMG, $P, 3).$VIDE);
                 } elseif ($BMP['bits_per_pixel'] == 16) {
-                    $COLOR = unpack("v", substr($IMG, $P, 2));
+                    $COLOR = unpack('v', substr($IMG, $P, 2));
                     $blue = ($COLOR[1] & 0x001f) << 3;
                     $green = ($COLOR[1] & 0x07e0) >> 3;
                     $red = ($COLOR[1] & 0xf800) >> 8;
                     $COLOR[1] = $red * 65536 + $green * 256 + $blue;
                 } elseif ($BMP['bits_per_pixel'] == 8) {
-                    $COLOR = unpack("n", $VIDE.substr($IMG, $P, 1));
+                    $COLOR = unpack('n', $VIDE.substr($IMG, $P, 1));
                     $COLOR[1] = $PALETTE[ $COLOR[1] + 1 ];
                 } elseif ($BMP['bits_per_pixel'] == 4) {
-                    $COLOR = unpack("n", $VIDE.substr($IMG, floor($P), 1));
+                    $COLOR = unpack('n', $VIDE.substr($IMG, floor($P), 1));
                     if (($P * 2) % 2 == 0) {
                         $COLOR[1] = ($COLOR[1] >> 4);
                     } else {
@@ -2316,7 +2320,7 @@ class imageLib
                     }
                     $COLOR[1] = $PALETTE[ $COLOR[1] + 1 ];
                 } elseif ($BMP['bits_per_pixel'] == 1) {
-                    $COLOR = unpack("n", $VIDE.substr($IMG, floor($P), 1));
+                    $COLOR = unpack('n', $VIDE.substr($IMG, floor($P), 1));
                     if (($P * 8) % 8 == 0) {
                         $COLOR[1] = $COLOR[1] >> 7;
                     } elseif (($P * 8) % 8 == 1) {

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -179,7 +181,7 @@ class AdminSuppliersControllerCore extends AdminController
                         $this->l('Invalid characters:').' &lt;&gt;;=#{}',
                         $this->l('Will appear in the list of suppliers.'),
                     ],
-                    'autoload_rte' => 'rte' //Enable TinyMCE editor for short description
+                    'autoload_rte' => 'rte', //Enable TinyMCE editor for short description
                 ],
                 [
                     'type'      => 'text',
@@ -408,10 +410,9 @@ class AdminSuppliersControllerCore extends AdminController
                 'quantity' => $product->quantity,
                 'combinations' => $this->getProductCombinationArray($product, $languageId, $supplierId),
                 'product_supplier_reference' => static::getSupplierReference($infos),
-                'product_supplier_price_te' =>static::getSupplierPrice($infos),
+                'product_supplier_price_te' => static::getSupplierPrice($infos),
             ];
         }
-
 
         $this->tpl_view_vars = [
             'supplier'         => $this->object,
@@ -617,8 +618,8 @@ class AdminSuppliersControllerCore extends AdminController
                     'upc' => $combination['upc'],
                     'quantity' => $combination['quantity'],
                     'product_supplier_reference' => static::getSupplierReference($infos),
-                    'product_supplier_price_te' =>static::getSupplierPrice($infos),
-                    'attributes' => []
+                    'product_supplier_price_te' => static::getSupplierPrice($infos),
+                    'attributes' => [],
                 ];
             }
             $combinations[$combinationId]['attributes'][] = $combination['group_name'] . ' - ' . $combination['attribute_name'];

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -27,17 +29,8 @@ use Tools;
  */
 class JSendErrorResponseCore extends AbstractErrorPage
 {
-    /**
-     * @var bool
-     */
-    protected $sendErrorMessage;
-
-    /**
-     * @param bool $sendErrorMessage
-     */
-    public function __construct(bool $sendErrorMessage)
+    public function __construct(protected bool $sendErrorMessage)
     {
-        $this->sendErrorMessage = $sendErrorMessage;
     }
 
     /**
@@ -50,27 +43,24 @@ class JSendErrorResponseCore extends AbstractErrorPage
     }
 
     /**
-     * @param ErrorDescription $errorDescription
      * @return string
      */
     protected function renderError(ErrorDescription $errorDescription)
     {
         return json_encode([
             'status' => 'error',
-            'message' => $this->getResponseMessage($errorDescription)
+            'message' => $this->getResponseMessage($errorDescription),
         ], JSON_PRETTY_PRINT);
     }
 
     /**
-     * @param ErrorDescription $errorDescription
      * @return string
      */
     protected function getResponseMessage(ErrorDescription $errorDescription)
     {
         if ($this->sendErrorMessage) {
             return $errorDescription->getExtendedMessage();
-        } else {
-            return Tools::displayError('Internal server error');
         }
+        return Tools::displayError('Internal server error');
     }
 }

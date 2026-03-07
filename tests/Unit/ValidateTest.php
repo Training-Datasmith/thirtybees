@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Unit;
 
 use Codeception\Test\Unit;
+use ObjectModel;
 use Tests\Support\UnitTester;
 use Validate;
-use ObjectModel;
 
 class ValidateTest extends Unit
 {
@@ -21,7 +23,7 @@ class ValidateTest extends Unit
     {
         return [
             [false, 'toto'],
-            [true, '123']
+            [true, '123'],
         ];
     }
 
@@ -178,7 +180,6 @@ class ValidateTest extends Unit
             [false, false],
         ];
     }
-
 
     /**
      * @dataProvider isSha1DataProvider
@@ -469,14 +470,14 @@ class ValidateTest extends Unit
     public function isUriPathProvider()
     {
         return [
-            [true,  ""],
-            [true,  "/"],
-            [true,  "/a/b"],
-            [true,  "/a/b-c/d"],
-            [true, "6"],
-            [true, "//6/a"],
+            [true,  ''],
+            [true,  '/'],
+            [true,  '/a/b'],
+            [true,  '/a/b-c/d'],
+            [true, '6'],
+            [true, '//6/a'],
             [false, 6],
-            [false, "a b"],
+            [false, 'a b'],
             [true, 'a.b.c'],
             [true, '/~user/shop/'],
         ];
@@ -499,21 +500,21 @@ class ValidateTest extends Unit
     public function isReferenceProvider()
     {
         return [
-            [true, ""],
-            [true, "reference"],
-            [true, "ref_01"],
-            [true, "ref-01"],
-            [true, "0"],
-            [true, "1"],
-            [true, "1-test"],
-            [true, "žščřĎŤŇ"],
-            [true, "家"],
-            [true, " "],
-            [false, "<test>"],
-            [false, "test=test"],
-            [false, "test>test"],
-            [false, "test;test"],
-            [true, "test test"],
+            [true, ''],
+            [true, 'reference'],
+            [true, 'ref_01'],
+            [true, 'ref-01'],
+            [true, '0'],
+            [true, '1'],
+            [true, '1-test'],
+            [true, 'žščřĎŤŇ'],
+            [true, '家'],
+            [true, ' '],
+            [false, '<test>'],
+            [false, 'test=test'],
+            [false, 'test>test'],
+            [false, 'test;test'],
+            [true, 'test test'],
             [true, str_repeat('x', ObjectModel::SIZE_REFERENCE)],
             [false, str_repeat('x', ObjectModel::SIZE_REFERENCE + 1)],
         ];

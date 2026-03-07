@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -197,7 +199,7 @@ class CustomizationCore extends ObjectModel
             $idShop = (int) Context::getContext()->shop->id;
         }
 
-        $result = Db::readOnly()->getValue(
+        return Db::readOnly()->getValue(
             (new DbQuery())
                 ->select('`name`')
                 ->from('customization_field_lang')
@@ -205,8 +207,6 @@ class CustomizationCore extends ObjectModel
                 ->where($idShop ? 'cfl.`id_shop` = '.(int) $idShop : '')
                 ->where('`id_lang` = '.(int) $idLang)
         );
-
-        return $result;
     }
 
     /**
@@ -313,7 +313,8 @@ class CustomizationCore extends ObjectModel
     {
         $id = (int) $this->id;
         if ($id) {
-            return Db::readOnly()->getArray((new DbQuery())
+            return Db::readOnly()->getArray(
+                (new DbQuery())
                 ->select('`id_customization_field`, `value`')
                 ->from('customization_field', 'cf')
                 ->leftJoin('customized_data', 'cd', 'cf.`id_customization_field` = cd.`index`')
@@ -335,7 +336,8 @@ class CustomizationCore extends ObjectModel
     {
         $id = (int) $this->id;
         if ($id) {
-            $results = Db::readOnly()->getArray((new DbQuery())
+            return Db::readOnly()->getArray(
+                (new DbQuery())
                 ->select('`id_customization_field`, `value`')
                 ->from('customization_field', 'cf')
                 ->leftJoin('customized_data', 'cd', 'cf.`id_customization_field` = cd.`index`')
@@ -343,7 +345,6 @@ class CustomizationCore extends ObjectModel
                 ->where('cd.`id_customization` = ' . $id)
                 ->where('cf.`type` = 0')
             );
-            return $results;
         }
 
         return [];

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -45,7 +47,7 @@ abstract class ImportModuleCore extends Module
     /**
      * @var mixed
      */
-    protected $_link = null;
+    protected $_link;
 
     /**
      * @var mixed
@@ -71,13 +73,6 @@ abstract class ImportModuleCore extends Module
      * @var string Prefix database
      */
     public $prefix;
-
-    /**
-     * ImportModule destructor
-     */
-    public function __destruct()
-    {
-    }
 
     /**
      * @return PDO
@@ -132,9 +127,8 @@ abstract class ImportModuleCore extends Module
         $result = $this->executeS($query);
         if (!count($result)) {
             return 0;
-        } else {
-            return array_shift($result[0]);
         }
+        return array_shift($result[0]);
     }
 
     /**

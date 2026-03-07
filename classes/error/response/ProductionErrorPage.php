@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -38,7 +40,6 @@ class ProductionErrorPageCore extends AbstractErrorPage
     }
 
     /**
-     * @param ErrorDescription $errorDescription
      * @return string
      */
     protected function renderError(ErrorDescription $errorDescription)
@@ -52,9 +53,6 @@ class ProductionErrorPageCore extends AbstractErrorPage
         );
     }
 
-    /**
-     * @return string
-     */
     protected function getShopEmail(): string
     {
         try {
@@ -62,14 +60,12 @@ class ProductionErrorPageCore extends AbstractErrorPage
             if ($email) {
                 return $email;
             }
-        } catch (Throwable $ignored) {
+        } catch (Throwable) {
         }
         return 'contact@thirtybees.com';
     }
 
     /**
-     * @param ErrorDescription $errorDescription
-     *
      * @return string
      */
     private function getEncryptedMessage(ErrorDescription $errorDescription)

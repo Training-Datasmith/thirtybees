@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -22,8 +24,8 @@ namespace Tests\Integration;
 require_once _PS_MODULE_DIR_ . '/coreupdater/classes/schema/autoload.php';
 
 use Codeception\Test\Unit;
-use CoreUpdater\InformationSchemaBuilder;
 use CoreUpdater\DatabaseSchemaComparator;
+use CoreUpdater\InformationSchemaBuilder;
 use Db;
 use PrestaShopDatabaseException;
 use PrestaShopException;
@@ -48,7 +50,7 @@ use Tests\Support\UnitTester;
  */
 class DatabaseMigrationTest extends Unit
 {
-    const TEST_TABLE = 'migration_test_table';
+    public const TEST_TABLE = 'migration_test_table';
 
     /**
      * @var UnitTester
@@ -68,14 +70,14 @@ class DatabaseMigrationTest extends Unit
             "  `id_migration_test_table` int(11) unsigned NOT NULL AUTO_INCREMENT,\n" .
             "  `id_product` int(11) NOT NULL,\n".
             "  PRIMARY KEY (`id_migration_test_table`)\n".
-            ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+            ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
         );
 
         $t2 = (
             "CREATE TABLE `$table` (\n" .
             "  `id_migration_test_table` int(11) unsigned NOT NULL AUTO_INCREMENT,\n" .
             "  PRIMARY KEY (`id_migration_test_table`)\n".
-            ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+            ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
         );
 
         $t3 = (
@@ -83,7 +85,7 @@ class DatabaseMigrationTest extends Unit
             "  `id_migration_test_table` int(11) unsigned NOT NULL AUTO_INCREMENT,\n" .
             "  `id_product` int(11) NOT NULL DEFAULT '1',\n".
             "  PRIMARY KEY (`id_migration_test_table`)\n".
-            ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+            ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
         );
 
         $t4 = (
@@ -91,7 +93,7 @@ class DatabaseMigrationTest extends Unit
             "  `id_migration_test_table` int(11) unsigned NOT NULL AUTO_INCREMENT,\n" .
             "  `id_product` int(11),\n".
             "  PRIMARY KEY (`id_migration_test_table`)\n".
-            ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+            ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
         );
 
         $t5 = (
@@ -99,7 +101,7 @@ class DatabaseMigrationTest extends Unit
             "  `id_migration_test_table` int(11) unsigned NOT NULL AUTO_INCREMENT,\n" .
             "  `id_product` int(11) DEFAULT NULL,\n".
             "  PRIMARY KEY (`id_migration_test_table`)\n".
-            ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+            ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
         );
 
         $t6 = (
@@ -107,7 +109,7 @@ class DatabaseMigrationTest extends Unit
             "  `id_migration_test_table` int(11) unsigned NOT NULL AUTO_INCREMENT,\n" .
             "  `ts` timestamp,\n".
             "  PRIMARY KEY (`id_migration_test_table`)\n".
-            ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+            ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
         );
 
         $t7 = (
@@ -115,7 +117,7 @@ class DatabaseMigrationTest extends Unit
             "  `id_migration_test_table` int(11) unsigned NOT NULL AUTO_INCREMENT,\n" .
             "  `ts` timestamp DEFAULT CURRENT_TIMESTAMP,\n".
             "  PRIMARY KEY (`id_migration_test_table`)\n".
-            ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+            ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
         );
 
         $t8 = (
@@ -123,7 +125,7 @@ class DatabaseMigrationTest extends Unit
             "  `id_migration_test_table` int(11) unsigned NOT NULL AUTO_INCREMENT,\n" .
             "  `ts` datetime NOT NULL,\n".
             "  PRIMARY KEY (`id_migration_test_table`)\n".
-            ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+            ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
         );
 
         $t9 = (
@@ -131,7 +133,7 @@ class DatabaseMigrationTest extends Unit
             "  `id_migration_test_table` int(11) unsigned NOT NULL AUTO_INCREMENT,\n" .
             "  `ts` int(11) NOT NULL,\n".
             "  PRIMARY KEY (`id_migration_test_table`)\n".
-            ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+            ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
         );
 
         $t10 = (
@@ -139,7 +141,7 @@ class DatabaseMigrationTest extends Unit
             "  `id_migration_test_table` int(11) unsigned NOT NULL,\n" .
             "  `ts` int(11) NOT NULL,\n".
             "  PRIMARY KEY (`id_migration_test_table`)\n".
-            ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+            ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
         );
 
         $t11 = (
@@ -147,14 +149,14 @@ class DatabaseMigrationTest extends Unit
             "  `id_migration_test_table` int(11) unsigned NOT NULL,\n" .
             "  `ts` int(11),\n".
             "  PRIMARY KEY (`id_migration_test_table`)\n".
-            ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+            ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
         );
 
         $t12 = (
             "CREATE TABLE `$table` (\n" .
             "  `id_migration_test_table` int(11) unsigned NOT NULL,\n" .
             "  `ts` int(11)\n".
-            ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+            ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
         );
 
         $t13 = (
@@ -163,7 +165,7 @@ class DatabaseMigrationTest extends Unit
             "  `ts` int(11),\n".
             "  PRIMARY KEY (`id_migration_test_table`),\n".
             "  UNIQUE KEY (`ts`)\n".
-            ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+            ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
         );
 
         $t14 = (
@@ -172,7 +174,7 @@ class DatabaseMigrationTest extends Unit
             "  `ts` int(11),\n".
             "  PRIMARY KEY (`id_migration_test_table`),\n".
             "  KEY (`ts`,`id_migration_test_table`)\n".
-            ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+            ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
         );
 
         $t15 = (
@@ -180,7 +182,7 @@ class DatabaseMigrationTest extends Unit
             "  `id_migration_test_table` int(11) unsigned NOT NULL,\n" .
             "  `ts` int(11),\n".
             "  PRIMARY KEY (`ts`)\n".
-            ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+            ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
         );
 
         $t16 = (
@@ -189,7 +191,7 @@ class DatabaseMigrationTest extends Unit
             "  `ts` int(11),\n".
             "  PRIMARY KEY (`id_migration_test_table`),\n".
             "  UNIQUE KEY (`ts`,`id_migration_test_table`)\n".
-            ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+            ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
         );
 
         $t17 = (
@@ -199,7 +201,7 @@ class DatabaseMigrationTest extends Unit
             "  `name` varchar(100),\n".
             "  PRIMARY KEY (`id_migration_test_table`),\n".
             "  UNIQUE KEY (`name`(5))\n".
-            ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+            ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
         );
 
         $t18 = (
@@ -209,7 +211,7 @@ class DatabaseMigrationTest extends Unit
             "  `name` varchar(100) CHARSET latin1 COLLATE latin1_swedish_ci,\n".
             "  PRIMARY KEY (`id_migration_test_table`),\n".
             "  UNIQUE KEY (`name`(5))\n".
-            ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+            ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
         );
 
         $t19 = (
@@ -220,7 +222,7 @@ class DatabaseMigrationTest extends Unit
             "  `lastname` varchar(100) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci,\n".
             "  PRIMARY KEY (`id_migration_test_table`),\n".
             "  UNIQUE KEY (`name`(5))\n".
-            ") ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci"
+            ') ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci'
         );
 
         $t20 = (
@@ -231,7 +233,7 @@ class DatabaseMigrationTest extends Unit
             "  `lastname` varchar(100),\n".
             "  PRIMARY KEY (`id_migration_test_table`),\n".
             "  UNIQUE KEY (`name`(5))\n".
-            ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+            ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
         );
 
         $t21 = (
@@ -242,7 +244,7 @@ class DatabaseMigrationTest extends Unit
             "  `lastname` varchar(100),\n".
             "  PRIMARY KEY (`id_migration_test_table`),\n".
             "  UNIQUE KEY (`name`(5))\n".
-            ") ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+            ') ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
         );
 
         $t22 = (
@@ -253,7 +255,7 @@ class DatabaseMigrationTest extends Unit
             "  `ts` int(11),\n".
             "  PRIMARY KEY (`id_migration_test_table`),\n".
             "  UNIQUE KEY (`ts`)\n".
-            ") ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+            ') ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
         );
 
         $t23 = (
@@ -265,7 +267,7 @@ class DatabaseMigrationTest extends Unit
             "  `ts` int(11),\n".
             "  PRIMARY KEY (`id_migration_test_table`),\n".
             "  UNIQUE KEY (`ts`)\n".
-            ") ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+            ') ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
         );
 
         return [
@@ -330,7 +332,7 @@ class DatabaseMigrationTest extends Unit
             $differences = $comparator->getDifferences($sourceSchema, $targetSchema);
             foreach ($differences as $difference) {
                 if (!$difference->applyFix($connection)) {
-                    self::fail("Failed to apply fix: " . $difference->getUniqueId() . ": " . $connection->getMsgError());
+                    self::fail('Failed to apply fix: ' . $difference->getUniqueId() . ': ' . $connection->getMsgError());
                 }
             }
 
@@ -364,8 +366,8 @@ class DatabaseMigrationTest extends Unit
      */
     private function dropTestTable()
     {
-        if (! Db::getInstance()->execute("DROP TABLE IF EXISTS `" . _DB_PREFIX_ . static::TEST_TABLE . "`")) {
-            throw new PrestaShopDatabaseException("Failed to drop test table");
+        if (! Db::getInstance()->execute('DROP TABLE IF EXISTS `' . _DB_PREFIX_ . static::TEST_TABLE . '`')) {
+            throw new PrestaShopDatabaseException('Failed to drop test table');
         }
     }
 

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -37,12 +39,12 @@ class PrestaShopAutoload
     /**
      * File where classes index is stored
      */
-    const INDEX_FILE = 'cache/class_index.php';
+    public const INDEX_FILE = 'cache/class_index.php';
 
     /**
      * Namespace delimiter
      */
-    const NAMESPACE_DELIMITER = "\\";
+    public const NAMESPACE_DELIMITER = '\\';
 
     /**
      * @var PrestaShopAutoload singleton instance
@@ -73,7 +75,7 @@ class PrestaShopAutoload
     /**
      * @var string Root directory
      */
-    protected $root_dir;
+    protected string $root_dir;
 
     /**
      * PrestaShopAutoload constructor.
@@ -91,10 +93,8 @@ class PrestaShopAutoload
 
     /**
      * Generate classes index
-     *
-     * @return void
      */
-    public function generateIndex()
+    public function generateIndex(): void
     {
         $classes = array_merge(
             $this->getClassesFromDir('classes/'),
@@ -139,10 +139,8 @@ class PrestaShopAutoload
      * Retrieve recursively all classes in a directory and its subdirectories
      *
      * @param string $path Relativ path from root to the directory
-     *
-     * @return array
      */
-    protected function getClassesFromDir($path)
+    protected function getClassesFromDir(string $path): array
     {
         $classes = [];
         $rootDir = $this->root_dir;
@@ -151,7 +149,7 @@ class PrestaShopAutoload
             if ($file[0] != '.') {
                 if (is_dir($rootDir.$path.$file)) {
                     $classes = array_merge($classes, $this->getClassesFromDir($path.$file.'/'));
-                } elseif (substr($file, -4) == '.php') {
+                } elseif (str_ends_with($file, '.php')) {
                     $content = file_get_contents($rootDir.$path.$file);
 
                     $fileNamespace = $this->resolveNamespace($content);
@@ -166,16 +164,16 @@ class PrestaShopAutoload
                             'name'  => $m['classname'],
                             'ns'    => rtrim($fileNamespace, static::NAMESPACE_DELIMITER),
                             'path'  => $path.$file,
-                            'type'  => trim($m[1])
+                            'type'  => trim($m[1]),
                         ];
 
-                        if (substr($className, -4) == 'core') {
+                        if (str_ends_with($className, 'core')) {
                             $overrideClass = substr($className, 0, -4);
                             $classes[$overrideClass] = [
                                 'name' => substr($m['classname'], 0, -4),
                                 'ns'   => rtrim($fileNamespace, static::NAMESPACE_DELIMITER),
                                 'path' => '',
-                                'type' => $classes[$className]['type']
+                                'type' => $classes[$className]['type'],
                             ];
                         }
                     }
@@ -192,16 +190,15 @@ class PrestaShopAutoload
      * @param string $content php file content
      * @return string namespace or empty string
      */
-    protected function resolveNamespace($content)
+    protected function resolveNamespace($content): string
     {
         $lines = explode("\n", $content);
         foreach ($lines as $line) {
             if (preg_match('#^\s*namespace\s+([^\s;]+)\s*;\s*$#', $line, $matches)) {
-                $fileNamespace = trim($matches[1], static::NAMESPACE_DELIMITER) . static::NAMESPACE_DELIMITER;
-                return $fileNamespace;
+                return trim($matches[1], static::NAMESPACE_DELIMITER) . static::NAMESPACE_DELIMITER;
             }
         }
-        return "";
+        return '';
     }
 
     /**
@@ -221,11 +218,10 @@ class PrestaShopAutoload
     /**
      * Retrieve informations about a class in classes index and load it
      *
-     * @param string $requestClassName
      *
      * @return mixed
      */
-    public function load($requestClassName)
+    public function load(string $requestClassName)
     {
         $className = strtolower($requestClassName);
 
@@ -242,7 +238,7 @@ class PrestaShopAutoload
         }
 
         // If $classname has not core suffix (E.g. Shop, Product)
-        if (substr($className, -4) != 'core') {
+        if (!str_ends_with($className, 'core')) {
             // If requested class does not exist, load associated core class
             if (isset($this->index[$className]) && !$this->index[$className]['path']) {
                 require_once($this->root_dir.$this->index[$className.'core']['path']);
@@ -284,8 +280,6 @@ class PrestaShopAutoload
     public function getClassPath($className)
     {
         $className = strtolower($className);
-        return (isset($this->index[$className]['path']))
-            ? $this->index[$className]['path']
-            : null;
+        return $this->index[$className]['path'] ?? null;
     }
 }

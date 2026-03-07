@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -48,7 +50,7 @@ abstract class ModuleAdminControllerCore extends AdminController
 
         $tab = new Tab($this->id);
         if (!$tab->module) {
-            throw new PrestaShopException('Admin tab '.get_class($this).' is not a module tab');
+            throw new PrestaShopException('Admin tab '.static::class.' is not a module tab');
         }
 
         $this->module = Module::getInstanceByName($tab->module);
@@ -69,12 +71,14 @@ abstract class ModuleAdminControllerCore extends AdminController
      */
     public function createTemplate($tplName)
     {
-        if ($this->viewAccess()) {
-            if (file_exists(_PS_THEME_DIR_ . 'modules/' . $this->module->name . '/views/templates/admin/' . $tplName)) {
-                return $this->context->smarty->createTemplate(_PS_THEME_DIR_ . 'modules/' . $this->module->name . '/views/templates/admin/' . $tplName, $this->context->smarty);
-            } elseif (file_exists($this->getTemplatePath() . $this->override_folder . $tplName)) {
-                return $this->context->smarty->createTemplate($this->getTemplatePath() . $this->override_folder . $tplName, $this->context->smarty);
-            }
+        if (!$this->viewAccess()) {
+            return parent::createTemplate($tplName);
+        }
+        if (file_exists(_PS_THEME_DIR_ . 'modules/' . $this->module->name . '/views/templates/admin/' . $tplName)) {
+            return $this->context->smarty->createTemplate(_PS_THEME_DIR_ . 'modules/' . $this->module->name . '/views/templates/admin/' . $tplName, $this->context->smarty);
+        }
+        if (file_exists($this->getTemplatePath() . $this->override_folder . $tplName)) {
+            return $this->context->smarty->createTemplate($this->getTemplatePath() . $this->override_folder . $tplName, $this->context->smarty);
         }
 
         return parent::createTemplate($tplName);

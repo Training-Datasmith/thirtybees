@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -137,9 +139,7 @@ class WarehouseCore extends ObjectModel
         $query->leftJoin('shop', 's', 's.id_shop = ws.id_shop');
         $query->where($this->def['primary'].' = '.(int) $this->id);
 
-        $res = Db::readOnly()->getArray($query);
-
-        return $res;
+        return Db::readOnly()->getArray($query);
     }
 
     /**
@@ -184,7 +184,7 @@ class WarehouseCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function setCarriers($idsCarriers)
+    public function setCarriers($idsCarriers): void
     {
         if (!is_array($idsCarriers)) {
             $idsCarriers = [];
@@ -216,7 +216,7 @@ class WarehouseCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function removeCarrier($idCarrier, $idWarehouse = null)
+    public static function removeCarrier($idCarrier, $idWarehouse = null): void
     {
         Db::getInstance()->execute(
             '
@@ -303,7 +303,7 @@ class WarehouseCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public function resetProductsLocations()
+    public function resetProductsLocations(): void
     {
         Db::getInstance()->execute(
             '
@@ -374,7 +374,7 @@ class WarehouseCore extends ObjectModel
         $query = new DbQuery();
         $query->select('wpl.id_warehouse, CONCAT(w.reference, " - ", w.name) as name');
         $query->from('warehouse_product_location', 'wpl');
-        $query->innerJoin('warehouse_shop', 'ws', 'ws.id_warehouse = wpl.id_warehouse AND id_shop IN ('.implode(',', array_map('intval', $idsShop)).')');
+        $query->innerJoin('warehouse_shop', 'ws', 'ws.id_warehouse = wpl.id_warehouse AND id_shop IN ('.implode(',', array_map(intval(...), $idsShop)).')');
         $query->innerJoin('warehouse', 'w', 'ws.id_warehouse = w.id_warehouse');
         $query->where('id_product = '.(int) $idProduct);
         $query->where('id_product_attribute = '.(int) $idProductAttribute);
@@ -478,7 +478,7 @@ class WarehouseCore extends ObjectModel
 
         $res = Db::readOnly()->getValue($query);
 
-        return ($res ? $res : 0);
+        return ($res ?: 0);
     }
 
     /**
@@ -598,7 +598,7 @@ class WarehouseCore extends ObjectModel
 
         // array with all warehouses id to check
         $list = [
-            'pack_warehouses' => []
+            'pack_warehouses' => [],
         ];
 
         // fills $list
@@ -622,7 +622,7 @@ class WarehouseCore extends ObjectModel
 
         // returns final list
         if (count($list) > 1) {
-            return call_user_func_array('array_intersect', array_values($list));
+            return call_user_func_array(array_intersect(...), array_values($list));
         }
 
         return [];
@@ -631,7 +631,7 @@ class WarehouseCore extends ObjectModel
     /**
      * @throws PrestaShopException
      */
-    public function resetStockAvailable()
+    public function resetStockAvailable(): void
     {
         $products = WarehouseProductLocation::getProducts((int) $this->id);
         foreach ($products as $product) {
@@ -685,9 +685,7 @@ class WarehouseCore extends ObjectModel
         $query->leftJoin('shop', 's', 's.id_shop = ws.id_shop');
         $query->where($this->def['primary'].' = '.(int) $this->id);
 
-        $res = Db::readOnly()->getArray($query);
-
-        return $res;
+        return Db::readOnly()->getArray($query);
     }
 
     /**
@@ -721,7 +719,7 @@ class WarehouseCore extends ObjectModel
     /**
      * @param TableSchema $table
      */
-    public static function processTableSchema($table)
+    public static function processTableSchema($table): void
     {
         if ($table->getNameWithoutPrefix() === 'warehouse_shop') {
             $table->reorderColumns(['id_shop', 'id_warehouse']);

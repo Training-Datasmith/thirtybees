@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -278,10 +280,8 @@ class ProductAttributeCore extends ObjectModel
      * @param int $idProductAttribute Product attribute combination id
      * @param int $qty Quantity needed
      *
-     * @param Shop|null $shop
      *
      * @return bool Quantity is available or not
-     *
      * @throws PrestaShopException
      */
     public static function checkAttributeQty($idProductAttribute, $qty, ?Shop $shop = null)
@@ -485,10 +485,8 @@ class ProductAttributeCore extends ObjectModel
     /**
      * Returns file path to attribute texture file, if exists
      *
-     * @param int $attributeId
      *
      * @return string|false
-     *
      * @throws PrestaShopException
      */
     public static function getTextureFilePath(int $attributeId)

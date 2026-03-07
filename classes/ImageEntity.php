@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -34,14 +36,14 @@
  */
 class ImageEntityCore extends ObjectModel
 {
-    const ENTITY_TYPE_PRODUCTS = 'products';
-    const ENTITY_TYPE_CATEGORIES = 'categories';
-    const ENTITY_TYPE_CATEGORIES_THUMB = 'categoriesthumb';
-    const ENTITY_TYPE_MANUFACTURERS = 'manufacturers';
-    const ENTITY_TYPE_SUPPLIERS = 'suppliers';
-    const ENTITY_TYPE_SCENES = 'scenes';
-    const ENTITY_TYPE_SCENES_THUMB = 'scenesthumb';
-    const ENTITY_TYPE_STORES = 'stores';
+    public const ENTITY_TYPE_PRODUCTS = 'products';
+    public const ENTITY_TYPE_CATEGORIES = 'categories';
+    public const ENTITY_TYPE_CATEGORIES_THUMB = 'categoriesthumb';
+    public const ENTITY_TYPE_MANUFACTURERS = 'manufacturers';
+    public const ENTITY_TYPE_SUPPLIERS = 'suppliers';
+    public const ENTITY_TYPE_SCENES = 'scenes';
+    public const ENTITY_TYPE_SCENES_THUMB = 'scenesthumb';
+    public const ENTITY_TYPE_STORES = 'stores';
 
     /**
      * @var string Name
@@ -108,7 +110,7 @@ class ImageEntityCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function rebuildImageEntities($classname, $images)
+    public static function rebuildImageEntities($classname, $images): void
     {
         // Adding images from themes
         foreach (Theme::getUsedThemes() as $theme) {
@@ -201,8 +203,8 @@ class ImageEntityCore extends ObjectModel
             foreach (Language::getLanguages(false, false, true) as $langId) {
                 if (isset($imageEntityObj->display_name[$langId]) && $imageEntityObj->display_name[$langId]) {
                     $displayName[$langId] = $imageEntityObj->display_name[$langId];
-                }  else {
-                    $displayName[$langId] = $imageEntity['displayName'] ?? ucfirst($imageEntityName);
+                } else {
+                    $displayName[$langId] = $imageEntity['displayName'] ?? ucfirst((string) $imageEntityName);
                 }
             }
             $imageEntityObj->display_name = $displayName;
@@ -242,7 +244,7 @@ class ImageEntityCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    private static function rebuildBasedOnOldTypes()
+    private static function rebuildBasedOnOldTypes(): void
     {
         // This function should only be executed once
         if (!Configuration::get('TB_IMAGE_ENTITY_REBUILD_LAST')) {
@@ -268,7 +270,7 @@ class ImageEntityCore extends ObjectModel
                     if ($imageType[$oldEntityType] && isset($ids_image_entity[$oldEntityType])) {
                         $data = [
                             'id_image_entity' => $ids_image_entity[$oldEntityType],
-                            'id_image_type' => $imageType['id_image_type']
+                            'id_image_type' => $imageType['id_image_type'],
                         ];
                         $db->insert('image_entity_type', $data, false, true, Db::REPLACE);
                     }
@@ -289,10 +291,8 @@ class ImageEntityCore extends ObjectModel
     }
 
     /**
-     * @param string $imageEntityName
      *
      * @return array|null
-     *
      * @throws PrestaShopException
      */
     public static function getImageEntityInfo(string $imageEntityName)
@@ -308,7 +308,6 @@ class ImageEntityCore extends ObjectModel
 
     /**
      *
-     * @return array
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
@@ -346,7 +345,7 @@ class ImageEntityCore extends ObjectModel
                         'primary' => $definition['primary'],
                         'path' => $definition['images'][$name]['path'] ?? '',
                         'name' => $name,
-                        'display_name' => $res['display_name'] ? $res['display_name'] : ucfirst($name),
+                        'display_name' => $res['display_name'] ?: ucfirst((string) $name),
                         'classname' => $className,
                         'id_image_entity' => (int)$res['id_image_entity'],
                         'imageTypes' => [],
@@ -380,7 +379,7 @@ class ImageEntityCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public function associateImageTypes(array $imageTypeIds, $deleteExisting = false)
+    public function associateImageTypes(array $imageTypeIds, $deleteExisting = false): void
     {
         $imageEntityId = (int)$this->id;
         if ($imageEntityId) {
@@ -401,16 +400,13 @@ class ImageEntityCore extends ObjectModel
     }
 
     /**
-     * @param int $imageTypeId
      *
-     * @return void
      *
      * @throws PrestaShopException
      */
-    public function associateImageType(int $imageTypeId)
+    public function associateImageType(int $imageTypeId): void
     {
         $imageEntityId = (int)$this->id;
-        $imageTypeId = (int)$imageTypeId;
         if ($imageEntityId && $imageTypeId) {
             $conn = Db::getInstance();
             $conn->insert('image_entity_type', [
@@ -455,7 +451,7 @@ class ImageEntityCore extends ObjectModel
         if ($info) {
             foreach ($info['imageTypes'] as $type) {
                 $result[] = [
-                    'id' => (int)$type['id_image_type']
+                    'id' => (int)$type['id_image_type'],
                 ];
             }
         }

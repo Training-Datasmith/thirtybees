@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -42,8 +44,6 @@ class HTMLTemplateDeliverySlipCore extends HTMLTemplate
     public $order_invoice;
 
     /**
-     * @param OrderInvoice $orderInvoice
-     * @param Smarty $smarty
      * @param bool $bulkMode
      *
      * @throws PrestaShopException

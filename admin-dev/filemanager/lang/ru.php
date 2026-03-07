@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 define('lang_Select', 'Выбрать');
 define('lang_Erase', 'Удалить');
 define('lang_Open', 'Открыть');
@@ -38,7 +40,7 @@ define('lang_Swipe_help', 'Наведите на имя файла/папки, �
 define('lang_Upload_base', 'Основная загрузка');
 define('lang_Upload_java', 'JAVA загрузка (для файлов больших размеров)');
 define('lang_Upload_java_help', "Если Java-апплет не загружается: 1. Убедитесь, что установлена Java, в противном случае <a href='http://java.com/en/download/'>[скачайте]</a> 2. Убедитесь, что фаервол ничего не блокирует");
-define('lang_Upload_base_help', "Перетащите файлы в область выше или щелкните по ней мышкой (для современных браузеров) и выберите файл(ы). После завершения загрузки нажмите кнопку &laquo;Вернуться к списку файлов&raquo;.");
+define('lang_Upload_base_help', 'Перетащите файлы в область выше или щелкните по ней мышкой (для современных браузеров) и выберите файл(ы). После завершения загрузки нажмите кнопку &laquo;Вернуться к списку файлов&raquo;.');
 define('lang_Type_dir', 'папка');
 define('lang_Type', 'Тип');
 define('lang_Dimension', 'Разрешение');

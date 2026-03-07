@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -270,7 +272,7 @@ class AttributeGroupCore extends ObjectModel
                     return false;
                 }
             }
-            $this->cleanPositions();
+            static::cleanPositions();
         }
         $return = parent::delete();
         if ($return) {
@@ -301,11 +303,9 @@ class AttributeGroupCore extends ObjectModel
             }
         }
         $return = true;
-        if (!empty($toRemove)) {
-            foreach ($toRemove as $remove) {
-                $combination = new Combination($remove);
-                $return = $combination->delete() && $return;
-            }
+        foreach ($toRemove as $remove) {
+            $combination = new Combination($remove);
+            $return = $combination->delete() && $return;
         }
 
         return $return;
@@ -335,7 +335,7 @@ class AttributeGroupCore extends ObjectModel
             $return = Db::getInstance()->update(
                 'attribute_group',
                 [
-                    'position' => (int) $i++,
+                    'position' => $i++,
                 ],
                 '`id_attribute_group` = '.(int) $value['id_attribute_group']
             );
@@ -388,15 +388,13 @@ class AttributeGroupCore extends ObjectModel
      */
     public function getWsProductOptionValues()
     {
-        $result = Db::readOnly()->getArray(
+        return Db::readOnly()->getArray(
             (new DbQuery())
                 ->select('a.`id_attribute` AS `id`')
                 ->from('attribute', 'a')
                 ->join(Shop::addSqlAssociation('attribute', 'a'))
                 ->where('a.`id_attribute_group` = '.(int) $this->id)
         );
-
-        return $result;
     }
 
     /**

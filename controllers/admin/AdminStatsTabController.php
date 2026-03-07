@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -165,7 +167,7 @@ abstract class AdminStatsTabControllerCore extends AdminPreferencesControllerCor
     protected function getModules()
     {
         $list = Hook::getHookModuleExecList('displayAdminStatsModules');
-        $modules = $list ? array_map(function($hook) {
+        $modules = $list ? array_map(function ($hook) {
             return [
                 'hook' => 'displayAdminStatsModules',
                 'name' => $hook['module'],

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -39,14 +41,14 @@ class DispatcherCore
     /**
      * List of available front controllers types
      */
-    const FC_FRONT = 1;
-    const FC_ADMIN = 2;
-    const FC_MODULE = 3;
+    public const FC_FRONT = 1;
+    public const FC_ADMIN = 2;
+    public const FC_MODULE = 3;
 
     /**
      * @var Dispatcher
      */
-    public static $instance = null;
+    public static $instance;
 
     /**
      * @var array List of default routes
@@ -144,7 +146,7 @@ class DispatcherCore
             'keywords' => [
                 'id' => [
                     'regexp' => '[0-9]+',
-                    'alias'  => 'id_cms_category'
+                    'alias'  => 'id_cms_category',
                 ],
                 'rewrite' => [
                     'regexp' => '[_a-zA-Z0-9\pL\pS-]*',
@@ -221,7 +223,7 @@ class DispatcherCore
                     'regexp' => '[a-zA-Z0-9-\pL]*',
                 ],
                 'any' => [
-                    'regexp' => '.*'
+                    'regexp' => '.*',
                 ],
             ],
         ],
@@ -257,7 +259,7 @@ class DispatcherCore
     /**
      * @var bool If true, use routes to build URL (mod rewrite must be activated)
      */
-    protected $use_routes = false;
+    protected bool $use_routes;
 
     /**
      * @var bool
@@ -302,7 +304,7 @@ class DispatcherCore
     /**
      * @var string Controller to use if found controller doesn't exist
      */
-    protected $controller_not_found = 'pagenotfound';
+    protected string $controller_not_found = 'pagenotfound';
 
     /**
      * @var string Front controller to use
@@ -328,11 +330,9 @@ class DispatcherCore
      * @param string $rule Url rule
      * @param string $controller Controller to call if request uri match the rule
      * @param int $idLang
-     * @param array $keywords
-     * @param array $params
      * @param int $idShop
      */
-    public function addRoute($routeId, $rule, $controller, $idLang = null, array $keywords = [], array $params = [], $idShop = null)
+    public function addRoute($routeId, $rule, $controller, $idLang = null, array $keywords = [], array $params = [], $idShop = null): void
     {
         if (isset(Context::getContext()->language) && $idLang === null) {
             $idLang = (int) Context::getContext()->language->id;
@@ -346,7 +346,7 @@ class DispatcherCore
             $rule = $this->default_routes[$routeId]['rule'];
         }
 
-        $regexp = preg_quote($rule, '#');
+        $regexp = preg_quote((string) $rule, '#');
         $aliases = [];
         if ($keywords) {
             $transformKeywords = [];
@@ -411,12 +411,11 @@ class DispatcherCore
      * @param string $type
      * @param string|string[]|null $module
      *
-     * @return array
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getModuleControllers($type = 'all', $module = null)
+    public static function getModuleControllers($type = 'all', $module = null): array
     {
         $modulesControllers = [];
         if (is_null($module)) {
@@ -433,11 +432,11 @@ class DispatcherCore
         foreach ($modules as $mod) {
             foreach (Dispatcher::getControllersInDirectory(_PS_MODULE_DIR_.$mod->name.'/controllers/') as $controller) {
                 if ($type == 'admin') {
-                    if (strpos($controller, 'Admin') !== false) {
+                    if (str_contains($controller, 'Admin')) {
                         $modulesControllers[$mod->name][] = $controller;
                     }
                 } elseif ($type == 'front') {
-                    if (strpos($controller, 'Admin') === false) {
+                    if (!str_contains($controller, 'Admin')) {
                         $modulesControllers[$mod->name][] = $controller;
                     }
                 } else {
@@ -503,7 +502,7 @@ class DispatcherCore
 
             $urlLanguage = $this->getLanguageFromUri($requestUri);
             if ($urlLanguage) {
-                $requestUri = substr($requestUri, strlen($urlLanguage->getUrlCode()) + 1);
+                $requestUri = substr((string) $requestUri, strlen($urlLanguage->getUrlCode()) + 1);
                 $_GET['isolang'] = $urlLanguage->iso_code;
             } elseif (! Tools::getValue('isolang')) {
                 if (! $this->isPhpScriptUrl($requestUri)) {
@@ -514,8 +513,8 @@ class DispatcherCore
         }
 
         // fix uri, if it starts with two or more / characters
-        if (strpos($requestUri, '//') === 0) {
-            $requestUri = '/' . ltrim($requestUri, '/');
+        if (str_starts_with((string) $requestUri, '//')) {
+            $requestUri = '/' . ltrim((string) $requestUri, '/');
         }
 
         $this->request_uri = $requestUri;
@@ -557,46 +556,28 @@ class DispatcherCore
         $cmscatroutes = 'PS_ROUTE_cms_category_rule';
         $moduleroutes = 'PS_ROUTE_module';
 
-        $this->setRouteMatcher('product_rule', [ $this, 'matchRewritableRoute' ]);
-        $this->setRouteMatcher('category_rule', [ $this, 'matchRewritableRoute' ]);
-        $this->setRouteMatcher('supplier_rule', [ $this, 'matchRewritableRoute' ]);
-        $this->setRouteMatcher('manufacturer_rule', [ $this, 'matchRewritableRoute' ]);
-        $this->setRouteMatcher('layered_rule', [ $this, 'matchRewritableRoute' ]);
-        $this->setRouteMatcher('cms_rule', [ $this, 'matchRewritableRoute' ]);
-        $this->setRouteMatcher('cms_category_rule', [ $this, 'matchRewritableRoute' ]);
+        $this->setRouteMatcher('product_rule', $this->matchRewritableRoute(...));
+        $this->setRouteMatcher('category_rule', $this->matchRewritableRoute(...));
+        $this->setRouteMatcher('supplier_rule', $this->matchRewritableRoute(...));
+        $this->setRouteMatcher('manufacturer_rule', $this->matchRewritableRoute(...));
+        $this->setRouteMatcher('layered_rule', $this->matchRewritableRoute(...));
+        $this->setRouteMatcher('cms_rule', $this->matchRewritableRoute(...));
+        $this->setRouteMatcher('cms_category_rule', $this->matchRewritableRoute(...));
 
         // Set new routes
         foreach (Language::getLanguages() as $lang) {
             foreach ($this->default_routes as $id => $route) {
-                switch ($id) {
-                    case 'product_rule':
-                        $rule = Configuration::get($prodroutes, (int) $lang['id_lang']);
-                        break;
-                    case 'category_rule':
-                        $rule = Configuration::get($catroutes, (int) $lang['id_lang']);
-                        break;
-                    case 'supplier_rule':
-                        $rule = Configuration::get($supproutes, (int) $lang['id_lang']);
-                        break;
-                    case 'manufacturer_rule':
-                        $rule = Configuration::get($manuroutes, (int) $lang['id_lang']);
-                        break;
-                    case 'layered_rule':
-                        $rule = Configuration::get($layeredroutes, (int) $lang['id_lang']);
-                        break;
-                    case 'cms_rule':
-                        $rule = Configuration::get($cmsroutes, (int) $lang['id_lang']);
-                        break;
-                    case 'cms_category_rule':
-                        $rule = Configuration::get($cmscatroutes, (int) $lang['id_lang']);
-                        break;
-                    case 'module':
-                        $rule = Configuration::get($moduleroutes, (int) $lang['id_lang']);
-                        break;
-                    default:
-                        $rule = $route['rule'];
-                        break;
-                }
+                $rule = match ($id) {
+                    'product_rule' => Configuration::get($prodroutes, (int) $lang['id_lang']),
+                    'category_rule' => Configuration::get($catroutes, (int) $lang['id_lang']),
+                    'supplier_rule' => Configuration::get($supproutes, (int) $lang['id_lang']),
+                    'manufacturer_rule' => Configuration::get($manuroutes, (int) $lang['id_lang']),
+                    'layered_rule' => Configuration::get($layeredroutes, (int) $lang['id_lang']),
+                    'cms_rule' => Configuration::get($cmsroutes, (int) $lang['id_lang']),
+                    'cms_category_rule' => Configuration::get($cmscatroutes, (int) $lang['id_lang']),
+                    'module' => Configuration::get($moduleroutes, (int) $lang['id_lang']),
+                    default => $route['rule'],
+                };
 
                 $this->addRoute(
                     $id,
@@ -740,7 +721,7 @@ class DispatcherCore
      * @throws PrestaShopException
      * @throws SmartyException
      */
-    public function dispatch()
+    public function dispatch(): void
     {
         $controllerClass = '';
 
@@ -772,7 +753,7 @@ class DispatcherCore
                 $paramsHookActionDispatcher = ['controller_type' => static::FC_FRONT, 'controller_class' => $controllerClass, 'is_module' => 0];
                 break;
 
-            // Dispatch module controller for front office and ajax
+                // Dispatch module controller for front office and ajax
             case static::FC_MODULE:
                 $controllerClass = 'PageNotFoundController';
                 $moduleName = Tools::getValue('module');
@@ -799,7 +780,7 @@ class DispatcherCore
                 $paramsHookActionDispatcher = ['controller_type' => static::FC_FRONT, 'controller_class' => $controllerClass, 'is_module' => 1];
                 break;
 
-            // Dispatch back office controller + module back office controller
+                // Dispatch back office controller + module back office controller
             case static::FC_ADMIN:
                 if ($this->use_default_controller && !Tools::getValue('token') && Validate::isLoadedObject(Context::getContext()->employee) && Context::getContext()->employee->isLoggedBack()) {
                     Tools::redirectAdmin('index.php?controller='.$this->controller.'&token='.Tools::getAdminTokenLite($this->controller));
@@ -894,17 +875,13 @@ class DispatcherCore
         return $this->resolveController($idShop, $this->request_uri);
     }
 
-
     /**
-     * @param int $idShop
-     * @param string $requestUri
-     *
      * @return string
      * @throws PrestaShopException
      */
-    public function resolveController(int $idShop, string $requestUri)
+    public function resolveController(int $idShop, string $requestUri): string|array
     {
-        list($uri) = explode('?', $requestUri);
+        [$uri] = explode('?', $requestUri);
 
         $controller = Tools::getValue('controller');
         if (isset($controller) && is_string($controller)) {
@@ -936,7 +913,7 @@ class DispatcherCore
             // Check basic controllers & params
             $controller = $this->controller_not_found;
             $testRequestUri = preg_replace('/(=http:\/\/)/', '=', $requestUri);
-            $urlPath = parse_url($testRequestUri, PHP_URL_PATH);
+            $urlPath = parse_url((string) $testRequestUri, PHP_URL_PATH);
             if ($urlPath && !preg_match('/\.(css|js)$/i', $urlPath)) {
                 // Add empty route as last route to prevent this greedy regexp to match request uri before right time
                 if ($this->empty_route) {
@@ -950,7 +927,7 @@ class DispatcherCore
                         $idShop
                     );
                 }
-                list($uri) = explode('?', $requestUri);
+                [$uri] = explode('?', $requestUri);
                 if (isset($this->routes[$idShop][Context::getContext()->language->id])) {
                     $routes = $this->routes[$idShop][Context::getContext()->language->id];
 
@@ -979,7 +956,8 @@ class DispatcherCore
                                 // We might have us an external module page here, in that case we set whatever we can
                                 if (!is_numeric($k) &&
                                     !isset($params[$k]) &&
-                                    ($isModule
+                                    (
+                                        $isModule
                                         || $k !== 'id'
                                         && $k !== 'ipa'
                                         && $k !== 'rewrite'
@@ -1064,10 +1042,8 @@ class DispatcherCore
      * Get list of all available FO controllers
      *
      * @param string|string[] $dirs
-     *
-     * @return array
      */
-    public static function getControllers($dirs)
+    public static function getControllers($dirs): array
     {
         if (!is_array($dirs)) {
             $dirs = [$dirs];
@@ -1085,10 +1061,8 @@ class DispatcherCore
      * Get list of available controllers from the specified dir
      *
      * @param string $dir Directory to scan (recursively)
-     *
-     * @return array
      */
-    public static function getControllersInDirectory($dir)
+    public static function getControllersInDirectory(string $dir): array
     {
         if (!is_dir($dir)) {
             return [];
@@ -1116,10 +1090,8 @@ class DispatcherCore
      * @param string $routeId
      * @param int $idLang
      * @param int $idShop
-     *
-     * @return bool
      */
-    public function hasRoute($routeId, $idLang = null, $idShop = null)
+    public function hasRoute($routeId, $idLang = null, $idShop = null): bool
     {
         return !!$this->getRoute($routeId, $idLang, $idShop);
     }
@@ -1153,11 +1125,10 @@ class DispatcherCore
      * @param string $keyword
      * @param int $idShop
      *
-     * @return bool
      *
      * @throws PrestaShopException
      */
-    public function hasKeyword($routeId, $idLang, $keyword, $idShop = null)
+    public function hasKeyword($routeId, $idLang, $keyword, $idShop = null): false|int
     {
         if ($idShop === null) {
             $idShop = (int) Context::getContext()->shop->id;
@@ -1171,7 +1142,7 @@ class DispatcherCore
             return false;
         }
 
-        return preg_match('#\{([^{}]*:)?'.preg_quote($keyword, '#').'(:[^{}]*)?\}#', $this->routes[$idShop][$idLang][$routeId]['rule']);
+        return preg_match('#\{([^{}]*:)?'.preg_quote($keyword, '#').'(:[^{}]*)?\}#', (string) $this->routes[$idShop][$idLang][$routeId]['rule']);
     }
 
     /**
@@ -1211,16 +1182,14 @@ class DispatcherCore
      *
      * @param string $routeId Name of the route
      * @param int $idLang
-     * @param array $params
      * @param bool $forceRoutes
      * @param string $anchor Optional anchor to add at the end of this url
      * @param int|null $idShop
      *
-     * @return string
      *
      * @throws PrestaShopException
      */
-    public function createUrl($routeId, $idLang = null, array $params = [], $forceRoutes = false, $anchor = '', $idShop = null)
+    public function createUrl($routeId, $idLang = null, array $params = [], $forceRoutes = false, string $anchor = '', $idShop = null): string
     {
         if ($idLang === null) {
             $idLang = (int) Context::getContext()->language->id;
@@ -1268,9 +1237,8 @@ class DispatcherCore
                 if (! array_key_exists($key, $params)) {
                     if ($alias) {
                         throw new PrestaShopException('Dispatcher::createUrl() miss required parameter "'.$alias.'" or it\'s alias "'.$key.'"for route "'.$routeId.'"');
-                    } else {
-                        throw new PrestaShopException('Dispatcher::createUrl() miss required parameter "'.$key.'" for route "'.$routeId.'"');
                     }
+                    throw new PrestaShopException('Dispatcher::createUrl() miss required parameter "'.$key.'" for route "'.$routeId.'"');
                 }
 
                 if (isset($this->default_routes[$routeId])) {
@@ -1292,17 +1260,23 @@ class DispatcherCore
                     } else {
                         $replace = '';
                     }
-                    $url = preg_replace('#\{([^{}]*:)?'.$key.'(:[^{}]*)?\}#', $replace, $url);
+                    $url = preg_replace('#\{([^{}]*:)?'.$key.'(:[^{}]*)?\}#', $replace, (string) $url);
                 }
             }
-            $url = preg_replace('#\{([^{}]*:)?[a-z0-9_]+?(:[^{}]*)?\}#', '', $url);
+            $url = preg_replace('#\{([^{}]*:)?[a-z0-9_]+?(:[^{}]*)?\}#', '', (string) $url);
             if (count($addParam)) {
                 $url .= '?'.http_build_query($addParam, '', '&');
             }
         } else {
             $addParams = [];
             foreach ($route['keywords'] as $key => $data) {
-                if (!$data['required'] || !array_key_exists($key, $params) || ($key === 'rewrite' && in_array($route['controller'], ['product', 'category', 'supplier', 'manufacturer', 'cms', 'cms_category']))) {
+                if (!$data['required']) {
+                    continue;
+                }
+                if (!array_key_exists($key, $params)) {
+                    continue;
+                }
+                if ($key === 'rewrite' && in_array($route['controller'], ['product', 'category', 'supplier', 'manufacturer', 'cms', 'cms_category'])) {
                     continue;
                 }
                 if (isset($this->default_routes[$routeId])) {
@@ -1335,7 +1309,6 @@ class DispatcherCore
         return $url.$anchor;
     }
 
-
     /**
      * This method tries to match core rewritable controllers
      *
@@ -1345,7 +1318,7 @@ class DispatcherCore
      *
      * @return array | false
      */
-    protected function matchRewritableRoute($parts, $uri, $route)
+    protected function matchRewritableRoute(array $parts, $uri, array $route): array|false
     {
         $type = $route['controller'];
         if ($type === 'cms') {
@@ -1389,11 +1362,10 @@ class DispatcherCore
      * @param string $rewrite
      * @param string $url
      *
-     * @return int
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    protected function productID($rewrite, $url = '')
+    protected function productID($rewrite, $url = ''): int
     {
         // Rewrite and url cannot both be empty
         if (empty($rewrite)) {
@@ -1442,11 +1414,10 @@ class DispatcherCore
      * @param string $rewrite
      * @param string $url
      *
-     * @return int
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    protected function categoryID($rewrite, $url = '')
+    protected function categoryID($rewrite, $url = ''): int
     {
         // Rewrite cannot be empty
         if (empty($rewrite)) {
@@ -1497,11 +1468,10 @@ class DispatcherCore
     /**
      * @param string $rewrite
      *
-     * @return int
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    protected function supplierID($rewrite)
+    protected function supplierID($rewrite): int
     {
         // Rewrite cannot be empty
         if (empty($rewrite)) {
@@ -1523,11 +1493,10 @@ class DispatcherCore
     /**
      * @param string $rewrite
      *
-     * @return int
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    protected function manufacturerID($rewrite)
+    protected function manufacturerID($rewrite): int
     {
         // Rewrite cannot be empty
         if (empty($rewrite)) {
@@ -1550,11 +1519,10 @@ class DispatcherCore
      * @param string $rewrite
      * @param string $url
      *
-     * @return int
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    protected function cmsID($rewrite, $url = '')
+    protected function cmsID($rewrite, $url = ''): int
     {
         // Rewrite cannot be empty
         if (empty($rewrite)) {
@@ -1607,11 +1575,10 @@ class DispatcherCore
      * @param string $rewrite
      * @param string $url
      *
-     * @return int
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    protected function cmsCategoryID($rewrite, $url = '')
+    protected function cmsCategoryID($rewrite, $url = ''): int
     {
         // Rewrite cannot be empty
         if (empty($rewrite)) {
@@ -1663,11 +1630,9 @@ class DispatcherCore
 
     /**
      * @param string $rule
-     * @param array $keywords
      *
-     * @return string
      */
-    protected function createRegExp($rule, $keywords)
+    protected function createRegExp($rule, array $keywords): string
     {
         $regexp = preg_quote($rule, '#');
         if ($keywords) {
@@ -1709,7 +1674,7 @@ class DispatcherCore
      * @param callable $matcher matche function
      * @throws PrestaShopException
      */
-    public function setRouteMatcher($routeId, $matcher)
+    public function setRouteMatcher($routeId, $matcher): void
     {
         if (is_callable($matcher)) {
             $this->matchers[$routeId] = $matcher;
@@ -1726,10 +1691,7 @@ class DispatcherCore
      */
     public function getRouteMatcher($routeId)
     {
-        if (isset($this->matchers[$routeId])) {
-            return $this->matchers[$routeId];
-        }
-        return null;
+        return $this->matchers[$routeId] ?? null;
     }
 
     /**
@@ -1738,12 +1700,12 @@ class DispatcherCore
      * @param string $routeId
      * @return false| array
      */
-    public function isModuleControllerRoute($routeId)
+    public function isModuleControllerRoute($routeId): array|false
     {
         if (preg_match('#module-([a-z0-9_-]+)-([a-z0-9_]+)$#i', (string)$routeId, $m)) {
             return [
                 'module' => $m[1],
-                'controller' => $m[2]
+                'controller' => $m[2],
             ];
         }
         return false;
@@ -1752,12 +1714,10 @@ class DispatcherCore
     /**
      * Returns parameters names required by route with id $routeId
      *
-     * @param string $routeId
      * @param int|null $langId
      *
-     * @return array
      */
-    public function getRouteRequiredParams(string $routeId, int $langId)
+    public function getRouteRequiredParams(string $routeId, int $langId): array
     {
         $params = [];
         $route = $this->getRoute($routeId, $langId);
@@ -1778,8 +1738,6 @@ class DispatcherCore
 
     /**
      * Extracts request_uri from request
-     *
-     * @return string
      */
     protected static function extractRequestUri(): string
     {
@@ -1794,9 +1752,7 @@ class DispatcherCore
     }
 
     /**
-     * @param string $requestUri
      *
-     * @return Language|null
      *
      * @throws PrestaShopException
      */
@@ -1815,17 +1771,15 @@ class DispatcherCore
             $codes[$urlCode] = $lang;
         }
 
-        $regexpCodes = implode('|', array_map('preg_quote', array_keys($codes)));
+        $regexpCodes = implode('|', array_map(preg_quote(...), array_keys($codes)));
         if (preg_match('#^/('.$regexpCodes.')(?:/.*)?$#', $requestUri, $m)) {
-            $urlCode = strtolower((string)$m[1]);
+            $urlCode = strtolower($m[1]);
             return $codes[$urlCode];
         }
         return null;
     }
 
     /**
-     * @return string
-     *
      * @throws PrestaShopException
      */
     protected function getDefaultLanguageIsoCode(): string
@@ -1837,9 +1791,6 @@ class DispatcherCore
      * Returns true, if $requestUri points to PHP script file
      *
      * This means that php script included thirty bees core and triggered dispatcher
-     *
-     * @param string $requestUri
-     * @return bool
      */
     protected function isPhpScriptUrl(string $requestUri): bool
     {
@@ -1851,7 +1802,7 @@ class DispatcherCore
         }
 
         // remove extra path that after actual php script file, for example /index.php/extra/path => /index.php
-        $path = preg_replace("#\.php\/.*$#", ".php", $path);
+        $path = preg_replace("#\.php\/.*$#", '.php', $path);
 
         // special handling for root index.php, we will consider this to be
         // php script file only for non GET requests

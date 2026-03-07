@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -21,11 +23,11 @@ namespace Thirtybees\Core\Package;
 
 use Archive_Tar;
 use PrestaShopException;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 use SplFileInfo;
 use Throwable;
 use Tools;
-use RecursiveDirectoryIterator;
-use RecursiveIteratorIterator;
 use ZipArchive;
 
 /**
@@ -39,12 +41,12 @@ class PackageExtractorCore
     /**
      * Merge mode - when target directory exists, package content will be merged into it
      */
-    const MODE_MERGE = 'MERGE';
+    public const MODE_MERGE = 'MERGE';
 
     /**
      * Replace mode - when target directory exists, it will be replaced with package content
      */
-    const MODE_REPLACE = 'REPLACE';
+    public const MODE_REPLACE = 'REPLACE';
 
     /**
      * @var string target directory, into which package will be installed
@@ -54,7 +56,7 @@ class PackageExtractorCore
     /**
      * @var string temp directory, used to temporary store unzipped downloaded content
      */
-    protected $tempDirectory;
+    protected string $tempDirectory;
 
     /**
      * @var int permissions for newly created directories
@@ -80,12 +82,12 @@ class PackageExtractorCore
     /**
      * @var array[] array containing all error messages generated during package extraction
      */
-    private $errors = [];
+    private array $errors = [];
 
     /**
      * @var string[] array containing all warning messages collected during package extractions
      */
-    private $warnings = [];
+    private array $warnings = [];
 
     /**
      * PackageInstallerCore constructor.
@@ -136,7 +138,7 @@ class PackageExtractorCore
 
             return $this->extractLocalPackage($source, $name);
         } catch (Throwable $e) {
-            return $this->error("Fatal error: " . $e->getMessage(), $e);
+            return $this->error('Fatal error: ' . $e->getMessage(), $e);
         } finally {
             if ($tempFile && @is_file($tempFile)) {
                 @unlink($tempFile);
@@ -171,7 +173,7 @@ class PackageExtractorCore
 
             // check that input file exists
             if (! @is_file($source)) {
-                $this->error(sprintf(Tools::displayError("File not found: %s"), $source));
+                $this->error(sprintf(Tools::displayError('File not found: %s'), $source));
                 return null;
             }
 
@@ -216,7 +218,7 @@ class PackageExtractorCore
      *
      * @return $this
      */
-    public function setPackageValidator($validator)
+    public function setPackageValidator($validator): static
     {
         $this->packageValidator = $validator;
         return $this;
@@ -232,7 +234,7 @@ class PackageExtractorCore
      *
      * @return $this
      */
-    public function setMode($mode)
+    public function setMode($mode): static
     {
         if ($mode === static::MODE_MERGE || $mode === static::MODE_REPLACE) {
             $this->mode = $mode;
@@ -247,7 +249,7 @@ class PackageExtractorCore
      *
      * @return $this
      */
-    public function setDirectoryPerms($directoryPerms)
+    public function setDirectoryPerms($directoryPerms): static
     {
         $this->directoryPerms = $directoryPerms;
         return $this;
@@ -260,7 +262,7 @@ class PackageExtractorCore
      *
      * @return $this
      */
-    public function setFilePerms($filePerms)
+    public function setFilePerms($filePerms): static
     {
         $this->filePerms = $filePerms;
         return $this;
@@ -348,7 +350,7 @@ class PackageExtractorCore
      *
      * @return bool
      */
-    protected function copyPackageContent($dir, $name)
+    protected function copyPackageContent($dir, string $name)
     {
         if ($this->mode === static::MODE_REPLACE) {
             $targetDir = $this->targetDirectory . $name;
@@ -374,11 +376,9 @@ class PackageExtractorCore
     /**
      * Returns true, if file should be copied from package.
      *
-     * @param SplFileInfo $file
      *
-     * @return bool
      */
-    protected function shouldCopyFile(SplFileInfo $file)
+    protected function shouldCopyFile(SplFileInfo $file): bool
     {
         // check file name
         $name = $file->getFilename();
@@ -405,7 +405,7 @@ class PackageExtractorCore
      *
      * @return bool
      */
-    protected function moveFile($source, $relativeTarget)
+    protected function moveFile($source, string $relativeTarget)
     {
         // create directory
         $path = array_filter(explode('/', $relativeTarget));
@@ -438,11 +438,11 @@ class PackageExtractorCore
      *
      * @throws Throwable
      */
-    protected function unpack($filepath, $name)
+    protected function unpack($filepath, string $name): ?string
     {
         // check that input file exists
         if (! @is_file($filepath)) {
-            $this->error(sprintf(Tools::displayError("File not found: %s"), $filepath));
+            $this->error(sprintf(Tools::displayError('File not found: %s'), $filepath));
             return null;
         }
 
@@ -474,7 +474,10 @@ class PackageExtractorCore
             // clean up directory content -- we want to keep only $name directory
             $found = false;
             foreach (@scandir($tempDir) as $subdir) {
-                if ($subdir === '.' || $subdir === '..') {
+                if ($subdir === '.') {
+                    continue;
+                }
+                if ($subdir === '..') {
                     continue;
                 }
                 $path = $tempDir . '/' . $subdir;
@@ -495,7 +498,7 @@ class PackageExtractorCore
             }
 
             if (! $found) {
-                $this->error(sprintf(Tools::displayError("Archive does not contain top-level directory %s"), $name));
+                $this->error(sprintf(Tools::displayError('Archive does not contain top-level directory %s'), $name));
                 Tools::deleteDirectory($tempDir);
                 return null;
             }
@@ -523,13 +526,13 @@ class PackageExtractorCore
 
         // open zip archive
         if ($zip->open($filepath) !== true) {
-            return $this->error(sprintf(Tools::displayError("Failed to open zip archive: %s"), $filepath));
+            return $this->error(sprintf(Tools::displayError('Failed to open zip archive: %s'), $filepath));
         }
 
         // extract content
         if (! $zip->extractTo($tempDir)) {
             $zip->close();
-            return $this->error(sprintf(Tools::displayError("Failed to extract zip archive: %s"), $filepath));
+            return $this->error(sprintf(Tools::displayError('Failed to extract zip archive: %s'), $filepath));
         }
 
         // close zip archive
@@ -551,7 +554,7 @@ class PackageExtractorCore
         $archive = new Archive_Tar($filepath);
 
         if (! $archive->extract($tempDir)) {
-            return $this->error(sprintf(Tools::displayError("Failed to extract tgz archive: %s"), $filepath));
+            return $this->error(sprintf(Tools::displayError('Failed to extract tgz archive: %s'), $filepath));
         }
 
         return true;
@@ -563,7 +566,7 @@ class PackageExtractorCore
      * @param string $filepath
      * @return string[]
      */
-    protected function zipTopLevelDirectories($filepath)
+    protected function zipTopLevelDirectories(array $filepath): array
     {
         $zip = new ZipArchive();
         $zip->open($filepath);
@@ -583,19 +586,18 @@ class PackageExtractorCore
      * @param string $filepath
      * @return string[]
      */
-    protected function tarTopLevelDirectories($filepath)
+    protected function tarTopLevelDirectories(array $filepath): array
     {
         $archive = new Archive_Tar($filepath);
         $dirs = [];
         foreach ($archive->listContent() as $entry) {
-            $filePath = array_filter(explode('/', $entry['filename']));
+            $filePath = array_filter(explode('/', (string) $entry['filename']));
             if ($filePath) {
                 $dirs[] = $filePath[0];
             }
         }
         return array_values(array_unique($dirs));
     }
-
 
     /**
      * Method to retrieve package from url
@@ -606,7 +608,7 @@ class PackageExtractorCore
      * @return string
      * @throws PrestaShopException
      */
-    protected function fetchRemotePackage($url, $name)
+    protected function fetchRemotePackage($url, string $name)
     {
         // check that temp directory exists
         if (! @is_dir($this->tempDirectory) && !@mkdir($this->tempDirectory, 0777, true)) {
@@ -617,17 +619,17 @@ class PackageExtractorCore
         // download file
         $suffix = '.zip';
         if (
-            (substr($url, -7) === '.tar.gz') ||
-            (substr($url, -3) === '.gz') ||
-            (substr($url, -4) === '.tar') ||
-            (substr($url, -4) === '.tgz')
+            (str_ends_with($url, '.tar.gz')) ||
+            (str_ends_with($url, '.gz')) ||
+            (str_ends_with($url, '.tar')) ||
+            (str_ends_with($url, '.tgz'))
         ) {
             $suffix = '.tgz';
         }
 
         $filename = $this->tempDirectory . $name . '-' . md5(Tools::passwdGen() . time()) . $suffix;
         if (! Tools::copy($url, $filename)) {
-            $this->error(sprintf(Tools::displayError("Failed to download file %s"), $url));
+            $this->error(sprintf(Tools::displayError('Failed to download file %s'), $url));
             @unlink($filename);
             return null;
         }
@@ -643,7 +645,7 @@ class PackageExtractorCore
      *
      * @return false
      */
-    protected function error($message, $exception = null)
+    protected function error($message, $exception = null): bool
     {
         $entry = [ 'message' => $message, ];
         if ($exception) {
@@ -673,7 +675,7 @@ class PackageExtractorCore
      *
      * @return string
      */
-    protected function normalizePath($path, $addTrailingSlash = false)
+    protected function normalizePath($path, $addTrailingSlash = false): string|array
     {
         $path = str_replace('\\', '/', $path);
         if ($addTrailingSlash) {

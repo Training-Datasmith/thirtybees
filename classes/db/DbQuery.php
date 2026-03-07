@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -32,9 +34,8 @@
 /**
  * SQL query builder
  */
-class DbQueryCore
+class DbQueryCore implements \Stringable
 {
-
     /**
      * @var string
      */
@@ -69,10 +70,8 @@ class DbQueryCore
      * Sets type of the query
      *
      * @param string $type SELECT|DELETE
-     *
-     * @return static
      */
-    public function type($type)
+    public function type($type): static
     {
         $types = ['SELECT', 'DELETE'];
 
@@ -87,10 +86,8 @@ class DbQueryCore
      * Adds fields to SELECT clause
      *
      * @param string $fields List of fields to concat to other fields
-     *
-     * @return static
      */
-    public function select($fields)
+    public function select($fields): static
     {
         if (!empty($fields)) {
             $this->query['select'][] = $fields;
@@ -105,12 +102,11 @@ class DbQueryCore
      * @param string $table Table name
      * @param string|null $alias Table alias
      *
-     * @return static
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function from($table, $alias = null)
+    public function from($table, $alias = null): static
     {
         if (!empty($table)) {
             if (strncmp($this->dbPrefix, $table, strlen($this->dbPrefix)) !== 0) {
@@ -131,10 +127,8 @@ class DbQueryCore
      * E.g. $this->join('RIGHT JOIN '.$this->dbPrefix.'product p ON ...');
      *
      * @param string $join Complete string
-     *
-     * @return static
      */
-    public function join($join)
+    public function join($join): static
     {
         if (!empty($join)) {
             $this->query['join'][] = $join;
@@ -206,7 +200,7 @@ class DbQueryCore
      *
      * @throws PrestaShopException
      */
-    public function innerJoinMultishop($table, $alias, $aliasShop, $on, $shopOnExtra = null)
+    public function innerJoinMultishop(string $table, string $alias, string $aliasShop, $on, $shopOnExtra = null)
     {
         if (! Shop::isTableAssociated($table)) {
             throw new PrestaShopException("Table `$table` is not multistore enabled`");
@@ -229,9 +223,8 @@ class DbQueryCore
             $shopOn .= ' ' . trim($shopOnExtra);
         }
 
-        return $this->innerJoin($table . "_shop", $aliasShop, $shopOn);
+        return $this->innerJoin($table . '_shop', $aliasShop, $shopOn);
     }
-
 
     /**
      * Adds a LEFT OUTER JOIN clause
@@ -299,10 +292,8 @@ class DbQueryCore
      * Adds a restriction in WHERE clause (each restriction will be separated by AND statement)
      *
      * @param string $restriction
-     *
-     * @return static
      */
-    public function where($restriction)
+    public function where($restriction): static
     {
         if (!empty($restriction)) {
             $this->query['where'][] = $restriction;
@@ -314,7 +305,6 @@ class DbQueryCore
     /**
      * Adds shop restriction for a specific table alias.
      *
-     * @param string $tableAlias
      * @param string|false $share If false, dont check share datas from group. Else can take a Shop::SHARE_* constant value
      *
      * @return static
@@ -322,7 +312,7 @@ class DbQueryCore
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function addCurrentShopRestriction($tableAlias, $share = false)
+    public function addCurrentShopRestriction(string $tableAlias, $share = false)
     {
         return $this->where(Shop::getSqlRestriction($share, '`' . $tableAlias. '`'));
     }
@@ -331,10 +321,8 @@ class DbQueryCore
      * Adds a restriction in HAVING clause (each restriction will be separated by AND statement)
      *
      * @param string $restriction
-     *
-     * @return static
      */
-    public function having($restriction)
+    public function having($restriction): static
     {
         if (!empty($restriction)) {
             $this->query['having'][] = $restriction;
@@ -347,10 +335,8 @@ class DbQueryCore
      * Adds an ORDER BY restriction
      *
      * @param string $fields List of fields to sort. E.g. $this->order('myField, b.mySecondField DESC')
-     *
-     * @return static
      */
-    public function orderBy($fields)
+    public function orderBy($fields): static
     {
         if (!empty($fields)) {
             $this->query['order'][] = $fields;
@@ -363,10 +349,8 @@ class DbQueryCore
      * Adds a GROUP BY restriction
      *
      * @param string $fields List of fields to group. E.g. $this->group('myField1, myField2')
-     *
-     * @return static
      */
-    public function groupBy($fields)
+    public function groupBy($fields): static
     {
         if (!empty($fields)) {
             $this->query['group'][] = $fields;
@@ -380,10 +364,8 @@ class DbQueryCore
      *
      * @param int $limit
      * @param int $offset
-     *
-     * @return static
      */
-    public function limit($limit, $offset = 0)
+    public function limit($limit, $offset = 0): static
     {
         $offset = (int)$offset;
         if ($offset < 0) {
@@ -415,7 +397,7 @@ class DbQueryCore
      *
      * @throws PrestaShopException
      */
-    public function validate()
+    public function validate(): void
     {
         if (!$this->query['from']) {
             throw new PrestaShopException('Table name not set in DbQuery object. Cannot build a valid SQL query.');
@@ -424,10 +406,8 @@ class DbQueryCore
 
     /**
      * Generates query and return SQL
-     *
-     * @return string
      */
-    public function buildSql()
+    public function buildSql(): string
     {
         if ($this->query['type'] == 'SELECT') {
             $sql = 'SELECT '.((($this->query['select'])) ? implode(",\n", $this->query['select']) : '*')."\n";
@@ -469,10 +449,8 @@ class DbQueryCore
 
     /**
      * Converts object to string
-     *
-     * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->buildSql();
     }

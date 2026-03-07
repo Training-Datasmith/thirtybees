@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -125,7 +127,6 @@ class OrderOpcControllerCore extends ParentOrderController
                             if (!$this->isLogged || !$this->context->customer->is_guest) {
                                 exit;
                             }
-
 
                             if (Tools::getValue('years')) {
                                 $this->context->customer->birthday = Tools::getIntValue('years').'-'.Tools::getIntValue('months').'-'.Tools::getIntValue('days');
@@ -402,9 +403,10 @@ class OrderOpcControllerCore extends ParentOrderController
         $minimalPurchase = Tools::convertPrice((float) Configuration::get('PS_PURCHASE_MINIMUM'), $currency);
         if ($this->context->cart->getOrderTotal(false, Cart::ONLY_PRODUCTS) < $minimalPurchase) {
             return '<p class="warning">'.sprintf(
-                    Tools::displayError('A minimum purchase total of %1s (tax excl.) is required to validate your order, current purchase total is %2s (tax excl.).'),
-                    Tools::displayPrice($minimalPurchase, $currency), Tools::displayPrice($this->context->cart->getOrderTotal(false, Cart::ONLY_PRODUCTS), $currency)
-                ).'</p>';
+                Tools::displayError('A minimum purchase total of %1s (tax excl.) is required to validate your order, current purchase total is %2s (tax excl.).'),
+                Tools::displayPrice($minimalPurchase, $currency),
+                Tools::displayPrice($this->context->cart->getOrderTotal(false, Cart::ONLY_PRODUCTS), $currency)
+            ).'</p>';
         }
 
         /* Bypass payment step if total is 0 */
@@ -849,7 +851,8 @@ class OrderOpcControllerCore extends ParentOrderController
                     'HOOK_EXTRACARRIER_ADDR' => null,
                     'oldMessage'             => $oldMessage['message'] ?? '',
                     'HOOK_BEFORECARRIER'     => Hook::displayHook(
-                        'displayBeforeCarrier', [
+                        'displayBeforeCarrier',
+                        [
                             'carriers'             => $carriers,
                             'checked'              => $this->context->cart->simulateCarrierSelectedOutput(),
                             'delivery_option_list' => $this->context->cart->getDeliveryOptionList(),

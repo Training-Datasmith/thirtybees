@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -48,47 +50,32 @@ class LinkCore
     /**
      * @var array|null $categoryDisableRewrite
      */
-    protected static $categoryDisableRewrite = null;
-
-    /**
-     * @var string|null
-     */
-    public $protocol_link;
-
-    /**
-     * @var string|null
-     */
-    public $protocol_content;
+    protected static $categoryDisableRewrite;
 
     /**
      * @var bool Rewriting activation
      */
-    protected $allow;
+    protected int $allow;
 
     /**
      * @var string
      */
     protected $url;
 
-    /**
-     * @var bool
-     */
-    protected $ssl_enable;
+    protected bool $ssl_enable;
 
     /**
      * Constructor (initialization only)
      *
-     * @param string|null $protocolLink
-     * @param string|null $protocolContent
+     * @param string|null $protocol_link
+     * @param string|null $protocol_content
      *
      * @throws PrestaShopException
      */
-    public function __construct($protocolLink = null, $protocolContent = null)
+    public function __construct(public $protocol_link = null, public $protocol_content = null)
     {
         $this->allow = (int) Configuration::get('PS_REWRITING_SETTINGS');
         $this->url = $_SERVER['SCRIPT_NAME'];
-        $this->protocol_link = $protocolLink;
-        $this->protocol_content = $protocolContent;
 
         if (!defined('_PS_BASE_URL_')) {
             define('_PS_BASE_URL_', Tools::getShopDomain(true));
@@ -111,10 +98,8 @@ class LinkCore
      * that still access properties via their snake_case names
      *
      * @param string $property Property name
-     *
-     * @return mixed
      */
-    public function &__get($property)
+    public function &__get(string $property): mixed
     {
         // Property to camelCase for backwards compatibility
         $camelCaseProperty = lcfirst(str_replace(' ', '', ucwords(str_replace('_', ' ', $property))));
@@ -131,11 +116,10 @@ class LinkCore
      * @param int|Product $product ID of the product OR a Product object
      * @param int $idPicture ID of the picture to delete
      *
-     * @return string
      *
      * @throws PrestaShopException
      */
-    public function getProductDeletePictureLink($product, $idPicture)
+    public function getProductDeletePictureLink($product, $idPicture): string
     {
         $url = $this->getProductLink($product);
 
@@ -155,10 +139,9 @@ class LinkCore
      * @param bool|string $addAnchor
      * @param array $extraParams
      *
-     * @return string
      * @throws PrestaShopException
      */
-    public function getProductLink($productIdentifier, $alias = null, $category = null, $ean13 = null, $idLang = null, $idShop = null, $ipa = 0, $forceRoutes = false, $relativeProtocol = false, $addAnchor = false, $extraParams = [])
+    public function getProductLink($productIdentifier, $alias = null, $category = null, $ean13 = null, $idLang = null, $idShop = null, $ipa = 0, $forceRoutes = false, $relativeProtocol = false, $addAnchor = false, $extraParams = []): string
     {
         $dispatcher = Dispatcher::getInstance();
 
@@ -248,11 +231,10 @@ class LinkCore
      * @param bool|null $ssl
      * @param bool $relativeProtocol
      *
-     * @return string
      *
      * @throws PrestaShopException
      */
-    public function getBaseLink($idShop = null, $ssl = null, $relativeProtocol = false)
+    public function getBaseLink($idShop = null, $ssl = null, $relativeProtocol = false): string
     {
         static $forceSsl = null;
 
@@ -280,14 +262,12 @@ class LinkCore
 
     /**
      * @param int|null $idLang
-     * @param Context|null $context
      * @param int|null $idShop
      *
-     * @return string
      *
      * @throws PrestaShopException
      */
-    public function getLangLink($idLang = null, ?Context $context = null, $idShop = null)
+    public function getLangLink($idLang = null, ?Context $context = null, $idShop = null): string
     {
         if (!$context) {
             $context = Context::getContext();
@@ -370,11 +350,10 @@ class LinkCore
      * @param string $imageExtension Image format (jpg/png/webp). Auto-detected by default
      * @param bool $highDpi Higher resolution
      *
-     * @return string
      *
      * @throws PrestaShopException
      */
-    public function getImageLink($name, $ids, $imageType = null, $imageExtension = null, $highDpi = false)
+    public function getImageLink($name, $ids, $imageType = null, $imageExtension = null, bool $highDpi = false): string
     {
         $ids = (string)$ids;
         $context = Context::getContext();
@@ -413,7 +392,7 @@ class LinkCore
         }
 
         $uriPath = false;
-        if (preg_match("/^([a-zA-Z]{2,3})-default-?([a-zA-Z_]*)$/", $ids, $matches)) {
+        if (preg_match('/^([a-zA-Z]{2,3})-default-?([a-zA-Z_]*)$/', $ids, $matches)) {
             // $ids contains string like 'en-default' or 'es-default-Niara_cart', not actual product image ID
             $iso = $matches[1];
             if (isset($matches[2])) {
@@ -447,13 +426,11 @@ class LinkCore
     }
 
     /**
-     * @param string $filepath
      *
-     * @return string
      *
      * @throws PrestaShopException
      */
-    public function getMediaLink($filepath)
+    public function getMediaLink(string $filepath): string
     {
         return $this->protocol_content.Tools::getMediaServer($filepath).$filepath;
     }
@@ -497,7 +474,7 @@ class LinkCore
      *
      * @throws PrestaShopException
      */
-    public static function getGenericImageLink($imageEntityName, $id, $imageType = null, $highDpi = false, $webp = null, $link_rewrite = '')
+    public static function getGenericImageLink(string $imageEntityName, $id, $imageType = null, $highDpi = false, $webp = null, $link_rewrite = ''): string
     {
         // Format imageType
         $imageType = ImageType::getFormatedName($imageType);
@@ -524,10 +501,8 @@ class LinkCore
      * Create link after language change, for the change language block
      *
      * @param int $idLang Language ID
-     * @param Context|null $context
      *
      * @return string link
-     *
      * @throws PrestaShopException
      */
     public function getLanguageLink($idLang, ?Context $context = null)
@@ -545,26 +520,31 @@ class LinkCore
             unset($params['id_lang']);
         }
 
-
         if (!empty($context->controller->php_self)) {
             $controller = $context->controller->php_self;
         } else {
             $controller = Dispatcher::getInstance()->getController();
         }
-
         if ($controller == 'product' && isset($params['id_product'])) {
             return $this->getProductLink((int) $params['id_product'], null, null, null, (int) $idLang);
-        } elseif ($controller == 'category' && isset($params['id_category'])) {
+        }
+        if ($controller == 'category' && isset($params['id_category'])) {
             return $this->getCategoryLink((int) $params['id_category'], null, (int) $idLang);
-        } elseif ($controller == 'supplier' && isset($params['id_supplier'])) {
+        }
+        if ($controller == 'supplier' && isset($params['id_supplier'])) {
             return $this->getSupplierLink((int) $params['id_supplier'], null, (int) $idLang);
-        } elseif ($controller == 'manufacturer' && isset($params['id_manufacturer'])) {
+        }
+        if ($controller == 'manufacturer' && isset($params['id_manufacturer'])) {
             return $this->getManufacturerLink((int) $params['id_manufacturer'], null, (int) $idLang);
-        } elseif ($controller == 'cms' && isset($params['id_cms'])) {
+        }
+        if ($controller == 'cms' && isset($params['id_cms'])) {
             return $this->getCMSLink((int) $params['id_cms'], null, null, (int) $idLang);
-        } elseif ($controller == 'cms' && isset($params['id_cms_category'])) {
+        }
+        if ($controller == 'cms' && isset($params['id_cms_category'])) {
             return $this->getCMSCategoryLink((int) $params['id_cms_category'], null, (int) $idLang);
-        } elseif (isset($params['fc']) && $params['fc'] == 'module') {
+        }
+
+        if (isset($params['fc']) && $params['fc'] == 'module') {
             $module = Validate::isModuleName(Tools::getValue('module')) ? Tools::getValue('module') : '';
             if (!empty($module)) {
                 unset($params['fc'], $params['module']);
@@ -584,10 +564,9 @@ class LinkCore
      * @param int|null $idShop
      * @param bool $relativeProtocol
      *
-     * @return string
      * @throws PrestaShopException
      */
-    public function getCategoryLink($category, $alias = null, $idLang = null, $selectedFilters = null, $idShop = null, $relativeProtocol = false)
+    public function getCategoryLink($category, $alias = null, $idLang = null, $selectedFilters = null, $idShop = null, $relativeProtocol = false): string
     {
         if (!$idLang) {
             $idLang = Context::getContext()->language->id;
@@ -636,10 +615,9 @@ class LinkCore
      * @param int|null $idShop
      * @param bool $relativeProtocol
      *
-     * @return string
      * @throws PrestaShopException
      */
-    public function getSupplierLink($supplier, $alias = null, $idLang = null, $idShop = null, $relativeProtocol = false)
+    public function getSupplierLink($supplier, $alias = null, $idLang = null, $idShop = null, $relativeProtocol = false): string
     {
         if (!$idLang) {
             $idLang = Context::getContext()->language->id;
@@ -674,10 +652,9 @@ class LinkCore
      * @param int|null $idShop
      * @param bool $relativeProtocol
      *
-     * @return string
      * @throws PrestaShopException
      */
-    public function getManufacturerLink($manufacturer, $alias = null, $idLang = null, $idShop = null, $relativeProtocol = false)
+    public function getManufacturerLink($manufacturer, $alias = null, $idLang = null, $idShop = null, $relativeProtocol = false): string
     {
         if (!$idLang) {
             $idLang = Context::getContext()->language->id;
@@ -711,10 +688,9 @@ class LinkCore
      * @param int|null $idShop
      * @param bool $relativeProtocol
      *
-     * @return string
      * @throws PrestaShopException
      */
-    public function getCMSLink($cms, $alias = null, $ssl = null, $idLang = null, $idShop = null, $relativeProtocol = false)
+    public function getCMSLink($cms, $alias = null, $ssl = null, $idLang = null, $idShop = null, $relativeProtocol = false): string
     {
         if (!$idLang) {
             $idLang = Context::getContext()->language->id;
@@ -735,7 +711,7 @@ class LinkCore
         $params['categories'] = $this->findCMSSubcategories($cms->id, $idLang);
 
         if (!empty($cms->meta_keywords)) {
-            $params['meta_keywords'] = is_array($cms->meta_keywords) ?  Tools::str2url($cms->meta_keywords[(int) $idLang]) :  Tools::str2url($cms->meta_keywords);
+            $params['meta_keywords'] = is_array($cms->meta_keywords) ? Tools::str2url($cms->meta_keywords[(int) $idLang]) : Tools::str2url($cms->meta_keywords);
         }
         $params['meta_title'] = '';
         if (!empty($cms->meta_title)) {
@@ -749,10 +725,9 @@ class LinkCore
      * @param int $idCms
      * @param int $idLang
      *
-     * @return string
      * @throws PrestaShopException
      */
-    protected function findCMSSubcategories($idCms, $idLang)
+    protected function findCMSSubcategories($idCms, $idLang): string
     {
         $sql = new DbQuery();
         $sql->select('`'.bqSQL(CMSCategory::$definition['primary']).'`');
@@ -771,10 +746,9 @@ class LinkCore
      * @param int $idCmsCategory
      * @param int $idLang
      *
-     * @return string
      * @throws PrestaShopException
      */
-    protected function findCMSCategorySubcategories($idCmsCategory, $idLang)
+    protected function findCMSCategorySubcategories($idCmsCategory, $idLang): string
     {
         if (empty($idCmsCategory) || $idCmsCategory === 1) {
             return '';
@@ -796,10 +770,9 @@ class LinkCore
      * @param int|null $idShop
      * @param bool $relativeProtocol
      *
-     * @return string
      * @throws PrestaShopException
      */
-    public function getCMSCategoryLink($cmsCategory, $alias = null, $idLang = null, $idShop = null, $relativeProtocol = false)
+    public function getCMSCategoryLink($cmsCategory, $alias = null, $idLang = null, $idShop = null, $relativeProtocol = false): string
     {
         if (empty($idLang)) {
             $idLang = Context::getContext()->language->id;
@@ -840,10 +813,9 @@ class LinkCore
     /**
      * @param int $idCmsCategory
      *
-     * @return int
      * @throws PrestaShopException
      */
-    protected function findCMSCategoryParent($idCmsCategory)
+    protected function findCMSCategoryParent($idCmsCategory): int
     {
         $sql = new DbQuery();
         $sql->select('`id_parent`');
@@ -862,7 +834,6 @@ class LinkCore
      *
      * @param string $module Module name
      * @param string $controller
-     * @param array $params
      * @param bool|null $ssl
      * @param int $idLang
      * @param int|null $idShop
@@ -871,7 +842,7 @@ class LinkCore
      * @return string
      * @throws PrestaShopException
      */
-    public function getModuleLink($module, $controller = 'default', array $params = [], $ssl = null, $idLang = null, $idShop = null, $relativeProtocol = false)
+    public function getModuleLink(string $module, $controller = 'default', array $params = [], $ssl = null, $idLang = null, $idShop = null, $relativeProtocol = false)
     {
         if (!$idLang) {
             $idLang = Context::getContext()->language->id;
@@ -879,7 +850,7 @@ class LinkCore
 
         $url = $this->getBaseLink($idShop, $ssl, $relativeProtocol).$this->getLangLink($idLang, null, $idShop);
 
-        $controller = $controller ? $controller : 'default';
+        $controller = $controller ?: 'default';
 
         $dispatcher = Dispatcher::getInstance();
 
@@ -897,9 +868,8 @@ class LinkCore
         // If the module has its own route ... just use it !
         if ($dispatcher->hasRoute('module-'.$module.'-'.$controller, $idLang, $idShop)) {
             return $this->getPageLink('module-'.$module.'-'.$controller, $ssl, $idLang, $params);
-        } else {
-            return $url . $dispatcher->createUrl('module', $idLang, $params, $this->allow, '', $idShop);
         }
+        return $url . $dispatcher->createUrl('module', $idLang, $params, $this->allow, '', $idShop);
     }
 
     /**
@@ -917,7 +887,7 @@ class LinkCore
      *
      * @throws PrestaShopException
      */
-    public function getPageLink($controller, $ssl = null, $idLang = null, $request = null, $requestUrlEncode = false, $idShop = null, $relativeProtocol = false)
+    public function getPageLink($controller, $ssl = null, $idLang = null, $request = null, $requestUrlEncode = false, $idShop = null, $relativeProtocol = false): string
     {
         //If $controller contains '&' char, it means that $controller contains request data and must be parsed first
         $p = strpos($controller, '&');
@@ -954,16 +924,14 @@ class LinkCore
 
         $uriPath = Dispatcher::getInstance()->createUrl($controller, $idLang, $request, false, '', $idShop);
 
-        return $this->getBaseLink($idShop, $ssl, $relativeProtocol).$this->getLangLink($idLang, null, $idShop).ltrim($uriPath, '/');
+        return $this->getBaseLink($idShop, $ssl, $relativeProtocol).$this->getLangLink($idLang, null, $idShop).ltrim((string) $uriPath, '/');
     }
 
     /**
      * @param string $url
      * @param int $p
-     *
-     * @return string
      */
-    public function goPage($url, $p)
+    public function goPage($url, $p): string
     {
         $url = rtrim(str_replace('?&', '?', $url), '?');
 
@@ -1021,7 +989,7 @@ class LinkCore
                 $ifPagination = (!$pagination || !in_array($k, $varsPagination));
                 if ($ifNb && $ifSort && $ifPagination) {
                     if (!is_array($value)) {
-                        $vars[urlencode($k)] = $value;
+                        $vars[urlencode((string) $k)] = $value;
                     } else {
                         foreach (explode('&', http_build_query([$k => $value], '', '&')) as $val) {
                             $data = explode('=', $val);
@@ -1034,10 +1002,9 @@ class LinkCore
 
         if (!$array) {
             if (count($vars)) {
-                return $url.(!strstr($url, '?') && ($this->allow == 1 || $url == $this->url) ? '?' : '&').http_build_query($vars, '', '&');
-            } else {
-                return $url;
+                return $url.(!strstr((string) $url, '?') && ($this->allow == 1 || $url == $this->url) ? '?' : '&').http_build_query($vars, '', '&');
             }
+            return $url;
         }
 
         $vars['requestUrl'] = $url;
@@ -1054,38 +1021,31 @@ class LinkCore
     }
 
     /**
-     * @param string $url
      * @param string $orderby
      * @param string $orderway
      *
-     * @return string
      */
-    public function addSortDetails($url, $orderby, $orderway)
+    public function addSortDetails(string $url, $orderby, $orderway): string
     {
         return $url.(!strstr($url, '?') ? '?' : '&').'orderby='.urlencode($orderby).'&orderway='.urlencode($orderway);
     }
 
     /**
      * @param string $url
-     *
-     * @return bool
      */
-    public function matchQuickLink($url)
+    public function matchQuickLink($url): bool
     {
-        $quicklink = $this->getQuickLink($url);
-        if (isset($quicklink) && $quicklink === ($this->getQuickLink($_SERVER['REQUEST_URI']))) {
+        $quicklink = static::getQuickLink($url);
+        if (isset($quicklink) && $quicklink === (static::getQuickLink($_SERVER['REQUEST_URI']))) {
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 
     /**
      * @param string $url
-     *
-     * @return string
      */
-    public static function getQuickLink($url)
+    public static function getQuickLink($url): string
     {
         $parsedUrl = parse_url($url);
         $output = [];
@@ -1111,7 +1071,7 @@ class LinkCore
             $watermarkTypes = [];
             $selectedTypes = Configuration::get('WATERMARK_TYPES');
             if ($selectedTypes) {
-                $selectedTypes = array_map('intval', explode(',', $selectedTypes));
+                $selectedTypes = array_map(intval(...), explode(',', $selectedTypes));
                 if ($selectedTypes) {
                     $hash = Configuration::get('WATERMARK_HASH');
                     foreach (ImageType::getImagesTypes(ImageEntity::ENTITY_TYPE_PRODUCTS) as $imageType) {
@@ -1193,18 +1153,13 @@ class LinkCore
     /**
      * This method returns uri to product image, if it exists
      *
-     * @param int $imageId
-     * @param string $formattedType
-     * @param bool $highDpi
-     * @param string $preferredExtension
-     * @param string $name
      *
      * @return string|false
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    protected function getProductImageUri(int $imageId, string $formattedType, bool $highDpi, string $preferredExtension, string $name)
+    protected function getProductImageUri(int $imageId, string $formattedType, bool $highDpi, string $preferredExtension, string $name): string|false
     {
         // ids can either be single number, or in format id_product-id_image
         $typeDimension = $formattedType ? '-'.$formattedType : '';
@@ -1226,10 +1181,9 @@ class LinkCore
                 if ($this->allow) {
                     $sourceImageExtension = substr(strrchr($sourceImage, '.'), 1);
                     return __PS_BASE_URI__ . 'products/' . $friendlyUri.'.'.$sourceImageExtension;
-                } else {
-                    $relativePath = str_replace(_PS_PROD_IMG_DIR_, '', $sourceImage);
-                    return _THEME_PROD_DIR_ . $relativePath;
                 }
+                $relativePath = str_replace(_PS_PROD_IMG_DIR_, '', $sourceImage);
+                return _THEME_PROD_DIR_ . $relativePath;
             }
         }
 
@@ -1265,7 +1219,6 @@ class LinkCore
      * @param int|null $idLang
      * @param int|null $idShop
      *
-     * @return Product
      *
      * @throws PrestaShopException
      */
@@ -1275,7 +1228,7 @@ class LinkCore
             return $identifier;
         }
         if (is_int($identifier)) {
-            return new Product((int)$identifier, false, $idLang, $idShop);
+            return new Product($identifier, false, $idLang, $idShop);
         }
         if (is_array($identifier) && isset($identifier['id_product'])) {
             return new Product((int)$identifier['id_product'], false, $idLang, $idShop);
@@ -1287,10 +1240,6 @@ class LinkCore
     }
 
     /**
-     * @param int $productId
-     * @param int $combinationId
-     *
-     * @return string
      *
      * @throws PrestaShopException
      */

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -32,7 +34,6 @@
 namespace Thirtybees\Core\Smarty\Cache;
 
 use Db;
-use Encryptor;
 use PrestaShopDatabaseException;
 use PrestaShopException;
 use Smarty_CacheResource_Custom;
@@ -42,17 +43,8 @@ use Smarty_CacheResource_Custom;
  */
 class CacheResourceMysqlCore extends Smarty_CacheResource_Custom
 {
-    /**
-     * @var Encryptor
-     */
-    protected $encryptor;
-
-    /**
-     * @param Encryptor $encryptor
-     */
-    public function __construct(Encryptor $encryptor)
+    public function __construct(protected \Encryptor $encryptor)
     {
-        $this->encryptor = $encryptor;
     }
 
     /**
@@ -76,10 +68,10 @@ class CacheResourceMysqlCore extends Smarty_CacheResource_Custom
         if ($row) {
             $encoded = $row['content'];
             if ($encoded) {
-                $encrypted = base64_decode($encoded);
+                $encrypted = base64_decode((string) $encoded);
                 if ($encrypted !== false) {
                     $content = $this->encryptor->decrypt($encrypted);
-                    $mtime = strtotime($row['modified']);
+                    $mtime = strtotime((string) $row['modified']);
                     return;
                 }
             }
@@ -104,9 +96,8 @@ class CacheResourceMysqlCore extends Smarty_CacheResource_Custom
     protected function fetchTimestamp($id, $name, $cacheId, $compileId)
     {
         $value = Db::readOnly()->getValue('SELECT modified FROM '._DB_PREFIX_.'smarty_cache WHERE id_smarty_cache = "'.pSQL($id, true).'"');
-        $mtime = strtotime($value);
 
-        return $mtime;
+        return strtotime((string) $value);
     }
 
     /**
@@ -133,7 +124,7 @@ class CacheResourceMysqlCore extends Smarty_CacheResource_Custom
 			"'.pSQL($id, true).'",
 			"'.pSQL(sha1($name)).'",
 			"'.pSQL($cacheId, true).'",
-			"'.base64_encode($this->encryptor->encrypt($content)).'"
+			"'.base64_encode((string) $this->encryptor->encrypt($content)).'"
 		)'
         );
 

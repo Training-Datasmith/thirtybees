@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Functional\Back;
 
 use Codeception\Example;
@@ -62,6 +64,5 @@ class AdminControllerWalkerCest
         }
         return $urls;
     }
-
 
 }

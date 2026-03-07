@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -37,8 +39,8 @@ use GuzzleHttp\Client;
 class AdminTranslationsControllerCore extends AdminController
 {
     /** Name of theme by default */
-    const DEFAULT_THEME_NAME = _PS_DEFAULT_THEME_NAME_;
-    const TEXTAREA_SIZED = 70;
+    public const DEFAULT_THEME_NAME = _PS_DEFAULT_THEME_NAME_;
+    public const TEXTAREA_SIZED = 70;
 
     /** @var array $ignore_folder List of folder which must be ignored */
     protected static $ignore_folder = ['.', '..', '.svn', '.git', '.htaccess', 'index.php'];
@@ -91,7 +93,6 @@ class AdminTranslationsControllerCore extends AdminController
         } else {
             $emailFile = _PS_ROOT_DIR_.$email;
         }
-
 
         if (file_exists($emailFile)) {
             return (string)file_get_contents($emailFile);
@@ -391,7 +392,7 @@ class AdminTranslationsControllerCore extends AdminController
                         $arrFiles = $this->getAllModuleFiles($modules, null, $this->lang_selected->iso_code, true);
                         // Find and write all translation modules files
                         foreach ($arrFiles as $value) {
-                            if($_POST['module_name'] == $value['module']) {
+                            if ($_POST['module_name'] == $value['module']) {
                                 $this->findAndWriteTranslationsIntoFile($value['file_name'], $value['files'], $value['theme'], $value['module'], $value['dir']);
                             }
                         }
@@ -2708,8 +2709,8 @@ class AdminTranslationsControllerCore extends AdminController
                 foreach (scandir($dir) as $file) {
                     if (!in_array($file, static::$ignore_folder)) {
                         $filesToCopyIso[] = [
-                            "from" => $dir.$file,
-                            "to"   => str_replace((strpos($dir, _PS_CORE_DIR_) !== false) ? _PS_CORE_DIR_ : _PS_ROOT_DIR_, _PS_ROOT_DIR_.'/themes/'.$currentTheme, $dir).$file,
+                            'from' => $dir.$file,
+                            'to'   => str_replace((strpos($dir, _PS_CORE_DIR_) !== false) ? _PS_CORE_DIR_ : _PS_ROOT_DIR_, _PS_ROOT_DIR_.'/themes/'.$currentTheme, $dir).$file,
                         ];
                     }
                 }
@@ -2731,7 +2732,7 @@ class AdminTranslationsControllerCore extends AdminController
 
                     $success = file_put_contents($file['to'], $content);
                     if ($success === false) {
-                        Logger::addLog(sprintf("%s cannot be copied to %s", $file['from'], $file['to']));
+                        Logger::addLog(sprintf('%s cannot be copied to %s', $file['from'], $file['to']));
                     }
                 }
             }

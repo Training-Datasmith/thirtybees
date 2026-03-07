@@ -1,18 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Integration;
 
-use Codeception\Test\Unit;
-use ObjectModel;
-use PrestaShopException;
-use ReflectionException;
-use Tests\Support\UnitTester;
-use Tests\Support\Utils\ObjectModelUtils;
-use WebserviceRequest;
 use AddressFormat;
 use Alias;
 use Attachment;
 use CMSRole;
+use Codeception\Test\Unit;
 use CompareProduct;
 use ConfigurationKPI;
 use Connection;
@@ -25,6 +21,7 @@ use Image;
 use Mail;
 use Message;
 use Meta;
+use ObjectModel;
 use OrderDetailPack;
 use OrderMessage;
 use OrderReturn;
@@ -32,19 +29,24 @@ use OrderReturnState;
 use Pack;
 use Page;
 use PaymentCC;
+use PrestaShopException;
 use PrestaShopLogger;
 use ProductDownload;
 use Profile;
 use QuickAccess;
 use Referrer;
+use ReflectionException;
 use RequestSql;
 use Risk;
 use Scene;
 use StockMvt;
 use Tab;
+use Tests\Support\UnitTester;
+use Tests\Support\Utils\ObjectModelUtils;
 use Theme;
 use UrlRewrite;
 use WebserviceKey;
+use WebserviceRequest;
 
 class WebserviceMetadataTest extends Unit
 {
@@ -53,7 +55,7 @@ class WebserviceMetadataTest extends Unit
      */
     protected UnitTester $tester;
 
-    const NOT_EXPOSED = [
+    public const NOT_EXPOSED = [
         AddressFormat::class,
         Alias::class,
         Attachment::class,
@@ -129,7 +131,7 @@ class WebserviceMetadataTest extends Unit
      */
     public function getObjectModels()
     {
-         return ObjectModelUtils::getObjectModels();
+        return ObjectModelUtils::getObjectModels();
     }
 
     /**

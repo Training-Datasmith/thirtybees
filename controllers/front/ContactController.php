@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -90,7 +92,8 @@ class ContactControllerCore extends FrontController
                 $idCustomerThread = $this->resolveCustomerThreadId($from, $idOrder, $customer, $idContact);
                 $oldMessage = '';
                 if ($idCustomerThread) {
-                    $oldMessage = $conn->getValue((new DbQuery())
+                    $oldMessage = $conn->getValue(
+                        (new DbQuery())
                         ->select('cm.`message`')
                         ->from('customer_message', 'cm')
                         ->leftJoin('customer_thread', 'cc', 'cm.`id_customer_thread` = cc.`id_customer_thread`')
@@ -324,7 +327,7 @@ class ContactControllerCore extends FrontController
                 $orders[] = [
                     'value' => (int)$order->id,
                     'label' => $order->getUniqReference().' - '.Tools::displayDate($date[0], null),
-                    'selected' => $orderId == $order->id
+                    'selected' => $orderId == $order->id,
                 ];
             }
 

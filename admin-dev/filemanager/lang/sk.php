@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 define('lang_Select', 'Vybrať');
 define('lang_Erase', 'Odstrániť');
 define('lang_Open', 'Otvoriť');

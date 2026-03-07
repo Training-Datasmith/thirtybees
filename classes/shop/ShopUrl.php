@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -226,7 +228,7 @@ class ShopUrlCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function cacheMainDomainForShop($idShop)
+    public static function cacheMainDomainForShop($idShop): void
     {
         if (!isset(static::$main_domain_ssl[(int) $idShop]) || !isset(static::$main_domain[(int) $idShop])) {
             $row = Db::readOnly()->getRow(
@@ -241,10 +243,7 @@ class ShopUrlCore extends ObjectModel
         }
     }
 
-    /**
-     * @return void
-     */
-    public static function resetMainDomainCache()
+    public static function resetMainDomainCache(): void
     {
         static::$main_domain = [];
         static::$main_domain_ssl = [];

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -1352,6 +1354,7 @@ class AdminStockManagementControllerCore extends AdminController
                     'href'  => '#',
                     'desc'  => $this->l('Save and stay'),
                 ];
+                // no break
             case 'removestock':
             case 'transferstock':
             case 'previousManagement':

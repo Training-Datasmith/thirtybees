@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -64,7 +66,7 @@ class DateRangeCore extends ObjectModel
                 ->from('date_range')
                 ->where('`time_end` = (SELECT MAX(`time_end`) FROM `'._DB_PREFIX_.'date_range`)')
         );
-        if (!$result['id_date_range'] || strtotime($result['time_end']) < strtotime(date('Y-m-d H:i:s'))) {
+        if (!$result['id_date_range'] || strtotime((string) $result['time_end']) < strtotime(date('Y-m-d H:i:s'))) {
             // The default range is set to 1 day less 1 second (in seconds)
             $rangeSize = 86399;
             $dateRange = new static();

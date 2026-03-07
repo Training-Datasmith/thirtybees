@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -52,13 +54,13 @@ abstract class ControllerCore
     /** @var Context */
     protected $context;
     /** @var bool Set to true to display page header */
-    protected $display_header;
+    protected bool $display_header;
     /** @var bool Set to true to display page header javascript */
-    protected $display_header_javascript;
+    protected bool $display_header_javascript;
     /** @var string Template filename for the page content */
     protected $template;
     /** @var string Set to true to display page footer */
-    protected $display_footer;
+    protected bool $display_footer;
     /** @var bool Set to true to only render page content (used to get iframe content) */
     protected $content_only = false;
     /** @var bool If set to true, page content and messages will be encoded to JSON before responding to AJAX request */
@@ -69,7 +71,7 @@ abstract class ControllerCore
      * @see Controller::run()
      * @var string|null Redirect link. If not empty, the user will be redirected after initializing and processing input.
      */
-    protected $redirect_after = null;
+    protected $redirect_after;
 
     /**
      * @var array errors array
@@ -101,8 +103,8 @@ abstract class ControllerCore
 
         if (!headers_sent()
             && isset($_SERVER['HTTP_USER_AGENT'])
-            && (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') !== false
-                || strpos($_SERVER['HTTP_USER_AGENT'], 'Trident') !== false)
+            && (str_contains((string) $_SERVER['HTTP_USER_AGENT'], 'MSIE')
+                || str_contains((string) $_SERVER['HTTP_USER_AGENT'], 'Trident'))
         ) {
             header('X-UA-Compatible: IE=edge,chrome=1');
         }
@@ -133,10 +135,8 @@ abstract class ControllerCore
      * that still access properties via their snake_case names
      *
      * @param string $property Property name
-     *
-     * @return mixed
      */
-    public function &__get($property)
+    public function &__get(string $property): mixed
     {
         if (property_exists($this, $property)) {
             return $this->$property;
@@ -157,12 +157,10 @@ abstract class ControllerCore
      * These magic methods provide backwards compatibility for modules/themes/whatevers
      * that still access properties via their snake_case names
      *
-     * @param string $property
-     * @param mixed $value
      *
      * @return void
      */
-    public function __set($property, $value)
+    public function __set(string $property, mixed $value)
     {
         $blacklist = [
             '_select',
@@ -186,12 +184,11 @@ abstract class ControllerCore
     /**
      * Starts the controller process
      *
-     * @return void
      *
      * @throws SmartyException
      * @throws PrestaShopException
      */
-    public function run()
+    public function run(): void
     {
         $this->init();
         if ($this->checkAccess()) {
@@ -243,7 +240,7 @@ abstract class ControllerCore
      *
      * @throws PrestaShopException
      */
-    public function init()
+    public function init(): void
     {
         if (!defined('_PS_BASE_URL_')) {
             define('_PS_BASE_URL_', Tools::getShopDomain(true));
@@ -327,7 +324,6 @@ abstract class ControllerCore
      *
      * @param string|array $content
      *
-     * @return string
      *
      * @throws SmartyException
      */
@@ -341,11 +337,11 @@ abstract class ControllerCore
         } else {
             $html = $this->context->smarty->fetch($content);
         }
-        $html = trim($html);
+        $html = trim((string) $html);
 
         $debugScript = $this->getErrorMessagesScript();
         if ($debugScript) {
-            $html = str_replace("</body>", $debugScript . "</body>", $html);
+            return str_replace('</body>', $debugScript . '</body>', $html);
         }
 
         return $html;
@@ -356,7 +352,7 @@ abstract class ControllerCore
      *
      * @param bool $display
      */
-    public function displayHeader($display = true)
+    public function displayHeader($display = true): void
     {
         $this->display_header = $display;
     }
@@ -366,7 +362,7 @@ abstract class ControllerCore
      *
      * @param bool $display
      */
-    public function displayHeaderJavaScript($display = true)
+    public function displayHeaderJavaScript($display = true): void
     {
         $this->display_header_javascript = $display;
     }
@@ -376,7 +372,7 @@ abstract class ControllerCore
      *
      * @param bool $display
      */
-    public function displayFooter($display = true)
+    public function displayFooter($display = true): void
     {
         $this->display_footer = $display;
     }
@@ -386,17 +382,15 @@ abstract class ControllerCore
      *
      * @param string $template
      */
-    public function setTemplate($template)
+    public function setTemplate($template): void
     {
         $this->template = $template;
     }
 
     /**
      * Set $this->redirect_after that will be used by redirect() after the process
-     *
-     * @return void
      */
-    public function setRedirectAfter($url)
+    public function setRedirectAfter($url): void
     {
         $this->redirect_after = $url;
     }
@@ -408,7 +402,7 @@ abstract class ControllerCore
      * @param string $cssMediaType
      * @param bool $checkPath
      */
-    public function removeCSS($cssUri, $cssMediaType = 'all', $checkPath = true)
+    public function removeCSS($cssUri, $cssMediaType = 'all', $checkPath = true): void
     {
         if (!is_array($cssUri)) {
             $cssUri = [$cssUri];
@@ -441,7 +435,7 @@ abstract class ControllerCore
      * @param string|array $jsUri Path to JS file or an array like: array(uri, ...)
      * @param bool $checkPath
      */
-    public function removeJS($jsUri, $checkPath = true)
+    public function removeJS($jsUri, $checkPath = true): void
     {
         if (is_array($jsUri)) {
             foreach ($jsUri as $jsFile) {
@@ -473,7 +467,7 @@ abstract class ControllerCore
      * @param string|null $folder jQuery file folder
      * @param bool $minifier If set tot true, a minified version will be included.
      */
-    public function addJquery($version = null, $folder = null, $minifier = true)
+    public function addJquery($version = null, $folder = null, $minifier = true): void
     {
         $this->addJS(Media::getJqueryPath($version, $folder, $minifier), false);
     }
@@ -483,10 +477,8 @@ abstract class ControllerCore
      *
      * @param string|array $jsUri Path to JS file or an array like: array(uri, ...)
      * @param bool $checkPath
-     *
-     * @return void
      */
-    public function addJS($jsUri, $checkPath = true)
+    public function addJS($jsUri, $checkPath = true): void
     {
         if (is_array($jsUri)) {
             foreach ($jsUri as $jsFile) {
@@ -503,7 +495,7 @@ abstract class ControllerCore
      * @param string $uri uri to javascript file
      * @param boolean $checkPath if true, system will check if the javascript file exits on filesystem
      */
-    public function addJavascriptUri($uri, $checkPath)
+    public function addJavascriptUri($uri, $checkPath): void
     {
         if ($checkPath) {
             // remove query parameters from uri
@@ -530,7 +522,7 @@ abstract class ControllerCore
      * @param string $theme
      * @param bool $checkDependencies
      */
-    public function addJqueryUI($component, $theme = 'base', $checkDependencies = true)
+    public function addJqueryUI($component, $theme = 'base', $checkDependencies = true): void
     {
         if (!is_array($component)) {
             $component = [$component];
@@ -597,7 +589,7 @@ abstract class ControllerCore
      * @param string|null $folder
      * @param bool $css
      */
-    public function addJqueryPlugin($name, $folder = null, $css = true)
+    public function addJqueryPlugin($name, $folder = null, $css = true): void
     {
         if (!is_array($name)) {
             $name = [$name];
@@ -623,7 +615,7 @@ abstract class ControllerCore
      */
     public function isXmlHttpRequest()
     {
-        return (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest');
+        return (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower((string) $_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest');
     }
 
     /**
@@ -659,7 +651,7 @@ abstract class ControllerCore
     protected function ajaxDie($value = null, $controller = null, $method = null)
     {
         if ($controller === null) {
-            $controller = get_class($this);
+            $controller = static::class;
         }
 
         if ($method === null) {
@@ -690,7 +682,7 @@ abstract class ControllerCore
                     'type' => $msg['type'],
                     'message' => $msg['errstr'],
                     'file' => ErrorUtils::getRelativeFile($msg['errfile']),
-                    'line' => (int)$msg['errline']
+                    'line' => (int)$msg['errline'],
                 ];
             }
             $messages = '<script type="text/javascript">' . "\n" . 'window.phpMessages=' . json_encode($messagesList, JSON_PRETTY_PRINT). ";\n</script>\n";
@@ -699,7 +691,6 @@ abstract class ControllerCore
         }
         return '';
     }
-
 
     /**
      * Checks if scheduler synthetic cron even should be triggered. If so, /js/trigger.js
@@ -717,16 +708,13 @@ abstract class ControllerCore
                 $triggerUrl = $this->context->link->getPageLink('trigger', null, null, ['ts' => time()]);
                 Media::addJsDef([
                     'triggerUrl' => $triggerUrl,
-                    'triggerToken' => $scheduler->getSyntheticEventSecret()
+                    'triggerToken' => $scheduler->getSyntheticEventSecret(),
                 ]);
                 $this->addJS(_PS_JS_DIR_ . 'trigger.js');
             }
         }
     }
 
-    /**
-     * @return ErrorHandler
-     */
     protected static function getErrorHandler(): ErrorHandler
     {
         return ServiceLocator::getInstance()->getErrorHandler();

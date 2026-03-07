@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -116,7 +118,7 @@ class HelperOptionsCore extends Helper
                 $field['is_disabled'] = $isDisabled;
                 $field['is_invisible'] = $isInvisible;
 
-                $field['required'] = $field['required'] ?? $this->required;
+                $field['required'] ??= $this->required;
 
                 $controller = $this->getController();
                 if ($field['type'] === 'color') {
@@ -198,7 +200,7 @@ class HelperOptionsCore extends Helper
                 }
 
                 // Fill values for all languages for all lang fields
-                if (substr($field['type'], -4) == 'Lang') {
+                if (str_ends_with((string) $field['type'], 'Lang')) {
                     foreach ($languages as $language) {
                         if ($field['type'] == 'textLang') {
                             $value = Tools::getValue($key.'_'.$language['id_lang'], Configuration::get($key, $language['id_lang']));
@@ -211,7 +213,7 @@ class HelperOptionsCore extends Helper
                         if (!is_array($field['value'])) {
                             $field['value'] = [];
                         }
-                        $field['value'][$language['id_lang']] = $this->getOptionValue($key.'_'.strtoupper($language['iso_code']), $field);
+                        $field['value'][$language['id_lang']] = $this->getOptionValue($key.'_'.strtoupper((string) $language['iso_code']), $field);
                     }
                 }
 

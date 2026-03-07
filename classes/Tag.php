@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -122,14 +124,14 @@ class TagCore extends ObjectModel
             $tagList = explode($separator, $tagList);
         }
 
-        if (is_array($tagList) && $tagList) {
+        if ($tagList) {
             $list = [];
             $result = true;
             foreach ($tagList as $tag) {
                 if (!Validate::isGenericName($tag)) {
                     $result = false;
                 } else {
-                    $tag = trim(mb_substr($tag, 0, static::$definition['fields']['name']['size']));
+                    $tag = trim(mb_substr((string) $tag, 0, static::$definition['fields']['name']['size']));
                     $tagObj = new Tag(null, $tag, $idLang);
 
                     /* Tag does not exist in database */
@@ -177,7 +179,8 @@ class TagCore extends ObjectModel
     {
         if (!parent::add($autoDate, $nullValues)) {
             return false;
-        } elseif (isset($_POST['products'])) {
+        }
+        if (isset($_POST['products'])) {
             return $this->setProducts(Tools::getValue('products'));
         }
 
@@ -197,7 +200,7 @@ class TagCore extends ObjectModel
         $conn = Db::getInstance();
         $result = $conn->delete('product_tag', '`id_tag` = '.(int) $this->id);
         if (is_array($array) && $array) {
-            $array = array_map('intval', $array);
+            $array = array_map(intval(...), $array);
             $result = (
                 ObjectModel::updateMultishopTable('Product', ['indexed' => 0], 'a.id_product IN ('.implode(',', $array).')') &&
                 $result
@@ -228,7 +231,7 @@ class TagCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function updateTagCount($tagList = null)
+    public static function updateTagCount($tagList = null): void
     {
         if (!Module::getBatchMode()) {
             $conn = Db::getInstance();
@@ -320,7 +323,6 @@ class TagCore extends ObjectModel
                 ->from('tag', 't')
                 ->leftJoin('product_tag', 'pt', 'pt.`id_tag` = t.`id_tag`')
                 ->where('pt.`id_product` = '.(int) $idProduct)
-
         )) {
             return false;
         }
@@ -364,7 +366,6 @@ class TagCore extends ObjectModel
 
     /**
      * @param bool $associated
-     * @param Context|null $context
      *
      * @return array
      *
@@ -376,7 +377,7 @@ class TagCore extends ObjectModel
         if (!$context) {
             $context = Context::getContext();
         }
-        $idLang = $this->id_lang ? $this->id_lang : $context->language->id;
+        $idLang = $this->id_lang ?: $context->language->id;
 
         if (!$this->id && $associated) {
             return [];

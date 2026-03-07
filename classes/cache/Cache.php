@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -37,14 +39,14 @@ abstract class CacheCore
     /**
      * Name of keys index
      */
-    const KEYS_NAME = '__keys__';
+    public const KEYS_NAME = '__keys__';
 
     /**
      * Name of SQL cache index
      *
      * @deprecated 1.5.0 We no longer cache query results
      */
-    const SQL_TABLES_NAME = 'tablesCached';
+    public const SQL_TABLES_NAME = 'tablesCached';
 
     /**
      * @var Cache
@@ -178,7 +180,7 @@ abstract class CacheCore
      *
      * @deprecated 1.5.0
      */
-    public static function setInstanceForTesting($testInstance)
+    public static function setInstanceForTesting($testInstance): void
     {
         Tools::displayAsDeprecated();
         static::$instance = $testInstance;
@@ -188,10 +190,8 @@ abstract class CacheCore
      * Unit testing purpose only
      *
      * @deprecated 1.5.0
-     *
-     * @return void
      */
-    public static function deleteTestingInstance()
+    public static function deleteTestingInstance(): void
     {
         Tools::displayAsDeprecated();
         static::$instance = null;
@@ -268,12 +268,12 @@ abstract class CacheCore
         $keys = [];
         if ($key == '*') {
             $keys = array_keys($this->keys);
-        } elseif (strpos($key, '*') === false) {
+        } elseif (!str_contains($key, '*')) {
             $keys = [$key];
         } else {
             $pattern = str_replace('\\*', '.*', preg_quote($key));
             foreach ($this->keys as $k => $ttl) {
-                if (preg_match('#^'.$pattern.'$#', $k)) {
+                if (preg_match('#^'.$pattern.'$#', (string) $k)) {
                     $keys[] = $k;
                 }
             }
@@ -343,7 +343,7 @@ abstract class CacheCore
      *
      * @deprecated 1.5.0 We no longer cache query results
      */
-    public function deleteQuery($query)
+    public function deleteQuery($query): void
     {
         Tools::displayAsDeprecated();
     }
@@ -367,7 +367,7 @@ abstract class CacheCore
      * @param string $key
      * @param mixed $value
      */
-    public static function store($key, $value)
+    public static function store($key, $value): void
     {
         static::$local[$key] = $value;
     }
@@ -403,14 +403,14 @@ abstract class CacheCore
     /**
      * @param string $key
      */
-    public static function clean($key)
+    public static function clean($key): void
     {
         if ($key === '*') {
             static::$local = [];
-        } elseif (strpos($key, '*') !== false) {
+        } elseif (str_contains($key, '*')) {
             $regexp = str_replace('\\*', '.*', preg_quote($key, '#'));
             foreach (array_keys(static::$local) as $key) {
-                if (preg_match('#^'.$regexp.'$#', $key)) {
+                if (preg_match('#^'.$regexp.'$#', (string) $key)) {
                     unset(static::$local[$key]);
                 }
             }

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -38,14 +40,13 @@ use Defuse\Crypto\Key;
  */
 class AdminPerformanceControllerCore extends AdminController
 {
+    public const CUSTOM_DEFINES_FILE = _PS_ROOT_DIR_ . '/config/defines_custom.inc.php';
 
-    const CUSTOM_DEFINES_FILE = _PS_ROOT_DIR_ . '/config/defines_custom.inc.php';
-
-    const CACHE_FS = 'CacheFs';
-    const CACHE_MEMCACHE = 'CacheMemcache';
-    const CACHE_MEMCACHED = 'CacheMemcached';
-    const CACHE_APCU = 'CacheApcu';
-    const CACHE_REDIS = 'CacheRedis';
+    public const CACHE_FS = 'CacheFs';
+    public const CACHE_MEMCACHE = 'CacheMemcache';
+    public const CACHE_MEMCACHED = 'CacheMemcached';
+    public const CACHE_APCU = 'CacheApcu';
+    public const CACHE_REDIS = 'CacheRedis';
 
     /**
      * AdminPerformanceControllerCore constructor.
@@ -105,7 +106,6 @@ class AdminPerformanceControllerCore extends AdminController
      */
     public function renderForm()
     {
-
 
         // Reindex fields
         $this->fields_form = [
@@ -377,7 +377,6 @@ class AdminPerformanceControllerCore extends AdminController
 
         return ['form' => $form];
     }
-
 
     /**
      * @return array
@@ -925,7 +924,7 @@ class AdminPerformanceControllerCore extends AdminController
                             'label' => $this->l('Disabled'),
                         ],
                     ],
-                    'disabled' => !Cache::isEnabled()
+                    'disabled' => !Cache::isEnabled(),
                 ],
                 [
                     'type'    => 'switch',
@@ -975,8 +974,6 @@ class AdminPerformanceControllerCore extends AdminController
 
         return ['form' => $form];
     }
-
-
 
     /**
      * @return array[]
@@ -1294,9 +1291,9 @@ class AdminPerformanceControllerCore extends AdminController
                 if (!count($this->errors)) {
                     // If there is not settings file modification or if the backup and replacement of the settings file worked
                     if ($newSettings == $prevSettings || (
-                            copy(_PS_ROOT_DIR_.'/config/settings.inc.php', _PS_ROOT_DIR_.'/config/settings.old.php') &&
+                        copy(_PS_ROOT_DIR_.'/config/settings.inc.php', _PS_ROOT_DIR_.'/config/settings.old.php') &&
                             file_put_contents(_PS_ROOT_DIR_.'/config/settings.inc.php', $newSettings)
-                        )
+                    )
                     ) {
                         Configuration::updateValue('PS_CIPHER_ALGORITHM', $algo);
                         $redirectAdmin = true;
@@ -1509,7 +1506,7 @@ class AdminPerformanceControllerCore extends AdminController
                 throw new PrestaShopException("Invalid define constant name: '" . $constantName . "'");
             }
             if (gettype($value) !== 'boolean') {
-                throw new PrestaShopException("Invalid define constant value type: " . gettype($value));
+                throw new PrestaShopException('Invalid define constant value type: ' . gettype($value));
             }
 
             $escapedValue = $value ? 'true' : 'false';
@@ -1524,7 +1521,7 @@ class AdminPerformanceControllerCore extends AdminController
                 }
                 $content .= "if (! defined('$constantName')) {\n";
                 $content .= "    define('$constantName', $escapedValue);\n";
-                $content .= "}";
+                $content .= '}';
             }
 
         }
@@ -1579,7 +1576,7 @@ class AdminPerformanceControllerCore extends AdminController
                     $version = false;
                     if ($type == 'memcached') {
                         if (! CacheMemcached::checkEnvironment()) {
-                            throw new PrestaShopException(Tools::displayError("Memcached extension not loaded"));
+                            throw new PrestaShopException(Tools::displayError('Memcached extension not loaded'));
                         }
                         $memcache = new Memcached();
                         $memcache->addServer($host, $port);
@@ -1589,14 +1586,14 @@ class AdminPerformanceControllerCore extends AdminController
                         }
                     } else {
                         if (! CacheMemcache::checkEnvironment()) {
-                            throw new PrestaShopException(Tools::displayError("Memcache extension not loaded"));
+                            throw new PrestaShopException(Tools::displayError('Memcache extension not loaded'));
                         }
                         $memcache = new Memcache();
                         $memcache->addServer($host, $port);
                         $version = $memcache->getVersion();
                     }
                     if (! $version) {
-                        throw new PrestaShopException("Failed to connect to memcache server");
+                        throw new PrestaShopException('Failed to connect to memcache server');
                     }
                     $this->ajaxDie(json_encode([
                         'success' => true,
@@ -1606,7 +1603,7 @@ class AdminPerformanceControllerCore extends AdminController
                 } catch (Exception $e) {
                     $this->ajaxDie(json_encode([
                         'success' => false,
-                        'error' => $e->getMessage()
+                        'error' => $e->getMessage(),
                     ]));
                 }
             }
@@ -1634,7 +1631,7 @@ class AdminPerformanceControllerCore extends AdminController
             if ($host != '' && $port != 0) {
                 try {
                     if (! extension_loaded('redis')) {
-                        throw new PrestaShopException(Tools::displayError("Redis extension not loaded"));
+                        throw new PrestaShopException(Tools::displayError('Redis extension not loaded'));
                     }
 
                     $redis = new Redis();
@@ -1647,7 +1644,7 @@ class AdminPerformanceControllerCore extends AdminController
                         }
                         $redis->select($db);
                         if (! $redis->ping()) {
-                            throw new PrestaShopException("Redis server ping failed");
+                            throw new PrestaShopException('Redis server ping failed');
                         }
                         $this->ajaxDie(json_encode([
                             'success' => true,
@@ -1657,7 +1654,7 @@ class AdminPerformanceControllerCore extends AdminController
                 } catch (Exception $e) {
                     $this->ajaxDie(json_encode([
                         'success' => false,
-                        'error' => $e->getMessage()
+                        'error' => $e->getMessage(),
                     ]));
                 }
 
@@ -1677,7 +1674,7 @@ class AdminPerformanceControllerCore extends AdminController
         $hookName = Tools::getValue('hookName');
         $idHook = Hook::getIdByName($hookName);
         $this->ajaxDie(json_encode([
-            'success' => PageCache::setHookCacheStatus($idModule, $idHook, $status)
+            'success' => PageCache::setHookCacheStatus($idModule, $idHook, $status),
         ]));
     }
 
@@ -1702,7 +1699,7 @@ class AdminPerformanceControllerCore extends AdminController
             $this->l('Memcache via PHP::Memcache'),
             CacheMemcache::checkEnvironment(),
             $this->l('(you must install [1]memcache[/1] extension)'),
-            "https://www.php.net/manual/en/memcache.installation.php"
+            'https://www.php.net/manual/en/memcache.installation.php'
         );
     }
 
@@ -1715,7 +1712,7 @@ class AdminPerformanceControllerCore extends AdminController
             $this->l('Memcache via PHP::Memcached'),
             CacheMemcached::checkEnvironment(),
             $this->l('(you must install [1]memcached[/1] extension)'),
-            "https://www.php.net/manual/en/memcached.installation.php"
+            'https://www.php.net/manual/en/memcached.installation.php'
         );
     }
 
@@ -1728,7 +1725,7 @@ class AdminPerformanceControllerCore extends AdminController
             $this->l('APCu'),
             CacheApcu::checkEnvironment(),
             $this->l('(you must install [1]apcu[/1] extension)'),
-            "https://www.php.net/manual/en/apcu.installation.php"
+            'https://www.php.net/manual/en/apcu.installation.php'
         );
     }
 
@@ -1741,10 +1738,9 @@ class AdminPerformanceControllerCore extends AdminController
             $this->l('Redis'),
             CacheRedis::checkEnvironment(),
             $this->l('(you must install [1]redis[/1] extension)'),
-            "https://pecl.php.net/package/redis"
+            'https://pecl.php.net/package/redis'
         );
     }
-
 
     /**
      * @param string $label
@@ -1754,7 +1750,7 @@ class AdminPerformanceControllerCore extends AdminController
      *
      * @return string
      */
-    protected function getLabel($label, $checkEnv, $errorMsg, $helpUrl=null)
+    protected function getLabel($label, $checkEnv, $errorMsg, $helpUrl = null)
     {
         if (! $checkEnv) {
             if ($helpUrl) {

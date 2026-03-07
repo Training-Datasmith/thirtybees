@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -65,13 +67,10 @@ class OrderDetailPackCore extends ObjectModel
     /**
      * Is product a pack?
      *
-     * @param int $idOrderDetail
-     * @return bool
      * @throws PrestaShopException
      */
     public static function isPack(int $idOrderDetail): bool
     {
-        $idOrderDetail = (int) $idOrderDetail;
         return (bool) static::getPackContent($idOrderDetail);
     }
 
@@ -96,15 +95,11 @@ class OrderDetailPackCore extends ObjectModel
     }
 
     /**
-     * @param int $idOrderDetail
-     * @param int $idLang
      * @return Product[]
      * @throws PrestaShopException
      */
     protected static function retrieveItems(int $idOrderDetail, int $idLang): array
     {
-        $idOrderDetail = (int) $idOrderDetail;
-        $idLang = (int) $idLang;
         $arrayResult = [];
         foreach (static::getPackContent($idOrderDetail) as $row) {
             $p = new Product($row['id_product'], false, $idLang);
@@ -140,13 +135,10 @@ class OrderDetailPackCore extends ObjectModel
     /**
      * Returns information about pack items.
      *
-     * @param int $idOrderDetail
-     * @return array
      * @throws PrestaShopException
      */
     public static function getPackContent(int $idOrderDetail): array
     {
-        $idOrderDetail = (int) $idOrderDetail;
         if (!$idOrderDetail || !static::isFeatureActive()) {
             return [];
         }
@@ -160,13 +152,10 @@ class OrderDetailPackCore extends ObjectModel
     /**
      * Retrieves information about pack items from database
      *
-     * @param int $idOrderDetail
-     * @return array
      * @throws PrestaShopException
      */
     protected static function retrievePackContent(int $idOrderDetail): array
     {
-        $idOrderDetail = (int) $idOrderDetail;
         $content = [];
         $sql = (new DbQuery())
             ->select('id_product')
@@ -180,7 +169,7 @@ class OrderDetailPackCore extends ObjectModel
             $content[] = [
                 'id_product' => (int) $row['id_product'],
                 'id_product_attribute' => (int) $row['id_product_attribute'],
-                'quantity' => (int) $row['quantity']
+                'quantity' => (int) $row['quantity'],
             ];
         }
         return $content;
@@ -189,7 +178,6 @@ class OrderDetailPackCore extends ObjectModel
     /**
      * This method is allow to know if a feature is used or active
      *
-     * @return bool
      * @throws PrestaShopException
      */
     public static function isFeatureActive(): bool

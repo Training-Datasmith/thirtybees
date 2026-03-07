@@ -1,6 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 abstract class Module extends ModuleCore
 {
-
 }

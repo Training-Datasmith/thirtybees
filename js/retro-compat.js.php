@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /** @noinspection PhpUndefinedMethodInspection */
 
 include('../config/config.inc.php');
@@ -64,7 +66,7 @@ if (isset($_SERVER['HTTP_REFERER'])) {
     $referer = $_SERVER['HTTP_REFERER'];
     $message .= '. Referrer = ['.$referer.']';
 }
-trigger_error($message , E_USER_DEPRECATED);
+trigger_error($message, E_USER_DEPRECATED);
 
 echo file_get_contents($newFile);
 exit;

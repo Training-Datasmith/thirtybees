@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -204,6 +206,7 @@ class AdminSupplyOrdersControllerCore extends AdminController
                     'desc' => $this->l('Save'),
                 ];
 
+                // no break
             case 'update_receipt':
                 $this->toolbar_btn['cancel'] = [
                     'href' => $this->getBackUrlParameter(),
@@ -217,6 +220,7 @@ class AdminSupplyOrdersControllerCore extends AdminController
                     'href' => '#',
                     'desc' => $this->l('Save and stay'),
                 ];
+                // no break
             default:
                 parent::initToolbar();
         }
@@ -1559,7 +1563,6 @@ class AdminSupplyOrdersControllerCore extends AdminController
                         if ($entry->discount_rate < 0 || $entry->discount_rate > 100) {
                             $errors[] = '<b>' . SupplyOrderDetail::displayFieldName('discount_rate', get_class($this)) . '</b> ' . Tools::displayError('is invalid.');
                         }
-
 
                         // if there is a problem, handle error for the current product
                         if (count($errors) > 0) {

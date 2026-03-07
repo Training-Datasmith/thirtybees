@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -113,7 +115,6 @@ class SearchCore
      * @param string $orderWay
      * @param bool $ajax
      * @param bool $use_cookie
-     * @param Context|null $context
      *
      * @return array|false
      *
@@ -126,7 +127,7 @@ class SearchCore
         $pageNumber = 1,
         $pageSize = 1,
         $orderBy = 'position',
-        $orderWay = 'desc',
+        ?string $orderWay = 'desc',
         $ajax = false,
         $use_cookie = true,
         ?Context $context = null
@@ -164,10 +165,11 @@ class SearchCore
 					WHERE sw.id_lang = '.(int) $idLang.'
 						AND sw.id_shop = '.$context->shop->id.'
 						AND sw.word LIKE
-					'.($word[0] == '-'
+					'.(
+                    $word[0] == '-'
                         ? ' \''.$startSearch.pSQL(mb_substr($word, 1, PS_SEARCH_MAX_WORD_LENGTH)).$endSearch.'\''
                         : ' \''.$startSearch.pSQL(mb_substr($word, 0, PS_SEARCH_MAX_WORD_LENGTH)).$endSearch.'\''
-                    );
+                );
 
                 if ($word[0] != '-') {
                     $scoreArray[] = 'sw.word LIKE \''.$startSearch.pSQL(mb_substr($word, 0, PS_SEARCH_MAX_WORD_LENGTH)).$endSearch.'\'';
@@ -182,7 +184,7 @@ class SearchCore
         }
 
         $score = '';
-        if (is_array($scoreArray) && !empty($scoreArray)) {
+        if (!empty($scoreArray)) {
             $score = ',(
 				SELECT SUM(weight)
 				FROM '._DB_PREFIX_.'search_word sw
@@ -195,7 +197,7 @@ class SearchCore
         }
 
         $searchSql = (new DbQuery())
-            ->select("DISTINCT `cp`.`id_product`")
+            ->select('DISTINCT `cp`.`id_product`')
             ->from('category_product', 'cp')
             ->innerJoinMultishop('category', 'c', 'cs', '`cp`.`id_category` = `c`.`id_category`')
             ->innerJoinMultishop('product', 'p', 'ps', '`cp`.`id_product` = `p`.`id_product`')
@@ -247,7 +249,7 @@ class SearchCore
         if (empty($productPool)) {
             return ($ajax ? [] : ['total' => 0, 'result' => []]);
         }
-        $productPool = ((strpos($productPool, ',') === false) ? (' = '.(int) $productPool.' ') : (' IN ('.rtrim($productPool, ',').') '));
+        $productPool = ((!str_contains($productPool, ',')) ? (' = '.(int) $productPool.' ') : (' IN ('.rtrim($productPool, ',').') '));
 
         if ($ajax) {
             $sql = 'SELECT DISTINCT p.id_product, pl.name pname, cl.name cname,
@@ -350,12 +352,12 @@ class SearchCore
         $string = html_entity_decode($string, ENT_NOQUOTES, 'utf-8');
 
         $string = preg_replace('/(['.PREG_CLASS_NUMBERS.']+)['.PREG_CLASS_PUNCTUATION.']+(?=['.PREG_CLASS_NUMBERS.'])/u', '\1', $string);
-        $string = preg_replace('/['.PREG_CLASS_SEARCH_EXCLUDE.']+/u', ' ', $string);
+        $string = preg_replace('/['.PREG_CLASS_SEARCH_EXCLUDE.']+/u', ' ', (string) $string);
 
         if ($indexation) {
-            $string = preg_replace('/[._-]+/', ' ', $string);
+            $string = preg_replace('/[._-]+/', ' ', (string) $string);
         } else {
-            $words = explode(' ', $string);
+            $words = explode(' ', (string) $string);
             $processedWords = [];
             // search for aliases for each word of the query
             foreach ($words as $word) {
@@ -368,19 +370,19 @@ class SearchCore
             }
             $string = implode(' ', $processedWords);
             $string = preg_replace('/[._]+/', '', $string);
-            $string = ltrim(preg_replace('/([^ ])-/', '$1 ', ' '.$string));
+            $string = ltrim((string) preg_replace('/([^ ])-/', '$1 ', ' '.$string));
             $string = preg_replace('/[._]+/', '', $string);
-            $string = preg_replace('/[^\s]-+/', '', $string);
-            $string = preg_replace('/[._-]+/', ' ', $string);
+            $string = preg_replace('/[^\s]-+/', '', (string) $string);
+            $string = preg_replace('/[._-]+/', ' ', (string) $string);
         }
 
         $blacklist = Configuration::get('PS_SEARCH_BLACKLIST', $idLang);
         if ($blacklist) {
             $blacklist = mb_strtolower($blacklist);
-            $string = preg_replace('/(?<=\s)('.$blacklist.')(?=\s)/Su', '', $string);
-            $string = preg_replace('/^('.$blacklist.')(?=\s)/Su', '', $string);
-            $string = preg_replace('/(?<=\s)('.$blacklist.')$/Su', '', $string);
-            $string = preg_replace('/^('.$blacklist.')$/Su', '', $string);
+            $string = preg_replace('/(?<=\s)('.$blacklist.')(?=\s)/Su', '', (string) $string);
+            $string = preg_replace('/^('.$blacklist.')(?=\s)/Su', '', (string) $string);
+            $string = preg_replace('/(?<=\s)('.$blacklist.')$/Su', '', (string) $string);
+            $string = preg_replace('/^('.$blacklist.')$/Su', '', (string) $string);
         }
 
         // If the language is constituted with symbol and there is no "words", then split every chars
@@ -388,7 +390,7 @@ class SearchCore
             // Cut symbols from letters
             $symbols = '';
             $letters = '';
-            foreach (explode(' ', $string) as $mbWord) {
+            foreach (explode(' ', (string) $string) as $mbWord) {
                 if (strlen(Tools::replaceAccentedChars($mbWord)) == mb_strlen(Tools::replaceAccentedChars($mbWord))) {
                     $letters .= $mbWord.' ';
                 } else {
@@ -405,27 +407,24 @@ class SearchCore
             $minWordLen = (int) Configuration::get('PS_SEARCH_MINWORDLEN');
             if ($minWordLen > 1) {
                 $minWordLen -= 1;
-                $string = preg_replace('/(?<=\s)[^\s]{1,'.$minWordLen.'}(?=\s)/Su', ' ', $string);
-                $string = preg_replace('/^[^\s]{1,'.$minWordLen.'}(?=\s)/Su', '', $string);
-                $string = preg_replace('/(?<=\s)[^\s]{1,'.$minWordLen.'}$/Su', '', $string);
-                $string = preg_replace('/^[^\s]{1,'.$minWordLen.'}$/Su', '', $string);
+                $string = preg_replace('/(?<=\s)[^\s]{1,'.$minWordLen.'}(?=\s)/Su', ' ', (string) $string);
+                $string = preg_replace('/^[^\s]{1,'.$minWordLen.'}(?=\s)/Su', '', (string) $string);
+                $string = preg_replace('/(?<=\s)[^\s]{1,'.$minWordLen.'}$/Su', '', (string) $string);
+                $string = preg_replace('/^[^\s]{1,'.$minWordLen.'}$/Su', '', (string) $string);
             }
         }
 
-        $string = Tools::replaceAccentedChars(trim(preg_replace('/\s+/', ' ', $string)));
-
-        return $string;
+        return Tools::replaceAccentedChars(trim((string) preg_replace('/\s+/', ' ', (string) $string)));
     }
 
     /**
      * @param bool $full
      * @param int|bool $specificProductId
      *
-     * @return bool
      *
      * @throws PrestaShopException
      */
-    public static function indexation($full = false, $specificProductId = false)
+    public static function indexation($full = false, $specificProductId = false): bool
     {
         $db = Db::getInstance();
 
@@ -515,13 +514,13 @@ class SearchCore
                 $languageId = (int)$product['id_lang'];
                 $shopId = (int)$product['id_shop'];
 
-                if ((int) $weightArray['tags']) {
+                if ($weightArray['tags']) {
                     $product['tags'] = Search::getTags($db, $productId, $languageId);
                 }
-                if ((int) $weightArray['attributes']) {
+                if ($weightArray['attributes']) {
                     $product['attributes'] = Search::getAttributes($db, $productId, $languageId);
                 }
-                if ((int) $weightArray['features']) {
+                if ($weightArray['features']) {
                     $product['features'] = Search::getFeatures($db, $productId, $languageId);
                 }
                 if ($sqlAttribute) {
@@ -538,7 +537,7 @@ class SearchCore
                 if ($productWords) {
                     $wordsIds = static::getOrCreateWords(array_keys($productWords), $shopId, $languageId);
                     foreach ($wordsIds as $word => $wordId) {
-                        $weight = (int)$productWords[$word];
+                        $weight = $productWords[$word];
                         $searchIndexBatch[] = '(' . $productId . ',' . $wordId . ',' . $weight . ')';
                         if (++$countWords % 50 === 0) {
                             Search::saveIndex($searchIndexBatch);
@@ -563,10 +562,8 @@ class SearchCore
 
     /**
      * @param array<string, int> $weightArray
-     *
-     * @return string
      */
-    protected static function getSQLProductAttributeFields($weightArray)
+    protected static function getSQLProductAttributeFields($weightArray): string
     {
         $sql = '';
         foreach ($weightArray as $key => $weight) {
@@ -669,7 +666,7 @@ class SearchCore
 			WHERE product_shop.indexed = 0
 			AND product_shop.visibility IN ("both", "search")
 			'.($idProduct ? 'AND p.id_product = '.(int) $idProduct : '').'
-			'.($ids ? 'AND p.id_product IN ('.implode(',', array_map('intval', $ids)).')' : '').'
+			'.($ids ? 'AND p.id_product IN ('.implode(',', array_map(intval(...), $ids)).')' : '').'
 			AND product_shop.`active` = 1
 			AND pl.`id_shop` = product_shop.`id_shop`';
 
@@ -681,19 +678,19 @@ class SearchCore
      * @param int $idProduct
      * @param int $idLang
      *
-     * @return string
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getTags($db, $idProduct, $idLang)
+    public static function getTags($db, $idProduct, $idLang): string
     {
         $tags = '';
         $tagsArray = $db->getArray(
             '
 		SELECT t.name FROM '._DB_PREFIX_.'product_tag pt
 		LEFT JOIN '._DB_PREFIX_.'tag t ON (pt.id_tag = t.id_tag AND t.id_lang = '.(int) $idLang.')
-		WHERE pt.id_product = '.(int) $idProduct);
+		WHERE pt.id_product = '.(int) $idProduct
+        );
         foreach ($tagsArray as $tag) {
             $tags .= $tag['name'].' ';
         }
@@ -706,12 +703,11 @@ class SearchCore
      * @param int $idProduct
      * @param int $idLang
      *
-     * @return string
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getAttributes($db, $idProduct, $idLang)
+    public static function getAttributes($db, $idProduct, $idLang): string
     {
         if (!Combination::isFeatureActive()) {
             return '';
@@ -724,7 +720,8 @@ class SearchCore
 		INNER JOIN '._DB_PREFIX_.'product_attribute_combination pac ON pa.id_product_attribute = pac.id_product_attribute
 		INNER JOIN '._DB_PREFIX_.'attribute_lang al ON (pac.id_attribute = al.id_attribute AND al.id_lang = '.(int) $idLang.')
 		'.Shop::addSqlAssociation('product_attribute', 'pa').'
-		WHERE pa.id_product = '.(int) $idProduct);
+		WHERE pa.id_product = '.(int) $idProduct
+        );
         foreach ($attributesArray as $attribute) {
             $attributes .= $attribute['name'].' ';
         }
@@ -737,12 +734,11 @@ class SearchCore
      * @param int $idProduct
      * @param int $idLang
      *
-     * @return string
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getFeatures($db, $idProduct, $idLang)
+    public static function getFeatures($db, $idProduct, $idLang): string
     {
         if (!Feature::isFeatureActive()) {
             return '';
@@ -753,7 +749,8 @@ class SearchCore
             '
 		SELECT fvl.value FROM '._DB_PREFIX_.'feature_product fp
 		LEFT JOIN '._DB_PREFIX_.'feature_value_lang fvl ON (fp.id_feature_value = fvl.id_feature_value AND fvl.id_lang = '.(int) $idLang.')
-		WHERE fp.id_product = '.(int) $idProduct);
+		WHERE fp.id_product = '.(int) $idProduct
+        );
         foreach ($featuresArray as $feature) {
             $features .= $feature['value'].' ';
         }
@@ -764,31 +761,29 @@ class SearchCore
     /**
      * @param Db $db
      * @param int $idProduct
-     * @param string $sqlAttribute
      *
      * @return array
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    protected static function getAttributesFields($db, $idProduct, $sqlAttribute)
+    protected static function getAttributesFields($db, $idProduct, string $sqlAttribute)
     {
         return $db->getArray(
             'SELECT id_product '.$sqlAttribute.' FROM '.
-            _DB_PREFIX_.'product_attribute pa WHERE pa.id_product = '.(int) $idProduct);
+            _DB_PREFIX_.'product_attribute pa WHERE pa.id_product = '.(int) $idProduct
+        );
     }
 
     /**
-     * @param array $productArray
      * @param array<string, int> $weightArray
-     * @param string $key
      * @param string $value
      * @param int $idLang
      * @param string $isoCode
      *
      * @throws PrestaShopException
      */
-    protected static function fillProductArray(&$productArray, $weightArray, $key, $value, $idLang, $isoCode)
+    protected static function fillProductArray(array &$productArray, array $weightArray, string $key, $value, $idLang, $isoCode)
     {
         $weight = (int)($weightArray[$key] ?? 0);
         if ($weight) {
@@ -828,7 +823,7 @@ class SearchCore
      */
     protected static function setProductsAsIndexed($ids)
     {
-        $ids = array_filter(array_map('intval', $ids));
+        $ids = array_filter(array_map(intval(...), $ids));
         if ($ids) {
             $conn = Db::getInstance();
             $condition = 'id_product IN (' . implode(', ', $ids) . ')';
@@ -842,9 +837,9 @@ class SearchCore
      *
      * @throws PrestaShopException
      */
-    public static function removeProductsSearchIndex($ids)
+    public static function removeProductsSearchIndex($ids): void
     {
-        $ids = array_filter(array_map('intval', $ids));
+        $ids = array_filter(array_map(intval(...), $ids));
         if ($ids) {
             $conn = Db::getInstance();
             $condition = 'id_product IN (' . implode(', ', $ids) . ')';
@@ -863,7 +858,6 @@ class SearchCore
      * @param bool $orderBy
      * @param bool $orderWay
      * @param bool $useCookie
-     * @param Context|null $context
      *
      * @return array|false|int
      *
@@ -899,7 +893,7 @@ class SearchCore
         }
 
         $id = Context::getContext()->shop->id;
-        $idShop = $id ? $id : Configuration::get('PS_SHOP_DEFAULT');
+        $idShop = $id ?: Configuration::get('PS_SHOP_DEFAULT');
 
         $sqlGroups = '';
         if (Group::isFeatureActive()) {
@@ -1000,10 +994,6 @@ class SearchCore
     }
 
     /**
-     * @param array $words
-     * @param int $shopId
-     * @param int $languageId
-     *
      * @return array<string, int> map from word to ID
      *
      * @throws PrestaShopException
@@ -1013,16 +1003,14 @@ class SearchCore
         $result = [];
         if ($words) {
 
-            $imploded = implode(', ', array_map(function($word) {
-                return '\'' . pSQL($word) . '\'';
-            }, $words));
+            $imploded = implode(', ', array_map(fn ($word) => '\'' . pSQL($word) . '\'', $words));
 
             $sql = (new DbQuery())
                 ->select('sw.id_word, sw.word')
                 ->from('search_word', 'sw')
                 ->where("sw.word IN ($imploded)")
-                ->where('sw.id_lang = ' . (int)$languageId)
-                ->where('sw.id_shop = ' . (int)$shopId);
+                ->where('sw.id_lang = ' . $languageId)
+                ->where('sw.id_shop = ' . $shopId);
 
             foreach (Db::readOnly()->getArray($sql) as $row) {
                 $word = $row['word'];
@@ -1035,14 +1023,12 @@ class SearchCore
 
     /**
      * @param string[] $words
-     * @param int $shopId
-     * @param int $languageId
      *
      * @return array<string, int> map from word to ID
      *
      * @throws PrestaShopException
      */
-    private static function getOrCreateWords(array $words, int $shopId, int $languageId)
+    private static function getOrCreateWords(array $words, int $shopId, int $languageId): array
     {
         $existingWords = static::getExistingWords($words, $shopId, $languageId);
         $missingWords = array_diff($words, array_keys($existingWords));
@@ -1052,7 +1038,7 @@ class SearchCore
                 $data[] = [
                     'id_shop' => $shopId,
                     'id_lang' => $languageId,
-                    'word' => $word
+                    'word' => $word,
                 ];
             }
             Db::getInstance()->insert('search_word', $data, false, true, Db::INSERT_IGNORE);

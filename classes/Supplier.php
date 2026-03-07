@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -249,7 +251,7 @@ class SupplierCore extends ObjectModel implements InitializationCallback
 
         if ($res) {
             // delete product supplier references
-            $res = Db::getInstance()->delete('product_supplier', 'id_supplier=' . (int)$supplierId);
+            $res = Db::getInstance()->delete('product_supplier', 'id_supplier=' . $supplierId);
 
             // mark supplier address as deleted
             $idAddress = Address::getAddressIdBySupplierId($supplierId);
@@ -367,12 +369,12 @@ class SupplierCore extends ObjectModel implements InitializationCallback
             $sql->select('cp.`id_product`');
             $sql->from('category_product', 'cp');
             if (Group::isFeatureActive()) {
-	            $sql->leftJoin('category_group', 'cg', 'cp.`id_category` = cg.`id_category`');
+                $sql->leftJoin('category_group', 'cg', 'cp.`id_category` = cg.`id_category`');
             }
             if ($activeCategory) {
-	            $sql->innerJoin('category', 'ca', 'cp.`id_category` = ca.`id_category` AND ca.`active` = 1');
+                $sql->innerJoin('category', 'ca', 'cp.`id_category` = ca.`id_category` AND ca.`active` = 1');
             }
-	        $sql->where($sqlGroups);
+            $sql->where($sqlGroups);
 
             return (int) $conn->getValue(
                 (new DbQuery())
@@ -530,7 +532,7 @@ class SupplierCore extends ObjectModel implements InitializationCallback
             $front = false;
         }
 
-        $res = Db::readOnly()->getArray(
+        return Db::readOnly()->getArray(
             (new DbQuery())
                 ->select('p.`id_product`, pl.`name`')
                 ->from('product', 'p')
@@ -538,21 +540,17 @@ class SupplierCore extends ObjectModel implements InitializationCallback
                 ->leftJoin('product_lang', 'pl', 'p.`id_product` = pl.`id_product` AND pl.`id_lang` = '.(int) $idLang)
                 ->innerJoin('product_supplier', 'ps', 'p.`id_product` = ps.`id_product`')
                 ->where('ps.`id_supplier` = '.(int) $this->id)
-                ->where($front ? 'product_shop.`visibility` IN ("both", "catalog")': '')
+                ->where($front ? 'product_shop.`visibility` IN ("both", "catalog")' : '')
                 ->groupBy('p.`id_product`')
         );
-
-        return $res;
     }
 
     /**
      * Database initialization callback
      *
-     * @param Db $conn
-     * @return void
      * @throws PrestaShopException
      */
-    public static function initializationCallback(Db $conn)
+    public static function initializationCallback(Db $conn): void
     {
         ImageEntity::rebuildImageEntities(static::class, self::$definition['images']);
     }

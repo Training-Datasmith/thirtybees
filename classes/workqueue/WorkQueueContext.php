@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -31,7 +33,6 @@ use Shop;
  */
 class WorkQueueContextCore
 {
-
     /**
      * @var int | null
      */
@@ -72,7 +73,6 @@ class WorkQueueContextCore
      */
     protected $language;
 
-
     /**
      * WorkQueueContextCore constructor.
      * @param int $shopId
@@ -90,11 +90,8 @@ class WorkQueueContextCore
 
     /**
      * Creates workqueue context from shop context
-     *
-     * @param Context $context
-     * @return static
      */
-    public static function fromContext(Context $context)
+    public static function fromContext(Context $context): static
     {
         $shop = $context->shop;
         $employee = $context->employee;
@@ -200,9 +197,8 @@ class WorkQueueContextCore
      * If input is positive integer (valid ID), then return it, otherwise returns null
      *
      * @param mixed $input
-     * @return int | null
      */
-    protected static function idOrNull($input)
+    protected static function idOrNull($input): ?int
     {
         $value = (int)$input;
         if ($value) {
@@ -210,6 +206,5 @@ class WorkQueueContextCore
         }
         return null;
     }
-
 
 }

@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 use Thirtybees\Core\DependencyInjection\ServiceLocator;
 use Thirtybees\Core\Error\ErrorUtils;
+
 /**
  * 2007-2016 PrestaShop
  *
@@ -73,10 +76,8 @@ class PrestaShopExceptionCore extends Exception
     /**
      * This method acts like an error handler.
      * Exception is displayed to user using currently selected error page, and script execution will end
-     *
-     * @return void
      */
-    public function displayMessage()
+    public function displayMessage(): never
     {
         $errorHandler = ServiceLocator::getInstance()->getErrorHandler();
         $errorHandler->handleFatalError(ErrorUtils::describeException($this));
@@ -87,10 +88,8 @@ class PrestaShopExceptionCore extends Exception
      * This method can be overridden by subclasses to include additional sections into output
      *
      * See PrestaShopDatabaseException for example how to add new section displaying SQL query
-     *
-     * @return array
      */
-    public function getExtraSections()
+    public function getExtraSections(): array
     {
         return [];
     }

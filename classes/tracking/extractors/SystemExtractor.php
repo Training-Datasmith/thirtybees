@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -26,7 +28,6 @@ use Thirtybees\Core\Tracking\DataExtractor;
  */
 class SystemExtractorCore extends DataExtractor
 {
-
     /**
      * Returns data name
      *
@@ -56,7 +57,7 @@ class SystemExtractorCore extends DataExtractor
     {
         return [
             'version' => _TB_VERSION_,
-            'revision' => _TB_REVISION_
+            'revision' => _TB_REVISION_,
         ];
     }
 }

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -50,7 +52,6 @@ if (!empty($errors)) {
     include(dirname(__FILE__).'/theme/views/errors.phtml');
     exit;
 }
-
 
 require_once dirname(__FILE__).DIRECTORY_SEPARATOR.'init.php';
 

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -469,26 +471,26 @@ class AdminPatternsControllerCore extends AdminController
                 [
                     'type' => 'price',
                     'label' => 'Price input field',
-                    'name' => 'price_1'
+                    'name' => 'price_1',
                 ],
                 [
                     'type' => 'price',
                     'label' => 'Price input field with custom prefix',
                     'name' => 'price_2',
-                    'prefix' => 'EUR'
+                    'prefix' => 'EUR',
                 ],
                 [
                     'type' => 'price',
                     'label' => 'Price input field: with tax',
                     'name' => 'price_3',
-                    'withTax' => true
+                    'withTax' => true,
                 ],
                 [
                     'type' => 'price',
                     'label' => 'Price input field: with tax selector',
                     'hint' => 'when withTax is string, additional dropdown field is rendered',
                     'name' => 'price_4',
-                    'withTax' => 'price_4_tax'
+                    'withTax' => 'price_4_tax',
                 ],
                 [
                     'type'         => 'html',
@@ -543,28 +545,28 @@ class AdminPatternsControllerCore extends AdminController
     {
         $content = [
             [
-                "id_carrier" => 5,
-                "name"       => "Lorem ipsum dolor, sit amet, consectetur adipiscing elit. Nunc lacinia in enim iaculis malesuada. Quisque congue ferm",
-                "type_name"  => "Azerty",
-                "active"     => 1,
+                'id_carrier' => 5,
+                'name'       => 'Lorem ipsum dolor, sit amet, consectetur adipiscing elit. Nunc lacinia in enim iaculis malesuada. Quisque congue ferm',
+                'type_name'  => 'Azerty',
+                'active'     => 1,
             ],
             [
-                "id_carrier" => 6,
-                "name"       => "Lorem ipsum dolor sit amet, consectetur lacinia in enim iaculis malesuada. Quisque congue ferm",
-                "type_name"  => "Qwerty",
-                "active"     => 1,
+                'id_carrier' => 6,
+                'name'       => 'Lorem ipsum dolor sit amet, consectetur lacinia in enim iaculis malesuada. Quisque congue ferm',
+                'type_name'  => 'Qwerty',
+                'active'     => 1,
             ],
             [
-                "id_carrier" => 9,
-                "name"       => "Lorem ipsum dolor sit amet: \ / : * ? \" < > |",
-                "type_name"  => "Azerty",
-                "active"     => 0,
+                'id_carrier' => 9,
+                'name'       => "Lorem ipsum dolor sit amet: \ / : * ? \" < > |",
+                'type_name'  => 'Azerty',
+                'active'     => 0,
             ],
             [
-                "id_carrier" => 3,
-                "name"       => "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc lacinia in enim iaculis malesuada. Quisque congue ferm",
-                "type_name"  => "Azerty",
-                "active"     => 1,
+                'id_carrier' => 3,
+                'name'       => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc lacinia in enim iaculis malesuada. Quisque congue ferm',
+                'type_name'  => 'Azerty',
+                'active'     => 1,
             ],
         ];
 
@@ -591,7 +593,7 @@ class AdminPatternsControllerCore extends AdminController
         $helper = new HelperList();
         $helper->shopLinkType = '';
         $helper->simple_header = true;
-        $helper->actions = ["edit", "delete"];
+        $helper->actions = ['edit', 'delete'];
         $helper->show_toolbar = false;
         $helper->module = $this;
         $helper->listTotal = count($content);
@@ -625,7 +627,7 @@ class AdminPatternsControllerCore extends AdminController
                 'color_value'      => 'red',
                 'blue'             => 'Content in custom color in blue field',
                 'activeVisu_field' => 1,
-                'editable_text'    => "thirty bees",
+                'editable_text'    => 'thirty bees',
             ],
             [
                 'id'               => 1,
@@ -636,7 +638,7 @@ class AdminPatternsControllerCore extends AdminController
                 'color_value'      => 'blue',
                 'blue'             => 'Content in custom color in blue field',
                 'activeVisu_field' => 0,
-                'editable_text'    => "thirty bees",
+                'editable_text'    => 'thirty bees',
             ],
             [
                 'id'               => 2,
@@ -647,7 +649,7 @@ class AdminPatternsControllerCore extends AdminController
                 'color_value'      => 'yellow',
                 'blue'             => 'Content in custom color in blue field',
                 'activeVisu_field' => 1,
-                'editable_text'    => "thirty bees Lorem ipsum dolor sit amet, consectetur adipiscing elit. ",
+                'editable_text'    => 'thirty bees Lorem ipsum dolor sit amet, consectetur adipiscing elit. ',
             ],
             [
                 'id'               => 9,
@@ -658,7 +660,7 @@ class AdminPatternsControllerCore extends AdminController
                 'color_value'      => '#CCCC99',
                 'blue'             => 'Content in custom color in blue field',
                 'activeVisu_field' => 1,
-                'editable_text'    => "thirty bees",
+                'editable_text'    => 'thirty bees',
             ],
         ];
 
@@ -669,34 +671,34 @@ class AdminPatternsControllerCore extends AdminController
                 'class' => 'fixed-width-xs',
             ],
             'badge_success'    => [
-                'title'         => "Success",
+                'title'         => 'Success',
                 'badge_success' => true,
             ],
             'badge_warning'    => [
-                'title'         => "Warning",
+                'title'         => 'Warning',
                 'badge_warning' => true,
             ],
             'badge_danger'     => [
-                'title'        => "Danger",
+                'title'        => 'Danger',
                 'badge_danger' => true,
             ],
             'text'             => [
-                'title'  => "Content with prefix",
-                'prefix' => "This is a prefix: ",
-                'class'  => "class-prefix",
+                'title'  => 'Content with prefix',
+                'prefix' => 'This is a prefix: ',
+                'class'  => 'class-prefix',
             ],
             'blue'             => [
-                'title' => "Content with no link",
-                'color' => "color_value",
-                'class' => "class-custom-nolink",
+                'title' => 'Content with no link',
+                'color' => 'color_value',
+                'class' => 'class-custom-nolink',
             ],
             'activeVisu_field' => [
-                'title'      => "ActiveVisu",
+                'title'      => 'ActiveVisu',
                 'activeVisu' => true,
 
             ],
             'editable_text'    => [
-                'title' => "edit this !",
+                'title' => 'edit this !',
                 'type'  => 'editable',
                 'class' => 'another-custom_class',
             ],

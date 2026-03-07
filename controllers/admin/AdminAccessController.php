@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -36,7 +38,7 @@
  */
 class AdminAccessControllerCore extends AdminController
 {
-    const ADMIN_CONTROLLER_PERM_TYPE = 'admin_controller';
+    public const ADMIN_CONTROLLER_PERM_TYPE = 'admin_controller';
 
     /* @var array : Black list of id_tab that do not have access */
     public $accesses_black_list = [];
@@ -94,7 +96,7 @@ class AdminAccessControllerCore extends AdminController
      */
     public function postProcess()
     {
-        if (Tools::isSubmit("submitSaveController")) {
+        if (Tools::isSubmit('submitSaveController')) {
             $this->saveAdminControllerPermissions();
             return true;
         } else {
@@ -342,7 +344,7 @@ class AdminAccessControllerCore extends AdminController
                         'name' => $desc['name'],
                         'description' => $desc['description'],
                         'levels' => $desc['levels'],
-                        'level' => $level
+                        'level' => $level,
                     ];
                 }
 
@@ -386,7 +388,7 @@ class AdminAccessControllerCore extends AdminController
                         'perm_type' => pSQL(static::ADMIN_CONTROLLER_PERM_TYPE),
                         'perm_group' => $controller,
                         'permission' => pSQL($permission),
-                        'level' => pSQL($level)
+                        'level' => pSQL($level),
                     ];
                 }
                 $connection->insert('profile_permission', $data);

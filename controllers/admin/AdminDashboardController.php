@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -177,13 +179,13 @@ class AdminDashboardControllerCore extends AdminController
             'list' => [
                 [
                     'id' => AdminStatsController::ORDER_DATE_COLUMN_INVOICE,
-                    'name' => $this->l('Order invoice date')
+                    'name' => $this->l('Order invoice date'),
                 ],
                 [
                     'id' => AdminStatsController::ORDER_DATE_COLUMN_DATE,
                     'name' => $this->l('Order creation date'),
                 ],
-            ]
+            ],
         ];
 
         Media::addJsDef(
@@ -435,7 +437,7 @@ class AdminDashboardControllerCore extends AdminController
     {
         $return = [
             'has_errors' => false,
-            'errors' => []
+            'errors' => [],
         ];
         $module = Tools::getValue('module');
         $hook = Tools::getValue('hook');
@@ -555,7 +557,7 @@ class AdminDashboardControllerCore extends AdminController
      * @param string|null $defaultValue
      * @return false|string|null
      */
-    protected function getDate($strValue, $defaultValue=null)
+    protected function getDate($strValue, $defaultValue = null)
     {
         if (is_string($strValue) && Validate::isDate($strValue) && $strValue != '0000-00-00') {
             $timestamp = strtotime($strValue);
@@ -581,7 +583,7 @@ class AdminDashboardControllerCore extends AdminController
             'utm_source' => 'back-office',
             'utm_medium' => 'rss',
             'utm_campaign' => 'back-office-' . $shopDefaultIsoCountry,
-            'utm_content' => 'download'
+            'utm_content' => 'download',
         ];
 
         $urlQuery = parse_url($link, PHP_URL_QUERY);

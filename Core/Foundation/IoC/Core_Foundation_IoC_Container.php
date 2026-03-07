@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -87,7 +89,7 @@ class Core_Foundation_IoC_Container
         if (! $this->knows($serviceName)) {
             $this->bindings[$serviceName] = [
                 'constructor' => $constructor,
-                'shared' => $shared
+                'shared' => $shared,
             ];
         }
         return $this;
@@ -106,7 +108,8 @@ class Core_Foundation_IoC_Container
             throw new Core_Foundation_IoC_Exception(
                 sprintf(
                     'Namespace alias `%1$s` already exists and points to `%2$s`',
-                    $alias, $this->namespaceAliases[$alias]
+                    $alias,
+                    $this->namespaceAliases[$alias]
                 )
             );
         }
@@ -164,7 +167,7 @@ class Core_Foundation_IoC_Container
                         try {
                             $args[] = $param->getDefaultValue();
                         } catch (Exception $e) {
-                            throw new Core_Foundation_IoC_Exception("Failed to resolve default parameter", 0, $e);
+                            throw new Core_Foundation_IoC_Exception('Failed to resolve default parameter', 0, $e);
                         }
                     } else {
                         throw new Core_Foundation_IoC_Exception(sprintf('Cannot build a `%s`.', $className));
@@ -183,7 +186,6 @@ class Core_Foundation_IoC_Container
             throw new Core_Foundation_IoC_Exception(sprintf('This doesn\'t seem to be a class name: `%s`.', $className), 0, $re);
         }
     }
-
 
     /**
      * @param string $serviceName

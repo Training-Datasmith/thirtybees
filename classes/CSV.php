@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -36,42 +38,22 @@
 class CSVCore
 {
     /**
-     * @var string
-     */
-    public $filename;
-
-    /**
-     * @var array|Iterator
-     */
-    public $collection;
-
-    /**
-     * @var string
-     */
-    public $delimiter;
-
-    /**
      * Loads objects, filename and optionnaly a delimiter.
      *
      * @param array|Iterator $collection Collection of objects / arrays (of non-objects)
      * @param string $filename : used later to save the file
      * @param string $delimiter Optional : delimiter used
      */
-    public function __construct($collection, $filename, $delimiter = ';')
+    public function __construct(public $collection, public $filename, public $delimiter = ';')
     {
-        $this->filename = $filename;
-        $this->delimiter = $delimiter;
-        $this->collection = $collection;
     }
 
     /**
      * Main function
      * Adds headers
      * Outputs
-     *
-     * @return void
      */
-    public function export()
+    public function export(): void
     {
         $this->headers();
 
@@ -93,10 +75,8 @@ class CSVCore
     /**
      * Wraps data and echoes
      * Uses defined delimiter
-     *
-     * @return void
      */
-    public function output($data)
+    public function output($data): void
     {
         $wrappedData = array_map(['CSVCore', 'wrap'], $data);
         echo sprintf("%s\n", implode($this->delimiter, $wrappedData));
@@ -107,7 +87,7 @@ class CSVCore
      * @param string $data
      * @return string $data
      */
-    public static function wrap($data)
+    public static function wrap($data): string
     {
         $data = str_replace(['"', ';'], '', $data);
 
@@ -116,10 +96,8 @@ class CSVCore
 
     /**
      * Add headers
-     *
-     * @return void
      */
-    public function headers()
+    public function headers(): void
     {
         header('Content-type: text/csv');
         header('Content-Type: application/force-download; charset=UTF-8');

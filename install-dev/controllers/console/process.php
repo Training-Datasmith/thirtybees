@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * 2007-2016 PrestaShop
  *
@@ -31,7 +33,7 @@
  */
 class InstallControllerConsoleProcess
 {
-    const SETTINGS_FILE = 'config/settings.inc.php';
+    public const SETTINGS_FILE = 'config/settings.inc.php';
 
     /**
      * @var InstallLanguages
@@ -202,7 +204,6 @@ class InstallControllerConsoleProcess
     {
         // Clean all cache values
         Cache::clean('*');
-
 
         $context = Context::getContext();
 

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -928,7 +930,7 @@ class AdminManufacturersControllerCore extends AdminController
                     'ean13' => $combination['ean13'],
                     'upc' => $combination['upc'],
                     'quantity' => $combination['quantity'],
-                    'attributes' => []
+                    'attributes' => [],
                 ];
             }
             $combinations[$combinationId]['attributes'][] = $combination['group_name'] . ' - ' . $combination['attribute_name'];

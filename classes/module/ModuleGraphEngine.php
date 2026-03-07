@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -35,11 +37,6 @@
 class ModuleGraphEngineCore extends Module
 {
     /**
-     * @var string|null
-     */
-    protected $_type;
-
-    /**
      * @var int
      */
     protected $_width;
@@ -67,13 +64,12 @@ class ModuleGraphEngineCore extends Module
     /**
      * ModuleGraphEngineCore constructor.
      *
-     * @param string|null $type
+     * @param string|null $_type
      *
      * @noinspection PhpMissingParentConstructorInspection
      */
-    public function __construct($type = null)
+    public function __construct(protected $_type = null)
     {
-        $this->_type = $type;
     }
 
     /**
@@ -127,8 +123,8 @@ class ModuleGraphEngineCore extends Module
     {
         static $divid = 1;
 
-        if (strpos($params['width'], '%') !== false) {
-            $params['width'] = (int) preg_replace('/\s*%\s*/', '', $params['width']).'%';
+        if (str_contains((string) $params['width'], '%')) {
+            $params['width'] = (int) preg_replace('/\s*%\s*/', '', (string) $params['width']).'%';
         } else {
             $params['width'] = (int) $params['width'].'px';
         }
@@ -141,7 +137,7 @@ class ModuleGraphEngineCore extends Module
 					.x(function(d) { return d.label; })
 					.y(function(d) { return d.value; })
 					.showLabels(true)
-					.showLegend(false)'
+					.showLegend(false)',
         ];
 
         return '
@@ -180,9 +176,8 @@ class ModuleGraphEngineCore extends Module
 
     /**
      * @param array $values
-     * @return void
      */
-    public function createValues($values)
+    public function createValues($values): void
     {
         $this->_values = $values;
     }
@@ -190,9 +185,8 @@ class ModuleGraphEngineCore extends Module
     /**
      * @param int $width
      * @param int $height
-     * @return void
      */
-    public function setSize($width, $height)
+    public function setSize($width, $height): void
     {
         $this->_width = (int)$width;
         $this->_height = (int)$height;
@@ -200,31 +194,26 @@ class ModuleGraphEngineCore extends Module
 
     /**
      * @param string[] $legend
-     * @return void
      */
-    public function setLegend($legend)
+    public function setLegend($legend): void
     {
         $this->_legend = $legend;
     }
 
     /**
      * @param string[] $titles
-     * @return void
      */
-    public function setTitles($titles)
+    public function setTitles($titles): void
     {
         $this->_titles = $titles;
     }
 
-    /**
-     * @return void
-     */
-    public function draw()
+    public function draw(): void
     {
         $array = [
             'axisLabels' => [
                 'xAxis' => $this->_titles['x'] ?? null,
-                'yAxis' => $this->_titles['y'] ?? null
+                'yAxis' => $this->_titles['y'] ?? null,
             ],
             'data'       => [],
         ];

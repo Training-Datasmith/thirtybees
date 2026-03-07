@@ -348,7 +348,7 @@ class SpecificPriceCore extends ObjectModel
                 );
                 static::$_filterOutCache[$key] = [$fromSpecificCount, $toSpecificCount];
             } else {
-                list($fromSpecificCount, $toSpecificCount) = static::$_filterOutCache[$key];
+                [$fromSpecificCount, $toSpecificCount] = static::$_filterOutCache[$key];
             }
         } else {
             $fromSpecificCount = $toSpecificCount = 1;
@@ -359,9 +359,7 @@ class SpecificPriceCore extends ObjectModel
             $ending = $beginning = $firstDate;
         }
 
-        $queryExtra .= ' AND (`from` = \'0000-00-00 00:00:00\' OR \''.$beginning.'\' >= `from`) AND (`to` = \'0000-00-00 00:00:00\' OR \''.$ending.'\' <= `to`)';
-
-        return $queryExtra;
+        return $queryExtra . (' AND (`from` = \'0000-00-00 00:00:00\' OR \'' . $beginning . '\' >= `from`) AND (`to` = \'0000-00-00 00:00:00\' OR \'' . $ending . '\' <= `to`)');
     }
 
     /**
@@ -407,7 +405,7 @@ class SpecificPriceCore extends ObjectModel
 
         // $specific_list is empty if the threshold is reached
         if (empty($specificList) || in_array($fieldValue, $specificList)) {
-            $queryExtra = 'AND `'.$fieldName.'` '.static::formatIntInQuery(0, $fieldValue).' ';
+            return 'AND `'.$fieldName.'` '.static::formatIntInQuery(0, $fieldValue).' ';
         }
 
         return $queryExtra;
@@ -425,9 +423,8 @@ class SpecificPriceCore extends ObjectModel
         $secondValue = (int) $secondValue;
         if ($firstValue != $secondValue) {
             return 'IN ('.$firstValue.', '.$secondValue.')';
-        } else {
-            return ' = '.$firstValue;
         }
+        return ' = '.$firstValue;
     }
 
     /**
@@ -443,8 +440,8 @@ class SpecificPriceCore extends ObjectModel
         $definition = array_keys(static::$definition['fields']);
         foreach (array_reverse($priority) as $k => $field) {
             $snakeCaseField = lcfirst(str_replace(' ', '', ucwords(str_replace('_', ' ', $field))));
-            if (!empty($field) && isset($$snakeCaseField) && in_array($field, $definition)) {
-                $select .= ' IF (`'.bqSQL($field).'` = '.(int) $$snakeCaseField.', '.pow(2, $k + 1).', 0) + ';
+            if (!empty($field) && isset(${$snakeCaseField}) && in_array($field, $definition)) {
+                $select .= ' IF (`'.bqSQL($field).'` = '.(int) ${$snakeCaseField}.', '.2 ** ($k + 1).', 0) + ';
             }
         }
 
@@ -486,9 +483,6 @@ class SpecificPriceCore extends ObjectModel
 
     /**
      * Make sure that priority list is always fully populated with correct values
-     *
-     * @param array $priorities
-     * @return array
      */
     protected static function adjustPriorities(array $priorities): array
     {
@@ -672,7 +666,6 @@ class SpecificPriceCore extends ObjectModel
      * @param int|null $idProductAttribute
      * @param int $idCustomer
      *
-     * @return bool
      *
      * @throws PrestaShopException
      */
@@ -690,8 +683,8 @@ class SpecificPriceCore extends ObjectModel
             $fields = array_keys(static::$definition['fields']);
             foreach ($precedence as $field) {
                 $snakeCaseField = lcfirst(str_replace(' ', '', ucwords(str_replace('_', ' ', $field))));
-                if (in_array($field, $fields) && isset($$snakeCaseField) && $$snakeCaseField) {
-                    $conditions[] = '`'.$field.'` = ' . (int)($$snakeCaseField);
+                if (in_array($field, $fields) && isset(${$snakeCaseField}) && ${$snakeCaseField}) {
+                    $conditions[] = '`'.$field.'` = ' . (int)(${$snakeCaseField});
                 }
             }
 

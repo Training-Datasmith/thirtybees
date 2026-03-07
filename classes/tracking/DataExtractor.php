@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -28,7 +30,7 @@ use Translate;
  */
 abstract class DataExtractorCore
 {
-    const GROUP_ENVIRONMENT = 'environment';
+    public const GROUP_ENVIRONMENT = 'environment';
 
     /**
      * Return extractor id
@@ -36,12 +38,11 @@ abstract class DataExtractorCore
      */
     public function getId()
     {
-        $class = get_class($this);
-        if (preg_match('#^.*\\\([a-zA-Z]+)Extractor(Core)*$#', get_class($this), $matches)) {
+        $class = static::class;
+        if (preg_match('#^.*\\\([a-zA-Z]+)Extractor(Core)*$#', $this::class, $matches)) {
             return lcfirst($matches[1]);
-        } else {
-            throw new RuntimeException("Invariant: failed to resolve extractor ID for class " . $class);
         }
+        throw new RuntimeException('Invariant: failed to resolve extractor ID for class ' . $class);
     }
 
     /**
@@ -59,9 +60,9 @@ abstract class DataExtractorCore
                     'phpVersion',
                     'phpExtensions',
                     'serverSettings',
-                    'db'
-                ]
-            ]
+                    'db',
+                ],
+            ],
         ];
     }
 

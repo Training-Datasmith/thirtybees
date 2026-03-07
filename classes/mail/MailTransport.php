@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -26,14 +28,8 @@ use Throwable;
  */
 interface MailTransport
 {
-    /**
-     * @return string
-     */
     public function getName(): string;
 
-    /**
-     * @return string
-     */
     public function getDescription(): string;
 
     /**
@@ -42,18 +38,11 @@ interface MailTransport
     public function getConfigUrl();
 
     /**
-     * @param int $idShop
-     * @param int $idLang
-     * @param MailAddress $fromAddress
      * @param MailAddress[] $toAddresses
      * @param MailAddress[] $bccAddresses
-     * @param MailAddress $replyTo
-     * @param string $subject
      * @param MailTemplate[] $templates ,
-     * @param array $templateVars
      * @param MailAttachement[] $attachements
      *
-     * @return bool
      *
      * @throws Throwable
      */

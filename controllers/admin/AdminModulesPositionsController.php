@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -676,7 +678,7 @@ class AdminModulesPositionsControllerCore extends AdminController
                             $hookableModulesList[] = [
                                 'id' => (int)$mod->id,
                                 'name' => $mod->displayName,
-                                'display' => Hook::displayHook($hookName, [], (int)$mod->id)
+                                'display' => Hook::displayHook($hookName, [], (int)$mod->id),
                             ];
                         }
                     }

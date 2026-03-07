@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -38,13 +40,13 @@ class TaxCalculatorCore
      * COMBINE_METHOD sum taxes
      * eg: 100€ * (10% + 15%)
      */
-    const COMBINE_METHOD = 1;
+    public const COMBINE_METHOD = 1;
 
     /**
      * ONE_AFTER_ANOTHER_METHOD apply taxes one after another
      * eg: (100€ * 10%) * 15%
      */
-    const ONE_AFTER_ANOTHER_METHOD = 2;
+    public const ONE_AFTER_ANOTHER_METHOD = 2;
 
     /**
      * @var Tax[] $taxes
@@ -100,7 +102,7 @@ class TaxCalculatorCore
     /**
      * @return float total taxes rate
      */
-    public function getTotalRate()
+    public function getTotalRate(): float
     {
         $taxes = 0;
         if ($this->computation_method == static::ONE_AFTER_ANOTHER_METHOD) {
@@ -121,10 +123,9 @@ class TaxCalculatorCore
     }
 
     /**
-     * @return string
      * @throws PrestaShopException
      */
-    public function getTaxesName()
+    public function getTaxesName(): string
     {
         $names = [];
         $languageId = (int) Context::getContext()->language->id;
@@ -142,7 +143,7 @@ class TaxCalculatorCore
      *
      * @return array Array with one amount per tax
      */
-    public function getTaxesAmount($priceTaxExcluded)
+    public function getTaxesAmount($priceTaxExcluded): array
     {
         $taxesAmounts = [];
 
@@ -165,7 +166,7 @@ class TaxCalculatorCore
      *
      * @return float Amount
      */
-    public function getTaxesTotalAmount($priceTaxExcluded)
+    public function getTaxesTotalAmount($priceTaxExcluded): int|float
     {
         $amount = 0;
 
@@ -180,10 +181,9 @@ class TaxCalculatorCore
     /**
      * Returns tax rate
      *
-     * @param Tax $tax
      * @return float
      */
-    protected function getTaxRate(Tax $tax)
+    protected function getTaxRate(Tax $tax): float|int
     {
         if (is_null($tax->rate)) {
             return 0.0;

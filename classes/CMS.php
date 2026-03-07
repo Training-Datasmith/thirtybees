@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -61,7 +63,7 @@ class CMSCore extends ObjectModel
             ],
             'cms_lang' => [
                 'primary'       => ['type' => ObjectModel::PRIMARY_KEY, 'columns' => ['id_cms', 'id_shop', 'id_lang']],
-            ]
+            ],
         ],
     ];
 
@@ -118,7 +120,7 @@ class CMSCore extends ObjectModel
         'objectsNodeName' => 'content_management_system',
         'fields'          => [
             'id_cms_category' => [
-                'xlink_resource' => 'cms_categories'
+                'xlink_resource' => 'cms_categories',
             ],
         ],
     ];
@@ -127,7 +129,6 @@ class CMSCore extends ObjectModel
      * @param int $idLang
      * @param array|null $selection
      * @param bool $active
-     * @param Link|null $link
      *
      * @return array
      *
@@ -145,7 +146,7 @@ class CMSCore extends ObjectModel
                 ->from('cms', 'c')
                 ->leftJoin('cms_lang', 'cl', 'c.`id_cms` = cl.`id_cms` AND cl.`id_lang` = '.(int) $idLang)
                 ->join(Shop::addSqlAssociation('cms', 'c'))
-                ->where($selection !== null ? 'c.`id_cms` IN ('.implode(',', array_map('intval', $selection)).')' : '')
+                ->where($selection !== null ? 'c.`id_cms` IN ('.implode(',', array_map(intval(...), $selection)).')' : '')
                 ->where($active ? 'c.`active` = 1 ' : '')
                 ->groupBy('c.`id_cms`')
                 ->orderBy('c.`position`')
@@ -339,7 +340,7 @@ class CMSCore extends ObjectModel
         }
 
         if (parent::update($nullValues)) {
-            return $this->cleanPositions($this->id_cms_category);
+            return static::cleanPositions($this->id_cms_category);
         }
 
         return false;
@@ -367,7 +368,7 @@ class CMSCore extends ObjectModel
             Db::getInstance()->update(
                 'cms',
                 [
-                    'position' => (int) $i,
+                    'position' => $i,
                 ],
                 '`id_cms_category` = '.(int) $idCategory.' AND `id_cms` = '.(int) $result[$i]['id_cms']
             );
@@ -389,7 +390,7 @@ class CMSCore extends ObjectModel
         }
 
         if (parent::delete()) {
-            return $this->cleanPositions($this->id_cms_category);
+            return static::cleanPositions($this->id_cms_category);
         }
 
         return false;

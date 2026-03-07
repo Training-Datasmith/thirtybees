@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -34,7 +36,6 @@
  */
 class PasswordControllerCore extends FrontController
 {
-
     /** @var string $php_self */
     public $php_self = 'password';
 
@@ -78,7 +79,7 @@ class PasswordControllerCore extends FrontController
                     if (Mail::Send($this->context->language->id, 'password_query', Mail::l('Password query confirmation'), $mailParams, $customer->email, $customer->firstname.' '.$customer->lastname)) {
                         $this->context->smarty->assign([
                             'confirmation' => 2,
-                            'customer_email' => $customer->email
+                            'customer_email' => $customer->email,
                         ]);
                     } else {
                         $this->errors[] = Tools::displayError('An error occurred while sending the email.');
@@ -145,7 +146,7 @@ class PasswordControllerCore extends FrontController
         if ($customer->update()) {
             Hook::triggerEvent('actionPasswordRenew', [
                 'customer' => $customer,
-                'password' => $password
+                'password' => $password,
             ]);
             $this->context->smarty->assign(['confirmation' => 1]);
         } else {

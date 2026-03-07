@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -25,47 +27,7 @@ class PageCacheKeyCore
     /**
      * @var PageCacheKey|false|null
      */
-    protected static $instance = null;
-
-    /**
-     * @var string
-     */
-    public $entityType;
-
-    /**
-     * @var int
-     */
-    public $entityId;
-
-    /**
-     * @var string
-     */
-    public $url;
-
-    /**
-     * @var int
-     */
-    public $idCurrency;
-
-    /**
-     * @var int
-     */
-    public $idLanguage;
-
-    /**
-     * @var int
-     */
-    public $idCountry;
-
-    /**
-     * @var int
-     */
-    public $idShop;
-
-    /**
-     * @var int
-     */
-    public $idGroup;
+    protected static $instance;
 
     /**
      * Creates new cache key and set its metadata
@@ -79,18 +41,9 @@ class PageCacheKeyCore
      * @param int $idShop
      * @param int $idGroup
      */
-    protected function __construct($entityType, $entityId, $url, $idCurrency, $idLanguage, $idCountry, $idShop, $idGroup)
+    protected function __construct(public $entityType, public $entityId, public $url, public $idCurrency, public $idLanguage, public $idCountry, public $idShop, public $idGroup)
     {
-        $this->entityType = $entityType;
-        $this->entityId = $entityId;
-        $this->url = $url;
-        $this->idCurrency = $idCurrency;
-        $this->idLanguage = $idLanguage;
-        $this->idCountry = $idCountry;
-        $this->idShop = $idShop;
-        $this->idGroup = $idGroup;
     }
-
 
     /**
      * Returns unique hash for this key
@@ -99,7 +52,8 @@ class PageCacheKeyCore
      */
     public function getHash()
     {
-        return Tools::encrypt('pagecache_public_'
+        return Tools::encrypt(
+            'pagecache_public_'
             .$this->url
             .$this->idCurrency
             .$this->idLanguage
@@ -130,7 +84,7 @@ class PageCacheKeyCore
      * @return PageCacheKey|false
      * @throws PrestaShopException
      */
-    protected static function resolvePageKey()
+    protected static function resolvePageKey(): false|\PageCacheKey
     {
         // don't cache in back office
         if (defined('_PS_ADMIN_DIR_')) {
@@ -153,7 +107,7 @@ class PageCacheKeyCore
         }
 
         // ajax calls are not cached
-        $ajaxCalling = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && mb_strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
+        $ajaxCalling = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && mb_strtolower((string) $_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
         if ($ajaxCalling) {
             return false;
         }
@@ -174,7 +128,7 @@ class PageCacheKeyCore
 
         // this page can be cached -- let's compute cache key
         $protocol = Configuration::get('PS_SSL_ENABLED') ? 'https://' : 'http://';
-        $url = explode('?', $_SERVER['REQUEST_URI']);
+        $url = explode('?', (string) $_SERVER['REQUEST_URI']);
         $uri = $url[0];
         $queryString = $url[1] ?? '';
         if ($queryString === '') {

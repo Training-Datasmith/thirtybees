@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -19,13 +21,11 @@
 
 namespace Thirtybees\Core\Import;
 
-
 /**
  * Interface DataSourceInterface
  */
 interface DataSourceInterface
 {
-
     /**
      * Returns current row
      *

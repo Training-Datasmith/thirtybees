@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -293,7 +295,7 @@ function checkingTab($tab)
         echo sprintf(Tools::displayError('The class %s cannot be found.'), $tab);
         return false;
     }
-    $admin_obj = new $tab;
+    $admin_obj = new $tab();
     if (!$admin_obj->viewAccess() && ($admin_obj->table != 'employee' || Context::getContext()->employee->id != Tools::getIntValue('id_employee') || !Tools::isSubmit('updateemployee'))) {
         $admin_obj->_errors = [Tools::displayError('Access denied.')];
         echo $admin_obj->displayErrors();
@@ -314,7 +316,6 @@ function checkTabRights($id_tab)
 
     return Context::getContext()->employee->hasAccess($id_tab, Profile::PERMISSION_VIEW);
 }
-
 
 /**
  * Converts a simpleXML element into an array. Preserves attributes and everything.

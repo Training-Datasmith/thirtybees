@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -74,21 +76,21 @@ class AdminCmsControllerCore extends AdminController
             'id_cms' => [
                 'title' => $this->l('ID'),
                 'align' => 'center',
-                'class' => 'fixed-width-xs'
+                'class' => 'fixed-width-xs',
             ],
             'link_rewrite' => [
-                'title' => $this->l('URL')
+                'title' => $this->l('URL'),
             ],
             'meta_title' => [
                 'title' => $this->l('Title'),
-                'filter_key' => 'b!meta_title'
+                'filter_key' => 'b!meta_title',
             ],
             'position' => [
                 'title' => $this->l('Position'),
                 'filter_key' => 'a!position',
                 'align' => 'center',
                 'class' => 'fixed-width-sm',
-                'position' => 'position'
+                'position' => 'position',
             ],
             'active' => [
                 'title' => $this->l('Displayed'),
@@ -96,7 +98,7 @@ class AdminCmsControllerCore extends AdminController
                 'active' => 'status',
                 'class' => 'fixed-width-sm',
                 'type' => 'bool',
-                'orderby' => false
+                'orderby' => false,
             ],
         ];
 

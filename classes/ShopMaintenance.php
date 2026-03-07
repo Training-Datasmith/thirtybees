@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Copyright (C) 2017-2025 thirty bees
  *
@@ -29,7 +31,7 @@ class ShopMaintenanceCore
     /**
      * Database lock name.
      */
-    const BACKUP_LOCK_NAME = 'TB_AUTO_BACKUP_LOCK';
+    public const BACKUP_LOCK_NAME = 'TB_AUTO_BACKUP_LOCK';
 
     /**
      * Run tasks as needed. Should take care of running tasks not more often
@@ -40,7 +42,7 @@ class ShopMaintenanceCore
      *
      * @throws PrestaShopException
      */
-    public static function run()
+    public static function run(): void
     {
         $now = time();
         $lastRun = Configuration::getGlobalValue('SHOP_MAINTENANCE_LAST_RUN');
@@ -62,22 +64,24 @@ class ShopMaintenanceCore
      * Correct the "generator" meta tag in templates. Technology detection
      * sites like builtwith.com don't recognize thirty bees technology if the
      * theme template inserts a meta tag "generator" for PrestaShop.
-     *
-     * @return void
      */
-    public static function adjustThemeHeaders()
+    public static function adjustThemeHeaders(): void
     {
         foreach (scandir(_PS_ALL_THEMES_DIR_) as $themeDir) {
-            if ( ! is_dir(_PS_ALL_THEMES_DIR_.$themeDir)
-                || in_array($themeDir, ['.', '..'])) {
+            if (! is_dir(_PS_ALL_THEMES_DIR_.$themeDir)) {
                 continue;
             }
-
+            if (in_array($themeDir, ['.', '..'])) {
+                continue;
+            }
             $headerPath = _PS_ALL_THEMES_DIR_.$themeDir.'/header.tpl';
             if (is_writable($headerPath)) {
                 $header = file_get_contents($headerPath);
-                $newHeader = preg_replace('/<\s*meta\s*name\s*=\s*["\']generator["\']\s*content\s*=\s*["\'].*["\']\s*>/i',
-                    '<meta name="generator" content="thirty bees">', $header);
+                $newHeader = preg_replace(
+                    '/<\s*meta\s*name\s*=\s*["\']generator["\']\s*content\s*=\s*["\'].*["\']\s*>/i',
+                    '<meta name="generator" content="thirty bees">',
+                    $header
+                );
                 if ($newHeader !== $header) {
                     file_put_contents($headerPath, $newHeader);
                     Tools::clearSmartyCache();
@@ -91,10 +95,10 @@ class ShopMaintenanceCore
      *
      * @throws PrestaShopException
      */
-    public static function optinShop()
+    public static function optinShop(): void
     {
         $name = Configuration::STORE_REGISTERED;
-        if ( ! Configuration::get($name)) {
+        if (! Configuration::get($name)) {
             $employees = Employee::getEmployeesByProfile(_PS_ADMIN_PROFILE_);
             // Usually there's only one employee when we run this code.
             foreach ($employees as $employee) {
@@ -109,10 +113,8 @@ class ShopMaintenanceCore
 
     /**
      * Delete lost AdminController messages.
-     *
-     * @return void
      */
-    public static function cleanAdminControllerMessages()
+    public static function cleanAdminControllerMessages(): void
     {
         $name = AdminController::MESSAGE_CACHE_PATH;
         $nameLength = strlen($name);
@@ -129,10 +131,9 @@ class ShopMaintenanceCore
     /**
      * Delete all .log files in the /log/ directory older than 6 months.
      *
-     * @return void
      * @throws PrestaShopException
      */
-    public static function cleanOldLogFiles()
+    public static function cleanOldLogFiles(): void
     {
         $now = time();
         $days = Configuration::getLogsRetentionPeriod();
@@ -142,7 +143,7 @@ class ShopMaintenanceCore
         $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($logDir));
         foreach ($iterator as $item) {
             $filePath = $item->getPathname();
-            if (is_file($filePath) && pathinfo($filePath, PATHINFO_EXTENSION) === 'log' && is_writable($filePath)) {
+            if (is_file($filePath) && pathinfo((string) $filePath, PATHINFO_EXTENSION) === 'log' && is_writable($filePath)) {
                 if ($now - filemtime($filePath) > $oldlogdeleteperiod) {
                     unlink($filePath);
                 }
@@ -153,10 +154,9 @@ class ShopMaintenanceCore
     /**
      * Delete all .js and .css files in /themes/../cache/ directories older than 30 days.
      *
-     * @return void
      * @throws PrestaShopException
      */
-    public static function cleanOldThemeCacheFiles()
+    public static function cleanOldThemeCacheFiles(): void
     {
         $days = Configuration::getCCCAssetsRetentionPeriod();
         $themesDir = _PS_ROOT_DIR_ . '/themes/';
@@ -179,14 +179,13 @@ class ShopMaintenanceCore
             }
         }
     }
-    
+
     /**
      * Automatically create a database backup if the automatic backup feature is enabled.
      *
-     * @return void
      * @throws PrestaShopException
      */
-    public static function autoDbBackup()
+    public static function autoDbBackup(): void
     {
         if (!Configuration::get('TB_DB_AUTO_BACKUP')) {
             return;
@@ -211,12 +210,12 @@ class ShopMaintenanceCore
      *
      * @return bool True if the lock was acquired, false otherwise.
      */
-    protected static function lock()
+    protected static function lock(): bool
     {
         try {
             $connection = Db::getInstance();
             return (bool)(int)$connection->getValue("SELECT GET_LOCK('" . static::BACKUP_LOCK_NAME . "', 3)");
-        } catch (Throwable $e) {
+        } catch (Throwable) {
             return false;
         }
     }
@@ -231,17 +230,16 @@ class ShopMaintenanceCore
         try {
             $connection = Db::getInstance();
             $connection->execute("SELECT RELEASE_LOCK('" . static::BACKUP_LOCK_NAME . "')");
-        } catch (Throwable $ignored) {
+        } catch (Throwable) {
         }
     }
-    
+
     /**
      * Delete backup files older than the configured retention period.
      *
-     * @return void
      * @throws PrestaShopException
      */
-    public static function deleteOldDbBackupFiles()
+    public static function deleteOldDbBackupFiles(): void
     {
         $retentionDays = (int) Configuration::get('TB_DB_BACKUP_RETENTION_PERIOD');
         if ($retentionDays <= 0) {

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -59,7 +61,6 @@ class AdminTrackingControllerCore extends AdminController
         parent::__construct();
         $this->bootstrap = true;
     }
-
 
     /**
      * @param string $description

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -29,21 +31,16 @@ use Throwable;
  */
 class ErrorHandlerCore
 {
-    const MAX_ERROR_MESSAGES = 1000;
+    public const MAX_ERROR_MESSAGES = 1000;
 
-    const LEVEL_EMERGENCY = 'emergency';
-    const LEVEL_ALERT     = 'alert';
-    const LEVEL_CRITICAL  = 'critical';
-    const LEVEL_ERROR     = 'error';
-    const LEVEL_WARNING   = 'warning';
-    const LEVEL_NOTICE    = 'notice';
-    const LEVEL_INFO      = 'info';
-    const LEVEL_DEBUG     = 'debug';
-
-    /**
-     * @var ErrorResponseInterface
-     */
-    protected $errorResponse;
+    public const LEVEL_EMERGENCY = 'emergency';
+    public const LEVEL_ALERT     = 'alert';
+    public const LEVEL_CRITICAL  = 'critical';
+    public const LEVEL_ERROR     = 'error';
+    public const LEVEL_WARNING   = 'warning';
+    public const LEVEL_NOTICE    = 'notice';
+    public const LEVEL_INFO      = 'info';
+    public const LEVEL_DEBUG     = 'debug';
 
     /**
      * @var array[] list of errors, warnings and notices encountered during request processing
@@ -65,29 +62,22 @@ class ErrorHandlerCore
      *
      * Creates and initialize error handling logic
      */
-    public function __construct(ErrorResponseInterface $errorResponse)
+    public function __construct(protected \Thirtybees\Core\Error\Response\ErrorResponseInterface $errorResponse)
     {
-        $this->errorResponse = $errorResponse;
-
         @ini_set('display_errors', 'off');
         @error_reporting(E_ALL);
 
         // Set uncaught exception handler
-        set_exception_handler([$this, 'uncaughtExceptionHandler']);
+        set_exception_handler($this->uncaughtExceptionHandler(...));
 
         // Set error handler
-        set_error_handler([$this, 'errorHandler']);
+        set_error_handler($this->errorHandler(...));
 
         // register shutdown handler to catch fatal errors
         register_shutdown_function([$this, 'shutdown']);
     }
 
-    /**
-     * @param BootstrapErrorHandler $bootstrapErrorHandler
-     *
-     * @return void
-     */
-    public function replay(BootstrapErrorHandler $bootstrapErrorHandler)
+    public function replay(BootstrapErrorHandler $bootstrapErrorHandler): void
     {
         foreach ($bootstrapErrorHandler->getCollectedErrors() as $error) {
             $this->errorHandler(
@@ -99,10 +89,7 @@ class ErrorHandlerCore
         }
     }
 
-    /**
-     * @param ErrorResponseInterface $errorResponse
-     */
-    public function setErrorResponseHandler(ErrorResponseInterface $errorResponse)
+    public function setErrorResponseHandler(ErrorResponseInterface $errorResponse): void
     {
         $this->errorResponse = $errorResponse;
     }
@@ -116,10 +103,10 @@ class ErrorHandlerCore
      *
      * @return array[] of collected error messages
      */
-    public function getErrorMessages($includeSuppressed = false, $mask = E_ALL)
+    public function getErrorMessages($includeSuppressed = false, $mask = E_ALL): array
     {
         if ($this->errorMessages) {
-            return array_filter($this->errorMessages, function ($error) use ($includeSuppressed, $mask) {
+            return array_filter($this->errorMessages, function (array $error) use ($includeSuppressed, $mask): bool {
                 if (!$includeSuppressed && $error['suppressed']) {
                     return false;
                 }
@@ -136,27 +123,19 @@ class ErrorHandlerCore
      *
      * @param Throwable $e uncaught exception
      */
-    public function uncaughtExceptionHandler(Throwable $e)
+    public function uncaughtExceptionHandler(Throwable $e): void
     {
         static::handleFatalError(ErrorUtils::describeException($e));
     }
 
-    /**
-     * @param ErrorDescription $errorDescription
-     * @return void
-     */
-    public function handleFatalError(ErrorDescription $errorDescription)
+    public function handleFatalError(ErrorDescription $errorDescription): never
     {
         $this->logFatalError($errorDescription);
         $this->errorResponse->sendResponse($errorDescription);
         exit;
     }
 
-    /**
-     * @param ErrorDescription $errorDescription
-     * @return void
-     */
-    public function logFatalError(ErrorDescription $errorDescription)
+    public function logFatalError(ErrorDescription $errorDescription): void
     {
         // log all exceptions to file
         $logger = new FileLogger();
@@ -177,7 +156,7 @@ class ErrorHandlerCore
             }
             $extra[] = [
                 'label' => 'Stacktrace',
-                'content' => $stacktrace
+                'content' => $stacktrace,
             ];
 
             $error = [
@@ -203,10 +182,8 @@ class ErrorHandlerCore
      * @param string $errstr error message
      * @param string $errfile filename that the error was raised in
      * @param int $errline line number the error was raised at
-     *
-     * @return bool
      */
-    public function errorHandler($errno, $errstr, $errfile, $errline)
+    public function errorHandler($errno, $errstr, $errfile, $errline): bool
     {
         $suppressed = error_reporting() === 0;
         $file = $errfile;
@@ -250,10 +227,8 @@ class ErrorHandlerCore
 
     /**
      * Shutdown handler let us detect and react to fatal errors.
-     *
-     * @return void
      */
-    public function shutdown()
+    public function shutdown(): void
     {
         $error = error_get_last();
 
@@ -275,11 +250,11 @@ class ErrorHandlerCore
      * @param object $logger
      * @param bool $replay
      */
-    public function addLogger($logger, $replay=false)
+    public function addLogger($logger, $replay = false): void
     {
         $this->loggers[] = $logger;
         if ($replay) {
-            foreach($this->getErrorMessages(false) as $errorMessage) {
+            foreach ($this->getErrorMessages(false) as $errorMessage) {
                 $this->sendMessageToLogger($logger, $errorMessage);
             }
         }
@@ -300,10 +275,8 @@ class ErrorHandlerCore
 
     /**
      * Forward error message to psr compliant logger.
-     *
-     * @param array $msg
      */
-    protected function logMessage($msg)
+    protected function logMessage(array $msg)
     {
         if (! $this->loggers) {
             return;
@@ -317,10 +290,8 @@ class ErrorHandlerCore
      * Converts $msg to string representation
      *
      * @param array $msg error message
-     *
-     * @return string
      */
-    public static function formatErrorMessage(array $msg)
+    public static function formatErrorMessage(array $msg): string
     {
         $file = ErrorUtils::getRelativeFile($msg['errfile']);
 
@@ -334,39 +305,23 @@ class ErrorHandlerCore
      *
      * @return string error type
      */
-    public static function getErrorType(int $errno)
+    public static function getErrorType(int $errno): string
     {
-        switch ($errno) {
-            case E_PARSE:
-            case E_CORE_ERROR:
-            case E_COMPILE_ERROR:
-            case E_USER_ERROR:
-            case E_ERROR:
-            case E_RECOVERABLE_ERROR:
-                return 'Fatal error';
-            case E_CORE_WARNING:
-            case E_COMPILE_WARNING:
-            case E_USER_WARNING:
-            case E_WARNING:
-                return 'Warning';
-            case E_USER_NOTICE:
-            case E_NOTICE:
-                return 'Notice';
-            case E_USER_DEPRECATED:
-            case E_DEPRECATED:
-                return 'Deprecation';
-            default:
-                return 'Unknown error';
-        }
+        return match ($errno) {
+            E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR, E_ERROR, E_RECOVERABLE_ERROR => 'Fatal error',
+            E_CORE_WARNING, E_COMPILE_WARNING, E_USER_WARNING, E_WARNING => 'Warning',
+            E_USER_NOTICE, E_NOTICE => 'Notice',
+            E_USER_DEPRECATED, E_DEPRECATED => 'Deprecation',
+            default => 'Unknown error',
+        };
     }
 
     /**
      * Returns true if errno is a fatal error.
      *
      * @param int $errno
-     * @return boolean
      */
-    public static function isFatalError($errno)
+    public static function isFatalError($errno): bool
     {
         return (
             $errno === E_USER_ERROR ||
@@ -386,28 +341,13 @@ class ErrorHandlerCore
      */
     public static function getLogLevel(int $errno)
     {
-        switch ($errno) {
-            case E_PARSE:
-            case E_CORE_ERROR:
-            case E_COMPILE_ERROR:
-                return static::LEVEL_CRITICAL;
-            case E_USER_ERROR:
-            case E_RECOVERABLE_ERROR:
-            case E_ERROR:
-                return static::LEVEL_ERROR;
-            case E_CORE_WARNING:
-            case E_COMPILE_WARNING:
-            case E_USER_WARNING:
-            case E_WARNING:
-            case E_USER_DEPRECATED:
-            case E_DEPRECATED:
-                return static::LEVEL_WARNING;
-            case E_USER_NOTICE:
-            case E_NOTICE:
-                return static::LEVEL_NOTICE;
-            default:
-                return static::LEVEL_DEBUG;
-        }
+        return match ($errno) {
+            E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR => static::LEVEL_CRITICAL,
+            E_USER_ERROR, E_RECOVERABLE_ERROR, E_ERROR => static::LEVEL_ERROR,
+            E_CORE_WARNING, E_COMPILE_WARNING, E_USER_WARNING, E_WARNING, E_USER_DEPRECATED, E_DEPRECATED => static::LEVEL_WARNING,
+            E_USER_NOTICE, E_NOTICE => static::LEVEL_NOTICE,
+            default => static::LEVEL_DEBUG,
+        };
     }
 
     /**
@@ -418,59 +358,30 @@ class ErrorHandlerCore
     public static function displayErrorEnabled()
     {
         $value = @ini_get('display_errors');
-        switch (strtolower($value)) {
-            case 'on':
-            case 'yes':
-            case 'true':
-            case 'stdout':
-            case 'stderr':
-            case '1':
-                return true;
-            case 'off':
-            case 'no':
-            case '0':
-                return false;
-            default:
-                return (bool) (int) $value;
-        }
+        return match (strtolower($value)) {
+            'on', 'yes', 'true', 'stdout', 'stderr', '1' => true,
+            'off', 'no', '0' => false,
+            default => (bool) (int) $value,
+        };
     }
 
     /**
      * @param object $logger
-     * @param array $msg
      * @return void
      */
     protected function sendMessageToLogger($logger, array $msg)
     {
         $message = static::formatErrorMessage($msg);
-        switch ($msg['level']) {
-            case static::LEVEL_EMERGENCY:
-                $logger->emergency($message, $msg);
-                break;
-            case static::LEVEL_ALERT:
-                $logger->alert($message, $msg);
-                break;
-            case static::LEVEL_CRITICAL:
-                $logger->critical($message, $msg);
-                break;
-            case static::LEVEL_ERROR:
-                $logger->error($message, $msg);
-                break;
-            case static::LEVEL_WARNING:
-                $logger->warning($message, $msg);
-                break;
-            case static::LEVEL_NOTICE:
-                $logger->notice($message, $msg);
-                break;
-            case static::LEVEL_INFO:
-                $logger->info($message, $msg);
-                break;
-            case static::LEVEL_DEBUG:
-                $logger->debug($message, $msg);
-                break;
-            default:
-                $logger->log($msg['level'], $message, $msg);
-                break;
-        }
+        match ($msg['level']) {
+            static::LEVEL_EMERGENCY => $logger->emergency($message, $msg),
+            static::LEVEL_ALERT => $logger->alert($message, $msg),
+            static::LEVEL_CRITICAL => $logger->critical($message, $msg),
+            static::LEVEL_ERROR => $logger->error($message, $msg),
+            static::LEVEL_WARNING => $logger->warning($message, $msg),
+            static::LEVEL_NOTICE => $logger->notice($message, $msg),
+            static::LEVEL_INFO => $logger->info($message, $msg),
+            static::LEVEL_DEBUG => $logger->debug($message, $msg),
+            default => $logger->log($msg['level'], $message, $msg),
+        };
     }
 }

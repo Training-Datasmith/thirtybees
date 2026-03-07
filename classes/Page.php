@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -139,7 +141,7 @@ class PageCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function setPageViewed($idPage)
+    public static function setPageViewed($idPage): void
     {
         $idDateRange = DateRange::getCurrentRange();
         $context = Context::getContext();
@@ -163,7 +165,10 @@ class PageCore extends ObjectModel
                     'counter'       => 1,
                     'id_shop'       => (int) $context->shop->id,
                     'id_shop_group' => (int) $context->shop->id_shop_group,
-                ], false, true, Db::INSERT_IGNORE
+                ],
+                false,
+                true,
+                Db::INSERT_IGNORE
             );
         }
     }

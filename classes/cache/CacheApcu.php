@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -72,7 +74,6 @@ class CacheApcuCore extends Cache
         return $this->enabled;
     }
 
-
     /**
      * Delete one or several data from cache (* joker can be used, but avoid it !)
      *    E.g.: delete('*'); delete('my_prefix_*'); delete('my_key_name');
@@ -89,7 +90,7 @@ class CacheApcuCore extends Cache
 
         if ($key == '*') {
             $this->flush();
-        } elseif (strpos($key, '*') === false) {
+        } elseif (!str_contains($key, '*')) {
             $this->_delete($key);
         } else {
             $pattern = str_replace('\\*', '.*', preg_quote($key));
@@ -97,7 +98,7 @@ class CacheApcuCore extends Cache
             $cacheInfo = apcu_cache_info(false);
             foreach ($cacheInfo['cache_list'] as $entry) {
                 $key = $entry['key'] ?? $entry['info'];
-                if (preg_match('#^'.$pattern.'$#', $key)) {
+                if (preg_match('#^'.$pattern.'$#', (string) $key)) {
                     $this->_delete($key);
                 }
             }

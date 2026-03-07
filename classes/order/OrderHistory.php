@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -112,7 +114,7 @@ class OrderHistoryCore extends ObjectModel
         Hook::triggerEvent('actionOrderStatusUpdate', [
             'newOrderStatus' => $newOs,
             'id_order' => (int) $order->id,
-            'order' => $order
+            'order' => $order,
         ], $order->id_shop);
 
         // An email is sent the first time a virtual item is validated
@@ -127,7 +129,7 @@ class OrderHistoryCore extends ObjectModel
                     $assign[$key]['name'] = $productDownload->display_filename;
                     $downloadLink = $productDownload->getTextLink(false, $virtualProduct['download_hash'], [
                         'id_order' => (int)$order->id,
-                        'secure_key' => $order->secure_key
+                        'secure_key' => $order->secure_key,
                     ]);
                     $assign[$key]['link'] = $downloadLink;
                     if (isset($virtualProduct['download_deadline']) && $virtualProduct['download_deadline'] != '0000-00-00 00:00:00') {
@@ -149,7 +151,7 @@ class OrderHistoryCore extends ObjectModel
                     $links .= '&nbsp;'.Tools::htmlentitiesUTF8(Tools::displayError('expires on', false)).'&nbsp;'.$product['deadline'];
                 }
                 if (isset($product['downloadable'])) {
-                    $links .= '&nbsp;'.Tools::htmlentitiesUTF8(sprintf(Tools::displayError('downloadable %d time(s)', false), (int) $product['downloadable']));
+                    $links .= '&nbsp;'.Tools::htmlentitiesUTF8(sprintf(Tools::displayError('downloadable %d time(s)', false), $product['downloadable']));
                 }
                 $links .= '</li>';
             }
@@ -615,15 +617,13 @@ class OrderHistoryCore extends ObjectModel
             }
 
             return $this->addWithemail();
-        } else {
-            return $this->add();
         }
+        return $this->add();
     }
 
     /**
      * @param int|Order|OrderCore $identifier
      *
-     * @return Order|null
      * @throws PrestaShopException
      */
     protected function resolveOrder($identifier): ?Order

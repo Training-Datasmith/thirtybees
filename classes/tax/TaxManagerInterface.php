@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -37,7 +39,6 @@ interface TaxManagerInterface
     /**
      * This method determine if the tax manager is available for the specified address.
      *
-     * @param Address $address
      *
      * @return bool
      */

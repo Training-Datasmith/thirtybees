@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 global $_LANGMAIL;
 $_LANGMAIL = [];
 
@@ -40,6 +42,5 @@ $_LANGMAIL['Stock coverage'] = 'Stock coverage';
 $_LANGMAIL['Referral Program'] = 'Referral Program';
 $_LANGMAIL['Congratulations!'] = 'Congratulations!';
 $_LANGMAIL['%1$s sent you a link to %2$s'] = '%1$s sent you a link to %2$s';
-
 
 return $_LANGMAIL;

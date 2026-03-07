@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -77,8 +79,7 @@ class IdentityControllerCore extends FrontController
 
             if (Tools::getValue('birthday')) {
                 $this->customer->birthday = Tools::getValue('birthday');
-            }
-            elseif (Tools::getValue('months') != '' && Tools::getValue('days') != '' && Tools::getValue('years') != '') {
+            } elseif (Tools::getValue('months') != '' && Tools::getValue('days') != '' && Tools::getValue('years') != '') {
                 $this->customer->birthday = Tools::getIntValue('years').'-'.Tools::getIntValue('months').'-'.Tools::getIntValue('days');
             } elseif (Tools::getValue('months') == '' && Tools::getValue('days') == '' && Tools::getValue('years') == '') {
                 $this->customer->birthday = null;

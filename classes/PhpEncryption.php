@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -82,13 +84,12 @@ class PhpEncryptionCore
 
         try {
             return Crypto::decrypt($ciphertext, $this->key);
-        } catch (Exception $exception) {
+        } catch (Exception) {
             return null;
         }
     }
 
     /**
-     * @param string $salt
      *
      * @return string
      * @throws EnvironmentIsBrokenException

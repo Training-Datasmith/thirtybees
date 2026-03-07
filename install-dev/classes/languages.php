@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -34,7 +36,7 @@
  */
 class InstallLanguages
 {
-    const DEFAULT_ISO = 'en';
+    public const DEFAULT_ISO = 'en';
 
     /**
      * @var InstallLanguages

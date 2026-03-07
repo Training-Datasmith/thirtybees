@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -77,7 +79,7 @@ class StockMvtCore extends ObjectModel
     /**
      * @var int Used when the movement is due to a customer order
      */
-    public $id_order = null;
+    public $id_order;
 
     /**
      * @var int detrmine if the movement is a positive or negative operation
@@ -87,17 +89,17 @@ class StockMvtCore extends ObjectModel
     /**
      * @var int Used when the movement is due to a supplier order
      */
-    public $id_supply_order = null;
+    public $id_supply_order;
 
     /**
      * @var float Last value of the weighted-average method
      */
-    public $last_wa = null;
+    public $last_wa;
 
     /**
      * @var float Current value of the weighted-average method
      */
-    public $current_wa = null;
+    public $current_wa;
 
     /**
      * @var float The unit price without tax of the product associated to the movement
@@ -174,7 +176,7 @@ class StockMvtCore extends ObjectModel
      * This method no longer exists.
      * There is no equivalent or replacement, considering that this should be handled by inventories.
      */
-    public static function addMissingMvt($id_employee)
+    public static function addMissingMvt($id_employee): void
     {
         // display that this method is deprecated
         Tools::displayAsDeprecated();

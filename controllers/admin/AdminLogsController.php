@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -118,7 +120,7 @@ class AdminLogsControllerCore extends AdminController
                     'encrypted_exception' => [
                         'type' => 'hidden',
                         'doNotProcess' => true,
-                        'value' => true
+                        'value' => true,
                     ],
                     'filename' => [
                         'type' => 'file',
@@ -151,14 +153,14 @@ class AdminLogsControllerCore extends AdminController
                                 'decrypted_exception'    => [
                                     'type' => 'iframe',
                                     'doNotProcess' => true,
-                                    'srcdoc' => $debugErrorPage->getPageContent($errorDescription)
+                                    'srcdoc' => $debugErrorPage->getPageContent($errorDescription),
                                 ],
                             ],
                         ],
                     ]);
                 }
             } catch (Exception $e) {
-                $this->errors[] = Tools::displayError("Failed to parse exception message: " . $e->getMessage());
+                $this->errors[] = Tools::displayError('Failed to parse exception message: ' . $e->getMessage());
             }
         }
 

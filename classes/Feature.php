@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -36,9 +38,9 @@ use Thirtybees\Core\InitializationCallback;
  */
 class FeatureCore extends ObjectModel implements InitializationCallback
 {
-    const SORT_VALUE_ASC = 0;
-    const SORT_VALUE_DESC = 1;
-    const SORT_CUSTOM = 2;
+    public const SORT_VALUE_ASC = 0;
+    public const SORT_VALUE_DESC = 1;
+    public const SORT_CUSTOM = 2;
 
     /**
      * @var string|string[] Feature name
@@ -79,7 +81,6 @@ class FeatureCore extends ObjectModel implements InitializationCallback
      * @var string|string[] FO display schema, when multiple values were selected
      */
     public $multiple_schema;
-
 
     /**
      * @var array Object model definition
@@ -219,15 +220,14 @@ class FeatureCore extends ObjectModel implements InitializationCallback
             $feature->add();
 
             return $feature->id;
-        } else {
-            if (is_numeric($position) && $feature = new Feature($featureId)) {
-                $feature->position = (int) $position;
-                if (Validate::isLoadedObject($feature)) {
-                    $feature->update();
-                }
-            }
-            return $featureId;
         }
+        if (is_numeric($position) && $feature = new Feature($featureId)) {
+            $feature->position = (int) $position;
+            if (Validate::isLoadedObject($feature)) {
+                $feature->update();
+            }
+        }
+        return $featureId;
     }
 
     /**
@@ -430,7 +430,7 @@ class FeatureCore extends ObjectModel implements InitializationCallback
         }
 
         /* Reinitializing position */
-        $this->cleanPositions();
+        static::cleanPositions();
 
         return $return;
     }
@@ -470,7 +470,7 @@ class FeatureCore extends ObjectModel implements InitializationCallback
             (new DbQuery())
                 ->select('`position`, `id_feature`')
                 ->from('feature')
-                ->where('`id_feature` = '.(int) ($idFeature ? $idFeature : $this->id))
+                ->where('`id_feature` = '.(int) ($idFeature ?: $this->id))
                 ->orderBy('`position` ASC')
         )) {
             return false;
@@ -518,11 +518,9 @@ class FeatureCore extends ObjectModel implements InitializationCallback
     /**
      * Reset feature positions
      *
-     * @param Db $conn
-     * @return void
      * @throws PrestaShopException
      */
-    public static function initializationCallback(Db $conn)
+    public static function initializationCallback(Db $conn): void
     {
         // add missing public names
         $conn->execute('UPDATE ' . _DB_PREFIX_ . "feature_lang SET public_name = name WHERE COALESCE(public_name, '') = ''");

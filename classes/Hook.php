@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -164,7 +166,7 @@ class HookCore extends ObjectModel
     public static function getModulesFromHook($idHook, $idModule = null)
     {
         $hmList = static::getHookModuleList();
-        $moduleList = (isset($hmList[$idHook])) ? $hmList[$idHook] : [];
+        $moduleList = $hmList[$idHook] ?? [];
 
         if ($idModule) {
             return (isset($moduleList[$idModule])) ? [$moduleList[$idModule]] : [];
@@ -185,7 +187,8 @@ class HookCore extends ObjectModel
     {
         $cacheId = 'hook_module_list';
         if (!Cache::isStored($cacheId)) {
-            $results = Db::readOnly()->getArray('
+            $results = Db::readOnly()->getArray(
+                '
                 SELECT h.id_hook, h.name AS h_name, h.title, h.description, h.position, h.live_edit, hm.position AS hm_position, m.id_module, m.name, m.active
                 FROM `'._DB_PREFIX_.'hook_module` hm
                 STRAIGHT_JOIN `'._DB_PREFIX_.'hook` h ON (h.id_hook = hm.id_hook AND hm.id_shop = '.(int) Context::getContext()->shop->id.')
@@ -231,13 +234,11 @@ class HookCore extends ObjectModel
      * @param array $hookArgs Parameters for the functions
      * @param int|null $moduleId Execute hook for this module only
      *
-     * @return string
      *
      * @throws PrestaShopException
-     *
      * @since 1.5.0
      */
-    public static function displayHook(string $hookName, array $hookArgs = [], ?int $moduleId = null):string
+    public static function displayHook(string $hookName, array $hookArgs = [], ?int $moduleId = null): string
     {
         return (string)static::exec($hookName, $hookArgs, $moduleId);
     }
@@ -252,10 +253,8 @@ class HookCore extends ObjectModel
      * @param int|null $idShop If specified, hook will be executed for shop with this ID
      * @param int|null $idModule Execute hook for this module only
      *
-     * @return void
      *
      * @throws PrestaShopException
-     *
      * @since 1.5.0
      */
     public static function triggerEvent(string $hookName, array $hookArgs = [], ?int $idShop = null, ?int $idModule = null): void
@@ -274,10 +273,8 @@ class HookCore extends ObjectModel
      * @param array $hookArgs Parameters for the functions
      * @param int|null $idModule Execute hook for this module only
      *
-     * @return array
      *
      * @throws PrestaShopException
-     *
      * @since 1.5.0
      */
     public static function getResponses(string $hookName, array $hookArgs = [], ?int $idModule = null): array
@@ -286,7 +283,7 @@ class HookCore extends ObjectModel
         if (is_array($ret)) {
             return $ret;
         }
-        trigger_error("Hook::execWithoutCache did not return array. Ignoring result");
+        trigger_error('Hook::execWithoutCache did not return array. Ignoring result');
         return [];
     }
 
@@ -318,11 +315,9 @@ class HookCore extends ObjectModel
      *
      * @param string $hookName Hook Name
      * @param array $hookArgs Parameters for the functions
-     * @param bool $raiseWarning
      *
      * @return mixed|null
      * @throws PrestaShopException
-     *
      * @since 1.5.0
      */
     public static function getFirstResponse(string $hookName, array $hookArgs = [], bool $raiseWarning = true)
@@ -574,16 +569,14 @@ class HookCore extends ObjectModel
 
         if ($arrayReturn) {
             return $output;
-        } else {
-            if ($liveEdit) {
-                return (
-                    '<script type="text/javascript">hooks_list.push(\'' . $hookName . '\');</script>' .
-                    '<div id="' . $hookName . '" class="dndHook" style="min-height:50px">' . $output . '</div>'
-                );
-            } else {
-                return $output;
-            }
         }
+        if ($liveEdit) {
+            return (
+                '<script type="text/javascript">hooks_list.push(\'' . $hookName . '\');</script>' .
+                '<div id="' . $hookName . '" class="dndHook" style="min-height:50px">' . $output . '</div>'
+            );
+        }
+        return $output;
     }
 
     /**
@@ -665,7 +658,7 @@ class HookCore extends ObjectModel
             $list = [];
             if ($result = Db::readOnly()->getArray($sql)) {
                 foreach ($result as $row) {
-                    $row['hook'] = strtolower($row['hook']);
+                    $row['hook'] = strtolower((string) $row['hook']);
                     if (!isset($list[$row['hook']])) {
                         $list[$row['hook']] = [];
                     }
@@ -707,9 +700,8 @@ class HookCore extends ObjectModel
             }
 
             return (count($return) > 0 ? $return : false);
-        } else {
-            return $list;
         }
+        return $list;
     }
 
     /**
@@ -756,7 +748,7 @@ class HookCore extends ObjectModel
             $hookAlias = [];
             if ($hookAliasList) {
                 foreach ($hookAliasList as $ha) {
-                    $hookAlias[strtolower($ha['alias'])] = $ha['name'];
+                    $hookAlias[strtolower((string) $ha['alias'])] = $ha['name'];
                 }
             }
             Cache::store($cacheId, $hookAlias);
@@ -799,7 +791,7 @@ class HookCore extends ObjectModel
 			INNER JOIN `'._DB_PREFIX_.'hook` h ON ha.name = h.name'
             );
             foreach ($result as $row) {
-                $hookIds[strtolower($row['name'])] = $row['id_hook'];
+                $hookIds[strtolower((string) $row['name'])] = $row['id_hook'];
             }
             Cache::store($cacheId, $hookIds);
         } else {
@@ -901,7 +893,7 @@ class HookCore extends ObjectModel
         Tools::displayAsDeprecated('Use Hook::getIdByName() instead');
 
         if (!Validate::isHookName($hookName)) {
-            throw new PrestaShopException("Invalid hook name: " . $hookName);
+            throw new PrestaShopException('Invalid hook name: ' . $hookName);
         }
 
         $result = Db::readOnly()->getRow(
@@ -943,18 +935,18 @@ class HookCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function isDisplayableHook($hookName, $includeBackOfficeHooks=false)
+    public static function isDisplayableHook($hookName, $includeBackOfficeHooks = false)
     {
         $variants = [ $hookName, static::getRetroHookName($hookName) ];
         foreach ($variants as $hook) {
             $hook = strtolower($hook);
-            if ((strpos($hook, 'display') === 0)) {
+            if ((str_starts_with($hook, 'display'))) {
                 if ($includeBackOfficeHooks) {
                     return true;
                 }
                 return (
-                    strpos($hook, 'displayadmin') !== 0 &&
-                    strpos($hook, 'displaybackoffice') !== 0
+                    !str_starts_with($hook, 'displayadmin') &&
+                    !str_starts_with($hook, 'displaybackoffice')
                 );
             }
         }

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -37,7 +39,7 @@ class FileUploaderCore
     /**
      * @var string[]
      */
-    protected $allowedExtensions = [];
+    protected array $allowedExtensions;
 
     /**
      * @var QqUploadedFileXhr|QqUploadedFileForm|false
@@ -45,22 +47,16 @@ class FileUploaderCore
     protected $file;
 
     /**
-     * @var int
-     */
-    protected $sizeLimit;
-
-    /**
      * FileUploaderCore constructor.
      *
      * @param string[] $allowedExtensions
      * @param int $sizeLimit
      */
-    public function __construct(array $allowedExtensions = [], $sizeLimit = 10485760)
+    public function __construct(array $allowedExtensions = [], protected $sizeLimit = 10485760)
     {
-        $allowedExtensions = array_map('strtolower', $allowedExtensions);
+        $allowedExtensions = array_map(strtolower(...), $allowedExtensions);
 
         $this->allowedExtensions = $allowedExtensions;
-        $this->sizeLimit = $sizeLimit;
 
         if (isset($_GET['qqfile'])) {
             $this->file = new QqUploadedFileXhr();
@@ -83,9 +79,11 @@ class FileUploaderCore
             case 'g':
                 $val *= 1024;
                 // Fall though allowed
+                // no break
             case 'm':
                 $val *= 1024;
                 // Fall through allowed
+                // no break
             case 'k':
                 $val *= 1024;
         }
@@ -143,35 +141,32 @@ class QqUploadedFileForm
         $product = new Product($_GET['id_product']);
         if (!Validate::isLoadedObject($product)) {
             return ['error' => Tools::displayError('Cannot add image because product creation failed.')];
-        } else {
-            $image = new Image();
-            $image->id_product = (int) $product->id;
-            $image->position = Image::getHighestPosition($product->id) + 1;
-            $legends = Tools::getValue('legend');
-            if (is_array($legends)) {
-                foreach ($legends as $key => $legend) {
-                    if (Validate::isGenericName($legend)) {
-                        $image->legend[(int) $key] = $legend;
-                    } else {
-                        return ['error' => sprintf(Tools::displayError('Error on image caption: "%1s" is not a valid caption.'), Tools::safeOutput($legend))];
-                    }
+        }
+        $image = new Image();
+        $image->id_product = (int) $product->id;
+        $image->position = Image::getHighestPosition($product->id) + 1;
+        $legends = Tools::getValue('legend');
+        if (is_array($legends)) {
+            foreach ($legends as $key => $legend) {
+                if (Validate::isGenericName($legend)) {
+                    $image->legend[(int) $key] = $legend;
+                } else {
+                    return ['error' => sprintf(Tools::displayError('Error on image caption: "%1s" is not a valid caption.'), Tools::safeOutput($legend))];
                 }
             }
-            if (!Image::getCover($image->id_product)) {
-                $image->cover = 1;
-            } else {
-                $image->cover = 0;
-            }
-
-            if (($validate = $image->validateFieldsLang(false, true)) !== true) {
-                return ['error' => Tools::displayError($validate)];
-            }
-            if (!$image->add()) {
-                return ['error' => Tools::displayError('Error while creating additional image')];
-            } else {
-                return $this->copyImage($product->id, $image->id);
-            }
         }
+        if (!Image::getCover($image->id_product)) {
+            $image->cover = 1;
+        } else {
+            $image->cover = 0;
+        }
+        if (($validate = $image->validateFieldsLang(false, true)) !== true) {
+            return ['error' => Tools::displayError($validate)];
+        }
+        if (!$image->add()) {
+            return ['error' => Tools::displayError('Error while creating additional image')];
+        }
+        return $this->copyImage($product->id, $image->id);
     }
 
     /**
@@ -179,12 +174,11 @@ class QqUploadedFileForm
      * @param int $idImage
      * @param string $method
      *
-     * @return array
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function copyImage($idProduct, $idImage, $method = 'auto')
+    public function copyImage($idProduct, $idImage, $method = 'auto'): array
     {
         $image = new Image($idImage);
         if (!$newPath = $image->getPathForCreation()) {
@@ -192,13 +186,15 @@ class QqUploadedFileForm
         }
         if (!($tmpName = tempnam(_PS_TMP_IMG_DIR_, 'PS')) || !move_uploaded_file($_FILES['qqfile']['tmp_name'], $tmpName)) {
             return ['error' => Tools::displayError('An error occurred during the image upload')];
-        } elseif (!ImageManager::resize($tmpName, $newPath.'.'.$image->image_format)) {
+        }
+        if (!ImageManager::resize($tmpName, $newPath.'.'.$image->image_format)) {
             return ['error' => Tools::displayError('An error occurred while copying image.')];
-        } elseif ($method == 'auto') {
+        }
+        if ($method == 'auto') {
             $imagesTypes = ImageType::getImagesTypes(ImageEntity::ENTITY_TYPE_PRODUCTS);
             foreach ($imagesTypes as $imageType) {
-                if (!ImageManager::resize($tmpName, $newPath.'-'.stripslashes($imageType['name']).'.'.$image->image_format, $imageType['width'], $imageType['height'], $image->image_format)) {
-                    return ['error' => Tools::displayError('An error occurred while copying image:').' '.stripslashes($imageType['name'])];
+                if (!ImageManager::resize($tmpName, $newPath.'-'.stripslashes((string) $imageType['name']).'.'.$image->image_format, $imageType['width'], $imageType['height'], $image->image_format)) {
+                    return ['error' => Tools::displayError('An error occurred while copying image:').' '.stripslashes((string) $imageType['name'])];
                 }
             }
         }
@@ -241,7 +237,7 @@ class QqUploadedFileXhr
      *
      * @return bool TRUE on success
      */
-    public function upload($path)
+    public function upload($path): bool
     {
         $input = fopen('php://input', 'r');
         $target = fopen($path, 'w');
@@ -267,35 +263,32 @@ class QqUploadedFileXhr
         $product = new Product($_GET['id_product']);
         if (!Validate::isLoadedObject($product)) {
             return ['error' => Tools::displayError('Cannot add image because product creation failed.')];
-        } else {
-            $image = new Image();
-            $image->id_product = (int) $product->id;
-            $image->position = Image::getHighestPosition($product->id) + 1;
-            $legends = Tools::getValue('legend');
-            if (is_array($legends)) {
-                foreach ($legends as $key => $legend) {
-                    if (Validate::isGenericName($legend)) {
-                        $image->legend[(int) $key] = $legend;
-                    } else {
-                        return ['error' => sprintf(Tools::displayError('Error on image caption: "%1s" is not a valid caption.'), Tools::safeOutput($legend))];
-                    }
+        }
+        $image = new Image();
+        $image->id_product = (int) $product->id;
+        $image->position = Image::getHighestPosition($product->id) + 1;
+        $legends = Tools::getValue('legend');
+        if (is_array($legends)) {
+            foreach ($legends as $key => $legend) {
+                if (Validate::isGenericName($legend)) {
+                    $image->legend[(int) $key] = $legend;
+                } else {
+                    return ['error' => sprintf(Tools::displayError('Error on image caption: "%1s" is not a valid caption.'), Tools::safeOutput($legend))];
                 }
             }
-            if (!Image::getCover($image->id_product)) {
-                $image->cover = 1;
-            } else {
-                $image->cover = 0;
-            }
-
-            if (($validate = $image->validateFieldsLang(false, true)) !== true) {
-                return ['error' => Tools::displayError($validate)];
-            }
-            if (!$image->add()) {
-                return ['error' => Tools::displayError('Error while creating additional image')];
-            } else {
-                return $this->copyImage($product->id, $image->id);
-            }
         }
+        if (!Image::getCover($image->id_product)) {
+            $image->cover = 1;
+        } else {
+            $image->cover = 0;
+        }
+        if (($validate = $image->validateFieldsLang(false, true)) !== true) {
+            return ['error' => Tools::displayError($validate)];
+        }
+        if (!$image->add()) {
+            return ['error' => Tools::displayError('Error while creating additional image')];
+        }
+        return $this->copyImage($product->id, $image->id);
     }
 
     /**
@@ -303,12 +296,11 @@ class QqUploadedFileXhr
      * @param int $idImage
      * @param string $method
      *
-     * @return array
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function copyImage($idProduct, $idImage, $method = 'auto')
+    public function copyImage($idProduct, $idImage, $method = 'auto'): array
     {
         $image = new Image($idImage);
         if (!$newPath = $image->getPathForCreation()) {
@@ -316,9 +308,11 @@ class QqUploadedFileXhr
         }
         if (!($tmpName = tempnam(_PS_TMP_IMG_DIR_, 'PS')) || !$this->upload($tmpName)) {
             return ['error' => Tools::displayError('An error occurred during the image upload')];
-        } elseif (!ImageManager::resize($tmpName, $newPath.'.'.$image->image_format)) {
+        }
+        if (!ImageManager::resize($tmpName, $newPath.'.'.$image->image_format)) {
             return ['error' => Tools::displayError('An error occurred while copying image.')];
-        } elseif ($method == 'auto') {
+        }
+        if ($method == 'auto') {
             $imagesTypes = ImageType::getImagesTypes(ImageEntity::ENTITY_TYPE_PRODUCTS);
             foreach ($imagesTypes as $imageType) {
                 /*
@@ -326,8 +320,8 @@ class QqUploadedFileXhr
                     if (!ImageManager::resize($tmpName, $new_path.'-'.stripslashes($imageType['name']).$theme.'.'.$image->image_format, $imageType['width'], $imageType['height'], $image->image_format))
                         return array('error' => Tools::displayError('An error occurred while copying image:').' '.stripslashes($imageType['name']));
                 */
-                if (!ImageManager::resize($tmpName, $newPath.'-'.stripslashes($imageType['name']).'.'.$image->image_format, $imageType['width'], $imageType['height'], $image->image_format)) {
-                    return ['error' => Tools::displayError('An error occurred while copying image:').' '.stripslashes($imageType['name'])];
+                if (!ImageManager::resize($tmpName, $newPath.'-'.stripslashes((string) $imageType['name']).'.'.$image->image_format, $imageType['width'], $imageType['height'], $image->image_format)) {
+                    return ['error' => Tools::displayError('An error occurred while copying image:').' '.stripslashes((string) $imageType['name'])];
                 }
             }
         }
@@ -350,19 +344,14 @@ class QqUploadedFileXhr
         return $_GET['qqfile'];
     }
 
-    /**
-     * @return bool|int
-     */
-    public function getSize()
+    public function getSize(): int|false
     {
-        if (isset($_SERVER['CONTENT_LENGTH']) || isset($_SERVER['HTTP_CONTENT_LENGTH'])) {
-            if (isset($_SERVER['HTTP_CONTENT_LENGTH'])) {
-                return (int) $_SERVER['HTTP_CONTENT_LENGTH'];
-            } else {
-                return (int) $_SERVER['CONTENT_LENGTH'];
-            }
+        if (!(isset($_SERVER['CONTENT_LENGTH']) || isset($_SERVER['HTTP_CONTENT_LENGTH']))) {
+            return false;
         }
-
-        return false;
+        if (isset($_SERVER['HTTP_CONTENT_LENGTH'])) {
+            return (int) $_SERVER['HTTP_CONTENT_LENGTH'];
+        }
+        return (int) $_SERVER['CONTENT_LENGTH'];
     }
 }

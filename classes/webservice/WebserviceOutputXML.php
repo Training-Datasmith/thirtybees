@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -40,11 +42,6 @@ class WebserviceOutputXMLCore implements WebserviceOutputInterface
     public $docUrl = '';
 
     /**
-     * @var array
-     */
-    public $languages = [];
-
-    /**
      * @var string
      */
     protected $wsUrl;
@@ -56,10 +53,8 @@ class WebserviceOutputXMLCore implements WebserviceOutputInterface
 
     /**
      * @param string $schema
-     *
-     * @return static
      */
-    public function setSchemaToDisplay($schema)
+    public function setSchemaToDisplay($schema): static
     {
         if (is_string($schema)) {
             $this->schemaToDisplay = $schema;
@@ -78,10 +73,8 @@ class WebserviceOutputXMLCore implements WebserviceOutputInterface
 
     /**
      * @param string $url
-     *
-     * @return static
      */
-    public function setWsUrl($url)
+    public function setWsUrl($url): static
     {
         $this->wsUrl = $url;
 
@@ -96,10 +89,7 @@ class WebserviceOutputXMLCore implements WebserviceOutputInterface
         return $this->wsUrl;
     }
 
-    /**
-     * @return string
-     */
-    public function getContentType()
+    public function getContentType(): string
     {
         return 'text/xml';
     }
@@ -109,35 +99,26 @@ class WebserviceOutputXMLCore implements WebserviceOutputInterface
      *
      * @param array $languages
      */
-    public function __construct($languages = [])
+    public function __construct(public $languages = [])
     {
-        $this->languages = $languages;
     }
 
     /**
      * @param array $languages
-     *
-     * @return static
      */
-    public function setLanguages($languages)
+    public function setLanguages($languages): static
     {
         $this->languages = $languages;
 
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function renderErrorsHeader()
+    public function renderErrorsHeader(): string
     {
         return '<errors>'."\n";
     }
 
-    /**
-     * @return string
-     */
-    public function renderErrorsFooter()
+    public function renderErrorsFooter(): string
     {
         return '</errors>'."\n";
     }
@@ -146,10 +127,8 @@ class WebserviceOutputXMLCore implements WebserviceOutputInterface
      * @param string $message
      * @param int|null $code
      * @param array $extra
-     *
-     * @return string
      */
-    public function renderErrors($message, $code = null, $extra = [])
+    public function renderErrors($message, $code = null, $extra = []): string
     {
         $strOutput = '<error>'."\n";
         if ($code !== null) {
@@ -163,17 +142,14 @@ class WebserviceOutputXMLCore implements WebserviceOutputInterface
             }
             $strOutput .= "</additional_info>\n";
         }
-        $strOutput .= '</error>'."\n";
 
-        return $strOutput;
+        return $strOutput . ('</error>' . "\n");
     }
 
     /**
      * @param array $field
-     *
-     * @return string
      */
-    public function renderField($field)
+    public function renderField($field): string
     {
         $ret = '';
         $nodeContent = '';
@@ -230,9 +206,8 @@ class WebserviceOutputXMLCore implements WebserviceOutputInterface
         }
         $ret .= '>';
         $ret .= $nodeContent;
-        $ret .= '</'.$field['sqlId'].'>'."\n";
 
-        return $ret;
+        return $ret . ('</' . $field['sqlId'] . '>' . "\n");
     }
 
     /**
@@ -240,10 +215,8 @@ class WebserviceOutputXMLCore implements WebserviceOutputInterface
      * @param array $params
      * @param array|null $moreAttr
      * @param bool $hasChild
-     *
-     * @return string
      */
-    public function renderNodeHeader($nodeName, $params, $moreAttr = null, $hasChild = true)
+    public function renderNodeHeader($nodeName, $params, $moreAttr = null, $hasChild = true): string
     {
         $stringAttr = '';
         if (is_array($moreAttr)) {
@@ -261,58 +234,40 @@ class WebserviceOutputXMLCore implements WebserviceOutputInterface
     }
 
     /**
-     * @param array $params
-     *
      * @return string
      */
-    public function getNodeName($params)
+    public function getNodeName(array $params)
     {
-        $nodeName = '';
-        if (isset($params['objectNodeName'])) {
-            $nodeName = $params['objectNodeName'];
-        }
-
-        return $nodeName;
+        return $params['objectNodeName'] ?? '';
     }
 
     /**
      * @param string $nodeName
      * @param array $params
-     *
-     * @return string
      */
-    public function renderNodeFooter($nodeName, $params)
+    public function renderNodeFooter($nodeName, $params): string
     {
         return '</'.$nodeName.'>'."\n";
     }
 
     /**
      * @param string $content
-     *
-     * @return string
      */
-    public function overrideContent($content)
+    public function overrideContent($content): string
     {
         $xml = '<?xml version="1.0" encoding="UTF-8"?>'."\n";
         $xml .= '<prestashop xmlns:xlink="http://www.w3.org/1999/xlink">'."\n";
         $xml .= $content;
-        $xml .= '</prestashop>'."\n";
 
-        return $xml;
+        return $xml . ('</prestashop>' . "\n");
     }
 
-    /**
-     * @return string
-     */
-    public function renderAssociationWrapperHeader()
+    public function renderAssociationWrapperHeader(): string
     {
         return '<associations>'."\n";
     }
 
-    /**
-     * @return string
-     */
-    public function renderAssociationWrapperFooter()
+    public function renderAssociationWrapperFooter(): string
     {
         return '</associations>'."\n";
     }
@@ -322,10 +277,8 @@ class WebserviceOutputXMLCore implements WebserviceOutputInterface
      * @param array $params
      * @param string $assocName
      * @param bool $closedTags
-     *
-     * @return string
      */
-    public function renderAssociationHeader($obj, $params, $assocName, $closedTags = false)
+    public function renderAssociationHeader($obj, $params, $assocName, $closedTags = false): string
     {
         $endTag = ($closedTags) ? '/>' : '>';
         $more = '';
@@ -352,10 +305,8 @@ class WebserviceOutputXMLCore implements WebserviceOutputInterface
      * @param ObjectModel $obj
      * @param array $params
      * @param string $assocName
-     *
-     * @return string
      */
-    public function renderAssociationFooter($obj, $params, $assocName)
+    public function renderAssociationFooter($obj, $params, $assocName): string
     {
         return '</'.$assocName.'>'."\n";
     }

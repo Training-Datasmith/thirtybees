@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -96,7 +98,7 @@ class AdminAttributesGroupsControllerCore extends AdminController
                 'search'  => false,
                 'align'   => 'center',
                 'class'   => 'fixed-width-xs',
-                'callback'=> 'getProductsLink',
+                'callback' => 'getProductsLink',
             ],
             'position'           => [
                 'title'      => $this->l('Position'),
@@ -117,8 +119,8 @@ class AdminAttributesGroupsControllerCore extends AdminController
         $this->fieldImageSettings = [
             [
                 'name' => 'texture',
-                'dir' => _PS_COL_IMG_DIR_
-            ]
+                'dir' => _PS_COL_IMG_DIR_,
+            ],
         ];
 
         parent::__construct();
@@ -566,7 +568,7 @@ class AdminAttributesGroupsControllerCore extends AdminController
                     'search'  => false,
                     'align'   => 'center',
                     'class'   => 'fixed-width-xs',
-                    'callback'=> 'getProductsLink',
+                    'callback' => 'getProductsLink',
                 ],
             ];
 
@@ -1121,8 +1123,8 @@ class AdminAttributesGroupsControllerCore extends AdminController
                 if ((isset($pos[1]) && isset($pos[2])) && (int) $pos[2] === $idAttribute) {
                     if ($attribute = new ProductAttribute((int) $pos[2])) {
                         $new_position = $position;
-                        if ($page > 1){
-                             $new_position += ($page - 1) * $per_page;
+                        if ($page > 1) {
+                            $new_position += ($page - 1) * $per_page;
                         }
                         if (isset($position) && $attribute->updatePosition($way, $new_position)) {
                             // make sure any new or old mixup in numbering is cleaned
@@ -1163,7 +1165,7 @@ class AdminAttributesGroupsControllerCore extends AdminController
     public static function getProductsLink($value, $row)
     {
         $params = [
-            'id_attribute_group' => (int)$row['id_attribute_group']
+            'id_attribute_group' => (int)$row['id_attribute_group'],
         ];
         if (isset($row['id_attribute'])) {
             $params['id_attribute'] = (int)$row['id_attribute'];

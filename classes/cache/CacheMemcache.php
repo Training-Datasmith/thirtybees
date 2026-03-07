@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -53,14 +55,12 @@ class CacheMemcacheCore extends Cache
     {
         $this->is_connected = $this->connect();
         if (! $this->is_connected) {
-            trigger_error("Failed to connect to memcache", E_USER_WARNING);
+            trigger_error('Failed to connect to memcache', E_USER_WARNING);
         }
     }
 
     /**
      * CacheMemcacheCore destructor.
-     *
-     * @return void
      */
     public function __destruct()
     {
@@ -91,7 +91,7 @@ class CacheMemcacheCore extends Cache
             }
 
             return (bool)@$this->memcache->getVersion();
-        } catch (Throwable $e) {
+        } catch (Throwable) {
             return false;
         }
     }
@@ -263,12 +263,12 @@ class CacheMemcacheCore extends Cache
 
         if ($key == '*') {
             $this->flush();
-        } elseif (strpos($key, '*') === false) {
+        } elseif (!str_contains($key, '*')) {
             $this->_delete($key);
         } else {
             // Get keys (this code comes from Doctrine 2 project)
             $pattern = str_replace('\\*', '.*', preg_quote($key));
-            $servers = $this->getMemcachedServers();
+            $servers = static::getMemcachedServers();
             if (is_array($servers) && count($servers) > 0 && method_exists('Memcache', 'getStats')) {
                 $allSlabs = $this->memcache->getStats('slabs');
             }
@@ -278,12 +278,12 @@ class CacheMemcacheCore extends Cache
                     if (is_array($slabs)) {
                         foreach (array_keys($slabs) as $i => $slabId) {
                             if (is_int($i)) {
-                                $dump = $this->memcache->getStats('cachedump', (int) $i);
+                                $dump = $this->memcache->getStats('cachedump', $i);
                                 if ($dump) {
                                     foreach ($dump as $entries) {
                                         if ($entries) {
                                             foreach ($entries as $key => $data) {
-                                                if (preg_match('#^'.$pattern.'$#', $key)) {
+                                                if (preg_match('#^'.$pattern.'$#', (string) $key)) {
                                                     $this->_delete($key);
                                                 }
                                             }
@@ -362,7 +362,7 @@ class CacheMemcacheCore extends Cache
      */
     protected static function mapKey($key)
     {
-        if (strlen($key) > 250) {
+        if (strlen((string) $key) > 250) {
             return Tools::encrypt($key);
         }
         return $key;

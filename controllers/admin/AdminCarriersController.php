@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -82,7 +84,7 @@ class AdminCarriersControllerCore extends AdminController
             [
                 'name' => 'logo',
                 'dir'  => _PS_SHIP_IMG_DIR_,
-            ]
+            ],
         ];
 
         $this->fields_list = [
@@ -576,8 +578,7 @@ class AdminCarriersControllerCore extends AdminController
                     } catch (PrestaShopException $e) {
                         $this->errors[] = $e->getMessage();
                     }
-                } /* Object creation */
-                else {
+                } /* Object creation */ else {
                     if ($this->hasAddPermission()) {
                         // Create new Carrier
                         $carrier = new Carrier();

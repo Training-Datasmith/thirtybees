@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -46,11 +48,11 @@ $id_employee = Tools::getIntValue('id_employee');
 $id_lang = Tools::getIntValue('id_lang');
 
 if (!isset($cookie->id_employee) || !$cookie->id_employee || $cookie->id_employee != $id_employee) {
-    throw new PrestaShopException(Tools::displayError("Employee not validated"));
+    throw new PrestaShopException(Tools::displayError('Employee not validated'));
 }
 
 if (!Validate::isModuleName($module)) {
-    throw new PrestaShopException(sprintf(Tools::displayError("Invalid module name [%s]"), Tools::safeOutput($module)));
+    throw new PrestaShopException(sprintf(Tools::displayError('Invalid module name [%s]'), Tools::safeOutput($module)));
 }
 
 /** @var StatsModule $statsModuleInstance */
@@ -60,10 +62,9 @@ if ($statsModuleInstance->active && in_array($module, $statsModuleInstance->modu
     $module_path = _PS_ROOT_DIR_.'/modules/statsmodule/stats/'.$module.'.php';
 } else {
     if (!file_exists($module_path = _PS_ROOT_DIR_.'/modules/'.$module.'/'.$module.'.php')) {
-        throw new PrestaShopException(sprintf(Tools::displayError("Module [%s] not found"), Tools::safeOutput($module)));
+        throw new PrestaShopException(sprintf(Tools::displayError('Module [%s] not found'), Tools::safeOutput($module)));
     }
 }
-
 
 $shop_id = '';
 Shop::setContext(Shop::CONTEXT_ALL);

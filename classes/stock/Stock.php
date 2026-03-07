@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -132,9 +134,8 @@ class StockCore extends ObjectModel
     public function getWsRealQuantity()
     {
         $manager = StockManagerFactory::getManager();
-        $quantity = $manager->getProductRealQuantities($this->id_product, $this->id_product_attribute, $this->id_warehouse, true);
 
-        return $quantity;
+        return $manager->getProductRealQuantities($this->id_product, $this->id_product_attribute, $this->id_warehouse, true);
     }
 
     /**

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -29,10 +31,8 @@ class CoreModelsCore
 {
     /**
      * Returns array of definitions with the same format as ObjectModel::$definition
-     *
-     * @return array
      */
-    public static function getModels()
+    public static function getModels(): array
     {
         $access = [
             'table' => 'access',
@@ -400,7 +400,7 @@ class CoreModelsCore
             'keys' => [
                 'employee_notification' => [
                     'primary'          => ['type' => ObjectModel::PRIMARY_KEY, 'columns' => ['id_employee', 'type']],
-                ]
+                ],
             ],
         ];
 
@@ -673,9 +673,9 @@ class CoreModelsCore
             ],
             'keys' => [
                 'operating_system' => [
-                    'os_name' => ['type' => ObjectModel::UNIQUE_KEY, 'columns' => ['name']]
-                ]
-            ]
+                    'os_name' => ['type' => ObjectModel::UNIQUE_KEY, 'columns' => ['name']],
+                ],
+            ],
         ];
 
         $orderDetailTax = [
@@ -1125,8 +1125,8 @@ class CoreModelsCore
             'keys' => [
                 'specific_price_priority' => [
                     'primary' => ['type' => ObjectModel::PRIMARY_KEY, 'columns' => ['id_specific_price_priority', 'id_product']],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $specificPriceRuleCondition = [
@@ -1239,9 +1239,9 @@ class CoreModelsCore
             ],
             'keys' => [
                 'web_browser' => [
-                    'browser_name' => ['type' => ObjectModel::UNIQUE_KEY, 'columns' => ['name']]
-                ]
-            ]
+                    'browser_name' => ['type' => ObjectModel::UNIQUE_KEY, 'columns' => ['name']],
+                ],
+            ],
         ];
 
         $webservicePermission = [
@@ -1353,4 +1353,3 @@ class CoreModelsCore
         ];
     }
 }
-

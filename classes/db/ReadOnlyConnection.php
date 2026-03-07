@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -35,7 +37,7 @@ interface ReadOnlyConnection
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function getArray($sql):array;
+    public function getArray($sql): array;
 
     /**
      * Returns a value from the first row, first column of a SELECT query

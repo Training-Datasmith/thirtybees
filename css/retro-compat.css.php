@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -43,7 +45,7 @@ $cssFiles = [
                     ['new_file' => $css_folder.'plugins/cluetip/jquery.cluetip.css'],
                 'jquery.fancybox-1.3.4.css' =>
                     ['new_file' => $css_folder.'plugins/fancybox/jquery.fancybox.css'],
-                'jquery.jgrowl.css'=>
+                'jquery.jgrowl.css' =>
                     ['new_file' => $css_folder.'plugins/jgrowl/jquery.jgrowl.css'],
                 'jquery.treeview.css' =>
                     ['new_file' => $css_folder.'plugins/treeview-categories/jquery.treeview-categories.css'],
@@ -56,9 +58,6 @@ $cssFiles = [
                 'jquery.fancybox.css' =>
                     ['new_file' => $css_folder.'plugins/fancybox/jquery.fancybox.css'],
                 ];
-                
-                
-                
 
 $file = $_GET['file'];
 

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -46,7 +48,6 @@ class TaxCore extends ObjectModel
     /** @var bool true if the tax has been historized */
     public $deleted = 0;
 
-
     /**
      * @var array Object model definition
      */
@@ -62,7 +63,6 @@ class TaxCore extends ObjectModel
             'name'    => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isGenericName', 'required' => true, 'size' => 32],
         ],
     ];
-
 
     /**
      * @var array Webservice parameters
@@ -83,9 +83,8 @@ class TaxCore extends ObjectModel
 
         if ($this->isUsed()) {
             return $this->historize();
-        } else {
-            return parent::delete();
         }
+        return parent::delete();
     }
 
     /**
@@ -129,16 +128,14 @@ class TaxCore extends ObjectModel
         if (!$this->deleted && $this->isUsed()) {
             $historizedTax = new Tax($this->id);
             $historizedTax->historize();
-
             // remove the id in order to create a new object
             $this->id = 0;
             $res = $this->add();
-
             // change tax id in the tax rule table
             $res = TaxRule::swapTaxId($historizedTax->id, $this->id) && $res;
-
             return $res;
-        } elseif (parent::update($nullValues)) {
+        }
+        if (parent::update($nullValues)) {
             return $this->_onStatusChange();
         }
 
@@ -289,10 +286,8 @@ class TaxCore extends ObjectModel
      *
      * @param int $idProduct
      * @param int|null $idAddress
-     * @param Context|null $context
      *
      * @return float
-     *
      * @throws PrestaShopException
      */
     public static function getProductTaxRate($idProduct, $idAddress = null, ?Context $context = null)
@@ -313,7 +308,6 @@ class TaxCore extends ObjectModel
     /**
      * Returns tax name
      *
-     * @param int $languageId
      *
      * @return string
      * @throws PrestaShopException
@@ -332,8 +326,7 @@ class TaxCore extends ObjectModel
                 return $name;
             }
             return '';
-        } else {
-            return (string)$this->name;
         }
+        return (string)$this->name;
     }
 }

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -89,7 +91,7 @@ abstract class AdminTabCore
     /**
      * @var string|null
      */
-    public $optionTitle = null;
+    public $optionTitle;
     /** @var string shop */
     public $shopLinkType;
     /** @var bool */
@@ -99,7 +101,7 @@ abstract class AdminTabCore
     /** @var array tabAccess */
     public $tabAccess;
     /** @var string specificConfirmDelete */
-    public $specificConfirmDelete = null;
+    public $specificConfirmDelete;
 
     /**
      * @var Smarty
@@ -162,7 +164,7 @@ abstract class AdminTabCore
      **/
     protected $maxImageSize;
     /** @var array Confirmations displayed after post processing */
-    protected $_conf;
+    protected array $_conf;
     /** @var object Object corresponding to the tab */
     protected $_object = false;
     /**
@@ -176,11 +178,11 @@ abstract class AdminTabCore
     /**
      * @var array
      */
-    protected $_languages = null;
+    protected $_languages;
     /**
      * @var int
      */
-    protected $_defaultFormLanguage = null;
+    protected $_defaultFormLanguage;
     /**
      * @var array
      */
@@ -202,11 +204,11 @@ abstract class AdminTabCore
      */
     public function __construct()
     {
-        Tools::displayAsDeprecated("AdminTab will be removed in thirty bees 1.6.0. Please update module");
+        Tools::displayAsDeprecated('AdminTab will be removed in thirty bees 1.6.0. Please update module');
 
         $this->context = Context::getContext();
 
-        $this->id = Tab::getIdFromClassName(get_class($this));
+        $this->id = Tab::getIdFromClassName(static::class);
         $this->_conf = [
             1  => $this->l('Deletion successful'), 2 => $this->l('Selection successfully deleted'),
             3  => $this->l('Creation successful'), 4 => $this->l('Update successful'),
@@ -228,7 +230,7 @@ abstract class AdminTabCore
         if (!$this->_defaultOrderBy) {
             $this->_defaultOrderBy = $this->identifier;
         }
-        $className = get_class($this);
+        $className = static::class;
         $this->token = Tools::getAdminToken($className.(int) $this->id.(int) $this->context->employee->id);
         if (!Shop::isFeatureActive()) {
             $this->shopLinkType = '';
@@ -252,7 +254,7 @@ abstract class AdminTabCore
     protected function l($string, $class = 'AdminTab', $addslashes = false, $htmlentities = true)
     {
         // if the class is extended by a module, use modules/[module_name]/xx.php lang file
-        $currentClass = get_class($this);
+        $currentClass = static::class;
         if (Module::getModuleNameFromClass($currentClass)) {
             $string = str_replace('\'', '\\\'', $string);
 
@@ -260,13 +262,13 @@ abstract class AdminTabCore
         }
         global $_LANGADM;
 
-        if ($class == __CLASS__) {
+        if ($class == self::class) {
             $class = 'AdminTab';
         }
 
         $md5Key = md5(str_replace('\'', '\\\'', $string));
 
-        $thisKey = get_class($this) . $md5Key;
+        $thisKey = static::class . $md5Key;
         $classKey = $class . $md5Key;
         $str = $string;
         if (array_key_exists($thisKey, $_LANGADM) && $_LANGADM[$thisKey] !== '') {
@@ -276,20 +278,18 @@ abstract class AdminTabCore
                 $str = $_LANGADM[$classKey];
             }
         }
-        $str = $htmlentities ? htmlentities($str, ENT_QUOTES, 'utf-8') : $str;
+        $str = $htmlentities ? htmlentities((string) $str, ENT_QUOTES, 'utf-8') : $str;
 
-        return str_replace('"', '&quot;', ($addslashes ? addslashes($str) : stripslashes($str)));
+        return str_replace('"', '&quot;', ($addslashes ? addslashes((string) $str) : stripslashes((string) $str)));
     }
 
     /**
-     * @param string $table
      * @param bool $idObject
      *
      * @return array|void
-     *
      * @deprecated 1.0.0
      */
-    protected static function getAssoShop($table, $idObject = false)
+    protected static function getAssoShop(string $table, $idObject = false)
     {
         if (Shop::isTableAssociated($table)) {
             $type = 'shop';
@@ -299,7 +299,7 @@ abstract class AdminTabCore
 
         $assos = [];
         foreach ($_POST as $k => $row) {
-            if (!preg_match('/^checkBox'.Tools::toCamelCase($type, true).'Asso_'.$table.'_([0-9]+)?_([0-9]+)$/Ui', $k, $res)) {
+            if (!preg_match('/^checkBox'.Tools::toCamelCase($type, true).'Asso_'.$table.'_([0-9]+)?_([0-9]+)$/Ui', (string) $k, $res)) {
                 continue;
             }
             $idAssoObject = (!empty($res[1]) ? $res[1] : $idObject);
@@ -326,7 +326,7 @@ abstract class AdminTabCore
      * @throws PrestaShopException
      * @deprecated 1.0.0
      */
-    public function display()
+    public function display(): void
     {
         // Include other tab in current tab
         if ($this->includeSubTab('display', ['submitAdd2', 'add', 'update', 'view'])) {
@@ -335,7 +335,7 @@ abstract class AdminTabCore
             if ($this->tabAccess[Profile::PERMISSION_ADD]) {
                 $this->displayForm();
                 if ($this->tabAccess[Profile::PERMISSION_VIEW]) {
-                    echo '<br /><br /><a href="'.((Tools::getValue('back')) ? Tools::getValue('back') : static::$currentIndex.'&token='.$this->token).'"><img src="../img/admin/arrow2.gif" /> '.((Tools::getValue('back')) ? $this->l('Back') : $this->l('Back to list')).'</a><br />';
+                    echo '<br /><br /><a href="'.(Tools::getValue('back') ?: static::$currentIndex.'&token='.$this->token).'"><img src="../img/admin/arrow2.gif" /> '.((Tools::getValue('back')) ? $this->l('Back') : $this->l('Back to list')).'</a><br />';
                 }
             } else {
                 echo $this->l('You do not have permission to add here');
@@ -344,7 +344,7 @@ abstract class AdminTabCore
             if ($this->tabAccess[Profile::PERMISSION_EDIT] || ($this->table == 'employee' && $this->context->employee->id == Tools::getIntValue('id_employee'))) {
                 $this->displayForm();
                 if ($this->tabAccess[Profile::PERMISSION_VIEW]) {
-                    echo '<br /><br /><a href="'.((Tools::getValue('back')) ? Tools::getValue('back') : static::$currentIndex.'&token='.$this->token).'"><img src="../img/admin/arrow2.gif" /> '.((Tools::getValue('back')) ? $this->l('Back') : $this->l('Back to list')).'</a><br />';
+                    echo '<br /><br /><a href="'.(Tools::getValue('back') ?: static::$currentIndex.'&token='.$this->token).'"><img src="../img/admin/arrow2.gif" /> '.((Tools::getValue('back')) ? $this->l('Back') : $this->l('Back to list')).'</a><br />';
                 }
             } else {
                 echo $this->l('You do not have permission to edit here');
@@ -386,7 +386,7 @@ abstract class AdminTabCore
                 include_once('tabs/'.$classname.'.php');
             }
             if (!isset($this->_includeObj[$key])) {
-                $this->_includeObj[$key] = new $classname;
+                $this->_includeObj[$key] = new $classname();
             }
 
             /** @var static $adminTab */
@@ -423,10 +423,12 @@ abstract class AdminTabCore
                         if (Tools::isSubmit('submitFilter'.$adminTab->table)) {
                             $okInc = true;
                         }
+                        // no break
                     case 'submitReset':
                         if (Tools::isSubmit('submitReset'.$adminTab->table)) {
                             $okInc = true;
                         }
+                        // no break
                     default:
                         if (isset($_GET[$action.$adminTab->table])) {
                             $okInc = true;
@@ -467,9 +469,9 @@ abstract class AdminTabCore
      * @deprecated 1.0.0
      * @throws PrestaShopException
      */
-    public function displayForm($firstCall = true)
+    public function displayForm($firstCall = true): void
     {
-        $allowEmployeeFormLang = Configuration::get('PS_BO_ALLOW_EMPLOYEE_FORM_LANG') ? Configuration::get('PS_BO_ALLOW_EMPLOYEE_FORM_LANG') : 0;
+        $allowEmployeeFormLang = Configuration::get('PS_BO_ALLOW_EMPLOYEE_FORM_LANG') ?: 0;
         if ($allowEmployeeFormLang && !$this->context->cookie->employee_form_lang) {
             $this->context->cookie->employee_form_lang = (int) (Configuration::get('PS_LANG_DEFAULT'));
         }
@@ -500,7 +502,7 @@ abstract class AdminTabCore
 					languages['.$k.'] = {
 						id_lang: '.(int) $language['id_lang'].',
 						iso_code: \''.$language['iso_code'].'\',
-						name: \''.htmlentities($language['name'], ENT_COMPAT, 'UTF-8').'\'
+						name: \''.htmlentities((string) $language['name'], ENT_COMPAT, 'UTF-8').'\'
 					};';
             }
             echo '
@@ -523,7 +525,7 @@ abstract class AdminTabCore
      * @throws PrestaShopException
      * @deprecated 1.0.0
      */
-    public function getList($idLang, $orderBy = null, $orderWay = null, $start = 0, $limit = null, $idLangShop = false)
+    public function getList($idLang, $orderBy = null, $orderWay = null, $start = 0, $limit = null, $idLangShop = false): void
     {
         /* Manage default params values */
         if (empty($limit)) {
@@ -535,10 +537,10 @@ abstract class AdminTabCore
         }
 
         if (empty($orderBy)) {
-            $orderBy = $this->context->cookie->__get($this->table.'Orderby') ? $this->context->cookie->__get($this->table.'Orderby') : $this->_defaultOrderBy;
+            $orderBy = $this->context->cookie->__get($this->table.'Orderby') ?: $this->_defaultOrderBy;
         }
         if (empty($orderWay)) {
-            $orderWay = $this->context->cookie->__get($this->table.'Orderway') ? $this->context->cookie->__get($this->table.'Orderway') : 'ASC';
+            $orderWay = $this->context->cookie->__get($this->table.'Orderway') ?: 'ASC';
         }
 
         $limit = Tools::getIntValue('pagination', $limit);
@@ -564,7 +566,7 @@ abstract class AdminTabCore
 
         /* Cache */
         $this->_orderBy = $orderBy;
-        $this->_orderWay = mb_strtoupper($orderWay);
+        $this->_orderWay = mb_strtoupper((string) $orderWay);
 
         /* SQL table : orders, but class name is Order */
         $sqlTable = $this->table == 'order' ? 'orders' : $this->table;
@@ -673,7 +675,7 @@ abstract class AdminTabCore
      *
      * @deprecated 1.0.0
      */
-    public function displayWarning($warn)
+    public function displayWarning(?string $warn): void
     {
         $strOutput = '';
         if (!empty($warn)) {
@@ -726,7 +728,7 @@ abstract class AdminTabCore
      * @throws PrestaShopException
      * @deprecated 1.0.0
      */
-    public function displayListHeader($token = null)
+    public function displayListHeader($token = null): void
     {
         $isCms = false;
         if (preg_match('/cms/Ui', $this->identifier)) {
@@ -739,7 +741,7 @@ abstract class AdminTabCore
         }
 
         /* Determine total page number */
-        $totalPages = ceil($this->_listTotal / Tools::getValue('pagination', (isset($this->context->cookie->{$this->table.'_pagination'}) ? $this->context->cookie->{$this->table.'_pagination'} : $this->_pagination[0])));
+        $totalPages = ceil($this->_listTotal / Tools::getValue('pagination', ($this->context->cookie->{$this->table.'_pagination'} ?? $this->_pagination[0])));
         if (!$totalPages) {
             $totalPages = 1;
         }
@@ -779,7 +781,7 @@ abstract class AdminTabCore
         echo '			| '.$this->l('Display').'
 						<select name="pagination">';
         /* Choose number of results per page */
-        $selectedPagination = Tools::getValue('pagination', (isset($this->context->cookie->{$this->table.'_pagination'}) ? $this->context->cookie->{$this->table.'_pagination'} : null));
+        $selectedPagination = Tools::getValue('pagination', ($this->context->cookie->{$this->table.'_pagination'} ?? null));
         foreach ($this->_pagination as $value) {
             echo '<option value="'.(int) ($value).'"'.($selectedPagination == $value ? ' selected="selected"' : (($selectedPagination == null && $value == $this->_pagination[1]) ? ' selected="selected2"' : '')).'>'.(int) ($value).'</option>';
         }
@@ -825,8 +827,8 @@ abstract class AdminTabCore
                     static::$currentIndex = preg_replace('/&'.$this->table.'Orderby=([a-z _]*)&'.$this->table.'Orderway=([a-z]*)/i', '', static::$currentIndex);
                 }
                 echo '	<br />
-						<a href="'.static::$currentIndex.'&'.$this->identifier.'='.$idCat.'&'.$this->table.'Orderby='.urlencode($key).'&'.$this->table.'Orderway=desc&token='.$token.'"><img border="0" src="../img/admin/down'.((isset($this->_orderBy) && ($key == $this->_orderBy) && ($this->_orderWay == 'DESC')) ? '_d' : '').'.gif" /></a>
-						<a href="'.static::$currentIndex.'&'.$this->identifier.'='.$idCat.'&'.$this->table.'Orderby='.urlencode($key).'&'.$this->table.'Orderway=asc&token='.$token.'"><img border="0" src="../img/admin/up'.((isset($this->_orderBy) && ($key == $this->_orderBy) && ($this->_orderWay == 'ASC')) ? '_d' : '').'.gif" /></a>';
+						<a href="'.static::$currentIndex.'&'.$this->identifier.'='.$idCat.'&'.$this->table.'Orderby='.urlencode((string) $key).'&'.$this->table.'Orderway=desc&token='.$token.'"><img border="0" src="../img/admin/down'.((isset($this->_orderBy) && ($key == $this->_orderBy) && ($this->_orderWay == 'DESC')) ? '_d' : '').'.gif" /></a>
+						<a href="'.static::$currentIndex.'&'.$this->identifier.'='.$idCat.'&'.$this->table.'Orderby='.urlencode((string) $key).'&'.$this->table.'Orderway=asc&token='.$token.'"><img border="0" src="../img/admin/up'.((isset($this->_orderBy) && ($key == $this->_orderBy) && ($this->_orderWay == 'ASC')) ? '_d' : '').'.gif" /></a>';
             }
             echo '	</th>';
         }
@@ -899,6 +901,7 @@ abstract class AdminTabCore
                         break;
                     }
 
+                    // no break
                 case 'text':
                 default:
                     if (!Validate::isCleanHtml($value)) {
@@ -927,7 +930,7 @@ abstract class AdminTabCore
      * @deprecated 1.0.0
      * @throws PrestaShopException
      */
-    public function displayListContent($token = null)
+    public function displayListContent($token = null): void
     {
         /* Display results in a table
          *
@@ -942,9 +945,7 @@ abstract class AdminTabCore
 
         $irow = 0;
         if ($this->_list && isset($this->fieldsDisplay['position'])) {
-            $positions = array_map(function ($elem) {
-                return (int) $elem['position'];
-            }, $this->_list);
+            $positions = array_map(fn (array $elem) => (int) $elem['position'], $this->_list);
             sort($positions);
         }
         if ($this->_list) {
@@ -962,7 +963,7 @@ abstract class AdminTabCore
                 }
                 echo '</td>';
                 foreach ($this->fieldsDisplay as $key => $params) {
-                    $tmp = explode('!', $key);
+                    $tmp = explode('!', (string) $key);
                     $key = $tmp[1] ?? $tmp[0];
                     echo '
 					<td '.(isset($params['position']) ? ' id="td_'.$idCategory.'_'.$id.'"' : '').' class="'.((!isset($this->noLink) || !$this->noLink) ? 'pointer' : '').((isset($params['position']) && $this->_orderBy == 'position') ? ' dragHandle' : '').(isset($params['align']) ? ' '.$params['align'] : '').'" ';
@@ -1009,7 +1010,7 @@ abstract class AdminTabCore
                     } elseif (isset($params['price'])) {
                         echo Tools::displayPrice($tr[$key], (isset($params['currency']) ? Currency::getCurrencyInstance($tr['id_currency']) : $this->context->currency), false);
                     } elseif (isset($params['float'])) {
-                        echo rtrim(rtrim($tr[$key], '0'), '.');
+                        echo rtrim(rtrim((string) $tr[$key], '0'), '.');
                     } elseif (isset($params['type']) && $params['type'] == 'date') {
                         echo Tools::displayDate($tr[$key]);
                     } elseif (isset($params['type']) && $params['type'] == 'datetime') {
@@ -1029,7 +1030,7 @@ abstract class AdminTabCore
                             $echo = $tr[$key];
                         }
 
-                        echo isset($params['callback']) ? call_user_func_array([(isset($params['callback_object'])) ? $params['callback_object'] : $this->className, $params['callback']], [$echo, $tr]) : $echo;
+                        echo isset($params['callback']) ? call_user_func_array([$params['callback_object'] ?? $this->className, $params['callback']], [$echo, $tr]) : $echo;
                     } else {
                         echo '--';
                     }
@@ -1039,7 +1040,7 @@ abstract class AdminTabCore
                 }
 
                 if ($this->shopLinkType) {
-                    $name = (mb_strlen($tr['shop_name']) > 15) ? mb_substr($tr['shop_name'], 0, 15).'...' : $tr['shop_name'];
+                    $name = (mb_strlen((string) $tr['shop_name']) > 15) ? mb_substr((string) $tr['shop_name'], 0, 15).'...' : $tr['shop_name'];
                     echo '<td class="center" '.(($name != $tr['shop_name']) ? 'title="'.$tr['shop_name'].'"' : '').'>'.$name.'</td>';
                 }
 
@@ -1068,13 +1069,11 @@ abstract class AdminTabCore
      * @param string $token
      * @param int $id
      * @param bool $value
-     * @param string $active
      * @param int|null $idCategory
      * @param int|null $idProduct
-     *
      * @deprecated 1.0.0
      */
-    protected function _displayEnableLink($token, $id, $value, $active, $idCategory = null, $idProduct = null)
+    protected function _displayEnableLink($token, $id, $value, string $active, $idCategory = null, $idProduct = null)
     {
         $href = Tools::safeOutput(
             static::$currentIndex.'&'.$this->identifier.'='.(int) $id.'&'.$active.$this->table.
@@ -1125,7 +1124,7 @@ abstract class AdminTabCore
     protected function _displayDeleteLink($token, $id)
     {
         $_cacheLang['Delete'] = $this->l('Delete');
-        $_cacheLang['DeleteItem'] = $this->l('Delete item #', __CLASS__, true, false);
+        $_cacheLang['DeleteItem'] = $this->l('Delete item #', self::class, true, false);
         $href = Tools::safeOutput(static::$currentIndex.'&'.$this->identifier.'='.(int) $id.'&delete'.$this->table.'&token='.($token != null ? $token : $this->token));
 
         echo '<a href="'.$href.'" onclick="return confirm(\''.$_cacheLang['DeleteItem'].(int) $id.' ?'.
@@ -1142,7 +1141,7 @@ abstract class AdminTabCore
     protected function _displayDuplicate($token, $id)
     {
         $_cacheLang['Duplicate'] = $this->l('Duplicate');
-        $_cacheLang['Copy images too?'] = $this->l('This will copy the images too. If you wish to proceed, click "OK". If not, click "Cancel".', __CLASS__, true, false);
+        $_cacheLang['Copy images too?'] = $this->l('This will copy the images too. If you wish to proceed, click "OK". If not, click "Cancel".', self::class, true, false);
         $duplicate = Tools::safeOutput(static::$currentIndex.'&'.$this->identifier.'='.$id.'&duplicate'.$this->table.'&token='.($token != null ? $token : $this->token));
 
         echo '<a class="pointer" onclick="if (confirm(\''.$_cacheLang['Copy images too?'].'\')) document.location = \''.$duplicate.'\'; else document.location = \''.$duplicate.'&noimage=1\';">
@@ -1155,17 +1154,17 @@ abstract class AdminTabCore
      * @param string|null $token
      * @deprecated 1.0.0
      */
-    public function displayListFooter($token = null)
+    public function displayListFooter($token = null): void
     {
         echo '</table>';
         if ($this->delete) {
-            echo '<p><input type="submit" class="button" name="submitDel'.$this->table.'" value="'.$this->l('Delete selection').'" onclick="return confirm(\''.$this->l('Delete selected items?', __CLASS__, true, false).'\');" /></p>';
+            echo '<p><input type="submit" class="button" name="submitDel'.$this->table.'" value="'.$this->l('Delete selection').'" onclick="return confirm(\''.$this->l('Delete selected items?', self::class, true, false).'\');" /></p>';
         }
         echo '
 				</td>
 			</tr>
 		</table>
-		<input type="hidden" name="token" value="'.($token ? $token : $this->token).'" />
+		<input type="hidden" name="token" value="'.($token ?: $this->token).'" />
 		</form>';
         if (isset($this->_includeTab) && count($this->_includeTab)) {
             echo '<br /><br />';
@@ -1178,7 +1177,7 @@ abstract class AdminTabCore
      * @throws PrestaShopException
      * @deprecated 1.0.0
      */
-    public function displayOptionsList()
+    public function displayOptionsList(): void
     {
         $tab = Tab::getTab($this->context->language->id, $this->id);
 
@@ -1186,7 +1185,7 @@ abstract class AdminTabCore
         if (!$this->optionsList && $this->_fieldsOptions) {
             $this->optionsList = [
                 'options' => [
-                    'title'  => ($this->optionTitle) ? $this->optionTitle : $this->l('Options'),
+                    'title'  => $this->optionTitle ?: $this->l('Options'),
                     'fields' => $this->_fieldsOptions,
                 ],
             ];
@@ -1211,7 +1210,7 @@ abstract class AdminTabCore
 
             // Options category title
             $legend = '<img src="'.(!empty($tab['module']) && file_exists($_SERVER['DOCUMENT_ROOT']._MODULE_DIR_.$tab['module'].'/'.$tab['class_name'].'.gif') ? _MODULE_DIR_.$tab['module'].'/' : '../img/t/').$tab['class_name'].'.gif" /> ';
-            $legend .= ((isset($categoryData['title'])) ? $categoryData['title'] : $this->l('Options'));
+            $legend .= ($categoryData['title'] ?? $this->l('Options'));
             echo '<legend>'.$legend.'</legend>';
 
             // Category fields
@@ -1290,7 +1289,7 @@ abstract class AdminTabCore
             }
 
             echo '<div align="center" style="margin-top: 20px;">';
-            echo '<input type="submit" value="'.$this->l('   Save   ').'" name="submit'.ucfirst($category).$this->table.'" class="button" />';
+            echo '<input type="submit" value="'.$this->l('   Save   ').'" name="submit'.ucfirst((string) $category).$this->table.'" class="button" />';
             echo '</div>';
             if ($required) {
                 echo '<div class="small"><sup>*</sup> '.$this->l('Required field').'</div>';
@@ -1316,9 +1315,9 @@ abstract class AdminTabCore
      *
      * @deprecated 1.0.0
      */
-    public function displayOptionTypeText($key, $field, $value)
+    public function displayOptionTypeText(string $key, array $field, $value): void
     {
-        echo '<input type="'.$field['type'].'"'.(isset($field['id']) ? ' id="'.$field['id'].'"' : '').' size="'.(isset($field['size']) ? (int) $field['size'] : 5).'" name="'.$key.'" value="'.htmlentities($value, ENT_COMPAT, 'UTF-8').'" />'.(isset($field['next']) ? '&nbsp;'. $field['next'] : '');
+        echo '<input type="'.$field['type'].'"'.(isset($field['id']) ? ' id="'.$field['id'].'"' : '').' size="'.(isset($field['size']) ? (int) $field['size'] : 5).'" name="'.$key.'" value="'.htmlentities((string) $value, ENT_COMPAT, 'UTF-8').'" />'.(isset($field['next']) ? '&nbsp;'. $field['next'] : '');
     }
 
     /**
@@ -1335,7 +1334,7 @@ abstract class AdminTabCore
      * @throws PrestaShopException
      * @deprecated 1.0.0
      */
-    public function displayRequiredFields()
+    public function displayRequiredFields(): void
     {
         if (!$this->tabAccess[Profile::PERMISSION_ADD] || !$this->tabAccess[Profile::PERMISSION_DELETE] || !$this->requiredDatabase) {
             return;
@@ -1412,7 +1411,7 @@ abstract class AdminTabCore
         }
         $types = ImageType::getImagesTypes();
         foreach ($types as $imageType) {
-            if (file_exists(_PS_IMG_DIR_.$dir.$id.'-'.stripslashes($imageType['name']).'.'.$this->imageType) && !unlink(_PS_IMG_DIR_.$dir.$id.'-'.stripslashes($imageType['name']).'.'.$this->imageType)) {
+            if (file_exists(_PS_IMG_DIR_.$dir.$id.'-'.stripslashes((string) $imageType['name']).'.'.$this->imageType) && !unlink(_PS_IMG_DIR_.$dir.$id.'-'.stripslashes((string) $imageType['name']).'.'.$this->imageType)) {
                 return false;
             }
         }
@@ -1460,7 +1459,7 @@ abstract class AdminTabCore
         }
 
         // set token
-        $token = Tools::getValue('token') ? Tools::getValue('token') : $this->token;
+        $token = Tools::getValue('token') ?: $this->token;
 
         // Sub included tab postProcessing
         $this->includeSubTab('postProcess', ['status', 'submitAdd1', 'submitDel', 'delete', 'submitFilter', 'submitReset']);
@@ -1474,8 +1473,7 @@ abstract class AdminTabCore
                 }
             }
             $this->_errors[] = Tools::displayError('An error occurred during image deletion (cannot load object).');
-        } /* Delete object */
-        elseif (isset($_GET['delete'.$this->table])) {
+        } /* Delete object */ elseif (isset($_GET['delete'.$this->table])) {
             if ($this->tabAccess[Profile::PERMISSION_DELETE]) {
                 if (Validate::isLoadedObject($object = $this->loadObject()) && isset($this->fieldImageSettings)) {
                     /** @var ObjectModel $object */
@@ -1501,8 +1499,7 @@ abstract class AdminTabCore
             } else {
                 $this->_errors[] = Tools::displayError('You do not have permission to delete here.');
             }
-        } /* Change object statuts (active, inactive) */
-        elseif ((isset($_GET['status'.$this->table]) || isset($_GET['status'])) && Tools::getValue($this->identifier)) {
+        } /* Change object statuts (active, inactive) */ elseif ((isset($_GET['status'.$this->table]) || isset($_GET['status'])) && Tools::getValue($this->identifier)) {
             if ($this->tabAccess[Profile::PERMISSION_EDIT]) {
                 if (Validate::isLoadedObject($object = $this->loadObject())) {
                     /** @var ObjectModel $object */
@@ -1517,8 +1514,7 @@ abstract class AdminTabCore
             } else {
                 $this->_errors[] = Tools::displayError('You do not have permission to edit here.');
             }
-        } /* Move an object */
-        elseif (isset($_GET['position'])) {
+        } /* Move an object */ elseif (isset($_GET['position'])) {
             /** @var ObjectModel $object */
             if (! $this->tabAccess[Profile::PERMISSION_EDIT]) {
                 $this->_errors[] = Tools::displayError('You do not have permission to edit here.');
@@ -1529,8 +1525,7 @@ abstract class AdminTabCore
             } else {
                 Tools::redirectAdmin(static::$currentIndex.'&'.$this->table.'Orderby=position&'.$this->table.'Orderway=asc&conf=5'.(($id_identifier = Tools::getIntValue($this->identifier)) ? ('&'.$this->identifier.'='.$id_identifier) : '').'&token='.$token);
             }
-        } /* Delete multiple objects */
-        elseif (Tools::getValue('submitDel'.$this->table)) {
+        } /* Delete multiple objects */ elseif (Tools::getValue('submitDel'.$this->table)) {
             if ($this->tabAccess[Profile::PERMISSION_DELETE]) {
                 if (isset($_POST[$this->table.'Box'])) {
                     $result = true;
@@ -1559,8 +1554,7 @@ abstract class AdminTabCore
             } else {
                 $this->_errors[] = Tools::displayError('You do not have permission to delete here.');
             }
-        } /* Create or update an object */
-        elseif (Tools::getValue('submitAdd'.$this->table)) {
+        } /* Create or update an object */ elseif (Tools::getValue('submitAdd'.$this->table)) {
             /* Checking fields validity */
             $this->validateRules();
             if (!count($this->_errors)) {
@@ -1637,8 +1631,7 @@ abstract class AdminTabCore
                     } else {
                         $this->_errors[] = Tools::displayError('You do not have permission to edit here.');
                     }
-                } /* Object creation */
-                else {
+                } /* Object creation */ else {
                     if ($this->tabAccess[Profile::PERMISSION_ADD]) {
                         /** @var ObjectModel $object */
                         $object = new $this->className();
@@ -1680,12 +1673,11 @@ abstract class AdminTabCore
                 }
             }
             $this->_errors = array_unique($this->_errors);
-        } /* Cancel all filters for this tab */
-        elseif (isset($_POST['submitReset'.$this->table])) {
+        } /* Cancel all filters for this tab */ elseif (isset($_POST['submitReset'.$this->table])) {
             $filters = $this->context->cookie->getFamily($this->table.'Filter_');
             foreach ($filters as $cookieKey => $filter) {
-                if (strncmp($cookieKey, $this->table.'Filter_', 7 + mb_strlen($this->table)) == 0) {
-                    $key = mb_substr($cookieKey, 7 + mb_strlen($this->table));
+                if (strncmp((string) $cookieKey, $this->table.'Filter_', 7 + mb_strlen($this->table)) == 0) {
+                    $key = mb_substr((string) $cookieKey, 7 + mb_strlen($this->table));
                     /* Table alias could be specified using a ! eg. alias!field */
                     $tmpTab = explode('!', $key);
                     $key = (count($tmpTab) > 1 ? $tmpTab[1] : $tmpTab[0]);
@@ -1704,16 +1696,14 @@ abstract class AdminTabCore
                 unset($this->context->cookie->{$this->table.'Orderway'});
             }
             unset($_POST);
-        } /* Submit options list */
-        elseif (Tools::getValue('submitOptions'.$this->table)) {
+        } /* Submit options list */ elseif (Tools::getValue('submitOptions'.$this->table)) {
             $this->updateOptions($token);
-        } /* Manage list filtering */
-        elseif (Tools::isSubmit('submitFilter'.$this->table) || $this->context->cookie->{'submitFilter'.$this->table} !== false) {
+        } /* Manage list filtering */ elseif (Tools::isSubmit('submitFilter'.$this->table) || $this->context->cookie->{'submitFilter'.$this->table} !== false) {
             $_POST = array_merge($this->context->cookie->getFamily($this->table.'Filter_'), ($_POST ?? []));
             foreach ($_POST as $key => $value) {
                 /* Extracting filters from $_POST on key filter_ */
-                if ($value != null && !strncmp($key, $this->table.'Filter_', 7 + mb_strlen($this->table))) {
-                    $key = mb_substr($key, 7 + mb_strlen($this->table));
+                if ($value != null && !strncmp((string) $key, $this->table.'Filter_', 7 + mb_strlen($this->table))) {
+                    $key = mb_substr((string) $key, 7 + mb_strlen($this->table));
                     /* Table alias could be specified using a ! eg. alias!field */
                     $tmpTab = explode('!', $key);
                     $filter = count($tmpTab) > 1 ? $tmpTab[1] : $tmpTab[0];
@@ -1811,7 +1801,7 @@ abstract class AdminTabCore
      * @throws PrestaShopException
      * @throws SmartyException
      */
-    public function displayErrors()
+    public function displayErrors(): void
     {
         if (($nbErrors = count($this->_errors)) && $this->_includeContainer) {
             echo '<script type="text/javascript">
@@ -1853,7 +1843,7 @@ abstract class AdminTabCore
      *
      * @throws PrestaShopException
      */
-    public function validateRules($className = false)
+    public function validateRules($className = false): void
     {
         if (!$className) {
             $className = $this->className;
@@ -1872,11 +1862,16 @@ abstract class AdminTabCore
 
         /* Checking for required fields */
         foreach ($rules['required'] as $field) {
-            if (($value = Tools::getValue($field)) == false && (string) $value != '0') {
-                if (!Tools::getValue($this->identifier) || ($field != 'passwd' && $field != 'no-picture')) {
-                    $this->_errors[] = sprintf(Tools::displayError('The field %s is required.'), call_user_func([$className, 'displayFieldName'], $field, $className));
-                }
+            if (!($value = Tools::getValue($field) == false)) {
+                continue;
             }
+            if (!((string) $value != '0')) {
+                continue;
+            }
+            if (!(!Tools::getValue($this->identifier) || $field != 'passwd' && $field != 'no-picture')) {
+                continue;
+            }
+            $this->_errors[] = sprintf(Tools::displayError('The field %s is required.'), call_user_func([$className, 'displayFieldName'], $field, $className));
         }
 
         /* Checking for multilingual required fields */
@@ -1907,11 +1902,16 @@ abstract class AdminTabCore
 
         /* Checking for fields validity */
         foreach ($rules['validate'] as $field => $function) {
-            if (($value = Tools::getValue($field)) !== false && !empty($value) && ($field != 'passwd')) {
-                if (!Validate::$function($value)) {
-                    $this->_errors[] = sprintf(Tools::displayError('The field %1$s (%2$s) is invalid.'), call_user_func([$className, 'displayFieldName'], $field, $className));
-                }
+            if (!($value = Tools::getValue($field) !== false && !empty($value))) {
+                continue;
             }
+            if (!($field != 'passwd')) {
+                continue;
+            }
+            if (Validate::$function($value)) {
+                continue;
+            }
+            $this->_errors[] = sprintf(Tools::displayError('The field %1$s (%2$s) is invalid.'), call_user_func([$className, 'displayFieldName'], $field, $className));
         }
 
         /* Checking for passwd_old validity */
@@ -1926,11 +1926,16 @@ abstract class AdminTabCore
         /* Checking for multilingual fields validity */
         foreach ($rules['validateLang'] as $fieldLang => $function) {
             foreach ($languages as $language) {
-                if (($value = Tools::getValue($fieldLang.'_'.$language['id_lang'])) !== false && !empty($value)) {
-                    if (!Validate::$function($value)) {
-                        $this->_errors[] = sprintf(Tools::displayError('The field %1$s (%2$s) is invalid.'), call_user_func([$className, 'displayFieldName'], $fieldLang, $className), $language['name']);
-                    }
+                if (!($value = Tools::getValue($fieldLang.'_'.$language['id_lang']) !== false)) {
+                    continue;
                 }
+                if (empty($value)) {
+                    continue;
+                }
+                if (Validate::$function($value)) {
+                    continue;
+                }
+                $this->_errors[] = sprintf(Tools::displayError('The field %1$s (%2$s) is invalid.'), call_user_func([$className, 'displayFieldName'], $fieldLang, $className), $language['name']);
             }
         }
     }
@@ -1967,7 +1972,7 @@ abstract class AdminTabCore
      * @deprecated 1.0.0
      * @throws PrestaShopException
      */
-    protected function copyFromPost(&$object, $table)
+    protected function copyFromPost(&$object, string $table)
     {
         /* Classical fields */
         foreach ($_POST as $key => $value) {
@@ -1985,7 +1990,7 @@ abstract class AdminTabCore
         }
 
         /* Multilingual fields */
-        $rules = call_user_func([get_class($object), 'getValidationRules'], get_class($object));
+        $rules = call_user_func([$object::class, 'getValidationRules'], $object::class);
         if (count($rules['validateLang'])) {
             $languageIds = Language::getIDs(false);
             foreach ($languageIds as $idLang) {
@@ -2065,21 +2070,18 @@ abstract class AdminTabCore
     {
         if (isset($this->fieldImageSettings['name']) && isset($this->fieldImageSettings['dir'])) {
             return $this->uploadImage($id, $this->fieldImageSettings['name'], $this->fieldImageSettings['dir'].'/');
-        } elseif (!empty($this->fieldImageSettings)) {
-            foreach ($this->fieldImageSettings as $image) {
-                if (isset($image['name']) && isset($image['dir'])) {
-                    $this->uploadImage($id, $image['name'], $image['dir'].'/');
-                }
+        }
+        foreach ($this->fieldImageSettings as $image) {
+            if (isset($image['name']) && isset($image['dir'])) {
+                $this->uploadImage($id, $image['name'], $image['dir'].'/');
             }
         }
-
         return !count($this->_errors);
     }
 
     /**
      * @param int $id
      * @param string $name
-     * @param string $dir
      * @param bool $ext
      * @param int|null $width
      * @param int|null $height
@@ -2089,7 +2091,7 @@ abstract class AdminTabCore
      * @throws PrestaShopException
      * @throws SmartyException
      */
-    protected function uploadImage($id, $name, $dir, $ext = false, $width = null, $height = null)
+    protected function uploadImage($id, $name, string $dir, $ext = false, $width = null, $height = null)
     {
         if (!empty($_FILES[$name]['tmp_name'])) {
             // Delete old image
@@ -2108,7 +2110,7 @@ abstract class AdminTabCore
             } else {
                 $_FILES[$name]['tmp_name'] = $tmpName;
                 // Copy new image
-                if (!ImageManager::resize($tmpName, _PS_IMG_DIR_.$dir.$id.'.'.$this->imageType, (int) $width, (int) $height, ($ext ? $ext : $this->imageType))) {
+                if (!ImageManager::resize($tmpName, _PS_IMG_DIR_.$dir.$id.'.'.$this->imageType, (int) $width, (int) $height, ($ext ?: $this->imageType))) {
                     $this->_errors[] = Tools::displayError('An error occurred while uploading image.');
                 }
                 if (count($this->_errors)) {
@@ -2155,12 +2157,11 @@ abstract class AdminTabCore
     /**
      * Update options and preferences
      *
-     * @param string $token
      *
      * @deprecated 1.0.0
      * @throws PrestaShopException
      */
-    protected function updateOptions($token)
+    protected function updateOptions(string $token)
     {
         if ($this->tabAccess[Profile::PERMISSION_EDIT]) {
             $this->beforeUpdateOptions();
@@ -2271,13 +2272,11 @@ abstract class AdminTabCore
 
     /**
      * @param mixed $value
-     * @param array $field
      *
      * @return bool
-     *
      * @deprecated 1.0.0
      */
-    protected function validateField($value, $field)
+    protected function validateField($value, array $field)
     {
         if (isset($field['validation'])) {
             $fieldValidation = $field['validation'];
@@ -2320,7 +2319,7 @@ abstract class AdminTabCore
      *
      * @deprecated 1.0.0
      */
-    public function displayConf()
+    public function displayConf(): void
     {
         if ($conf = Tools::getValue('conf')) {
             echo '
@@ -2343,7 +2342,7 @@ abstract class AdminTabCore
      * @throws PrestaShopException
      * @deprecated 1.0.0
      */
-    public function displayImage($id, $image, $size, $idImage = null, $token = null, $disableCache = false)
+    public function displayImage($id, $image, $size, $idImage = null, $token = null, $disableCache = false): void
     {
         if (empty($token)) {
             $token = $this->token;
@@ -2364,11 +2363,9 @@ abstract class AdminTabCore
      *
      * @deprecated 1.0.0
      *
-     * @param string $key
-     * @param array $field
      * @param string $value
      */
-    public function displayOptionTypeSelect($key, $field, $value)
+    public function displayOptionTypeSelect(string $key, array $field, $value): void
     {
         echo '<select name="'.$key.'"'.(isset($field['js']) === true ? ' onchange="'.$field['js'].'"' : '').' id="'.$key.'">';
         foreach ($field['list'] as $option) {
@@ -2382,11 +2379,9 @@ abstract class AdminTabCore
      *
      * @deprecated 1.0.0
      *
-     * @param string $key
-     * @param array $field
      * @param bool $value
      */
-    public function displayOptionTypeBool($key, $field, $value)
+    public function displayOptionTypeBool(string $key, array $field, $value): void
     {
         echo '<label class="t" for="'.$key.'_on"><img src="../img/admin/enabled.gif" alt="'.$this->l('Yes').'" title="'.$this->l('Yes').'" /></label>';
         echo '<input type="radio" name="'.$key.'" id="'.$key.'_on" value="1" '.($value ? ' checked="checked" ' : '').($field['js']['on'] ?? '').' />';
@@ -2402,11 +2397,9 @@ abstract class AdminTabCore
      *
      * @deprecated 1.0.0
      *
-     * @param string $key
-     * @param array $field
      * @param string $value
      */
-    public function displayOptionTypeRadio($key, $field, $value)
+    public function displayOptionTypeRadio(string $key, array $field, $value): void
     {
         foreach ($field['choices'] as $k => $v) {
             echo '<input type="radio" name="'.$key.'" id="'.$key.$k.'_on" value="'.(int) $k.'"'.(($k == $value) ? ' checked="checked"' : '').(isset($field['js'][$k]) ? ' '.$field['js'][$k] : '').' /><label class="t" for="'.$key.$k.'_on"> '.$v.'</label><br />';
@@ -2423,7 +2416,7 @@ abstract class AdminTabCore
      * @param array $field
      * @param string $value
      */
-    public function displayOptionTypePassword($key, $field, $value)
+    public function displayOptionTypePassword($key, $field, $value): void
     {
         $this->displayOptionTypeText($key, $field, '');
     }
@@ -2431,13 +2424,11 @@ abstract class AdminTabCore
     /**
      * Type = textarea
      *
-     * @param string $key
-     * @param array $field
      * @param string $value
      *
      * @deprecated 1.0.0
      */
-    public function displayOptionTypeTextarea($key, $field, $value)
+    public function displayOptionTypeTextarea(string $key, array $field, $value): void
     {
         echo '<textarea name='.$key.' cols="'.$field['cols'].'" rows="'.$field['rows'].'">'.htmlentities($value, ENT_COMPAT, 'UTF-8').'</textarea>';
     }
@@ -2445,13 +2436,11 @@ abstract class AdminTabCore
     /**
      * Type = file
      *
-     * @param string $key
-     * @param array $field
      * @param string $value
      *
      * @deprecated 1.0.0
      */
-    public function displayOptionTypeFile($key, $field, $value)
+    public function displayOptionTypeFile(string $key, array $field, $value): void
     {
         if (isset($field['thumb']) && $field['thumb'] && $field['thumb']['pos'] == 'before') {
             echo '<img src="'.$field['thumb']['file'].'" alt="'.$field['title'].'" title="'.$field['title'].'" /><br />';
@@ -2462,13 +2451,11 @@ abstract class AdminTabCore
     /**
      * Type = image
      *
-     * @param string $key
-     * @param array $field
      * @param string $value
      *
      * @deprecated 1.0.0
      */
-    public function displayOptionTypeImage($key, $field, $value)
+    public function displayOptionTypeImage(string $key, array $field, $value): void
     {
         echo '<table cellspacing="0" cellpadding="0">';
         echo '<tr>';
@@ -2490,10 +2477,10 @@ abstract class AdminTabCore
         foreach ($field['list'] as $theme) {
             echo '<td class="center" style="width: 180px; padding:0px 20px 20px 0px;">';
             echo '<input type="radio" name="'.$key.'" id="'.$key.'_'.$theme['name'].'_on" style="vertical-align: text-bottom;" value="'.$theme['name'].'"'.(_THEME_NAME_ == $theme['name'] ? 'checked="checked"' : '').' />';
-            echo '<label class="t" for="'.$key.'_'.$theme['name'].'_on"> '.mb_strtolower($theme['name']).'</label>';
+            echo '<label class="t" for="'.$key.'_'.$theme['name'].'_on"> '.mb_strtolower((string) $theme['name']).'</label>';
             echo '<br />';
             echo '<label class="t" for="'.$key.'_'.$theme['name'].'_on">';
-            echo '<img src="../themes/'.$theme['name'].'/preview.jpg" alt="'.mb_strtolower($theme['name']).'">';
+            echo '<img src="../themes/'.$theme['name'].'/preview.jpg" alt="'.mb_strtolower((string) $theme['name']).'">';
             echo '</label>';
             echo '</td>';
             if (isset($field['max']) && ($i + 1) % $field['max'] == 0) {
@@ -2508,14 +2495,11 @@ abstract class AdminTabCore
     /**
      * Type = textLang
      *
-     * @param string $key
-     * @param array $field
      * @param string $value
-     *
      * @deprecated 1.0.0
      * @throws PrestaShopException
      */
-    public function displayOptionTypeTextLang($key, $field, $value)
+    public function displayOptionTypeTextLang(string $key, array $field, $value): void
     {
         $languages = Language::getLanguages(false);
         foreach ($languages as $language) {
@@ -2541,7 +2525,7 @@ abstract class AdminTabCore
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function displayFlags($languages, $default_language, $ids, $id, $return = false, $use_vars_instead_of_ids = false)
+    public function displayFlags($languages, $default_language, string $ids, string $id, $return = false, $use_vars_instead_of_ids = false)
     {
         if (count($languages) == 1) {
             return false;
@@ -2571,13 +2555,11 @@ abstract class AdminTabCore
     /**
      * Type = TextareaLang
      *
-     * @param string $key
-     * @param array $field
      * @param string $value
      *
      * @throws PrestaShopException
      */
-    public function displayOptionTypeTextareaLang($key, $field, $value)
+    public function displayOptionTypeTextareaLang(string $key, array $field, $value): void
     {
         $languages = Language::getLanguages(false);
         foreach ($languages as $language) {
@@ -2593,20 +2575,18 @@ abstract class AdminTabCore
     /**
      * Type = selectLang
      *
-     * @param string $key
-     * @param array $field
      * @param string $value
      *
      * @throws PrestaShopException
      */
-    public function displayOptionTypeSelectLang($key, $field, $value)
+    public function displayOptionTypeSelectLang(string $key, array $field, $value): void
     {
         $languages = Language::getLanguages(false);
         foreach ($languages as $language) {
             echo '<div id="'.$key.'_'.$language['id_lang'].'" style="margin-bottom:8px; display: '.($language['id_lang'] == $this->context->language->id ? 'block' : 'none').'; float: left; vertical-align: top;">';
-            echo '<select name="'.$key.'_'.mb_strtoupper($language['iso_code']).'">';
+            echo '<select name="'.$key.'_'.mb_strtoupper((string) $language['iso_code']).'">';
             foreach ($field['list'] as $v) {
-                echo '<option value="'.(isset($v['cast']) ? $v['cast']($v[$field['identifier']]) : $v[$field['identifier']]).'"'.((htmlentities(Tools::getValue($key.'_'.mb_strtoupper($language['iso_code']), (Configuration::get($key.'_'.mb_strtoupper($language['iso_code'])) ? Configuration::get($key.'_'.mb_strtoupper($language['iso_code'])) : '')), ENT_COMPAT, 'UTF-8') == $v[$field['identifier']]) ? ' selected="selected"' : '').'>'.$v['name'].'</option>';
+                echo '<option value="'.(isset($v['cast']) ? $v['cast']($v[$field['identifier']]) : $v[$field['identifier']]).'"'.((htmlentities(Tools::getValue($key.'_'.mb_strtoupper((string) $language['iso_code']), (Configuration::get($key.'_'.mb_strtoupper((string) $language['iso_code'])) ?: '')), ENT_COMPAT, 'UTF-8') == $v[$field['identifier']]) ? ' selected="selected"' : '').'>'.$v['name'].'</option>';
             }
             echo '</select>';
             echo '</div>';
@@ -2621,7 +2601,7 @@ abstract class AdminTabCore
      * @param array $field
      * @param string $value
      */
-    public function displayOptionTypePrice($key, $field, $value)
+    public function displayOptionTypePrice($key, $field, $value): void
     {
         echo $this->context->currency->getSign('left');
         $this->displayOptionTypeText($key, $field, $value);
@@ -2632,10 +2612,9 @@ abstract class AdminTabCore
      * Type = disabled
      *
      * @param string $key
-     * @param array $field
      * @param string $value
      */
-    public function displayOptionTypeDisabled($key, $field, $value)
+    public function displayOptionTypeDisabled($key, array $field, $value): void
     {
         echo $field['disabled'];
     }
@@ -2653,7 +2632,7 @@ abstract class AdminTabCore
      *
      * @return string
      */
-    public function getFieldValue($obj, $key, $id_lang = null, $idShop = null)
+    public function getFieldValue($obj, string $key, $id_lang = null, $idShop = null)
     {
         if (!$idShop && $obj->isLangMultishop()) {
             $idShop = Context::getContext()->shop->id;
@@ -2845,10 +2824,10 @@ EOF;
             $remove = [$remove];
         }
 
-        $url = preg_replace('#(?<=&|\?)('.implode('|', $remove).')=.*?(&|$)#i', '', $url);
-        $len = mb_strlen($url);
+        $url = preg_replace('#(?<=&|\?)('.implode('|', $remove).')=.*?(&|$)#i', '', (string) $url);
+        $len = mb_strlen((string) $url);
         if ($url[$len - 1] == '&') {
-            $url = mb_substr($url, 0, $len - 1);
+            return mb_substr((string) $url, 0, $len - 1);
         }
 
         return $url;

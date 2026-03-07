@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Integration;
 
 use Codeception\Test\Unit;
@@ -36,10 +38,10 @@ class ConfigurationTestTest extends Unit
     {
         $tests = [];
         foreach (ConfigurationTest::getDefaultTests() as $test => $argument) {
-            $tests["Test " . $test] = [$test, $argument];
+            $tests['Test ' . $test] = [$test, $argument];
         }
         foreach (ConfigurationTest::getDefaultTestsOp() as $test => $argument) {
-            $tests["Test " . $test] = [$test, $argument];
+            $tests['Test ' . $test] = [$test, $argument];
         }
         return $tests;
     }
@@ -52,6 +54,6 @@ class ConfigurationTestTest extends Unit
      */
     public function testTestsShouldBeOk($test, $arg)
     {
-        $this->assertEquals("ok", ConfigurationTest::run($test, $arg));
+        $this->assertEquals('ok', ConfigurationTest::run($test, $arg));
     }
 }

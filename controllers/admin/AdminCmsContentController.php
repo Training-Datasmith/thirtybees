@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -54,7 +56,6 @@ class AdminCmsContentControllerCore extends AdminController
     public function __construct()
     {
         $this->bootstrap = true;
-
 
         $this->table = 'cms';
         $this->className = 'CMS';
@@ -135,7 +136,7 @@ class AdminCmsContentControllerCore extends AdminController
                     'cms_breadcrumb'            => $this->getBreadcrumbs($idCmsCategory),
                     'page_header_toolbar_btn'   => $this->page_header_toolbar_btn,
                     'page_header_toolbar_title' => $toolbarTitle,
-                    'title'                     => $toolbarTitle
+                    'title'                     => $toolbarTitle,
                 ]);
 
                 $this->content .= $this->admin_cms_categories->renderList();
@@ -407,7 +408,7 @@ class AdminCmsContentControllerCore extends AdminController
 
             $name = CMSCategory::hideCMSCategoryPosition($category->name);
             $link = Context::getContext()->link->getAdminLink('AdminCmsContent', true, [
-                'id_cms_category' => $idCmsCategory
+                'id_cms_category' => $idCmsCategory,
             ]);
             $item = '<li><a href="'.$link.'">' . Tools::safeOutput($name) . '</a></li>';
             array_unshift($path, $item);

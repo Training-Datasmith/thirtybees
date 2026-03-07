@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -40,26 +42,26 @@ class CarrierCore extends ObjectModel implements InitializationCallback
     /**
      * getCarriers method filter
      */
-    const PS_CARRIERS_ONLY = 1;
-    const CARRIERS_MODULE = 2;
-    const CARRIERS_MODULE_NEED_RANGE = 3;
-    const PS_CARRIERS_AND_CARRIER_MODULES_NEED_RANGE = 4;
-    const ALL_CARRIERS = 5;
+    public const PS_CARRIERS_ONLY = 1;
+    public const CARRIERS_MODULE = 2;
+    public const CARRIERS_MODULE_NEED_RANGE = 3;
+    public const PS_CARRIERS_AND_CARRIER_MODULES_NEED_RANGE = 4;
+    public const ALL_CARRIERS = 5;
 
-    const SHIPPING_METHOD_DEFAULT = 0;
-    const SHIPPING_METHOD_WEIGHT = 1;
-    const SHIPPING_METHOD_PRICE = 2;
-    const SHIPPING_METHOD_FREE = 3;
+    public const SHIPPING_METHOD_DEFAULT = 0;
+    public const SHIPPING_METHOD_WEIGHT = 1;
+    public const SHIPPING_METHOD_PRICE = 2;
+    public const SHIPPING_METHOD_FREE = 3;
 
-    const SHIPPING_PRICE_EXCEPTION = 0;
-    const SHIPPING_WEIGHT_EXCEPTION = 1;
-    const SHIPPING_SIZE_EXCEPTION = 2;
+    public const SHIPPING_PRICE_EXCEPTION = 0;
+    public const SHIPPING_WEIGHT_EXCEPTION = 1;
+    public const SHIPPING_SIZE_EXCEPTION = 2;
 
-    const SORT_BY_PRICE = 0;
-    const SORT_BY_POSITION = 1;
+    public const SORT_BY_PRICE = 0;
+    public const SORT_BY_POSITION = 1;
 
-    const SORT_BY_ASC = 0;
-    const SORT_BY_DESC = 1;
+    public const SORT_BY_ASC = 0;
+    public const SORT_BY_DESC = 1;
 
     /** @var array $price_by_weight */
     protected static $price_by_weight = [];
@@ -101,7 +103,7 @@ class CarrierCore extends ObjectModel implements InitializationCallback
     /** @var bool Shipping external */
     public $shipping_external = 0;
     /** @var string Shipping external */
-    public $external_module_name = null;
+    public $external_module_name;
     /** @var bool Need Range */
     public $need_range = 0;
     /** @var int Position */
@@ -251,7 +253,7 @@ class CarrierCore extends ObjectModel implements InitializationCallback
     {
         try {
             return (bool)Configuration::get('PS_ATCP_SHIPWRAP');
-        } catch (PrestaShopException $ignored) {
+        } catch (PrestaShopException) {
             return false;
         }
     }
@@ -259,14 +261,12 @@ class CarrierCore extends ObjectModel implements InitializationCallback
     /**
      * Hydrate function for the Carrier
      *
-     * @param array $data
      * @param int|null $idLang
      *
-     * @return void
      *
      * @throws PrestaShopException
      */
-    public function hydrate(array $data, $idLang = null)
+    public function hydrate(array $data, $idLang = null): void
     {
         parent::hydrate($data, $idLang);
 
@@ -291,13 +291,11 @@ class CarrierCore extends ObjectModel implements InitializationCallback
      *   array(id_lang => 2, objProperty => value, objProperty2 => value, etc.),
      * );
      *
-     * @param array $data
      *
-     * @return void
      *
      * @throws PrestaShopException
      */
-    public function hydrateMultilang(array $data)
+    public function hydrateMultilang(array $data): void
     {
         parent::hydrateMultilang($data);
 
@@ -314,10 +312,8 @@ class CarrierCore extends ObjectModel implements InitializationCallback
     }
 
     /**
-     * @param Context|null $context
      *
      * @return int
-     *
      * @throws PrestaShopException
      */
     public function getIdTaxRulesGroup(?Context $context = null)
@@ -327,10 +323,8 @@ class CarrierCore extends ObjectModel implements InitializationCallback
 
     /**
      * @param int $idCarrier
-     * @param Context|null $context
      *
      * @return int
-     *
      * @throws PrestaShopException
      */
     public static function getIdTaxRulesGroupByIdCarrier($idCarrier, ?Context $context = null)
@@ -418,7 +412,7 @@ class CarrierCore extends ObjectModel implements InitializationCallback
 					AND d2.id_shop IS NULL) OR (d2.id_shop_group IS NULL AND d2.id_shop IS NULL))';
         }
 
-        $sql = 'AND '.$alias.'.id_delivery = (
+        return 'AND '.$alias.'.id_delivery = (
 					SELECT d2.id_delivery
 					FROM '._DB_PREFIX_.'delivery d2
 					WHERE d2.id_carrier = `'.bqSQL($alias).'`.id_carrier
@@ -428,8 +422,6 @@ class CarrierCore extends ObjectModel implements InitializationCallback
 					ORDER BY d2.id_shop DESC, d2.id_shop_group DESC
 					LIMIT 1
 				)';
-
-        return $sql;
     }
 
     /**
@@ -494,11 +486,14 @@ class CarrierCore extends ObjectModel implements InitializationCallback
             $countries[$country['id_country']] = $country;
         }
         foreach ($states as &$state) {
-            if (isset($countries[$state['id_country']])) { /* Does not keep the state if its country has been disabled and not selected */
-                if ($state['active'] == 1) {
-                    $countries[$state['id_country']]['states'][] = $state;
-                }
+            if (!isset($countries[$state['id_country']])) {
+                continue;
             }
+            /* Does not keep the state if its country has been disabled and not selected */
+            if ($state['active'] != 1) {
+                continue;
+            }
+            $countries[$state['id_country']]['states'][] = $state;
         }
 
         return $countries;
@@ -673,7 +668,7 @@ class CarrierCore extends ObjectModel implements InitializationCallback
             $carriers = static::getCarriersForOrder($idZone, $customer->getGroups(), $cart, $carrierError);
             Cache::store($cacheId, [$carriers, $carrierError]);
         } else {
-            list($carriers, $carrierError) = Cache::retrieve($cacheId);
+            [$carriers, $carrierError] = Cache::retrieve($cacheId);
         }
 
         if (! $carriers) {
@@ -714,7 +709,7 @@ class CarrierCore extends ObjectModel implements InitializationCallback
             $productSizes = [
                 (int)round($product->getWidth($combinationId)),
                 (int)round($product->getHeight($combinationId)),
-                (int)round($product->getDepth($combinationId))
+                (int)round($product->getDepth($combinationId)),
             ];
             rsort($carrierSizes, SORT_NUMERIC);
             rsort($productSizes, SORT_NUMERIC);
@@ -935,7 +930,7 @@ class CarrierCore extends ObjectModel implements InitializationCallback
         if ($idsGroup) {
             $sql->where('EXISTS (SELECT 1 FROM '._DB_PREFIX_.'carrier_group
 									WHERE '._DB_PREFIX_.'carrier_group.id_carrier = c.id_carrier
-									AND id_group IN ('.implode(',', array_map('intval', $idsGroup)).'))');
+									AND id_group IN ('.implode(',', array_map(intval(...), $idsGroup)).'))');
         }
 
         switch ($modulesFilters) {
@@ -955,7 +950,7 @@ class CarrierCore extends ObjectModel implements InitializationCallback
         $sql->groupBy('c.`id_carrier`');
         $sql->orderBy('c.`position` ASC');
 
-        $cacheId = 'Carrier::getCarriers_'.md5($sql->build());
+        $cacheId = 'Carrier::getCarriers_'.md5((string) $sql->build());
         if (!Cache::isStored($cacheId)) {
             $carriers = Db::readOnly()->getArray($sql);
             Cache::store($cacheId, $carriers);
@@ -1075,7 +1070,7 @@ class CarrierCore extends ObjectModel implements InitializationCallback
                     ->where('d.`id_zone` = '.(int) $idZone)
                     ->where((float) $totalWeight.' >= w.`delimiter1`')
                     ->where((float) $totalWeight.' < w.`delimiter2`')
-                    ->where('d.`id_carrier` = '.(int) $idCarrier.' '.static::sqlDeliveryRangeShop('range_weight'))
+                    ->where('d.`id_carrier` = '.$idCarrier.' '.static::sqlDeliveryRangeShop('range_weight'))
                     ->orderBy('w.`delimiter1` ASC')
             );
             static::$price_by_weight2[$cacheKey] = (isset($result['price']));
@@ -1121,7 +1116,7 @@ class CarrierCore extends ObjectModel implements InitializationCallback
                     ->where('d.`id_zone` = '.(int) $idZone)
                     ->where((float) $orderTotal.' >= r.`delimiter1`')
                     ->where((float) $orderTotal.' < r.`delimiter2`')
-                    ->where('d.`id_carrier` = '.(int) $idCarrier.' '.static::sqlDeliveryRangeShop('range_price'))
+                    ->where('d.`id_carrier` = '.$idCarrier.' '.static::sqlDeliveryRangeShop('range_price'))
                     ->orderBy('r.`delimiter1` ASC')
             );
             static::$price_by_price2[$cacheKey] = (isset($result['price']));
@@ -1294,7 +1289,7 @@ class CarrierCore extends ObjectModel implements InitializationCallback
             $return = Db::getInstance()->update(
                 'carrier',
                 [
-                    'position' => (int) $i++,
+                    'position' => $i++,
                 ],
                 '`id_carrier` = '.(int) $value['id_carrier']
             );
@@ -1304,7 +1299,6 @@ class CarrierCore extends ObjectModel implements InitializationCallback
     }
 
     /**
-     * @param array|null $shops
      *
      * @return bool
      *
@@ -1319,7 +1313,7 @@ class CarrierCore extends ObjectModel implements InitializationCallback
 
         $where = 'id_carrier = '.(int) $this->id;
         if ($shops) {
-            $where .= ' AND id_shop IN('.implode(', ', array_map('intval', $shops)).')';
+            $where .= ' AND id_shop IN('.implode(', ', array_map(intval(...), $shops)).')';
         }
 
         return Db::getInstance()->delete('carrier_tax_rules_group_shop', $where);
@@ -1333,7 +1327,7 @@ class CarrierCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function setConfiguration($idOld)
+    public function setConfiguration($idOld): void
     {
         Db::getInstance()->update(
             'delivery',
@@ -1368,7 +1362,7 @@ class CarrierCore extends ObjectModel implements InitializationCallback
                     ->where('d.`id_zone` = '.(int) $idZone)
                     ->where((float) $totalWeight.' >= w.`delimiter1`')
                     ->where((float) $totalWeight.' < w.`delimiter2`')
-                    ->where('d.`id_carrier` = '.(int) $idCarrier.' '.static::sqlDeliveryRangeShop('range_weight'))
+                    ->where('d.`id_carrier` = '.$idCarrier.' '.static::sqlDeliveryRangeShop('range_weight'))
                     ->orderBy('w.`delimiter1` ASC')
             );
             if (!isset($result['price'])) {
@@ -1417,7 +1411,7 @@ class CarrierCore extends ObjectModel implements InitializationCallback
                     ->where('d.`id_zone` = '.(int) $idZone)
                     ->where((float) $orderTotal.' >= r.`delimiter1`')
                     ->where((float) $orderTotal.' < r.`delimiter2`')
-                    ->where('d.`id_carrier` = '.(int) $idCarrier.' '.static::sqlDeliveryRangeShop('range_price'))
+                    ->where('d.`id_carrier` = '.$idCarrier.' '.static::sqlDeliveryRangeShop('range_price'))
                     ->orderBy('r.`delimiter1` ASC')
             );
             if (!isset($result['price'])) {
@@ -1673,10 +1667,9 @@ class CarrierCore extends ObjectModel implements InitializationCallback
      *
      * @param int $oldId Old id carrier (copy from that id)
      *
-     * @return void
      * @throws PrestaShopException
      */
-    public function copyCarrierData($oldId)
+    public function copyCarrierData($oldId): void
     {
         if (!Validate::isUnsignedId($oldId)) {
             throw new PrestaShopException('Incorrect identifier for carrier');
@@ -1814,7 +1807,8 @@ class CarrierCore extends ObjectModel implements InitializationCallback
         $shippingMethod = $this->getShippingMethod();
         if ($shippingMethod === static::SHIPPING_METHOD_WEIGHT) {
             return 'range_weight';
-        } elseif ($shippingMethod === static::SHIPPING_METHOD_PRICE) {
+        }
+        if ($shippingMethod === static::SHIPPING_METHOD_PRICE) {
             return 'range_price';
         }
 
@@ -1833,10 +1827,11 @@ class CarrierCore extends ObjectModel implements InitializationCallback
         if (!$shippingMethod) {
             $shippingMethod = $this->getShippingMethod();
         }
-
         if ((int) $shippingMethod === static::SHIPPING_METHOD_WEIGHT) {
             return new RangeWeight();
-        } elseif ((int) $shippingMethod === static::SHIPPING_METHOD_PRICE) {
+        }
+
+        if ((int) $shippingMethod === static::SHIPPING_METHOD_PRICE) {
             return new RangePrice();
         }
 
@@ -1855,12 +1850,11 @@ class CarrierCore extends ObjectModel implements InitializationCallback
         if (!$currency) {
             $currency = Context::getContext()->currency;
         }
-        $suffix = Configuration::get('PS_WEIGHT_UNIT');
         if ($this->getShippingMethod() === static::SHIPPING_METHOD_PRICE) {
-            $suffix = $currency->sign;
+            return $currency->sign;
         }
 
-        return $suffix;
+        return Configuration::get('PS_WEIGHT_UNIT');
     }
 
     /**
@@ -1875,7 +1869,7 @@ class CarrierCore extends ObjectModel implements InitializationCallback
     public function setTaxRulesGroup($idTaxRulesGroup, $allShops = false)
     {
         if (!Validate::isUnsignedId($idTaxRulesGroup)) {
-            throw new PrestaShopException("Invalid tax rules group ID");
+            throw new PrestaShopException('Invalid tax rules group ID');
         }
 
         if (!$allShops) {
@@ -1914,10 +1908,8 @@ class CarrierCore extends ObjectModel implements InitializationCallback
     /**
      * Returns the taxes rate associated to the carrier
      *
-     * @param Address $address
      *
      * @return float
-     *
      * @throws PrestaShopException
      */
     public function getTaxesRate(Address $address)
@@ -1930,7 +1922,6 @@ class CarrierCore extends ObjectModel implements InitializationCallback
     /**
      * Returns the taxes calculator associated to the carrier
      *
-     * @param Address $address
      * @param int|null $idOrder
      * @param bool $useAverageTaxOfProducts
      *
@@ -1941,11 +1932,9 @@ class CarrierCore extends ObjectModel implements InitializationCallback
     {
         if ($useAverageTaxOfProducts) {
             return Adapter_ServiceLocator::get('AverageTaxOfProductsTaxCalculator')->setIdOrder($idOrder);
-        } else {
-            $taxManager = TaxManagerFactory::getManager($address, $this->getIdTaxRulesGroup());
-
-            return $taxManager->getTaxCalculator();
         }
+        $taxManager = TaxManagerFactory::getManager($address, $this->getIdTaxRulesGroup());
+        return $taxManager->getTaxCalculator();
     }
 
     /**
@@ -2032,7 +2021,7 @@ class CarrierCore extends ObjectModel implements InitializationCallback
     /**
      * @param TableSchema $table
      */
-    public static function processTableSchema($table)
+    public static function processTableSchema($table): void
     {
         if ($table->getNameWithoutPrefix() === 'carrier_lang') {
             $table->reorderColumns(['id_carrier', 'id_shop', 'id_lang']);
@@ -2091,7 +2080,7 @@ class CarrierCore extends ObjectModel implements InitializationCallback
             foreach ($languages as $lang) {
                 if (array_key_exists($lang, $this->display_name)) {
                     $name = $this->display_name[$lang];
-                    if (is_string($name) && strlen($name) > 0) {
+                    if (strlen($name) > 0) {
                         return static::expandName($name);
                     }
                 }
@@ -2115,17 +2104,16 @@ class CarrierCore extends ObjectModel implements InitializationCallback
         }
 
         $carrierName = static::getCarrierNameFromShopName();
-        return $carrierName ? $carrierName : '0';
+        return $carrierName ?: '0';
     }
 
     /**
-     * @param Db $conn
-     * @return void
      * @throws PrestaShopException
      */
-    public static function initializationCallback(Db $conn)
+    public static function initializationCallback(Db $conn): void
     {
-        $conn->execute('UPDATE '._DB_PREFIX_.'carrier_lang l '.
+        $conn->execute(
+            'UPDATE '._DB_PREFIX_.'carrier_lang l '.
             'INNER JOIN '._DB_PREFIX_.'carrier c ON (c.id_carrier = l.id_carrier) '.
             'SET l.display_name = c.name '.
             'WHERE l.display_name = "" AND c.name != ""'

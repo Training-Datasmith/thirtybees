@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -539,7 +541,8 @@ class AdminTaxRulesGroupControllerCore extends AdminController
                                 if (!$country->checkZipCode($zipCode)) {
                                     $this->errors[] = sprintf(
                                         Tools::displayError('The Zip/postal code is invalid. It must be typed as follows: %s for %s.'),
-                                        str_replace('C', $country->iso_code, str_replace('N', '0', str_replace('L', 'A', $country->zip_code_format))), $country->name
+                                        str_replace('C', $country->iso_code, str_replace('N', '0', str_replace('L', 'A', $country->zip_code_format))),
+                                        $country->name
                                     );
                                 }
                             }

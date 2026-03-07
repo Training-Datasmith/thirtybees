@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -81,7 +83,7 @@ class AdminFeaturesControllerCore extends AdminController
                 'search'  => false,
                 'align'   => 'center',
                 'class'   => 'fixed-width-xs',
-                'callback'=> 'getProductsLink',
+                'callback' => 'getProductsLink',
             ],
             'allows_multiple_values' => [
                 'title' => $this->l('Allows multiple values'),
@@ -460,7 +462,7 @@ class AdminFeaturesControllerCore extends AdminController
                 'search'  => false,
                 'align'   => 'center',
                 'class'   => 'fixed-width-xs',
-                'callback'=> 'getProductsLink',
+                'callback' => 'getProductsLink',
             ],
 
         ];
@@ -574,7 +576,8 @@ class AdminFeaturesControllerCore extends AdminController
         $fieldsValue = $this->getFieldsValue($feature_value);
 
         Hook::triggerEvent(
-            'action'.$this->controller_name.'FormModifier', [
+            'action'.$this->controller_name.'FormModifier',
+            [
                 'fields'       => &$this->fields_form,
                 'fields_value' => &$fieldsValue,
                 'form_vars'    => &$this->tpl_form_vars,
@@ -897,12 +900,12 @@ class AdminFeaturesControllerCore extends AdminController
             $feature->update();
             $this->ajaxDie(json_encode([
                 'success' => true,
-                'text' => $text
+                'text' => $text,
             ]));
         } catch (Exception $e) {
             $this->ajaxDie(json_encode([
                 'success' => false,
-                'text' => $e->getMessage()
+                'text' => $e->getMessage(),
             ]));
         }
     }

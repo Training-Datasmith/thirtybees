@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -52,25 +54,14 @@ class WebserviceSpecificManagementSearchCore implements WebserviceSpecificManage
     /* ------------------------------------------------
      * GETTERS & SETTERS
      * ------------------------------------------------ */
-
-    /**
-     * @param WebserviceOutputBuilderCore $obj
-     *
-     * @return static
-     */
-    public function setObjectOutput(WebserviceOutputBuilderCore $obj)
+    public function setObjectOutput(WebserviceOutputBuilderCore $obj): static
     {
         $this->objOutput = $obj;
 
         return $this;
     }
 
-    /**
-     * @param WebserviceRequestCore $obj
-     *
-     * @return static
-     */
-    public function setWsObject(WebserviceRequestCore $obj)
+    public function setWsObject(WebserviceRequestCore $obj): static
     {
         $this->wsObject = $obj;
 

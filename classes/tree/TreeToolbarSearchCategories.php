@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -53,12 +55,11 @@ class TreeToolbarSearchCategoriesCore extends TreeToolbarButtonCore implements I
     }
 
     /**
-     * @return string
      *
      * @throws PrestaShopException
      * @throws SmartyException
      */
-    public function render()
+    public function render(): string
     {
         if ($this->hasAttribute('data')) {
             $this->setAttribute('typeahead_source', $this->_renderData($this->getAttribute('data')));
@@ -86,12 +87,10 @@ class TreeToolbarSearchCategoriesCore extends TreeToolbarButtonCore implements I
     /**
      * @param array $data
      *
-     * @return string
      * @throws PrestaShopException
-     *
      * @deprecated 2.0.0
      */
-    protected function _renderData($data)
+    protected function _renderData($data): string
     {
         if (!is_array($data) && !$data instanceof Traversable) {
             throw new PrestaShopException('Data value must be a traversable array');

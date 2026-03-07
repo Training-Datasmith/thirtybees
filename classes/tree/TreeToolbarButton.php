@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -32,9 +34,9 @@
 /**
  * Class TreeToolbarButtonCore
  */
-abstract class TreeToolbarButtonCore
+abstract class TreeToolbarButtonCore implements \Stringable
 {
-    const DEFAULT_TEMPLATE_DIRECTORY = 'helpers/tree';
+    public const DEFAULT_TEMPLATE_DIRECTORY = 'helpers/tree';
 
     /**
      * @var array
@@ -73,12 +75,11 @@ abstract class TreeToolbarButtonCore
     }
 
     /**
-     * @return string
      *
      * @throws PrestaShopException
      * @throws SmartyException
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->render();
     }
@@ -280,49 +281,47 @@ abstract class TreeToolbarButtonCore
     }
 
     /**
-     * @param string $template
      *
      * @return string
-     *
      * @throws PrestaShopException
      */
-    public function getTemplateFile($template)
+    public function getTemplateFile(string $template)
     {
-        if (preg_match_all('/((?:^|[A-Z])[a-z]+)/', get_class($this->getContext()->controller), $matches) !== false) {
+        if (preg_match_all('/((?:^|[A-Z])[a-z]+)/', $this->getContext()->controller::class, $matches) !== false) {
             $controllerName = strtolower($matches[0][1]);
         }
-
         if ($this->getContext()->controller instanceof ModuleAdminController && file_exists(
-                $this->_normalizeDirectory(
-                    $this->getContext()->controller->getTemplatePath()
-                ).$this->getTemplateDirectory().$template
-            )
-        ) {
+            $this->_normalizeDirectory(
+                $this->getContext()->controller->getTemplatePath()
+            ).$this->getTemplateDirectory().$template
+        )) {
             return $this->_normalizeDirectory($this->getContext()->controller->getTemplatePath())
                 .$this->getTemplateDirectory().$template;
-        } elseif ($this->getContext()->controller instanceof AdminController && isset($controllerName)
+        }
+        if ($this->getContext()->controller instanceof AdminController && isset($controllerName)
             && file_exists(
                 $this->_normalizeDirectory($this->getContext()->smarty->getTemplateDir(0)).'controllers'
                 .DIRECTORY_SEPARATOR.$controllerName.DIRECTORY_SEPARATOR.$this->getTemplateDirectory().$template
-            )
-        ) {
+            )) {
             return $this->_normalizeDirectory($this->getContext()->smarty->getTemplateDir(0)).'controllers'
                 .DIRECTORY_SEPARATOR.$controllerName.DIRECTORY_SEPARATOR.$this->getTemplateDirectory().$template;
-        } elseif (file_exists(
+        }
+        if (file_exists(
             $this->_normalizeDirectory($this->getContext()->smarty->getTemplateDir(1))
             .$this->getTemplateDirectory().$template
         )) {
             return $this->_normalizeDirectory($this->getContext()->smarty->getTemplateDir(1))
                 .$this->getTemplateDirectory().$template;
-        } elseif (file_exists(
+        }
+
+        if (file_exists(
             $this->_normalizeDirectory($this->getContext()->smarty->getTemplateDir(0))
             .$this->getTemplateDirectory().$template
         )) {
             return $this->_normalizeDirectory($this->getContext()->smarty->getTemplateDir(0))
                 .$this->getTemplateDirectory().$template;
-        } else {
-            return $this->getTemplateDirectory().$template;
         }
+        return $this->getTemplateDirectory().$template;
     }
 
     /**
@@ -351,13 +350,11 @@ abstract class TreeToolbarButtonCore
     }
 
     /**
-     * @param string $directory
      *
      * @return string
-     *
      * @deprecated 2.0.0
      */
-    protected function _normalizeDirectory($directory)
+    protected function _normalizeDirectory(string $directory)
     {
         $last = $directory[strlen($directory) - 1];
 
@@ -367,8 +364,6 @@ abstract class TreeToolbarButtonCore
             return $directory;
         }
 
-        $directory .= DIRECTORY_SEPARATOR;
-
-        return $directory;
+        return $directory . DIRECTORY_SEPARATOR;
     }
 }

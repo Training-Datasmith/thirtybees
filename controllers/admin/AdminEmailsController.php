@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -100,14 +102,13 @@ class AdminEmailsControllerCore extends AdminController
 
         parent::__construct();
 
-
         $transports = [];
         foreach (Mail::getAvailableTransports() as $key => $transport) {
             $transports[] = [
                 'id' => $key,
                 'name' => $transport->getName(),
                 'hint' => $transport->getDescription(),
-                'config' => $transport->getConfigUrl()
+                'config' => $transport->getConfigUrl(),
             ];
         }
 
@@ -145,7 +146,7 @@ class AdminEmailsControllerCore extends AdminController
                             [
                                 'format' => Mail::TYPE_BOTH,
                                 'name' => $this->l('Send email as HTML and text'),
-                            ]
+                            ],
                         ],
                     ],
                     'PS_LOG_EMAILS'         => [
@@ -221,7 +222,6 @@ class AdminEmailsControllerCore extends AdminController
         $this->addJS(_PS_JS_DIR_.'validate.js');
     }
 
-
     /**
      * Process delete
      *
@@ -277,7 +277,7 @@ class AdminEmailsControllerCore extends AdminController
             foreach ($bccMails as $index => $bccMail) {
                 // Make a cleanup for spaces and tabs
                 $bccMail = trim($bccMail);
-                if ( ! $bccMail) {
+                if (! $bccMail) {
                     // Empty string, double semicolons, whatever.
                     unset($bccMails[$index]);
                 } elseif (Validate::isEmail($bccMail)) {
@@ -356,7 +356,7 @@ class AdminEmailsControllerCore extends AdminController
         try {
             $email = Tools::getValue('email');
             if (! Validate::isEmail($email)) {
-                throw new PrestaShopException("Invalid email address");
+                throw new PrestaShopException('Invalid email address');
             }
             Configuration::updateValue('TB_SEND_TEST_EMAIL', $email);
             $languageId = (int)Context::getContext()->language->id;
@@ -376,17 +376,17 @@ class AdminEmailsControllerCore extends AdminController
             )) {
                 $this->ajaxDie(json_encode(['status' => 'success']));
             } else {
-                throw new PrestaShopException("Failed to send email");
+                throw new PrestaShopException('Failed to send email');
             }
         } catch (Throwable $throwable) {
             $message = $throwable->getMessage();
             $previous = $throwable->getPrevious();
             if ($previous) {
-                $message .= ": " . $previous->getMessage();
+                $message .= ': ' . $previous->getMessage();
             }
             $this->ajaxDie(json_encode([
                 'status' => 'error',
-                'message' => $message
+                'message' => $message,
             ]));
         }
     }

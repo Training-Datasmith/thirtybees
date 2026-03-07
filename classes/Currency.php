@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -45,7 +47,7 @@ class CurrencyCore extends ObjectModel
     /**
      * @var array Currency formatters
      */
-    protected static $currencyFormatters = null;
+    protected static $currencyFormatters;
 
     /**
      * @var int|null Object ID
@@ -113,14 +115,14 @@ class CurrencyCore extends ObjectModel
      *
      * @var string
      */
-    public $prefix = null;
+    public $prefix;
 
     /**
      * contains the sign to display after price, according to its format
      *
      * @var string
      */
-    public $suffix = null;
+    public $suffix;
 
     /**
      * @var array Object model definition
@@ -269,15 +271,13 @@ class CurrencyCore extends ObjectModel
             $idShop = Context::getContext()->shop->id;
         }
 
-        $ret = Db::readOnly()->getArray(
+        return Db::readOnly()->getArray(
             (new DbQuery())
                 ->select('*')
                 ->from('module_currency')
                 ->where('`id_module` = '.(int) $idModule)
                 ->where('`id_shop` = '.(int) $idShop)
         );
-
-        return $ret;
     }
 
     /**
@@ -318,13 +318,13 @@ class CurrencyCore extends ObjectModel
         $currencyRates = array_filter($currencyRates);
         $moduleRates = [];
         foreach ($currencyRates as $currency => $module) {
-            if (mb_strtoupper($currency) === mb_strtoupper($defaultCurrency->iso_code)) {
+            if (mb_strtoupper((string) $currency) === mb_strtoupper((string) $defaultCurrency->iso_code)) {
                 continue;
             }
             if (!isset($moduleRates[$module->id])) {
-                $moduleRates[$module->id] = [mb_strtoupper($currency)];
+                $moduleRates[$module->id] = [mb_strtoupper((string) $currency)];
             } else {
-                $moduleRates[$module->id][] = mb_strtoupper($currency);
+                $moduleRates[$module->id][] = mb_strtoupper((string) $currency);
             }
         }
 
@@ -334,7 +334,7 @@ class CurrencyCore extends ObjectModel
                 $idModule,
                 [
                     'currencies' => $currencies,
-                    'baseCurrency' => mb_strtoupper($defaultCurrency->iso_code)
+                    'baseCurrency' => mb_strtoupper((string) $defaultCurrency->iso_code),
                 ]
             );
             if (is_array($rates)) {
@@ -429,7 +429,7 @@ class CurrencyCore extends ObjectModel
      *
      * @deprecated 1.0.0
      */
-    public function refreshCurrency($data, $isoCodeSource, $defaultCurrency)
+    public function refreshCurrency($data, $isoCodeSource, $defaultCurrency): void
     {
         // fetch the exchange rate of the default currency
         $exchangeRate = 1;
@@ -562,9 +562,8 @@ class CurrencyCore extends ObjectModel
 
         if ($idCurrencyExists) {
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 
     /**
@@ -731,11 +730,8 @@ class CurrencyCore extends ObjectModel
             4 => ['left' => '', 'right' => &$formattedStrings['right']],
             5 => ['left' => '', 'right' => &$formattedStrings['right']],
         ];
-        if (isset($formats[$this->format][$side])) {
-            return ($formats[$this->format][$side]);
-        }
 
-        return $this->sign;
+        return $formats[$this->format][$side] ?? $this->sign;
     }
 
     /**
@@ -787,7 +783,7 @@ class CurrencyCore extends ObjectModel
         foreach (static::getFormatters() as $id => $formatter) {
             $currency = Currency::getCurrencyInstance((int) $id);
             if (isset($formatter['js']) && $formatter['js']) {
-                $formatters[strtoupper($currency->iso_code)] = $formatter['js'];
+                $formatters[strtoupper((string) $currency->iso_code)] = $formatter['js'];
             }
         }
         return $formatters;
@@ -843,7 +839,7 @@ class CurrencyCore extends ObjectModel
             foreach ($moduleFormatters as $currencyId => $definition) {
                 $currencyId = (int)$currencyId;
                 if (isset($formatters[$currencyId])) {
-                    trigger_error("Multiple modules provided formatter for currency ".$currencyId, E_USER_WARNING);
+                    trigger_error('Multiple modules provided formatter for currency '.$currencyId, E_USER_WARNING);
                 }
                 $formatters[$currencyId] = $definition;
             }

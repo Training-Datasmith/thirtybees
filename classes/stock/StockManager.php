@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -34,10 +36,7 @@
  */
 class StockManagerCore implements StockManagerInterface
 {
-    /**
-     * @return bool
-     */
-    public static function isAvailable()
+    public static function isAvailable(): bool
     {
         // Default Manager : always available
         return true;
@@ -45,7 +44,6 @@ class StockManagerCore implements StockManagerInterface
 
     /**
      * @param string|null $date
-     * @return int
      */
     protected static function convertsDateToTimestamp($date): int
     {
@@ -53,7 +51,7 @@ class StockManagerCore implements StockManagerInterface
             try {
                 $date = new DateTime($date);
                 return $date->getTimestamp();
-            } catch (Exception $ignored) {
+            } catch (Exception) {
             }
         }
         return 0;
@@ -62,15 +60,12 @@ class StockManagerCore implements StockManagerInterface
     /**
      * @param int $idProduct
      * @param int $idProductAttribute
-     * @param Warehouse $warehouse
      * @param int $quantity
      * @param int|null $idStockMvtReason
      * @param float $priceTe
      * @param bool $isUsable
      * @param int|null $idSupplyOrder
      * @param Employee|null $employee
-     *
-     * @return bool
      * @throws PrestaShopException
      */
     public function addProduct(
@@ -83,7 +78,7 @@ class StockManagerCore implements StockManagerInterface
         $isUsable = true,
         $idSupplyOrder = null,
         $employee = null
-    ) {
+    ): bool {
         if ($this->shouldPreventStockOperation($warehouse, $idProduct, $quantity)) {
             return false;
         }
@@ -107,9 +102,9 @@ class StockManagerCore implements StockManagerInterface
             'price_te'            => $priceTe,
             'last_wa'             => null,
             'current_wa'          => null,
-            'id_employee'         => (int) $context->employee->id ? (int) $context->employee->id : $employee->id,
-            'employee_firstname'  => $context->employee->firstname ? $context->employee->firstname : $employee->firstname,
-            'employee_lastname'   => $context->employee->lastname ? $context->employee->lastname : $employee->lastname,
+            'id_employee'         => (int) $context->employee->id ?: $employee->id,
+            'employee_firstname'  => $context->employee->firstname ?: $employee->firstname,
+            'employee_lastname'   => $context->employee->lastname ?: $employee->lastname,
             'sign'                => 1,
         ];
 
@@ -155,7 +150,7 @@ class StockManagerCore implements StockManagerInterface
                 }
                 break;
 
-            // case FIFO / LIFO mode
+                // case FIFO / LIFO mode
             case 'FIFO':
             case 'LIFO':
                 $stockCollection = $this->getStockCollection($idProduct, $idProductAttribute, $warehouse->id, $priceTe);
@@ -216,14 +211,12 @@ class StockManagerCore implements StockManagerInterface
     /**
      * @param int $idProduct
      * @param int|null $idProductAttribute
-     * @param Warehouse $warehouse
      * @param int $quantity
      * @param int $idStockMvtReason
      * @param bool $isUsable
      * @param int|null $idOrder
      * @param int $ignorePack
      * @param Employee|null $employee
-     * @param Stock|null $stock
      *
      * @return array|false
      * @throws PrestaShopException
@@ -239,7 +232,7 @@ class StockManagerCore implements StockManagerInterface
         $ignorePack = 0,
         $employee = null,
         ?Stock $stock = null
-    ) {
+    ): array|false {
         $removedProducts = [];
 
         if ($this->shouldPreventStockOperation($warehouse, $idProduct, $quantity)) {
@@ -259,23 +252,24 @@ class StockManagerCore implements StockManagerInterface
                             $productWarehouses = Warehouse::getProductWarehouseList($productPack->id, $productPack->id_pack_product_attribute);
                             $warehouseStockFound = false;
                             foreach ($productWarehouses as $productWarehouse) {
-                                if (!$warehouseStockFound) {
-                                    if (Warehouse::exists($productWarehouse['id_warehouse'])) {
-                                        $currentWarehouse = new Warehouse($productWarehouse['id_warehouse']);
-                                        $removedProducts[] = $this->removeProduct(
-                                            $productPack->id,
-                                            $productPack->id_pack_product_attribute,
-                                            $currentWarehouse,
-                                            $productPack->pack_quantity * $quantity,
-                                            $idStockMvtReason,
-                                            $isUsable,
-                                            $idOrder
-                                        );
-
-                                        // The product was found on this warehouse. Stop the stock searching.
-                                        $warehouseStockFound = !empty($removedProducts[count($removedProducts) - 1]);
-                                    }
+                                if ($warehouseStockFound) {
+                                    continue;
                                 }
+                                if (!Warehouse::exists($productWarehouse['id_warehouse'])) {
+                                    continue;
+                                }
+                                $currentWarehouse = new Warehouse($productWarehouse['id_warehouse']);
+                                $removedProducts[] = $this->removeProduct(
+                                    $productPack->id,
+                                    $productPack->id_pack_product_attribute,
+                                    $currentWarehouse,
+                                    $productPack->pack_quantity * $quantity,
+                                    $idStockMvtReason,
+                                    $isUsable,
+                                    $idOrder
+                                );
+                                // The product was found on this warehouse. Stop the stock searching.
+                                $warehouseStockFound = !empty($removedProducts[count($removedProducts) - 1]);
                             }
                         }
                     }
@@ -499,24 +493,25 @@ class StockManagerCore implements StockManagerInterface
                         $productWarehouses = Warehouse::getPackWarehouses($pack->id);
                         $warehouseStockFound = false;
                         foreach ($productWarehouses as $productWarehouse) {
-                            if (!$warehouseStockFound) {
-                                if (Warehouse::exists($productWarehouse)) {
-                                    $currentWarehouse = new Warehouse($productWarehouse);
-                                    $removedProducts[] = $this->removeProduct(
-                                        $pack->id,
-                                        null,
-                                        $currentWarehouse,
-                                        $quantityDelta,
-                                        $idStockMvtReason,
-                                        $isUsable,
-                                        $idOrder,
-                                        1
-                                    );
-
-                                    // The product was found on this warehouse. Stop the stock searching.
-                                    $warehouseStockFound = !empty($removedProducts[count($removedProducts) - 1]);
-                                }
+                            if ($warehouseStockFound) {
+                                continue;
                             }
+                            if (!Warehouse::exists($productWarehouse)) {
+                                continue;
+                            }
+                            $currentWarehouse = new Warehouse($productWarehouse);
+                            $removedProducts[] = $this->removeProduct(
+                                $pack->id,
+                                null,
+                                $currentWarehouse,
+                                $quantityDelta,
+                                $idStockMvtReason,
+                                $isUsable,
+                                $idOrder,
+                                1
+                            );
+                            // The product was found on this warehouse. Stop the stock searching.
+                            $warehouseStockFound = !empty($removedProducts[count($removedProducts) - 1]);
                         }
                     }
                 }
@@ -539,9 +534,7 @@ class StockManagerCore implements StockManagerInterface
      * @param int|null $idsWarehouse
      * @param bool $usable
      *
-     * @return int
      * @throws PrestaShopException
-     *
      * @deprecated
      */
     public function getProductPhysicalQuantities(
@@ -549,7 +542,7 @@ class StockManagerCore implements StockManagerInterface
         $idProductAttribute,
         $idsWarehouse = null,
         $usable = false
-    ) {
+    ): int {
         $idsWarehouse = $this->normalizeWarehouseIds($idsWarehouse);
 
         $query = new DbQuery();
@@ -571,11 +564,10 @@ class StockManagerCore implements StockManagerInterface
     /**
      * @param array $productStockCriteria
      *
-     * @return int
      *
      * @throws PrestaShopException
      */
-    public function getPhysicalProductQuantities($productStockCriteria)
+    public function getPhysicalProductQuantities($productStockCriteria): int
     {
         $productStockCriteria = $this->validateProductStockCriteria($productStockCriteria);
 
@@ -590,11 +582,10 @@ class StockManagerCore implements StockManagerInterface
     /**
      * @param array $productStockCriteria
      *
-     * @return int
      *
      * @throws PrestaShopException
      */
-    public function getUsableProductQuantities($productStockCriteria)
+    public function getUsableProductQuantities($productStockCriteria): int
     {
         $productStockCriteria = $this->validateProductStockCriteria($productStockCriteria);
 
@@ -606,12 +597,7 @@ class StockManagerCore implements StockManagerInterface
         );
     }
 
-    /**
-     * @param array $criteria
-     *
-     * @return array
-     */
-    protected function validateProductStockCriteria(array $criteria)
+    protected function validateProductStockCriteria(array $criteria): array
     {
         if (!array_key_exists('product_id', $criteria)) {
             throw new InvalidArgumentException('Missing product id');
@@ -633,7 +619,7 @@ class StockManagerCore implements StockManagerInterface
      *
      * @return int[]
      */
-    public function normalizeWarehouseIds($idsWarehouse)
+    public function normalizeWarehouseIds($idsWarehouse): array
     {
         $normalizedWarehouseIds = [];
 
@@ -642,12 +628,11 @@ class StockManagerCore implements StockManagerInterface
                 $idsWarehouse = [$idsWarehouse];
             }
 
-            $normalizedWarehouseIds = array_map('intval', $idsWarehouse);
+            $normalizedWarehouseIds = array_map(intval(...), $idsWarehouse);
         }
 
         return $normalizedWarehouseIds;
     }
-
 
     /**
      * @param int $idProduct
@@ -659,7 +644,7 @@ class StockManagerCore implements StockManagerInterface
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function getProductRealQuantities($idProduct, $idProductAttribute, $idsWarehouse = null, $usable = false)
+    public function getProductRealQuantities($idProduct, $idProductAttribute, $idsWarehouse = null, $usable = false): int|float
     {
         $idsWarehouse = $this->normalizeWarehouseIds($idsWarehouse);
 
@@ -668,10 +653,10 @@ class StockManagerCore implements StockManagerInterface
         // check if product is present in a pack
         $conn = Db::readOnly();
         if (!Pack::isPack($idProduct) && $inPack = $conn->getArray(
-                'SELECT id_product_pack, quantity FROM '._DB_PREFIX_.'pack
+            'SELECT id_product_pack, quantity FROM '._DB_PREFIX_.'pack
 			WHERE id_product_item = '.(int) $idProduct.'
 			AND id_product_attribute_item = '.($idProductAttribute ? (int) $idProductAttribute : '0')
-            )
+        )
         ) {
             foreach ($inPack as $value) {
                 $product = new Product((int) $value['id_product_pack']);
@@ -778,7 +763,7 @@ class StockManagerCore implements StockManagerInterface
         $idWarehouseTo,
         $usableFrom = true,
         $usableTo = true
-    ) {
+    ): bool {
         // Checks if this transfer is possible
         if ($this->getPhysicalProductQuantities(['product_id' => $idProduct, 'product_attribute_id' => $idProductAttribute, 'warehouse_id' => [$idWarehouseFrom], 'usable' => $usableFrom]) < $quantity) {
             return false;
@@ -887,22 +872,18 @@ class StockManagerCore implements StockManagerInterface
             true
         );
 
-        $timeLeft = Tools::ps_round($physicalQuantity / $quantityPerDay);
-
-        return $timeLeft;
+        return Tools::ps_round($physicalQuantity / $quantityPerDay);
     }
 
     /**
      * For a given stock, calculates its new WA(Weighted Average) price based on the new quantities and price
      * Formula : (physicalStock * lastCump + quantityToAdd * unitPrice) / (physicalStock + quantityToAdd)
      *
-     * @param Stock $stock
      * @param int $quantity
      * @param float $priceTe
-     *
      * @return float Weight Average, rounded to _TB_PRICE_DATABASE_PRECISION_.
      */
-    protected function calculateWA(Stock $stock, $quantity, $priceTe)
+    protected function calculateWA(Stock $stock, $quantity, $priceTe): float
     {
         return round(
             ($stock->physical_quantity * $stock->price_te + $quantity * $priceTe)
@@ -930,7 +911,7 @@ class StockManagerCore implements StockManagerInterface
         $idWarehouse = null,
         $priceTaxExcluded = null,
         ?Stock $stock = null
-    ) {
+    ): \PrestaShopCollection {
         $stocks = new PrestaShopCollection('Stock');
         $stocks->where('id_product', '=', $idProduct);
         $stocks->where('id_product_attribute', '=', $idProductAttribute);
@@ -959,14 +940,14 @@ class StockManagerCore implements StockManagerInterface
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getStockByCarrier($idProduct = 0, $idProductAttribute = 0, $deliveryOption = null)
+    public static function getStockByCarrier($idProduct = 0, $idProductAttribute = 0, $deliveryOption = null): false|float|int
     {
         if (!(int) $idProduct || !is_array($deliveryOption) || !is_int($idProductAttribute)) {
             return false;
         }
 
         $deliveryAddressId = (int)Context::getContext()->cart->id_address_delivery;
-        $carrierList = array_filter(array_map('intval', explode(',', $deliveryOption[$deliveryAddressId])));
+        $carrierList = array_filter(array_map(intval(...), explode(',', (string) $deliveryOption[$deliveryAddressId])));
         $results = Warehouse::getWarehousesByProductId($idProduct, $idProductAttribute);
         $stockQuantity = 0;
 
@@ -979,24 +960,26 @@ class StockManagerCore implements StockManagerInterface
 
                 if (is_array($carriers) && !empty($carriers)) {
                     if ($carrierList) {
-                        $stockQuantity += $connection->getValue((new DbQuery())
+                        $stockQuantity += $connection->getValue(
+                            (new DbQuery())
                             ->select('SUM(s.`usable_quantity`) as quantity')
                             ->from('stock', 's')
                             ->leftJoin('warehouse_carrier', 'wc', '(wc.`id_warehouse` = s.`id_warehouse`)')
                             ->leftJoin('carrier', 'c', '(wc.`id_carrier` = c.`id_reference`)')
                             ->where('s.`id_product` = ' . (int)$idProduct)
-                            ->where('s.`id_product_attribute` = ' . (int)$idProductAttribute)
+                            ->where('s.`id_product_attribute` = ' . $idProductAttribute)
                             ->where('s.`id_warehouse` = ' . $warehouseId)
                             ->where('c.`id_carrier` IN (' . implode(',', $carrierList) . ')')
                             ->groupBy('s.`id_product`')
                         );
                     }
                 } else {
-                    $stockQuantity += $connection->getValue((new DbQuery())
+                    $stockQuantity += $connection->getValue(
+                        (new DbQuery())
                         ->select('SUM(s.`usable_quantity`) as quantity')
                         ->from('stock', 's')
                         ->where('s.`id_product` = '.(int) $idProduct)
-                        ->where('s.`id_product_attribute` = '.(int) $idProductAttribute)
+                        ->where('s.`id_product_attribute` = '.$idProductAttribute)
                         ->where('s.`id_warehouse` = ' . $warehouseId)
                         ->groupBy('s.`id_product`')
                     );
@@ -1010,15 +993,19 @@ class StockManagerCore implements StockManagerInterface
     /**
      * Prevent stock operation whenever product, quantity or warehouse are invalid
      *
-     * @param Warehouse $warehouse
      * @param int $productId
      * @param int $quantity
      *
-     * @return bool
      */
-    protected function shouldPreventStockOperation(Warehouse $warehouse, $productId, $quantity)
+    protected function shouldPreventStockOperation(Warehouse $warehouse, $productId, $quantity): bool
     {
-        return !Validate::isLoadedObject($warehouse) || !$quantity || !$productId;
+        if (!Validate::isLoadedObject($warehouse)) {
+            return true;
+        }
+        if (!$quantity) {
+            return true;
+        }
+        return !$productId;
     }
 
     /**
@@ -1031,7 +1018,7 @@ class StockManagerCore implements StockManagerInterface
     protected function ensureStockMovementReasonIsValid($stockMovementReasonId)
     {
         if (!StockMvtReason::exists($stockMovementReasonId)) {
-            $stockMovementReasonId = Configuration::get('PS_STOCK_MVT_DEC_REASON_DEFAULT');
+            return Configuration::get('PS_STOCK_MVT_DEC_REASON_DEFAULT');
         }
 
         return $stockMovementReasonId;
@@ -1041,21 +1028,18 @@ class StockManagerCore implements StockManagerInterface
      * @param int $productId
      * @param bool $shouldIgnorePack
      *
-     * @return bool
      *
      * @throws PrestaShopException
      */
-    protected function shouldHandleStockOperationForProductsPack($productId, $shouldIgnorePack)
+    protected function shouldHandleStockOperationForProductsPack($productId, $shouldIgnorePack): bool
     {
         return Pack::isPack((int) $productId) && !$shouldIgnorePack;
     }
 
     /**
-     * @param Warehouse $warehouse
      * @param int $productId
      * @param int $productAttributeId
      * @param bool $isUsable
-     *
      * @throws PrestaShopException
      */
     protected function hookCoverageOnProductRemoval(
@@ -1077,13 +1061,10 @@ class StockManagerCore implements StockManagerInterface
     }
 
     /**
-     * @param Warehouse $warehouse
      * @param int $productId
      * @param int $productAttributeId
      * @param bool $shouldHandleUsableQuantity
-     * @param Stock|null $stock
      *
-     * @return int
      *
      * @throws PrestaShopException
      */
@@ -1093,7 +1074,7 @@ class StockManagerCore implements StockManagerInterface
         $productAttributeId,
         $shouldHandleUsableQuantity,
         ?Stock $stock = null
-    ) {
+    ): int {
         $productStockCriteria = [
             'product_id'           => $productId,
             'product_attribute_id' => $productAttributeId,
@@ -1119,10 +1100,8 @@ class StockManagerCore implements StockManagerInterface
     /**
      * @param int $quantity
      * @param int $quantityInStock
-     *
-     * @return bool
      */
-    protected function ensureProductQuantityRequestedForRemovalIsValid($quantity, $quantityInStock)
+    protected function ensureProductQuantityRequestedForRemovalIsValid($quantity, $quantityInStock): bool
     {
         return $quantityInStock < $quantity;
     }
@@ -1130,8 +1109,6 @@ class StockManagerCore implements StockManagerInterface
     /**
      * @param int $idProduct
      * @param int $idProductAttribute
-     * @param Warehouse $warehouse
-     * @param Stock|null $stock
      *
      * @return PrestaShopCollection
      *
@@ -1151,10 +1128,8 @@ class StockManagerCore implements StockManagerInterface
 
     /**
      * @param Employee|null $employee
-     *
-     * @return array
      */
-    protected function getAttributesOfEmployeeRequestingStockMovement($employee)
+    protected function getAttributesOfEmployeeRequestingStockMovement($employee): array
     {
         $context = Context::getContext();
         if (Validate::isLoadedObject($context->employee)) {
@@ -1177,7 +1152,7 @@ class StockManagerCore implements StockManagerInterface
         return [
             'employee_id' => 0,
             'first_name'  => '',
-            'last_name'   => ''
+            'last_name'   => '',
         ];
     }
 
@@ -1199,7 +1174,7 @@ class StockManagerCore implements StockManagerInterface
         $idOrder,
         $employee,
         $stock
-    ) {
+    ): void {
         $employeeAttributes = $this->getAttributesOfEmployeeRequestingStockMovement($employee);
 
         $movementParams = [

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -200,7 +202,7 @@ class FeatureValueCore extends ObjectModel
     public function add($autoDate = true, $nullValues = false)
     {
         if (!$this->position) {
-            $this->position = static::getHighestPosition($this->id_feature)+1;
+            $this->position = static::getHighestPosition($this->id_feature) + 1;
         }
 
         $return = parent::add($autoDate, $nullValues);
@@ -308,12 +310,12 @@ class FeatureValueCore extends ObjectModel
         // since BETWEEN is treated differently according to databases
         $conn = Db::getInstance();
         return ($conn->update(
-                'feature_value',
-                [
+            'feature_value',
+            [
                     'position' => ['type' => 'sql', 'value' => '`position` '.($way ? '- 1' : '+ 1')],
                 ],
-                '`position`'.($way ? '> '.(int) $movedFeatureValue['position'].' AND `position` <= '.(int) $position : '< '.(int) $movedFeatureValue['position'].' AND `position` >= '.(int) $position)
-            )
+            '`position`'.($way ? '> '.(int) $movedFeatureValue['position'].' AND `position` <= '.(int) $position : '< '.(int) $movedFeatureValue['position'].' AND `position` >= '.(int) $position)
+        )
             && $conn->update(
                 'feature_value',
                 [

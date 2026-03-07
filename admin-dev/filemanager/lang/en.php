@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 define('lang_Select', 'Select');
 define('lang_Erase', 'Erase');
 define('lang_Open', 'Open');

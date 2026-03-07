@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -38,13 +40,11 @@ class TranslateCore
      * Get a translation for an admin controller
      *
      * @param string $string
-     * @param string $class
      * @param bool $addslashes
      * @param bool $htmlentities
-     *
      * @return string
      */
-    public static function getAdminTranslation($string, $class = 'AdminTab', $addslashes = false, $htmlentities = true, $sprintf = null)
+    public static function getAdminTranslation($string, string $class = 'AdminTab', $addslashes = false, $htmlentities = true, $sprintf = null)
     {
         static $modulesTabs = null;
 
@@ -53,7 +53,7 @@ class TranslateCore
         if ($modulesTabs === null) {
             try {
                 $modulesTabs = Tab::getModuleTabList();
-            } catch (PrestaShopException $e) {
+            } catch (PrestaShopException) {
                 $modulesTabs = [];
             }
         }
@@ -63,7 +63,7 @@ class TranslateCore
             if (empty($iso)) {
                 try {
                     $iso = Language::getIsoById((int) Configuration::get('PS_LANG_DEFAULT'));
-                } catch (PrestaShopException $e) {
+                } catch (PrestaShopException) {
                     $iso = 'en';
                 }
             }
@@ -84,7 +84,7 @@ class TranslateCore
         }
 
         $string = preg_replace("/\\\*'/", "\'", $string);
-        $key = md5($string);
+        $key = md5((string) $string);
         if (isset($_LANGADM[$class.$key]) && $_LANGADM[$class.$key] !== '') {
             $str = $_LANGADM[$class.$key];
         } else {
@@ -92,7 +92,7 @@ class TranslateCore
         }
 
         if ($htmlentities) {
-            $str = htmlspecialchars($str, ENT_QUOTES, 'utf-8');
+            $str = htmlspecialchars((string) $str, ENT_QUOTES, 'utf-8');
         }
         $str = str_replace('"', '&quot;', $str);
 
@@ -108,12 +108,11 @@ class TranslateCore
      *
      * @param string|Module|ModuleCore $module
      * @param string $string
-     * @param string $source
      * @param array $sprintf
      * @param bool $js
      * @return string
      */
-    public static function getModuleTranslation($module, $string, $source, $sprintf = null, $js = false)
+    public static function getModuleTranslation($module, $string, string $source, $sprintf = null, $js = false)
     {
         global $_MODULES, $_MODULE, $_LANGADM;
 
@@ -145,7 +144,7 @@ class TranslateCore
             }
         }
         $string = preg_replace("/\\\*'/", "\'", $string);
-        $key = md5($string);
+        $key = md5((string) $string);
 
         $cacheKey = $name.'|'.$string.'|'.$source.'|'.(int) $js;
 
@@ -158,7 +157,7 @@ class TranslateCore
             $defaultKey = strtolower('<{'.$name.'}thirtybees>'.$source).'_'.$key;
             $prestaShopKey = strtolower('<{'.$name.'}prestashop>'.$source).'_'.$key;
 
-            if ('controller' == substr($source, -10, 10)) {
+            if (str_ends_with($source, 'controller')) {
                 $file = substr($source, 0, -10);
                 $currentKeyFile = strtolower('<{'.$name.'}'._THEME_NAME_.'>'.$file).'_'.$key;
                 $defaultKeyFile = strtolower('<{'.$name.'}thirtybees>'.$file).'_'.$key;
@@ -201,10 +200,8 @@ class TranslateCore
      * @param string $input
      * @param array $sprintf
      * @param bool $js
-     *
-     * @return string
      */
-    protected static function escapeModuleTranslation($input, $sprintf, $js)
+    protected static function escapeModuleTranslation($input, $sprintf, $js): string
     {
         if (! $input) {
             return '';
@@ -249,11 +246,11 @@ class TranslateCore
      *
      * @return string translation
      */
-    public static function getGenericAdminTranslation($string, $key, &$langArray)
+    public static function getGenericAdminTranslation($string, $key, array &$langArray)
     {
         $string = preg_replace("/\\\*'/", "\'", $string);
         if (is_null($key)) {
-            $key = md5($string);
+            $key = md5((string) $string);
         }
 
         if (isset($langArray['AdminController'.$key])) {
@@ -303,12 +300,12 @@ class TranslateCore
         }
 
         $string = preg_replace("/\\\*'/", "\'", $string);
-        $key = 'PDF' . md5($string);
+        $key = 'PDF' . md5((string) $string);
 
         $str = array_key_exists($key, $_LANGPDF) && $_LANGPDF[$key] !== '' ? $_LANGPDF[$key] : $string;
 
         if ($sprintf !== null) {
-            $str = static::checkAndReplaceArgs($str, $sprintf);
+            return static::checkAndReplaceArgs($str, $sprintf);
         }
 
         return $str;
@@ -328,11 +325,10 @@ class TranslateCore
      * Perform operations on translations after everything is escaped and before displaying it
      *
      * @param string $string
-     * @param array $params
      *
      * @return string
      */
-    public static function postProcessTranslation($string, $params)
+    public static function postProcessTranslation($string, array $params)
     {
         // If tags were explicitely provided, we want to use them *after* the translation string is escaped.
         if (!empty($params['tags'])) {
@@ -341,7 +337,7 @@ class TranslateCore
                 $position = $index + 1;
                 // extract tag name
                 $match = [];
-                if (preg_match('/^\s*<\s*(\w+)/', $tag, $match)) {
+                if (preg_match('/^\s*<\s*(\w+)/', (string) $tag, $match)) {
                     $opener = $tag;
                     $closer = '</'.$match[1].'>';
 
@@ -378,7 +374,7 @@ class TranslateCore
      *
      * @return string
      */
-    public static function getFrontTranslation($input, $source, $sprintf = null, $js = false)
+    public static function getFrontTranslation($input, string $source, $sprintf = null, $js = false)
     {
         global $_LANG;
 
@@ -393,7 +389,7 @@ class TranslateCore
             $msg = $input;
         }
 
-        $msg = $js ? addslashes($msg) : stripslashes($msg);
+        $msg = $js ? addslashes((string) $msg) : stripslashes((string) $msg);
 
         if ($sprintf !== null) {
             $msg = static::checkAndReplaceArgs($msg, $sprintf);
@@ -407,11 +403,10 @@ class TranslateCore
      *
      * This method is called when {l s='xxx'} is used in front office templates
      *
-     * @param array $params
      * @param Smarty_Internal_Template $smarty
      * @return string
      */
-    public static function smartyFrontTranslate($params, $smarty)
+    public static function smartyFrontTranslate(array $params, $smarty)
     {
         if (!isset($params['js'])) {
             $params['js'] = false;
@@ -427,15 +422,16 @@ class TranslateCore
         }
 
         $filename = $smarty->template_resource;
-        $basename = basename($filename, '.tpl');
-
+        $basename = basename((string) $filename, '.tpl');
         if ($params['mod']) {
             return static::postProcessTranslation(static::getModuleTranslation($params['mod'], $params['s'], $basename, $params['sprintf'], $params['js']), $params);
-        } elseif ($params['pdf']) {
+        }
+
+        if ($params['pdf']) {
             return static::postProcessTranslation(static::getPdfTranslation($params['s'], $params['sprintf']), $params);
         }
 
-        if (isset($smarty->source) && (strpos($smarty->source->filepath, DIRECTORY_SEPARATOR.'override'.DIRECTORY_SEPARATOR) !== false)) {
+        if (isset($smarty->source) && (str_contains((string) $smarty->source->filepath, DIRECTORY_SEPARATOR.'override'.DIRECTORY_SEPARATOR))) {
             $basename = 'override_' . $basename;
         }
         return static::postProcessTranslation(static::getFrontTranslation($params['s'], $basename, $params['sprintf'], $params['js']), $params);
@@ -446,11 +442,10 @@ class TranslateCore
      *
      * This method is called when {l s='xxx'} is used in back office templates
      *
-     * @param array $params
      * @param Smarty_Internal_Template $smarty
      * @return string
      */
-    public static function smartyAdminTranslate($params, $smarty)
+    public static function smartyAdminTranslate(array $params, $smarty)
     {
         $htmlentities = !isset($params['js']);
         $pdf = isset($params['pdf']);
@@ -465,22 +460,22 @@ class TranslateCore
 
         // If the template is part of a module
         if (!empty($params['mod'])) {
-            return static::postProcessTranslation(static::getModuleTranslation($params['mod'], $params['s'], basename($filename, '.tpl'), $sprintf, isset($params['js'])), $params);
+            return static::postProcessTranslation(static::getModuleTranslation($params['mod'], $params['s'], basename((string) $filename, '.tpl'), $sprintf, isset($params['js'])), $params);
         }
 
         // If the tpl is at the root of the template folder
-        if (dirname($filename) == '.') {
+        if (dirname((string) $filename) == '.') {
             $class = 'index';
         }
 
         if (!empty(Context::getContext()->override_controller_name_for_translations)) {
             $class = Context::getContext()->override_controller_name_for_translations;
         } elseif (isset(Context::getContext()->controller)) {
-            $className = get_class(Context::getContext()->controller);
+            $className = Context::getContext()->controller::class;
             $class = substr($className, 0, strpos(strtolower($className), 'controller'));
         } else {
             // Split by \ and / to get the folder tree for the file
-            $folderTree = preg_split('#[/\\\]#', $filename);
+            $folderTree = preg_split('#[/\\\]#', (string) $filename);
             $key = array_search('controllers', $folderTree);
 
             // If there was a match, construct the class name using the child folder name

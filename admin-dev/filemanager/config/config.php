@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /** @noinspection PhpUnhandledExceptionInspection */
 
 if (!defined('_PS_ADMIN_DIR_')) {
@@ -18,10 +20,10 @@ if (file_exists(_PS_CONFIG_DIR_ . '/filemanager.inc.php')) {
 // check access
 $employee = Context::getContext()->employee;
 if (!$employee->hasAccess(AdminProductsController::class, Profile::PERMISSION_EDIT)) {
-    throw new PrestaShopException(Tools::displayError("Access denied"));
+    throw new PrestaShopException(Tools::displayError('Access denied'));
 }
 if (!$employee->hasAccess(AdminCmsContentController::class, Profile::PERMISSION_EDIT)) {
-    throw new PrestaShopException(Tools::displayError("Access denied"));
+    throw new PrestaShopException(Tools::displayError('Access denied'));
 }
 // set language
 setLanguage();
@@ -66,66 +68,65 @@ if (! defined('FILE_MANAGER_ALLOWED_MIME_TYPES')) {
     $types = [
         'image/jpeg' => [
             'extensions' => ['jpg', 'jpeg'],
-            'category' => 'image'
+            'category' => 'image',
         ],
         'image/png' => [
             'extensions' => ['png'],
-            'category' => 'image'
+            'category' => 'image',
         ],
         'image/gif' => [
             'extensions' => ['gif'],
-            'category' => 'image'
+            'category' => 'image',
         ],
         'image/bmp' => [
             'extensions' => ['bmp'],
-            'category' => 'image'
+            'category' => 'image',
         ],
         'image/tiff' => [
             'extensions' => ['tiff'],
-            'category' => 'image'
+            'category' => 'image',
         ],
         'image/svg' => [
             'extensions' => ['svg'],
-            'category' => 'image'
+            'category' => 'image',
         ],
         'image/webp' => [
             'extensions' => ['webp'],
-            'category' => 'image'
+            'category' => 'image',
         ],
         'image/avif' => [
             'extensions' => ['avif'],
-            'category' => 'image'
+            'category' => 'image',
         ],
         'application/pdf' => [
             'extensions' => ['pdf'],
-            'category' => 'file'
+            'category' => 'file',
         ],
         'video/mpeg' => [
             'extensions' => ['mpeg', 'mpg', 'mov'],
-            'category' => 'video'
+            'category' => 'video',
         ],
         'video/mp4' => [
             'extensions' => ['mp4'],
-            'category' => 'video'
+            'category' => 'video',
         ],
         'video/x-msvideo' => [
             'extensions' => ['avi'],
-            'category' => 'video'
+            'category' => 'video',
         ],
         'audio/x-ms-wma' => [
             'extensions' => ['wma'],
-            'category' => 'video'
+            'category' => 'video',
         ],
         'video/x-flv' => [
             'extensions' => ['flv'],
-            'category' => 'video'
+            'category' => 'video',
         ],
         'video/webm' => [
             'extensions' => ['webm'],
-            'category' => 'video'
+            'category' => 'video',
         ],
     ];
-
 
     if (defined('FILE_MANAGER_EXTRA_MIME_TYPES')) {
         $types = array_merge($types, FILE_MANAGER_EXTRA_MIME_TYPES);

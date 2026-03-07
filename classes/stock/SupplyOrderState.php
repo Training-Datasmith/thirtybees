@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -178,7 +180,7 @@ class SupplyOrderStateCore extends ObjectModel
         $query->from('supply_order_state', 's');
         $query->leftjoin('supply_order_state_lang', 'sl', 's.id_supply_order_state = sl.id_supply_order_state AND sl.id_lang='.(int) $idLang);
         if ($ids) {
-            $query->where('s.id_supply_order_state NOT IN('.implode(',', array_map('intval', $ids)).')');
+            $query->where('s.id_supply_order_state NOT IN('.implode(',', array_map(intval(...), $ids)).')');
         }
 
         $query->orderBy('sl.name ASC');

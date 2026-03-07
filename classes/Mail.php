@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -43,14 +45,14 @@ use Thirtybees\Core\Mail\Transport\MailTransportNone;
  */
 class MailCore extends ObjectModel
 {
-    const TYPE_HTML = 1;
-    const TYPE_TEXT = 2;
-    const TYPE_BOTH = 3;
+    public const TYPE_HTML = 1;
+    public const TYPE_TEXT = 2;
+    public const TYPE_BOTH = 3;
 
-    const TRANSPORT_NONE = 'core:none';
+    public const TRANSPORT_NONE = 'core:none';
 
-    const RECIPIENT_TYPE_TO = 'to';
-    const RECIPIENT_TYPE_BCC = 'bcc';
+    public const RECIPIENT_TYPE_TO = 'to';
+    public const RECIPIENT_TYPE_BCC = 'bcc';
 
     /**
      * @var array Object model definition
@@ -208,7 +210,6 @@ class MailCore extends ObjectModel
 
             $attachements = static::getFileAttachements($fileAttachment);
 
-
             // get email transport
             $transportId = static::getSelectedTransport();
             $transport = static::getTransport($transportId);
@@ -249,7 +250,6 @@ class MailCore extends ObjectModel
      * @param string|null $fromName
      * @param int $idShop
      *
-     * @return MailAddress
      *
      * @throws PrestaShopException
      */
@@ -282,15 +282,14 @@ class MailCore extends ObjectModel
 
         if (!$to) {
             throw new PrestaShopException(Tools::displayError('Parameter "to" not provided'));
-        } else {
-            $toName = static::toStringArray($toName);
-            foreach ($to as $key => $address) {
-                if (Validate::isEmail($address)) {
-                    $name = $toName[$key] ?? null;
-                    $result[] = new MailAddress($address, $name);
-                } else {
-                    throw new PrestaShopException(Tools::displayError('Parameter "to" is corrupted'));
-                }
+        }
+        $toName = static::toStringArray($toName);
+        foreach ($to as $key => $address) {
+            if (Validate::isEmail($address)) {
+                $name = $toName[$key] ?? null;
+                $result[] = new MailAddress($address, $name);
+            } else {
+                throw new PrestaShopException(Tools::displayError('Parameter "to" is corrupted'));
             }
         }
 
@@ -302,7 +301,7 @@ class MailCore extends ObjectModel
      *
      * @return string[]
      */
-    private static function toStringArray($input)
+    private static function toStringArray($input): array
     {
         if (is_null($input)) {
             return [];
@@ -351,16 +350,13 @@ class MailCore extends ObjectModel
             }
         }
 
-        return array_map(function ($address) {
-            return new MailAddress($address, null);
-        }, array_unique($addresses));
+        return array_map(fn (string $address) => new MailAddress($address, null), array_unique($addresses));
     }
 
     /**
      * Resolves reply-to address
      *
      * @param string|null $replyTo
-     * @param MailAddress $fromAddress
      *
      * @return MailAddress
      */
@@ -376,7 +372,6 @@ class MailCore extends ObjectModel
      * Resolve template content
      *
      * @param string $template
-     * @param string $templatePath
      * @param Shop $shop
      * @param int $idLang
      *
@@ -502,11 +497,9 @@ class MailCore extends ObjectModel
      * Derives module name from template path
      *
      * @param string $baseTemplatePath
-     * @param Shop $shop
      *
-     * @return string | null
      */
-    private static function getModuleName($baseTemplatePath, Shop $shop)
+    private static function getModuleName($baseTemplatePath, Shop $shop): ?string
     {
         $path = str_replace(DIRECTORY_SEPARATOR, '/', $baseTemplatePath);
         $res = [];
@@ -528,12 +521,10 @@ class MailCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    private static function logMissingTemplate($template, $suffix, $iso, $paths)
+    private static function logMissingTemplate(string $template, string $suffix, $iso, array $paths): void
     {
         $filename = $template . $suffix;
-        $localPaths = array_map(function ($path) {
-            return str_replace(_PS_ROOT_DIR_, '', $path);
-        }, $paths);
+        $localPaths = array_map(fn (string $path) => str_replace(_PS_ROOT_DIR_, '', $path), $paths);
         Logger::addLog(sprintf(
             'Email template %s for language %s not found in [%s]',
             $filename,
@@ -564,7 +555,7 @@ class MailCore extends ObjectModel
 
         $templateVars['{shop_logo}'] = [
             'type' => 'imageFile',
-            'filepath' => static::getLogoFilePath($idShop)
+            'filepath' => static::getLogoFilePath($idShop),
         ];
         $templateVars['{shop_name}'] = Tools::safeOutput(Configuration::get('PS_SHOP_NAME', null, null, $idShop));
         $templateVars['{shop_url}'] = $link->getPageLink('index', true, $idLang, null, false, $idShop);
@@ -581,9 +572,7 @@ class MailCore extends ObjectModel
             'extra_template_vars' => &$extraTemplateVars,
             'id_lang' => (int)$idLang,
         ]);
-
-        $templateVars = array_merge($templateVars, $extraTemplateVars);
-        return $templateVars;
+        return array_merge($templateVars, $extraTemplateVars);
     }
 
     /**
@@ -611,8 +600,6 @@ class MailCore extends ObjectModel
      * Format email subject using email subject template
      *
      * @param string $subject email subject
-     * @param int $idShop
-     * @param array $templateVars
      *
      * @return string
      *
@@ -628,8 +615,8 @@ class MailCore extends ObjectModel
         $subject = static::substituteTemplateVars($subject, $templateVars);
 
         $template = Configuration::get('TB_MAIL_SUBJECT_TEMPLATE', null, null, $idShop);
-        if (!$template || strpos($template, '{subject}') === false) {
-            $template = "[{shop_name}] {subject}";
+        if (!$template || !str_contains($template, '{subject}')) {
+            $template = '[{shop_name}] {subject}';
         }
         if (preg_match_all('#\{[a-z0-9_]+\}#i', $template, $m)) {
             for ($i = 0, $total = count($m[0]); $i < $total; $i++) {
@@ -648,9 +635,7 @@ class MailCore extends ObjectModel
     }
 
     /**
-     * @param string $trasportId
      *
-     * @return MailTransport
      *
      * @throws PrestaShopException
      */
@@ -659,15 +644,13 @@ class MailCore extends ObjectModel
         $transports = static::getAvailableTransports();
         if (isset($transports[$trasportId])) {
             return $transports[$trasportId];
-        } else {
-            throw new PrestaShopException("Mail transport $trasportId not found");
         }
+        throw new PrestaShopException("Mail transport $trasportId not found");
     }
 
     /**
      * Returns string identifier of selected email transport
      *
-     * @return string
      *
      * @throws PrestaShopException
      */
@@ -678,9 +661,8 @@ class MailCore extends ObjectModel
             $transports = static::getAvailableTransports();
             if (isset($transports[$selected])) {
                 return $selected;
-            } else {
-                trigger_error("Mail transport '$selected' not found", E_USER_WARNING);
             }
+            trigger_error("Mail transport '$selected' not found", E_USER_WARNING);
         }
         return static::TRANSPORT_NONE;
     }
@@ -695,7 +677,7 @@ class MailCore extends ObjectModel
         $transports = null;
         if (is_null($transports)) {
             $transports = [
-                static::TRANSPORT_NONE => new MailTransportNone()
+                static::TRANSPORT_NONE => new MailTransportNone(),
             ];
             $res = Hook::getResponses('actionRegisterMailTransport');
             foreach ($res as $mod => $modTransports) {
@@ -745,10 +727,8 @@ class MailCore extends ObjectModel
      *
      * @param string $string raw sentence (write directly in file)
      * @param int|null $idLang
-     * @param Context|null $context
      *
      * @return string
-     *
      * @throws PrestaShopException
      */
     public static function l($string, $idLang = null, ?Context $context = null)
@@ -783,13 +763,6 @@ class MailCore extends ObjectModel
     }
 
     /**
-     * @param MailAddress $fromAddress
-     * @param string $recipientType
-     * @param MailAddress $recipient
-     * @param string $template
-     * @param string $subject
-     * @param int $idLang
-     * @param string $transportId
      *
      * @throws PrestaShopException
      */
@@ -808,7 +781,7 @@ class MailCore extends ObjectModel
         $mail->from = mb_substr($fromAddress->getAddress(), 0, 126);
         $mail->template = mb_substr($template, 0, 62);
         $mail->subject = mb_substr($subject, 0, 254);
-        $mail->id_lang = (int)$idLang;
+        $mail->id_lang = $idLang;
         $mail->transport = $transportId;
         $mail->add();
     }
@@ -840,7 +813,7 @@ class MailCore extends ObjectModel
                         $attachment['mime']
                     );
                 } else {
-                    trigger_error("Warning: invalid file attachement: " . json_encode($attachment), E_USER_WARNING);
+                    trigger_error('Warning: invalid file attachement: ' . json_encode($attachment), E_USER_WARNING);
                 }
             }
         }
@@ -850,7 +823,6 @@ class MailCore extends ObjectModel
 
     /**
      * @param bool $die
-     * @param Throwable $e
      *
      * @return false
      *
@@ -866,21 +838,15 @@ class MailCore extends ObjectModel
         if ($die) {
             if ($e instanceof PrestaShopException) {
                 throw $e;
-            } else {
-                throw new PrestaShopException("Failed to send email", 0, $e);
             }
-        } else {
-            $errorHandler = ServiceLocator::getInstance()->getErrorHandler();
-            $errorHandler->logFatalError(ErrorUtils::describeException($e));
-            return false;
+            throw new PrestaShopException('Failed to send email', 0, $e);
         }
+        $errorHandler = ServiceLocator::getInstance()->getErrorHandler();
+        $errorHandler->logFatalError(ErrorUtils::describeException($e));
+        return false;
     }
 
     /**
-     * @param string $content
-     * @param array $templateVars
-     *
-     * @return string
      *
      * @throws PrestaShopException
      */

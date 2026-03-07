@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -38,7 +40,7 @@ use GuzzleHttp\Client;
  */
 class AdminThemesControllerCore extends AdminController
 {
-    const MAX_NAME_LENGTH = 128;
+    public const MAX_NAME_LENGTH = 128;
 
     /**
      * @var string
@@ -261,7 +263,7 @@ class AdminThemesControllerCore extends AdminController
         if (count($installedTheme) || !empty($nonInstalledTheme)) {
             $this->fields_options['theme'] = [
                 'title'       => $this->l('Select a theme'),
-                'description' => ( ! $this->can_display_themes) ?
+                'description' => (! $this->can_display_themes) ?
                     $this->l('To select a theme, switch to the context of a single shop in the top menu bar.') :
                     '',
                 'fields'      => [
@@ -327,14 +329,15 @@ class AdminThemesControllerCore extends AdminController
                      * be a problem, this updating should get moved to
                      * processUpdate() and/or ajaxProcess{Left|Right}Meta().
                      */
-                    if ( ! $description) {
-                        $idMeta = $conn->getValue((new DbQuery())
+                    if (! $description) {
+                        $idMeta = $conn->getValue(
+                            (new DbQuery())
                             ->select('`id_meta`')
                             ->from('meta', 'm')
                             ->where('m.`page` = \''.$metaPage.'\'')
                         );
 
-                        if ( ! $idMeta) {
+                        if (! $idMeta) {
                             $newMeta = new Meta();
                             $newMeta->page = $metaPage;
                             $newMeta->configurable = 1;
@@ -369,7 +372,7 @@ class AdminThemesControllerCore extends AdminController
                         }
                     }
 
-                    if ( ! $found) {
+                    if (! $found) {
                         $conn->delete(
                             'theme_meta',
                             'id_theme_meta = '.$themeMeta['id_theme_meta']
@@ -572,13 +575,13 @@ class AdminThemesControllerCore extends AdminController
      */
     public function processAdd()
     {
-        if ( ! Tools::getValue('directory')) {
+        if (! Tools::getValue('directory')) {
             $this->errors[] = $this->l('Field "directory" is empty.');
             $this->display = 'add';
 
             return false;
         }
-        if ( ! Tools::getValue('name')) {
+        if (! Tools::getValue('name')) {
             $this->errors[] = $this->l('Field "name" is empty.');
             $this->display = 'add';
 
@@ -608,7 +611,7 @@ class AdminThemesControllerCore extends AdminController
                     $this->display = 'add';
                     $this->errors[] = sprintf(Tools::displayError('Could not create directory "%s".'), _PS_ALL_THEMES_DIR_.$newDir);
 
-                  return false;
+                    return false;
                 }
             }
 
@@ -748,7 +751,7 @@ class AdminThemesControllerCore extends AdminController
 
                 $themePath = _PS_ALL_THEMES_DIR_.$obj->directory;
                 if (is_dir($themePath) && !in_array($obj->directory, $themes)) {
-                    if ( ! Tools::deleteDirectory($themePath)) {
+                    if (! Tools::deleteDirectory($themePath)) {
                         $this->warnings[] = sprintf(Tools::displayError('Could not remove theme directory "%s".'), $themePath);
                     }
                 }
@@ -860,7 +863,7 @@ class AdminThemesControllerCore extends AdminController
             );
 
             // filter hook list to contain displayable hooks only
-            $this->hook_list = array_filter($this->hook_list, function($hook) {
+            $this->hook_list = array_filter($this->hook_list, function ($hook) {
                 return Hook::isDisplayableHook($hook['name_hook']);
             });
 
@@ -874,13 +877,13 @@ class AdminThemesControllerCore extends AdminController
             $notThemeModules = Module::getNotThemeRelatedModules();
 
             foreach ($this->module_list as $module) {
-                if ( ! in_array($module['name'], $notThemeModules)) {
+                if (! in_array($module['name'], $notThemeModules)) {
                     if ($module['active'] == 1) {
                         $this->to_enable[] = $module['name'];
                     } else {
                         $this->to_disable[] = $module['name'];
                     }
-                    if ( ! in_array($module['name'], $thirtybeesModules)
+                    if (! in_array($module['name'], $thirtybeesModules)
                         && $module['active'] == 1
                     ) {
                         $this->to_install[] = $module['name'];
@@ -888,7 +891,7 @@ class AdminThemesControllerCore extends AdminController
                 }
             }
             foreach ($thirtybeesModules as $module) {
-                if ( ! in_array($module, $notThemeModules)
+                if (! in_array($module, $notThemeModules)
                     && ! in_array($module, $this->to_enable)
                     && ! in_array($module, $this->to_disable)
                 ) {
@@ -958,7 +961,7 @@ class AdminThemesControllerCore extends AdminController
     {
         $exp = '/^[0-9.]+$/';
 
-        if ( ! preg_match($exp, Tools::getValue('theme_version'))
+        if (! preg_match($exp, Tools::getValue('theme_version'))
             || ! preg_match($exp, Tools::getValue('compa_from'))
         ) {
             $this->errors[] = $this->l('Syntax error on version field. Only digits and periods (.) are allowed.');
@@ -1133,7 +1136,7 @@ class AdminThemesControllerCore extends AdminController
 
         $xml = $theme->asXML();
         if ($xml === false) {
-            throw new PrestaShopException("Failed to generate config.xml file");
+            throw new PrestaShopException('Failed to generate config.xml file');
         }
         return (string)$xml;
     }
@@ -1285,7 +1288,7 @@ class AdminThemesControllerCore extends AdminController
         $thirtybeesModules = array_keys(Module::getApiModulesInfo());
 
         foreach ($moduleList as $array) {
-            if ( ! in_array($array['name'], $thirtybeesModules)
+            if (! in_array($array['name'], $thirtybeesModules)
                 && $array['active'] == 1) {
                 $toInstall[] = $array['name'];
             }
@@ -1635,7 +1638,7 @@ class AdminThemesControllerCore extends AdminController
                 }
             }
 
-            if ( ! $this->errors) {
+            if (! $this->errors) {
                 $result = Theme::installFromDir($targetDir);
                 if (is_string($result)) {
                     $this->errors[] = $result;
@@ -1643,7 +1646,7 @@ class AdminThemesControllerCore extends AdminController
             }
         }
 
-        if ( ! count($this->errors) && $redirect) {
+        if (! count($this->errors) && $redirect) {
             $this->redirect_after = static::$currentIndex.'&conf=18&token='.$this->token;
         }
     }
@@ -1763,9 +1766,8 @@ class AdminThemesControllerCore extends AdminController
                         'title' => $this->l('Save'),
                     ],
                 ],
-            ]
+            ],
         ];
-
 
         $this->context->smarty->assign(
             [
@@ -1939,7 +1941,7 @@ class AdminThemesControllerCore extends AdminController
                 }
 
                 $module = Module::getInstanceByName($moduleName);
-                if ( ! $module) {
+                if (! $module) {
                     continue;
                 }
 
@@ -1973,7 +1975,7 @@ class AdminThemesControllerCore extends AdminController
          * If the old theme is no longer in use by another shop, remove its
          * residuals.
          */
-        if ( ! $oldTheme->isUsed()) {
+        if (! $oldTheme->isUsed()) {
             // Identical theme names also mean identically named image types.
             if ($oldTheme->name != $theme->name) {
                 foreach (ImageType::getImagesTypes() as $imageType) {
@@ -2006,7 +2008,7 @@ class AdminThemesControllerCore extends AdminController
             'theme_name'     => $this->theme_name,
             'img_error'      => $this->img_error,
             'modules_errors' => $this->modules_errors,
-            'installWarnings'=> $this->installWarnings,
+            'installWarnings' => $this->installWarnings,
             'back_link'      => $this->context->link->getAdminLink('AdminThemes'),
             'image_link'     => $this->context->link->getAdminLink('AdminImages'),
         ];
@@ -2067,13 +2069,13 @@ class AdminThemesControllerCore extends AdminController
 
             $tmpName = tempnam(_PS_TMP_IMG_DIR_, 'PS');
             if (!$tmpName || !move_uploaded_file($_FILES[$fieldName]['tmp_name'], $tmpName)) {
-                $this->errors[] = Tools::displayError("Failed to copy image file");
+                $this->errors[] = Tools::displayError('Failed to copy image file');
                 return;
             }
 
             $imageExtension = ImageManager::getImageExtension($tmpName);
             if (! $imageExtension) {
-                $this->errors[] = Tools::displayError("Failed to determine image type");
+                $this->errors[] = Tools::displayError('Failed to determine image type');
                 return;
             }
 
@@ -2252,7 +2254,7 @@ class AdminThemesControllerCore extends AdminController
                             '70x70',
                             '150x150',
                             '310x310',
-                            '310x150'
+                            '310x150',
                         ])) {
                             $path = Media::getMediaPath(_PS_IMG_DIR_ . "favicon/favicon_{$idShop}_{$favicon['width']}_{$favicon['height']}.png");
                             $logo = $favicon['width'] == $favicon['height']
@@ -2464,7 +2466,7 @@ class AdminThemesControllerCore extends AdminController
             if (!$template) {
                 $this->ajaxDie(json_encode([
                     'hasError' => true,
-                    'error' => Tools::displayError("Failed to download favicon template"),
+                    'error' => Tools::displayError('Failed to download favicon template'),
                 ]));
             }
 

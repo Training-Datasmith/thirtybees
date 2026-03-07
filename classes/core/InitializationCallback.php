@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -29,7 +31,6 @@ interface InitializationCallback
     /**
      * Callback method to initialize class
      *
-     * @param Db $conn
      * @return void
      */
     public static function initializationCallback(Db $conn);

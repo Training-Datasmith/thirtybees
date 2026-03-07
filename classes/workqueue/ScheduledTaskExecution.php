@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -37,7 +39,7 @@ class ScheduledTaskExecutionCore extends ObjectModel
             'id_scheduled_task'  => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedInt', 'required' => true],
             'id_workqueue_task'  => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedInt', 'required' => true],
             'date_add'           => ['type' => self::TYPE_DATE, 'validate' => 'isDate', 'dbNullable' => false],
-        ]
+        ],
     ];
 
     /**

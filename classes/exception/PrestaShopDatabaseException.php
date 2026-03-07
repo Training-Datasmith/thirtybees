@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -32,7 +34,7 @@
 /**
  * Class PrestaShopDatabaseExceptionCore
  */
-class PrestaShopDatabaseExceptionCore extends PrestaShopException
+class PrestaShopDatabaseExceptionCore extends PrestaShopException implements \Stringable
 {
     /**
      * @var string|null contains sql statement associated with error
@@ -58,7 +60,7 @@ class PrestaShopDatabaseExceptionCore extends PrestaShopException
         if ($this->trace) {
             // we want to report on different
             foreach ($this->trace as $row) {
-                if (strpos($row['file'], 'classes/db/Db.php') === false) {
+                if (!str_contains((string) $row['file'], 'classes/db/Db.php')) {
                     array_unshift($this->trace, [
                         'file' => $this->file,
                         'line' => $this->line,
@@ -71,12 +73,9 @@ class PrestaShopDatabaseExceptionCore extends PrestaShopException
         }
     }
 
-    /**
-     * @return string
-     */
-    public function __toString()
+    public function __toString(): string
     {
-        return $this->message;
+        return (string) $this->message;
     }
 
     /**
@@ -88,10 +87,10 @@ class PrestaShopDatabaseExceptionCore extends PrestaShopException
     {
         $sections = parent::getExtraSections();
         if ($this->sql) {
-          $sections[] = [
-              'label' => 'SQL',
-              'content' => $this->sql,
-          ];
+            $sections[] = [
+                'label' => 'SQL',
+                'content' => $this->sql,
+            ];
         }
         return $sections;
 

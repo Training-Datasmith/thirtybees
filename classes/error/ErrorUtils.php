@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -28,15 +30,12 @@ use Throwable;
  */
 class ErrorUtilsCore
 {
-    const FILE_CONTEXT_LINES = 30;
+    public const FILE_CONTEXT_LINES = 30;
 
     /**
      * Describe error array
-     *
-     * @param array $error
-     * @return ErrorDescription
      */
-    public static function describeError($error)
+    public static function describeError(array $error): \Thirtybees\Core\Error\ErrorDescription
     {
         $file = $error['file'];
         $line = $error['line'];
@@ -71,26 +70,23 @@ class ErrorUtilsCore
                     'args' => null,
                     'fileContent' => $content,
                     'suppressed' => false,
-                ]
+                ],
             ];
             $errorDescription->setStackTrace($stacktrace);
-        } catch (Throwable $ignored) {
+        } catch (Throwable) {
         }
         return $errorDescription;
     }
 
     /**
      * Helper method to describe exception
-     *
-     * @param Throwable $e
-     * @return ErrorDescription
      */
-    public static function describeException(Throwable $e)
+    public static function describeException(Throwable $e): \Thirtybees\Core\Error\ErrorDescription
     {
         $file = $e->getFile();
         $line = $e->getLine();
         $errorDescription = new ErrorDescription();
-        $errorDescription->setErrorName(str_replace('PrestaShop', 'ThirtyBees', get_class($e)));
+        $errorDescription->setErrorName(str_replace('PrestaShop', 'ThirtyBees', $e::class));
         $errorDescription->setMessage($e->getMessage());
         $errorDescription->setSource('php', $file, $line, []);
 
@@ -145,10 +141,10 @@ class ErrorUtilsCore
                     'fileType' => $isTemplate ? 'template' : 'php',
                     'fileName' => $relativeFile,
                     'line' => $lineNumber,
-                    'args' => array_map([__CLASS__, 'displayArgument'], $args),
+                    'args' => array_map(self::displayArgument(...), $args),
                     'fileContent' => static::readFile($fileName, $lineNumber, $showLines),
                     'description' => static::describeOperation($class, $function, $args),
-                    'suppressed' => static::isSuppressed($relativeFile, $currentClass, $currentFunction, $class, $function)
+                    'suppressed' => static::isSuppressed($relativeFile, $currentClass, $currentFunction, $class, $function),
                 ];
             }
 
@@ -158,7 +154,7 @@ class ErrorUtilsCore
             if ($previous) {
                 $errorDescription->setCause(static::describeException($previous));
             }
-        } catch (Throwable $ignored) {
+        } catch (Throwable) {
         }
 
         return $errorDescription;
@@ -174,10 +170,8 @@ class ErrorUtilsCore
      * @param int $depth maximaln depth that we will traverse
      * @param int $i current depth
      * @param array $objects array of seen objects
-     *
-     * @return string
      */
-    public static function displayArgument($variable, $strlen = 80, $width = 50, $depth = 2, $i = 0, $objects = [])
+    public static function displayArgument($variable, $strlen = 80, $width = 50, $depth = 2, $i = 0, $objects = []): string
     {
         $search = ["\0", "\a", "\b", "\f", "\n", "\r", "\t", "\v"];
         $replace = ['\0', '\a', '\b', '\f', '\n', '\r', '\t', '\v'];
@@ -196,13 +190,12 @@ class ErrorUtilsCore
                 return '???';
             case 'string':
                 $len = strlen($variable);
-                $variable = str_replace($search, $replace, substr($variable,0,$strlen));
-                $variable = substr($variable,0, $strlen);
-                if ($len<$strlen) {
+                $variable = str_replace($search, $replace, substr($variable, 0, $strlen));
+                $variable = substr($variable, 0, $strlen);
+                if ($len < $strlen) {
                     return '"'.$variable.'"';
-                } else {
-                    return 'string('.$len.'): "'.$variable.'"...';
                 }
+                return 'string('.$len.'): "'.$variable.'"...';
             case 'array':
                 $len = count($variable);
                 if ($i == $depth) {
@@ -213,50 +206,48 @@ class ErrorUtilsCore
                 }
                 $string = '';
                 $keys = array_keys($variable);
-                $spaces = str_repeat(' ',$i*2);
-                $string.= "array($len)\n".$spaces.'[';
-                $count=0;
-                foreach($keys as $key) {
-                    if ($count==$width) {
-                        $string.= "\n".$spaces."  ...";
+                $spaces = str_repeat(' ', $i * 2);
+                $string .= "array($len)\n".$spaces.'[';
+                $count = 0;
+                foreach ($keys as $key) {
+                    if ($count == $width) {
+                        $string .= "\n".$spaces.'  ...';
                         break;
                     }
-                    $string.= "\n".$spaces."  [$key] => ";
+                    $string .= "\n".$spaces."  [$key] => ";
                     if (static::isSensitiveParameter($key)) {
-                        $string .= static::displayArgument('*******', $strlen, $width, $depth,$i+1, $objects);
+                        $string .= static::displayArgument('*******', $strlen, $width, $depth, $i + 1, $objects);
                     } else {
                         $string .= static::displayArgument($variable[$key], $strlen, $width, $depth, $i + 1, $objects);
                     }
                     $count++;
                 }
-                $string.="\n".$spaces.']';
-                return $string;
+                return $string . ("\n" . $spaces . ']');
             case 'object':
-                $id = array_search($variable, $objects,true);
+                $id = array_search($variable, $objects, true);
                 if ($id !== false) {
-                    return get_class($variable) . '#' . ($id + 1) . ' {...}';
+                    return $variable::class . '#' . ($id + 1) . ' {...}';
                 }
-                if ($i==$depth) {
-                    return get_class($variable).' {...}';
+                if ($i == $depth) {
+                    return $variable::class.' {...}';
                 }
                 $string = '';
                 $id = array_push($objects, $variable);
                 $array = (array)$variable;
-                $spaces = str_repeat(' ',$i*2);
-                $string.= get_class($variable)."#$id\n".$spaces.'{';
+                $spaces = str_repeat(' ', $i * 2);
+                $string .= $variable::class."#$id\n".$spaces.'{';
                 $properties = array_keys($array);
-                foreach($properties as $property) {
+                foreach ($properties as $property) {
                     $value = $array[$property];
-                    $name = preg_replace("/[^a-zA-Z0-9_]/",'', trim($property));
+                    $name = preg_replace('/[^a-zA-Z0-9_]/', '', trim((string) $property));
                     $string .= "\n".$spaces."  [$name] => ";
                     if (static::isSensitiveParameter($name)) {
-                        $string .= static::displayArgument('*******', $strlen, $width, $depth,$i+1, $objects);
+                        $string .= static::displayArgument('*******', $strlen, $width, $depth, $i + 1, $objects);
                     } else {
-                        $string .= static::displayArgument($value, $strlen, $width, $depth,$i+1, $objects);
+                        $string .= static::displayArgument($value, $strlen, $width, $depth, $i + 1, $objects);
                     }
                 }
-                $string .= "\n".$spaces.'}';
-                return $string;
+                return $string . ("\n" . $spaces . '}');
             default:
                 return print_r($variable, true);
         }
@@ -264,9 +255,8 @@ class ErrorUtilsCore
 
     /**
      * @param string $name
-     * @return bool
      */
-    protected static function isSensitiveParameter($name)
+    protected static function isSensitiveParameter($name): bool
     {
         $name = strtolower($name ?? '');
         $sensitive = [
@@ -275,7 +265,7 @@ class ErrorUtilsCore
             'secret',
             'salt',
             'sensitive',
-            'securekey'
+            'securekey',
         ];
         if (in_array($name, $sensitive)) {
             return true;
@@ -290,15 +280,13 @@ class ErrorUtilsCore
      * Returns file path relative to thirtybees root
      *
      * @param string|null $file
-     * @return string
      */
-    public static function getRelativeFile($file)
+    public static function getRelativeFile($file): string
     {
         if ($file) {
             return ltrim(str_replace([_PS_ROOT_DIR_, '\\'], ['', '/'], $file), '/');
-        } else {
-            return '';
         }
+        return '';
     }
 
     /**
@@ -314,13 +302,13 @@ class ErrorUtilsCore
      *
      * @return bool if this entry should be suppressed
      */
-    protected static function isSuppressed($relativePath, $class, $function, $calledClass, $calledFunction)
+    protected static function isSuppressed($relativePath, $class, $function, $calledClass, $calledFunction): bool
     {
         // suppress any entries that calls following methods
         $suppressCalls = [
             [ 'DispatcherCore',  'dispatch' ],
             [ 'Smarty_Custom_Template', 'fetch' ],
-            [ 'ControllerCore', 'run' ]
+            [ 'ControllerCore', 'run' ],
         ];
         foreach ($suppressCalls as $callable) {
             if ($callable[0] === $calledClass && $callable[1] === $calledFunction) {
@@ -337,7 +325,7 @@ class ErrorUtilsCore
             [ 'ControllerCore', 'run' ],
             [ 'HookCore', 'exec' ],
             [ 'HookCore', 'execWithoutCache' ],
-            [ 'HookCore', 'coreCallHook' ]
+            [ 'HookCore', 'coreCallHook' ],
         ];
         foreach ($suppressMethods as $callable) {
             if ($callable[0] === $class && $callable[1] === $function) {
@@ -349,10 +337,10 @@ class ErrorUtilsCore
         $paths = [
             'vendor/',
             'classes/SmartyCustom.php',
-            'config/smarty'
+            'config/smarty',
         ];
         foreach ($paths as $match) {
-            if (strpos($relativePath, $match) === 0) {
+            if (str_starts_with($relativePath, $match)) {
                 return true;
             }
         }
@@ -370,10 +358,8 @@ class ErrorUtilsCore
      * @param string $class class name
      * @param string $function called function
      * @param array $args parameters passed to $class::$function() method
-     *
-     * @return string | null
      */
-    protected static function describeOperation($class, $function, $args)
+    protected static function describeOperation($class, $function, array $args): ?string
     {
         if ($class === 'Smarty_Internal_Template' && $function === 'getSubTemplate') {
             $templateName = isset($args['0']) && is_string($args['0']) ? static::getRelativeFile($args['0']) : '';
@@ -386,7 +372,6 @@ class ErrorUtilsCore
         return null;
     }
 
-
     /**
      * Reads $file from disk, and returns $total lines around $line. Result is an array
      * of arrays, with information about line number in file, if the line is highlighted,
@@ -395,10 +380,8 @@ class ErrorUtilsCore
      * @param string $file input file
      * @param int $line index of line in the file. This line will be highlighted
      * @param int $total total number of lines to read. Pass zero to return all lines
-     *
-     * @return array
      */
-    protected static function readFile($file, $line, $total)
+    protected static function readFile($file, $line, $total): array
     {
         $ret = [];
         if (! file_exists($file)) {
@@ -422,30 +405,21 @@ class ErrorUtilsCore
                 $ret[] = [
                     'number' => $number,
                     'highlighted' => $number === $line,
-                    'line' => $l
+                    'line' => $l,
                 ];
             }
         }
         return $ret;
     }
 
-    /**
-     * @return array
-     */
     protected static function getSmartyTrace(): array
     {
         if (class_exists('SmartyCustom')) {
             return SmartyCustom::$trace;
-        } else {
-            return [];
         }
+        return [];
     }
 
-    /**
-     * @param array $smartyTrace
-     * @param string $file
-     * @return bool
-     */
     protected static function isCompiledTemplate(array $smartyTrace, string $file): bool
     {
         if ($smartyTrace) {

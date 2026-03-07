@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Support;
 
 use Codeception\Actor;
@@ -8,23 +10,23 @@ class FunctionalTester extends Actor
 {
     use _generated\FunctionalTesterActions;
 
-   /**
-    * Define custom actions here
-    */
+    /**
+     * Define custom actions here
+     */
 
     /**
      * Helper method to log in to back office
      *
      * @return void
      */
-   public function amLoggedInToBackOffice()
-   {
-       $this->amOnPage('/admin-dev/index.php?controller=AdminLogin');
-       $this->fillField('#email', 'test@thirty.bees');
-       $this->fillField('#passwd', 'thirtybees');
-       $this->click('submitLogin');
-       $this->see('Dashboard');
-   }
+    public function amLoggedInToBackOffice()
+    {
+        $this->amOnPage('/admin-dev/index.php?controller=AdminLogin');
+        $this->fillField('#email', 'test@thirty.bees');
+        $this->fillField('#passwd', 'thirtybees');
+        $this->click('submitLogin');
+        $this->see('Dashboard');
+    }
 
     /**
      * Helper method to log in to front office
@@ -37,7 +39,7 @@ class FunctionalTester extends Actor
         $this->fillField(['css' => '#email'], 'pub@thirtybees.com');
         $this->fillField(['css' => '#passwd'], '123456789');
         $this->click('#SubmitLogin');
-        $this->see("John DOE");
+        $this->see('John DOE');
     }
 
     /**
@@ -48,13 +50,13 @@ class FunctionalTester extends Actor
     public function withoutErrors()
     {
         $result = $this->grabPageSource();
-        $result = explode("window.phpMessages=", $result);
+        $result = explode('window.phpMessages=', $result);
         if (count($result) > 1) {
-            $messages = explode("</script>", $result[1])[0];
+            $messages = explode('</script>', $result[1])[0];
             $messages = trim($messages, "; \t\n\r\0\x0B");
             $messages = json_decode($messages, true);
-            $messages = implode("\n", array_map(function($msg) {
-                $ret = "  - " .$msg['type'].': '.$msg['message'] . ' in file ' . $msg['file'];
+            $messages = implode("\n", array_map(function ($msg) {
+                $ret = '  - ' .$msg['type'].': '.$msg['message'] . ' in file ' . $msg['file'];
                 if ($msg['line']) {
                     $ret .= ' at line '.$msg['line'];
                 }

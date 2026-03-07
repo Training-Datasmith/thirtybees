@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -58,14 +60,12 @@ class CacheMemcachedCore extends Cache
                 $this->memcached->setOption(Memcached::OPT_SERIALIZER, Memcached::SERIALIZER_IGBINARY);
             }
         } else {
-            trigger_error("Failed to connect to memcache", E_USER_WARNING);
+            trigger_error('Failed to connect to memcache', E_USER_WARNING);
         }
     }
 
     /**
      * CacheMemcachedCore destructor.
-     *
-     * @return void
      */
     public function __destruct()
     {
@@ -97,7 +97,7 @@ class CacheMemcachedCore extends Cache
             }
 
             return (bool)$this->memcached->getVersion();
-        } catch (Throwable $e) {
+        } catch (Throwable) {
             return false;
         }
     }
@@ -254,13 +254,13 @@ class CacheMemcachedCore extends Cache
         }
         if ($key == '*') {
             $this->flush();
-        } elseif (strpos($key, '*') === false) {
+        } elseif (!str_contains($key, '*')) {
             $this->_delete($key);
         } else {
             $pattern = str_replace('\\*', '.*', preg_quote($key));
             $keys = $this->memcached->getAllKeys();
             foreach ($keys as $key => $data) {
-                if (preg_match('#^'.$pattern.'$#', $key)) {
+                if (preg_match('#^'.$pattern.'$#', (string) $key)) {
                     $this->_delete($key);
                 }
             }
@@ -344,7 +344,7 @@ class CacheMemcachedCore extends Cache
      */
     protected static function mapKey($key)
     {
-        if (strlen($key) > 250) {
+        if (strlen((string) $key) > 250) {
             return Tools::encrypt($key);
         }
         return $key;

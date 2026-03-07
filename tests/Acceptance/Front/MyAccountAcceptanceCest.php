@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Acceptance\Front;
 
 use Tests\Support\AcceptanceTester;

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -37,7 +39,6 @@ class DebugErrorPageCore extends AbstractErrorPage
     }
 
     /**
-     * @param ErrorDescription $errorDescription
      * @return string
      */
     protected function renderError(ErrorDescription $errorDescription)
@@ -66,9 +67,9 @@ class DebugErrorPageCore extends AbstractErrorPage
                 if ($currentLine['highlighted']) {
                     $ret .= "<span class='selected'>";
                 }
-                $ret .= "<span class='line'>" . $currentLine['number'] . ":</span>" . htmlentities($currentLine['line']);
+                $ret .= "<span class='line'>" . $currentLine['number'] . ':</span>' . htmlentities((string) $currentLine['line']);
                 if ($currentLine['highlighted']) {
-                    $ret .= "</span>";
+                    $ret .= '</span>';
                 }
             }
             $ret .= '</pre>';

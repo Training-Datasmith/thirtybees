@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -156,11 +158,11 @@ function smartyMaxWords($params, $smarty)
 
     foreach ($words as &$word) {
         if (mb_strlen($word) > $params['n']) {
-            $word = mb_substr(trim(chunk_split($word, $params['n']-1, '- ')), 0, -1);
+            $word = mb_substr(trim(chunk_split($word, $params['n'] - 1, '- ')), 0, -1);
         }
     }
 
-    return implode(' ',  Tools::htmlentitiesUTF8($words));
+    return implode(' ', Tools::htmlentitiesUTF8($words));
 }
 
 /**
@@ -219,11 +221,11 @@ function smarty_modifier_truncate($string, $length = 80, $etc = '...', $break_wo
     if (mb_strlen($string) > $length) {
         $length -= min($length, mb_strlen($etc));
         if (!$break_words && !$middle) {
-            $string = preg_replace('/\s+?(\S+)?$/u', '', mb_substr($string, 0, $length+1, $charset));
+            $string = preg_replace('/\s+?(\S+)?$/u', '', mb_substr($string, 0, $length + 1, $charset));
         }
         return !$middle
             ? mb_substr($string, 0, $length, $charset).$etc
-            : mb_substr($string, 0, $length/2, $charset).$etc.mb_substr($string, -$length/2, $length, $charset);
+            : mb_substr($string, 0, $length / 2, $charset).$etc.mb_substr($string, -$length / 2, $length, $charset);
     } else {
         return $string;
     }
@@ -440,7 +442,7 @@ function smarty_modifier_date_format($string, $format = null, $defaultDate = '',
                 '%r',
                 '%R',
                 '%t',
-                '%T'
+                '%T',
             ];
             $_win_to = [
                 '%m/%d/%y',
@@ -449,7 +451,7 @@ function smarty_modifier_date_format($string, $format = null, $defaultDate = '',
                 '%I:%M:%S %p',
                 '%H:%M',
                 "\t",
-                '%H:%M:%S'
+                '%H:%M:%S',
             ];
             if (strpos($format, '%e') !== false) {
                 $_win_from[] = '%e';
@@ -503,7 +505,7 @@ class SmartyLazyRegister
 
         $this->registry[$name] = [
             'callable' => $callable,
-            'type' => $type
+            'type' => $type,
         ];
     }
 

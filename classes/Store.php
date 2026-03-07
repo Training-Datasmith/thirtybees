@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -174,12 +176,11 @@ class StoreCore extends ObjectModel implements InitializationCallback
      * StoreCore constructor.
      *
      * @param int|null $idStore
-     * @param int|null $idLang
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function __construct($idStore = null, $idLang = null)
+    public function __construct($idStore = null)
     {
         parent::__construct($idStore);
         $this->image_dir = _PS_STORE_IMG_DIR_;
@@ -218,11 +219,9 @@ class StoreCore extends ObjectModel implements InitializationCallback
     /**
      * Database initialization callback
      *
-     * @param Db $conn
-     * @return void
      * @throws PrestaShopException
      */
-    public static function initializationCallback(Db $conn)
+    public static function initializationCallback(Db $conn): void
     {
         ImageEntity::rebuildImageEntities(static::class, self::$definition['images']);
     }

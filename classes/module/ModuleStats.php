@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -34,8 +36,8 @@
  */
 abstract class ModuleStatsCore extends Module
 {
-    const ENGINE_GRAPH = 'graph';
-    const ENGINE_GRID = 'grid';
+    public const ENGINE_GRAPH = 'graph';
+    public const ENGINE_GRID = 'grid';
 
     /**
      * @var Employee $_employee
@@ -58,7 +60,7 @@ abstract class ModuleStatsCore extends Module
     protected $_titles = [
         'main' => null,
         'x' => null,
-        'y' => null
+        'y' => null,
     ];
 
     /**
@@ -89,12 +91,12 @@ abstract class ModuleStatsCore extends Module
     /**
      * @var string column name on which to sort
      */
-    protected $_sort = null;
+    protected $_sort;
 
     /**
      * @var string sort direction DESC/ASC
      */
-    protected $_direction = null;
+    protected $_direction;
 
     /**
      * @var string csv content
@@ -111,7 +113,7 @@ abstract class ModuleStatsCore extends Module
      *
      * @throws PrestaShopException
      */
-    public function setEmployee($idEmployee)
+    public function setEmployee($idEmployee): void
     {
         $this->_employee = new Employee((int)$idEmployee);
     }
@@ -119,7 +121,7 @@ abstract class ModuleStatsCore extends Module
     /**
      * @param int $id_lang
      */
-    public function setLang($id_lang)
+    public function setLang($id_lang): void
     {
         $this->_id_lang = (int)$id_lang;
     }
@@ -131,8 +133,8 @@ abstract class ModuleStatsCore extends Module
     protected function setDateGraph($layers, $legend = false)
     {
         // Get dates in a manageable format
-        $fromArray = getdate(strtotime($this->_employee->stats_date_from));
-        $toArray = getdate(strtotime($this->_employee->stats_date_to));
+        $fromArray = getdate(strtotime((string) $this->_employee->stats_date_from));
+        $toArray = getdate(strtotime((string) $this->_employee->stats_date_to));
 
         // If the granularity is inferior to 1 day
         if ($this->_employee->stats_date_from == $this->_employee->stats_date_to) {
@@ -151,7 +153,7 @@ abstract class ModuleStatsCore extends Module
             if (is_callable([$this, 'setDayValues'])) {
                 $this->setDayValues($layers);
             }
-        } elseif (strtotime($this->_employee->stats_date_to) - strtotime($this->_employee->stats_date_from) <= 2678400) {
+        } elseif (strtotime((string) $this->_employee->stats_date_to) - strtotime((string) $this->_employee->stats_date_from) <= 2678400) {
             // If the granularity is inferior to 1 month
             // @TODO : change to manage 28 to 31 days
             if ($legend) {
@@ -183,7 +185,7 @@ abstract class ModuleStatsCore extends Module
             if (is_callable([$this, 'setMonthValues'])) {
                 $this->setMonthValues($layers);
             }
-        } elseif (strtotime('-1 year', strtotime($this->_employee->stats_date_to)) < strtotime($this->_employee->stats_date_from)) {
+        } elseif (strtotime('-1 year', strtotime((string) $this->_employee->stats_date_to)) < strtotime((string) $this->_employee->stats_date_from)) {
             // If the granularity is less than 1 year
             if ($legend) {
                 $months = [];
@@ -275,7 +277,7 @@ abstract class ModuleStatsCore extends Module
             if ($datas['type'] == 'pie') {
                 foreach ($this->_legend as $key => $legend) {
                     for ($i = 0, $totalMain = (is_array($this->_titles['main']) ? count($this->_values) : 1); $i < $totalMain; ++$i) {
-                        $total += (is_array($this->_values[$i])  ? $this->_values[$i][$key] : $this->_values[$key]);
+                        $total += (is_array($this->_values[$i]) ? $this->_values[$i][$key] : $this->_values[$key]);
                     }
                 }
             }
@@ -363,7 +365,7 @@ abstract class ModuleStatsCore extends Module
      *
      * @throws PrestaShopException
      */
-    public function createGraph($render, $type, $width, $height, $layers)
+    public function createGraph($render, $type, $width, $height, $layers): void
     {
         $this->_render = static::getRenderingEngine(static::ENGINE_GRAPH, $type);
 
@@ -383,10 +385,9 @@ abstract class ModuleStatsCore extends Module
      * @param int $limit
      * @param int $sort
      * @param string $dir
-     * @return void
      * @throws PrestaShopException
      */
-    public function createGrid($render, $type, $width, $height, $start, $limit, $sort, $dir)
+    public function createGrid($render, $type, $width, $height, $start, $limit, $sort, $dir): void
     {
         $this->_render = static::getRenderingEngine(static::ENGINE_GRID, $type);
 
@@ -404,10 +405,7 @@ abstract class ModuleStatsCore extends Module
         $this->_render->setLimit($this->_start, $this->_limit);
     }
 
-    /**
-     * @return void
-     */
-    public function draw()
+    public function draw(): void
     {
         $this->_render->draw();
     }
@@ -450,7 +448,7 @@ abstract class ModuleStatsCore extends Module
         $urlParams['module'] = Tools::getValue('module');
         $urlParams['id_employee'] = $idEmployee;
         $urlParams['id_lang'] = $idLang;
-        $drawer = 'drawer.php?'.http_build_query(array_map('Tools::safeOutput', $urlParams), '', '&');
+        $drawer = 'drawer.php?'.http_build_query(array_map(Tools::safeOutput(...), $urlParams), '', '&');
 
         $type = $params['type'] ?? null;
         $engine = static::getRenderingEngine(static::ENGINE_GRAPH, $type);
@@ -511,7 +509,6 @@ abstract class ModuleStatsCore extends Module
 
     /**
      * @param Employee|null $employee
-     * @param Context|null $context
      *
      * @return Employee|false
      *

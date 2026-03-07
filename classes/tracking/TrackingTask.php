@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -37,22 +39,18 @@ use Thirtybees\Core\WorkQueue\WorkQueueTaskCallable;
  */
 class TrackingTaskCore implements WorkQueueTaskCallable, InitializationCallback
 {
-
     /**
      * Task execution method
      *
      * Collect data using all extractors that store owner gave consent. If any data are available,
      * send them to thirty bees api server
      *
-     * @param WorkQueueContext $context
-     * @param array $parameters
      *
-     * @return string
      * @throws PrestaShopException
      * @throws PrestaShopDatabaseException
      * @throws GuzzleException
      */
-    public function execute(WorkQueueContext $context, array $parameters)
+    public function execute(WorkQueueContext $context, array $parameters): string
     {
         $allowedExtractors = Consent::getAllowedExtractors();
         $dataset = [];
@@ -62,16 +60,16 @@ class TrackingTaskCore implements WorkQueueTaskCallable, InitializationCallback
             if ($this->valueChanged($extractor, $value)) {
                 $dataset[] = [
                     'type' => $extractorId,
-                    'value' => $value
+                    'value' => $value,
                 ];
             }
         }
         if ($dataset) {
             $this->send($dataset);
-            return "Sent " . count($dataset) . ' items';
+            return 'Sent ' . count($dataset) . ' items';
         }
 
-        return "Nothing to send";
+        return 'Nothing to send';
     }
 
     /**
@@ -79,10 +77,8 @@ class TrackingTaskCore implements WorkQueueTaskCallable, InitializationCallback
      *
      * @param DataExtractor $extractor
      * @param mixed $value
-     *
-     * @return bool
      */
-    protected function valueChanged($extractor, $value)
+    protected function valueChanged($extractor, $value): bool
     {
         // currently not implemented, send always
         return true;
@@ -101,18 +97,18 @@ class TrackingTaskCore implements WorkQueueTaskCallable, InitializationCallback
         $guzzle = new Client([
             'base_uri'    => Configuration::getApiServer(),
             'timeout'     => 15,
-            'verify'      => Configuration::getSslTrustStore()
+            'verify'      => Configuration::getSslTrustStore(),
         ]);
         $guzzle->post(
             '/collect/v1.php',
             [
                 'json' => [
                     'ts' => time(),
-                    'data' => $dataset
+                    'data' => $dataset,
                 ],
                 'headers' => [
-                    'X-SID' => Configuration::getServerTrackingId()
-                ]
+                    'X-SID' => Configuration::getServerTrackingId(),
+                ],
             ]
         );
     }
@@ -120,17 +116,15 @@ class TrackingTaskCore implements WorkQueueTaskCallable, InitializationCallback
     /**
      * Callback method to initialize class
      *
-     * @param Db $conn
-     * @return void
      * @throws PrestaShopException
      */
-    public static function initializationCallback(Db $conn)
+    public static function initializationCallback(Db $conn): void
     {
-        $task = str_replace("TrackingTaskCore", "TrackingTask", static::class);
+        $task = str_replace('TrackingTaskCore', 'TrackingTask', static::class);
         $trackingTasks = ScheduledTask::getTasksForCallable($task);
         if (! $trackingTasks) {
             $scheduledTask = new ScheduledTask();
-            $scheduledTask->frequency = rand(0, 59) . ' ' . rand(0, 23) . ' * * *';
+            $scheduledTask->frequency = random_int(0, 59) . ' ' . random_int(0, 23) . ' * * *';
             $scheduledTask->name = 'Thirty bees data collection task';
             $scheduledTask->description = 'Sends various information to thirty bees server';
             $scheduledTask->task = $task;

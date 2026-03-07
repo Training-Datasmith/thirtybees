@@ -1,5 +1,9 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Tests\Acceptance\Back;
+
 use Tests\Support\AcceptanceTester;
 
 class ProductCreationCest
@@ -33,7 +37,7 @@ class ProductCreationCest
         $I->withoutErrors();
 
         // go to product list
-        $catalogMenuElement = "#maintab-AdminCatalog a";
+        $catalogMenuElement = '#maintab-AdminCatalog a';
 
         $I->waitForElementVisible($catalogMenuElement, 10);
         $I->click($catalogMenuElement);
@@ -54,7 +58,7 @@ class ProductCreationCest
 
         // enter product price
         $I->click('#link-Prices');
-        $I->fillField('#priceTE', "100.00");
+        $I->fillField('#priceTE', '100.00');
 
         // save product
         $I->click('#link-Informations');

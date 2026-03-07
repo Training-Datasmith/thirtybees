@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -95,7 +97,7 @@ class PaymentCCCore extends OrderPayment
         'card_number' => 254,
         'card_brand' => 254,
         'card_expiration' => 254,
-        'card_holder' => 254
+        'card_holder' => 254,
     ];
 
     /**
@@ -110,7 +112,7 @@ class PaymentCCCore extends OrderPayment
         'card_number' => 'isAnything',
         'card_brand' => 'isAnything',
         'card_expiration' => 'isAnything',
-        'card_holder' => 'isAnything'
+        'card_holder' => 'isAnything',
     ];
 
     /**

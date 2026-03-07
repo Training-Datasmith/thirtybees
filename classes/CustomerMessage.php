@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -172,15 +174,14 @@ class CustomerMessageCore extends ObjectModel
                     ->leftJoin('customer_thread', 'ct', 'cm.`id_customer_thread` = ct.`id_customer_thread`')
                     ->where('1 '.Shop::addSqlRestriction())
             );
-        } else {
-            return (int) $conn->getValue(
-                (new DbQuery())
-                    ->select('COUNT(*)')
-                    ->from('customer_message', 'cm')
-                    ->leftJoin('customer_thread', 'ct', 'cm.`id_customer_thread` = ct.`id_customer_thread`')
-                    ->where($where.Shop::addSqlRestriction())
-            );
         }
+        return (int) $conn->getValue(
+            (new DbQuery())
+                ->select('COUNT(*)')
+                ->from('customer_message', 'cm')
+                ->leftJoin('customer_thread', 'ct', 'cm.`id_customer_thread` = ct.`id_customer_thread`')
+                ->where($where.Shop::addSqlRestriction())
+        );
     }
 
     /**
@@ -197,9 +198,6 @@ class CustomerMessageCore extends ObjectModel
         return parent::delete();
     }
 
-    /**
-     * @return string
-     */
     public function getFilePath(): string
     {
         if ($this->file_name) {
@@ -208,9 +206,6 @@ class CustomerMessageCore extends ObjectModel
         return '';
     }
 
-    /**
-     * @return bool
-     */
     public function fileExists(): bool
     {
         $filePath = $this->getFilePath();

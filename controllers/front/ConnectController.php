@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -25,7 +27,7 @@ use Thirtybees\Core\Error\Response\JSendErrorResponse;
  */
 class ConnectControllerCore extends FrontController
 {
-    const CONNECT_CODE = 'code';
+    public const CONNECT_CODE = 'code';
 
     /**
      * @var string
@@ -51,16 +53,16 @@ class ConnectControllerCore extends FrontController
         $ts = (int)$parts[1] ?? 0;
 
         if (!$expectedCode || !$ts) {
-            $this->sendResponse('fail', "Connect code was not issued yet");
+            $this->sendResponse('fail', 'Connect code was not issued yet');
         }
 
         if ($ts < (time() - 300)) {
-            $this->sendResponse('fail', "Expired connect code");
+            $this->sendResponse('fail', 'Expired connect code');
         }
 
         $providedCode = Tools::getValue(static::CONNECT_CODE);
         if ($providedCode !== $expectedCode) {
-            $this->sendResponse('fail', "Invalid authorization code");
+            $this->sendResponse('fail', 'Invalid authorization code');
         }
 
         Configuration::updateGlobalValue(Configuration::CONNECTED, 1);
@@ -86,9 +88,8 @@ class ConnectControllerCore extends FrontController
     {
         $this->ajaxDie(json_encode([
             'status' => $status,
-            'data' => $data
+            'data' => $data,
         ]));
     }
-
 
 }

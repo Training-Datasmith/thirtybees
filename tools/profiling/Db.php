@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -122,14 +124,14 @@ class Db extends DbCore
             foreach ($stack as $call) {
                 $stack_light[] = [
                     'file' => isset($call['file']) ? $call['file'] : 'undefined',
-                    'line' => isset($call['line']) ? $call['line'] : 'undefined'
+                    'line' => isset($call['line']) ? $call['line'] : 'undefined',
                 ];
             }
 
             $this->queries[] = [
                 'query' => $sql,
                 'time' => $end - $start,
-                'stack' => $stack_light
+                'stack' => $stack_light,
             ];
         }
 

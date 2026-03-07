@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -170,7 +172,7 @@ class EmployeeCore extends ObjectModel implements InitializationCallback
     /**
      * @var Notification|null
      */
-    protected $notification = null;
+    protected $notification;
 
     /**
      * @var array Object model definition
@@ -333,7 +335,7 @@ class EmployeeCore extends ObjectModel implements InitializationCallback
             return Db::getInstance()->update(
                 bqSQL(static::$definition['table']),
                 [
-                    'last_connection_date' => date('Y-m-d H:i:s')
+                    'last_connection_date' => date('Y-m-d H:i:s'),
                 ],
                 '`id_employee` = ' . (int)$idEmployee
             );
@@ -382,8 +384,7 @@ class EmployeeCore extends ObjectModel implements InitializationCallback
         $this->updateTextDirection();
 
         $result = parent::add($autoDate, $nullValues);
-        $result = $this->updateSignature() && $result;
-        return $result;
+        return $this->updateSignature() && $result;
     }
 
     /**
@@ -410,7 +411,8 @@ class EmployeeCore extends ObjectModel implements InitializationCallback
 
                 try {
                     $body = $guzzle->post(
-                        '/newsletter/', [
+                        '/newsletter/',
+                        [
                             'json' => [
                                 'email'    => $this->email,
                                 'fname'    => $this->firstname,
@@ -421,8 +423,8 @@ class EmployeeCore extends ObjectModel implements InitializationCallback
                                 'URL'      => $context->shop->getBaseURL(),
                             ],
                             'headers' => [
-                                'X-SID' => Configuration::getServerTrackingId()
-                            ]
+                                'X-SID' => Configuration::getServerTrackingId(),
+                            ],
                         ]
                     )->getBody();
 
@@ -432,7 +434,7 @@ class EmployeeCore extends ObjectModel implements InitializationCallback
                         $this->optin = false;
                     }
 
-                } catch (Throwable $e) {
+                } catch (Throwable) {
                     $success = false;
                     $this->optin = false;
                 }
@@ -467,9 +469,9 @@ class EmployeeCore extends ObjectModel implements InitializationCallback
         } else {
             // Probably installation in progress.
             $path = _PS_ROOT_DIR_.'/admin/themes/'.$this->bo_theme.'/css/';
-            if ( ! is_dir($path)) {
+            if (! is_dir($path)) {
                 $path = _PS_ROOT_DIR_.'/admin-dev/themes/'.$this->bo_theme.'/css/';
-                if ( ! is_dir($path)) {
+                if (! is_dir($path)) {
                     // Give up.
                     return;
                 }
@@ -527,8 +529,7 @@ class EmployeeCore extends ObjectModel implements InitializationCallback
         $this->updateTextDirection();
 
         $success = parent::update($nullValues) && $success;
-        $success = $this->updateSignature() && $success;
-        return $success;
+        return $this->updateSignature() && $success;
     }
 
     /**
@@ -573,7 +574,7 @@ class EmployeeCore extends ObjectModel implements InitializationCallback
             return false;
         }
 
-        if ($plainTextPassword && !password_verify($plainTextPassword, $storedPassword)) {
+        if ($plainTextPassword && !password_verify($plainTextPassword, (string) $storedPassword)) {
             // Check if it matches the legacy md5 hashing and, if it does, rehash it.
             if (Validate::isMd5($storedPassword) && $storedPassword === md5(_COOKIE_KEY_.$plainTextPassword)) {
                 $newPassword = Tools::hash($plainTextPassword);
@@ -716,7 +717,7 @@ class EmployeeCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public function logout()
+    public function logout(): void
     {
         if (isset(Context::getContext()->cookie)) {
             Context::getContext()->cookie->delete();
@@ -752,7 +753,10 @@ class EmployeeCore extends ObjectModel implements InitializationCallback
      */
     public function hasAuthOnShop($idShop)
     {
-        return $this->isSuperAdmin() || in_array($idShop, $this->associated_shops);
+        if ($this->isSuperAdmin()) {
+            return true;
+        }
+        return in_array($idShop, $this->associated_shops);
     }
 
     /**
@@ -850,7 +854,7 @@ class EmployeeCore extends ObjectModel implements InitializationCallback
     public function hasAccess($tab, $permission)
     {
         if (! Profile::isValidPermission($permission)) {
-            throw new PrestaShopException("Invalid permission type");
+            throw new PrestaShopException('Invalid permission type');
         }
 
         $tabId = (int)$tab;
@@ -864,10 +868,7 @@ class EmployeeCore extends ObjectModel implements InitializationCallback
     /**
      * Calculates HMAC-SHA256 signature
      *
-     * @param int $employeeId
      * @param int $profileId,
-     * @param string $email
-     * @param string $password
      *
      * @return string
      */
@@ -892,7 +893,7 @@ class EmployeeCore extends ObjectModel implements InitializationCallback
                 return Db::getInstance()->update(
                     bqSQL(static::$definition['table']),
                     [
-                        'signature' => pSQL($signature)
+                        'signature' => pSQL($signature),
                     ],
                     'id_employee = ' . (int)$id
                 );
@@ -903,12 +904,9 @@ class EmployeeCore extends ObjectModel implements InitializationCallback
     }
 
     /**
-     * @param Db $conn
-     *
-     * @return void
      * @throws PrestaShopException
      */
-    public static function initializationCallback(Db $conn)
+    public static function initializationCallback(Db $conn): void
     {
         // if signature is missing/empty, calculate and save it
         $employees = new PrestaShopCollection('Employee');

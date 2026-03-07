@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -256,7 +258,7 @@ class ImageCore extends ObjectModel
     {
         $conn = Db::getInstance();
         return ($conn->update(
-        'image',
+            'image',
             [
                 'cover' => ['type' => 'sql', 'value' => 'NULL'],
             ],
@@ -269,7 +271,7 @@ class ImageCore extends ObjectModel
             [
                 'cover' => ['type' => 'sql', 'value' => 'NULL'],
             ],
-            '`id_shop` IN ('.implode(',', array_map('intval', Shop::getContextListShopID())).') AND `id_product` = '.(int) $idProduct
+            '`id_shop` IN ('.implode(',', array_map(intval(...), Shop::getContextListShopID())).') AND `id_product` = '.(int) $idProduct
         ));
     }
 
@@ -573,10 +575,8 @@ class ImageCore extends ObjectModel
 
     /**
      * Clear all images in tmp dir
-     *
-     * @return void
      */
-    public static function clearTmpDir()
+    public static function clearTmpDir(): void
     {
         $imageFormats = implode('|', ImageManager::getAllowedImageExtensions(false, true));
 
@@ -967,7 +967,7 @@ class ImageCore extends ObjectModel
      * @throws PrestaShopException
      * @deprecated since version 1.0.0 use Image::updatePosition() instead
      */
-    public function positionImage($position, $direction)
+    public function positionImage($position, $direction): void
     {
         Tools::displayAsDeprecated();
 
@@ -1023,7 +1023,8 @@ class ImageCore extends ObjectModel
         // < and > statements rather than BETWEEN operator
         // since BETWEEN is treated differently according to databases
         $conn = Db::getInstance();
-        $result = $conn->update(
+
+        return $conn->update(
             'image',
             [
                 'position' => ['type' => 'sql', 'value' => '`position` '.($way ? '- 1' : '+ 1')],
@@ -1036,14 +1037,12 @@ class ImageCore extends ObjectModel
             ],
             '`id_image` = '.(int) $this->id_image
         );
-
-        return $result;
     }
 
     /**
      * @param TableSchema $table
      */
-    public static function processTableSchema($table)
+    public static function processTableSchema($table): void
     {
         if ($table->getNameWithoutPrefix() === 'image_shop') {
             $table->reorderColumns(['id_product', 'id_image', 'id_shop']);

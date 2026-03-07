@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -22,9 +24,9 @@ namespace Tests\Integration;
 require_once _PS_MODULE_DIR_ . '/coreupdater/classes/schema/autoload.php';
 
 use Codeception\Test\Unit;
-use CoreUpdater\ObjectModelSchemaBuilder;
-use CoreUpdater\InformationSchemaBuilder;
 use CoreUpdater\DatabaseSchemaComparator;
+use CoreUpdater\InformationSchemaBuilder;
+use CoreUpdater\ObjectModelSchemaBuilder;
 use CoreUpdater\SchemaDifference;
 use PrestaShopDatabaseException;
 use PrestaShopException;
@@ -114,12 +116,12 @@ class DatabaseSchemaTest extends Unit
                 'collectlogs_extra',
                 'collectlogs_logs',
                 'collectlogs_stats',
-            ]
+            ],
         ]);
 
         $differences = $comparator->getDifferences($realSchema, $modelSchema);
-        $errors = implode("\n", array_map(function(SchemaDifference $difference) {
-            return "  - " . $difference->describe();
+        $errors = implode("\n", array_map(function (SchemaDifference $difference) {
+            return '  - ' . $difference->describe();
         }, $differences));
         if ($errors) {
             self::fail("Database differences:\n$errors\nTotal problems: " . count($differences));
@@ -155,10 +157,10 @@ class DatabaseSchemaTest extends Unit
         $content = file_get_contents(_PS_ROOT_DIR_ . $goldenFile);
         $stmts = preg_split('#;\s*[\r\n]+#', $content);
         $goldenFileTables = [];
-        foreach($stmts as $stmt) {
+        foreach ($stmts as $stmt) {
             $stmt = trim($stmt);
             if ($stmt) {
-                if (!preg_match("/CREATE TABLE `(.+)`/", $stmt, $matches)) {
+                if (!preg_match('/CREATE TABLE `(.+)`/', $stmt, $matches)) {
                     throw new PrestaShopException("Invalid statement in `$goldenFile`: " . $stmt);
                 }
                 $origTable = $matches[1] ;

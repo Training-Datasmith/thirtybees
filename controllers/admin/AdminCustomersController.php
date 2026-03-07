@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -1079,7 +1081,7 @@ class AdminCustomersControllerCore extends AdminController
         $customerEmail = (string) Tools::getValue('email');
         if (mb_detect_encoding($customerEmail, 'UTF-8', true) && mb_strpos($customerEmail, '@') > -1) {
             // Convert to IDN
-            list ($local, $domain) = explode('@', $customerEmail, 2);
+            list($local, $domain) = explode('@', $customerEmail, 2);
             $domain = Tools::utf8ToIdn($domain);
             $customerEmail = "$local@$domain";
         }
@@ -1119,7 +1121,7 @@ class AdminCustomersControllerCore extends AdminController
             $customerEmail = strval(Tools::getValue('email'));
             if (mb_detect_encoding($customerEmail, 'UTF-8', true) && mb_strpos($customerEmail, '@') > -1) {
                 // Convert to IDN
-                list ($local, $domain) = explode('@', $customerEmail, 2);
+                list($local, $domain) = explode('@', $customerEmail, 2);
                 $domain = Tools::utf8ToIdn($domain);
                 $customerEmail = "$local@$domain";
             }
@@ -1242,9 +1244,9 @@ class AdminCustomersControllerCore extends AdminController
     public function printNewsIcon($value, $customer)
     {
         return '<a class="list-action-enable '.($value ? 'action-enabled' : 'action-disabled').'" href="index.php?'.htmlspecialchars(
-                'tab=AdminCustomers&id_customer='
+            'tab=AdminCustomers&id_customer='
                 .(int) $customer['id_customer'].'&changeNewsletterVal&token='.Tools::getAdminTokenLite('AdminCustomers')
-            ).'">
+        ).'">
 				'.($value ? '<i class="icon-check"></i>' : '<i class="icon-remove"></i>').
             '</a>';
     }
@@ -1263,9 +1265,9 @@ class AdminCustomersControllerCore extends AdminController
     public function printOptinIcon($value, $customer)
     {
         return '<a class="list-action-enable '.($value ? 'action-enabled' : 'action-disabled').'" href="index.php?'.htmlspecialchars(
-                'tab=AdminCustomers&id_customer='
+            'tab=AdminCustomers&id_customer='
                 .(int) $customer['id_customer'].'&changeOptinVal&token='.Tools::getAdminTokenLite('AdminCustomers')
-            ).'">
+        ).'">
 				'.($value ? '<i class="icon-check"></i>' : '<i class="icon-remove"></i>').
             '</a>';
     }
@@ -1321,8 +1323,7 @@ class AdminCustomersControllerCore extends AdminController
                         if (!isset($customers[$result['id_customer']])) {
                             $customers[$result['id_customer']] = $result;
                             $customers[$result['id_customer']]['sort_score'] = 1;
-                        }
-                        else {
+                        } else {
                             $customers[$result['id_customer']]['sort_score'] += 1;
                         }
                     }
@@ -1394,7 +1395,7 @@ class AdminCustomersControllerCore extends AdminController
             ];
         } else {
             $toReturn = [
-                'found' => false
+                'found' => false,
             ];
         }
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Unit;
 
 use Codeception\Test\Unit;
@@ -17,9 +19,11 @@ class ExtractEmailSubjectTest extends Unit
      */
     public function testSingleSubject()
     {
-        $this->emailSubject([
-            'template' => ['subject']
-        ], "
+        $this->emailSubject(
+            [
+            'template' => ['subject'],
+        ],
+            "
             ...;
             Mail::Send(1, 'template', Mail::l('subject'), ...);
             ..."
@@ -31,10 +35,12 @@ class ExtractEmailSubjectTest extends Unit
      */
     public function testMultipleSubjects()
     {
-        $this->emailSubject([
+        $this->emailSubject(
+            [
             'template' => ['subject', 'subject 2'],
-            'template2' => ['subject 3']
-        ], "
+            'template2' => ['subject 3'],
+        ],
+            "
             ...;
             Mail::Send(1, 'template', Mail::l('subject'), ...);
             ...;
@@ -50,11 +56,13 @@ class ExtractEmailSubjectTest extends Unit
      */
     public function testWhitespace()
     {
-        $this->emailSubject([
+        $this->emailSubject(
+            [
             't1' => ['s1'],
             't2' => ['s2'],
-            't3' => ['s3']
-        ], "
+            't3' => ['s3'],
+        ],
+            "
             ...;
             Mail::Send(1, 't1', Mail::l('s1'), ...);
             ...;
@@ -77,9 +85,11 @@ class ExtractEmailSubjectTest extends Unit
      */
     public function testIgnoreLiteralSubjects()
     {
-        $this->emailSubject([
+        $this->emailSubject(
+            [
             // empty
-        ], "
+        ],
+            "
             ...;
             Mail::Send(1, 'template', 'subject', ...);
             Mail::Send(1, 'template', \$subject, ...);
@@ -94,9 +104,11 @@ class ExtractEmailSubjectTest extends Unit
      */
     public function testIgnoreExpressionsInSubject()
     {
-        $this->emailSubject([
+        $this->emailSubject(
+            [
             // empty
-        ], "
+        ],
+            "
             ...;
             Mail::Send(1, 'template', Mail::l(sprintf('subject %s', \$var)), ...);
             ...;
@@ -109,10 +121,12 @@ class ExtractEmailSubjectTest extends Unit
      */
     public function testExpressionAroundSubject()
     {
-        $this->emailSubject([
+        $this->emailSubject(
+            [
             't1' => ['subject %s'],
-            't2' => ['subject']
-        ], "
+            't2' => ['subject'],
+        ],
+            "
             ...;
             Mail::Send(1, 't1', sprintf(Mail::l('subject %s'), \$var)), ...);
             Mail::Send(1, 't2', 'prefix' . Mail::l('subject'), ...);

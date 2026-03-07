@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -33,7 +35,6 @@
  */
 class Adapter_ProductPriceCalculator
 {
-
     /**
      * @param int $idProduct
      * @param bool $usetax

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -37,7 +39,7 @@ class TabCore extends ObjectModel
     /**
      * @var array|null
      */
-    protected static $_getIdFromClassName = null;
+    protected static $_getIdFromClassName;
 
     /**
      * Get tabs
@@ -116,7 +118,7 @@ class TabCore extends ObjectModel
         $idTab = Tab::getIdFromClassName(Tools::getValue('controller'));
         // retro-compatibility 1.4/1.5
         if (empty($idTab)) {
-            $idTab = Tab::getIdFromClassName(Tools::getValue('tab'));
+            return Tab::getIdFromClassName(Tools::getValue('tab'));
         }
 
         return $idTab;
@@ -138,10 +140,10 @@ class TabCore extends ObjectModel
             return false;
         }
         $className = strtolower($className);
-        if (str_ends_with($className, "core")) {
+        if (str_ends_with($className, 'core')) {
             $className = substr($className, 0, -4);
         }
-        if (str_ends_with($className, "controller")) {
+        if (str_ends_with($className, 'controller')) {
             $className = substr($className, 0, -10);
         }
         if (static::$_getIdFromClassName === null) {
@@ -153,7 +155,7 @@ class TabCore extends ObjectModel
             );
 
             foreach ($result as $row) {
-                static::$_getIdFromClassName[strtolower($row['class_name'])] = (int)$row['id_tab'];
+                static::$_getIdFromClassName[strtolower((string) $row['class_name'])] = (int)$row['id_tab'];
             }
         }
 
@@ -209,7 +211,7 @@ class TabCore extends ObjectModel
         );
 
         foreach ($result as $detail) {
-            $list[strtolower($detail['class_name'])] = $detail;
+            $list[strtolower((string) $detail['class_name'])] = $detail;
         }
 
         return $list;
@@ -242,8 +244,8 @@ class TabCore extends ObjectModel
                 $name = (string)$row['name'];
                 if (! $name) {
                     $class = (string)$row['class_name'];
-                    $name = preg_replace("/^Admin/", "", $class);
-                    $name = preg_replace('/(?<!^)[A-Z]/', ' $0', $name);
+                    $name = preg_replace('/^Admin/', '', $class);
+                    $name = preg_replace('/(?<!^)[A-Z]/', ' $0', (string) $name);
                     $row['name'] = $name;
                 }
                 if (!isset(static::$_cache_tabs[$idLang][$row['id_parent']])) {
@@ -380,7 +382,7 @@ class TabCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function recursiveTab($idTab, $tabs=[])
+    public static function recursiveTab($idTab, $tabs = [])
     {
         $idTab = (int)$idTab;
         while ($idTab) {
@@ -551,7 +553,6 @@ class TabCore extends ObjectModel
     /** When creating a new tab $id_tab, this add default rights to the table access
      *
      * @param int $idTab
-     * @param Context|null $context
      *
      * @return bool true if succeed
      *
@@ -775,7 +776,8 @@ class TabCore extends ObjectModel
         // < and > statements rather than BETWEEN operator
         // since BETWEEN is treated differently according to databases
         $conn = Db::getInstance();
-        $result = ($conn->update(
+
+        return $conn->update(
             'tab',
             [
 
@@ -789,8 +791,6 @@ class TabCore extends ObjectModel
                 'position' => (int) $position,
             ],
             '`id_parent` = '.(int) $movedTab['id_parent'].' AND `id_tab`='.(int) $movedTab['id_tab']
-        ));
-
-        return $result;
+        );
     }
 }

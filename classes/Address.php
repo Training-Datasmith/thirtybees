@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -35,15 +37,15 @@
 class AddressCore extends ObjectModel
 {
     /** @var int Customer id which address belongs to */
-    public $id_customer = null;
+    public $id_customer;
     /** @var int Manufacturer id which address belongs to */
-    public $id_manufacturer = null;
+    public $id_manufacturer;
     /** @var int Supplier id which address belongs to */
-    public $id_supplier = null;
+    public $id_supplier;
     /**
      * @var int Warehouse id which address belongs to
      */
-    public $id_warehouse = null;
+    public $id_warehouse;
     /** @var int Country id */
     public $id_country;
     /** @var int State id */
@@ -170,7 +172,7 @@ class AddressCore extends ObjectModel
 
         /* Get and cache address country name */
         if ($this->id) {
-            $this->country = Country::getNameById($idLang ? $idLang : Configuration::get('PS_LANG_DEFAULT'), $this->id_country);
+            $this->country = Country::getNameById($idLang ?: Configuration::get('PS_LANG_DEFAULT'), $this->id_country);
         }
     }
 
@@ -232,11 +234,9 @@ class AddressCore extends ObjectModel
 
         if (!$this->isUsed()) {
             return parent::delete();
-        } else {
-            $this->deleted = true;
-
-            return $this->update();
         }
+        $this->deleted = true;
+        return $this->update();
     }
 
     /**
@@ -246,9 +246,7 @@ class AddressCore extends ObjectModel
      */
     public static function getFieldsValidate()
     {
-        return array_filter(array_map(function($field) {
-            return $field['validate'] ?? null;
-        }, static::$definition['fields']));
+        return array_filter(array_map(fn (array $field) => $field['validate'] ?? null, static::$definition['fields']));
     }
 
     /**
@@ -287,7 +285,7 @@ class AddressCore extends ObjectModel
                 ->from('address', 'a')
                 ->leftJoin('country', 'c', 'c.`id_country` = a.`id_country`')
                 ->leftJoin('state', 's', 's.`id_state` = a.`id_state` AND c.`contains_states` = 1')
-                ->where('a.`id_address` = '.(int) $idAddress)
+                ->where('a.`id_address` = '.$idAddress)
         );
 
         $zoneId = false;
@@ -376,7 +374,7 @@ class AddressCore extends ObjectModel
                 ->where('`id_address_delivery` = '.(int) $this->id.' OR `id_address_invoice` = '.(int) $this->id)
         );
 
-        return $result > 0 ? (int) $result : false;
+        return $result > 0 ? $result : false;
     }
 
     /**
@@ -566,10 +564,7 @@ class AddressCore extends ObjectModel
     public function getFieldsRequiredDB()
     {
         $this->cacheFieldsRequiredDatabase(false);
-        if (isset(static::$fieldsRequiredDatabase['Address'])) {
-            return static::$fieldsRequiredDatabase['Address'];
-        }
 
-        return [];
+        return static::$fieldsRequiredDatabase['Address'] ?? [];
     }
 }

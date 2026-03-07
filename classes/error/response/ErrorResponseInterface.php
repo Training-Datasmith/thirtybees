@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -26,13 +28,11 @@ use Thirtybees\Core\Error\ErrorDescription;
  */
 interface ErrorResponseInterface
 {
-
     /**
      * Displays Error Page for given exception.
      *
      * Will never return, it will exit script
      *
-     * @param ErrorDescription $errorDescription
      * @return void
      */
     public function sendResponse(ErrorDescription $errorDescription);

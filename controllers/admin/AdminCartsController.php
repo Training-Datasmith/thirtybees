@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -172,34 +174,34 @@ class AdminCartsControllerCore extends AdminController
      */
     public function initPageHeaderToolbar()
     {
-		// Get the cookie lifetime setting in hours
-		$cookieLifetimeHours = (int) Configuration::get('PS_COOKIE_LIFETIME_FO');
+        // Get the cookie lifetime setting in hours
+        $cookieLifetimeHours = (int) Configuration::get('PS_COOKIE_LIFETIME_FO');
 
-		// Convert cookie lifetime to days
-		$cookieLifetimeDays = floor($cookieLifetimeHours / 24);
+        // Convert cookie lifetime to days
+        $cookieLifetimeDays = floor($cookieLifetimeHours / 24);
 
-		if (empty($this->display)) {
-			$this->page_header_toolbar_btn['export_cart'] = [
-			    'href' => static::$currentIndex.'&exportcart&token='.$this->token,
-			    'desc' => $this->l('Export carts', null, null, false),
-			    'icon' => 'process-icon-export',
-			];
+        if (empty($this->display)) {
+            $this->page_header_toolbar_btn['export_cart'] = [
+                'href' => static::$currentIndex.'&exportcart&token='.$this->token,
+                'desc' => $this->l('Export carts', null, null, false),
+                'icon' => 'process-icon-export',
+            ];
 
-			$this->page_header_toolbar_btn['delete_empty_carts'] = [
-			    'href' => static::$currentIndex.'&delete_empty_carts&token='.$this->token,
-			    'desc' => $this->l('Delete empty carts', null, null, false),
-			    'icon' => 'process-icon-delete',
-			];
+            $this->page_header_toolbar_btn['delete_empty_carts'] = [
+                'href' => static::$currentIndex.'&delete_empty_carts&token='.$this->token,
+                'desc' => $this->l('Delete empty carts', null, null, false),
+                'icon' => 'process-icon-delete',
+            ];
 
-			$this->page_header_toolbar_btn['delete_old_carts'] = [
-			    'href' => self::$currentIndex.'&deleteoldcarts&token='.$this->token,
-			    'desc' => $this->l(sprintf('Delete carts older than %d days', $cookieLifetimeDays), null, null, false),
-			    'icon' => 'process-icon-delete',
-			];
-		}
+            $this->page_header_toolbar_btn['delete_old_carts'] = [
+                'href' => self::$currentIndex.'&deleteoldcarts&token='.$this->token,
+                'desc' => $this->l(sprintf('Delete carts older than %d days', $cookieLifetimeDays), null, null, false),
+                'icon' => 'process-icon-delete',
+            ];
+        }
 
-		parent::initPageHeaderToolbar();
-	}
+        parent::initPageHeaderToolbar();
+    }
 
     /**
      * @return HelperKpi[]
@@ -499,7 +501,7 @@ class AdminCartsControllerCore extends AdminController
 
         foreach ($addresses as &$data) {
             $address = new Address((int) $data['id_address']);
-            $data['formated_address'] = AddressFormat::generateAddress($address, [], "<br />");
+            $data['formated_address'] = AddressFormat::generateAddress($address, [], '<br />');
         }
 
         return [
@@ -1116,72 +1118,72 @@ class AdminCartsControllerCore extends AdminController
      */
     public function processDeleteEmptyCarts()
     {
-		$sql = new DbQuery();
-		$sql->select('id_cart');
-		$sql->from('cart');
-		$sql->where('id_cart NOT IN (SELECT id_cart FROM '._DB_PREFIX_.'cart_product)');
+        $sql = new DbQuery();
+        $sql->select('id_cart');
+        $sql->from('cart');
+        $sql->where('id_cart NOT IN (SELECT id_cart FROM '._DB_PREFIX_.'cart_product)');
 
-		$emptyCarts = Db::getInstance(_PS_USE_SQL_SLAVE_)->getArray($sql);
+        $emptyCarts = Db::getInstance(_PS_USE_SQL_SLAVE_)->getArray($sql);
 
-		$deletedCount = 0;
+        $deletedCount = 0;
 
-		foreach ($emptyCarts as $cart) {
-			$cartObj = new Cart((int)$cart['id_cart']);
-			if (Validate::isLoadedObject($cartObj)) {
-				if ($cartObj->delete()) {
-					$deletedCount++;
-				}
-			}
-		}
+        foreach ($emptyCarts as $cart) {
+            $cartObj = new Cart((int)$cart['id_cart']);
+            if (Validate::isLoadedObject($cartObj)) {
+                if ($cartObj->delete()) {
+                    $deletedCount++;
+                }
+            }
+        }
 
-		if ($deletedCount > 0) {
-			$this->confirmations[] = sprintf($this->l('Successfully deleted %d empty carts.'), $deletedCount);
-		} else {
-			$this->errors[] = $this->l('No empty carts were found to delete.');
-		}
-	}
+        if ($deletedCount > 0) {
+            $this->confirmations[] = sprintf($this->l('Successfully deleted %d empty carts.'), $deletedCount);
+        } else {
+            $this->errors[] = $this->l('No empty carts were found to delete.');
+        }
+    }
 
-	/**
-	 * Delete carts older than configured FO cookie in PS_COOKIE_LIFETIME_FO
-	 *
-	 * @throws PrestaShopException
-	 */
-	protected function processDeleteOldCarts()
-	{
-		// Get the cookie lifetime setting in hours
-		$cookieLifetimeHours = (int) Configuration::get('PS_COOKIE_LIFETIME_FO');
+    /**
+     * Delete carts older than configured FO cookie in PS_COOKIE_LIFETIME_FO
+     *
+     * @throws PrestaShopException
+     */
+    protected function processDeleteOldCarts()
+    {
+        // Get the cookie lifetime setting in hours
+        $cookieLifetimeHours = (int) Configuration::get('PS_COOKIE_LIFETIME_FO');
 
-		// Convert cookie lifetime to seconds
-		$cookieLifetimeSeconds = $cookieLifetimeHours * 3600;
+        // Convert cookie lifetime to seconds
+        $cookieLifetimeSeconds = $cookieLifetimeHours * 3600;
 
-		// Calculate the cutoff date for old carts
-		$cutoffDate = date('Y-m-d H:i:s', time() - $cookieLifetimeSeconds);
+        // Calculate the cutoff date for old carts
+        $cutoffDate = date('Y-m-d H:i:s', time() - $cookieLifetimeSeconds);
 
-		// Retrieve carts older than the cutoff date that are not ordered
-		$sql = new DbQuery();
-		$sql->select('id_cart');
-		$sql->from('cart');
-		$sql->where('date_add < "'.pSQL($cutoffDate).'" AND id_cart NOT IN (SELECT id_cart FROM '._DB_PREFIX_.'orders)');
+        // Retrieve carts older than the cutoff date that are not ordered
+        $sql = new DbQuery();
+        $sql->select('id_cart');
+        $sql->from('cart');
+        $sql->where('date_add < "'.pSQL($cutoffDate).'" AND id_cart NOT IN (SELECT id_cart FROM '._DB_PREFIX_.'orders)');
 
-		$oldCarts = Db::getInstance(_PS_USE_SQL_SLAVE_)->getArray($sql);
+        $oldCarts = Db::getInstance(_PS_USE_SQL_SLAVE_)->getArray($sql);
 
-		$deletedCount = 0;
+        $deletedCount = 0;
 
-		foreach ($oldCarts as $cart) {
-			$cartObj = new Cart((int)$cart['id_cart']);
-			if (Validate::isLoadedObject($cartObj)) {
-				if ($cartObj->delete()) {
-					$deletedCount++;
-				}
-			}
-		}
+        foreach ($oldCarts as $cart) {
+            $cartObj = new Cart((int)$cart['id_cart']);
+            if (Validate::isLoadedObject($cartObj)) {
+                if ($cartObj->delete()) {
+                    $deletedCount++;
+                }
+            }
+        }
 
-		if ($deletedCount > 0) {
-			$this->confirmations[] = sprintf($this->l('Successfully deleted %d old carts.'), $deletedCount);
-		} else {
-			$this->errors[] = $this->l('No old carts were found to delete.');
-		}
-	}
+        if ($deletedCount > 0) {
+            $this->confirmations[] = sprintf($this->l('Successfully deleted %d old carts.'), $deletedCount);
+        } else {
+            $this->errors[] = $this->l('No old carts were found to delete.');
+        }
+    }
 
     /**
      * @return void
@@ -1190,16 +1192,16 @@ class AdminCartsControllerCore extends AdminController
      */
     public function postProcess()
     {
-		if (Tools::isSubmit('delete_empty_carts')) {
-			$this->processDeleteEmptyCarts();
+        if (Tools::isSubmit('delete_empty_carts')) {
+            $this->processDeleteEmptyCarts();
             $this->redirect_after = Context::getContext()->link->getAdminLink('AdminCarts');
-		}
+        }
 
-		if (Tools::isSubmit('deleteoldcarts')) {
-			$this->processDeleteOldCarts();
+        if (Tools::isSubmit('deleteoldcarts')) {
+            $this->processDeleteOldCarts();
             $this->redirect_after = Context::getContext()->link->getAdminLink('AdminCarts');
-		}
+        }
 
-		parent::postProcess();
-	}
+        parent::postProcess();
+    }
 }

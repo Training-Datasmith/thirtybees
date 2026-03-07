@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -64,7 +66,7 @@ if ($excludeIds && $excludeIds != 'NaN') {
     $excludeIds = implode(',', array_map('intval', explode(',', $excludeIds)));
 } else {
     $excludeIds = '';
-    $excludePackItself= Tools::getValue('packItself', false);
+    $excludePackItself = Tools::getValue('packItself', false);
 }
 
 // Excluding downloadable products from packs because download from pack is not supported
@@ -158,5 +160,5 @@ if (
     $results = array_values($results);
     echo json_encode($results);
 } else {
-    json_encode(new stdClass);
+    json_encode(new stdClass());
 }

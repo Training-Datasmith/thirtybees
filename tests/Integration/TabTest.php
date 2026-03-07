@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Integration;
 
 use AdminDashboardController;
@@ -12,7 +14,6 @@ use Tests\Support\UnitTester;
 
 class TabTest extends Unit
 {
-
     /**
      * @var UnitTester
      */

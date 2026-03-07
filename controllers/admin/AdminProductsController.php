@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -36,21 +38,19 @@
  */
 class AdminProductsControllerCore extends AdminController
 {
-
     /**
      * Tab permissions level NONE = tab is hidden / employee can't see it
      */
-    const TAB_PERMISSION_NONE = 'none';
+    public const TAB_PERMISSION_NONE = 'none';
 
     /**
      * Tab permission level FULL = employee can work with tab without any restrictions
      */
-    const TAB_PERMISSION_FULL = 'full';
+    public const TAB_PERMISSION_FULL = 'full';
 
-    const QUANTITY_METHOD_MANUAL = 0;
-    const QUANTITY_METHOD_ASM = 1;
-    const QUANTITY_METHOD_DYNAMIC_PACK = 2;
-
+    public const QUANTITY_METHOD_MANUAL = 0;
+    public const QUANTITY_METHOD_ASM = 1;
+    public const QUANTITY_METHOD_DYNAMIC_PACK = 2;
 
     /** @var int Max image size for upload
      * As of 1.5 it is recommended to not set a limit to max image size
@@ -262,7 +262,7 @@ class AdminProductsControllerCore extends AdminController
         if ($featureId) {
             $this->_where .= ' AND EXISTS(SELECT 1 FROM `'._DB_PREFIX_.'feature_product` fp WHERE fp.id_product = a.id_product AND fp.id_feature = ' . $featureId;
             if ($featureValueId) {
-                $this->_where.= ' AND fp.id_feature_value = ' . $featureValueId;
+                $this->_where .= ' AND fp.id_feature_value = ' . $featureValueId;
             }
             $this->_where .= ')';
         }
@@ -283,7 +283,6 @@ class AdminProductsControllerCore extends AdminController
             }
             $this->_where .= " AND EXISTS($subQuery)";
         }
-
 
         $this->_use_found_rows = false;
         $this->_group = '';
@@ -356,7 +355,7 @@ class AdminProductsControllerCore extends AdminController
                 'filter_key'   => 'sav!quantity',
                 'orderby'      => true,
                 'badge_danger' => true,
-                'callback' => 'callbackRenderStockLink'
+                'callback' => 'callbackRenderStockLink',
                 //'hint' => $this->l('This is the quantity available in the current shop/group.'),
             ];
         }
@@ -460,7 +459,6 @@ class AdminProductsControllerCore extends AdminController
 
         return $content;
     }
-
 
     /**
      * @return void
@@ -836,15 +834,15 @@ class AdminProductsControllerCore extends AdminController
                 if ($product->hasAttributes()) {
                     Product::updateDefaultAttribute($product->id);
                 } else {
-	                // Set stock quantity
-	                $quantityAttributeOld = Db::readOnly()->getValue(
-		                (new DbQuery())
-		                    ->select('`quantity`')
-		                    ->from('stock_available')
-		                    ->where('`id_product` = '.(int) $idProductOld)
-		                    ->where('`id_product_attribute` = 0')
-	                );
-	                StockAvailable::setQuantity((int) $product->id, 0, (int) $quantityAttributeOld);
+                    // Set stock quantity
+                    $quantityAttributeOld = Db::readOnly()->getValue(
+                        (new DbQuery())
+                            ->select('`quantity`')
+                            ->from('stock_available')
+                            ->where('`id_product` = '.(int) $idProductOld)
+                            ->where('`id_product_attribute` = 0')
+                    );
+                    StockAvailable::setQuantity((int) $product->id, 0, (int) $quantityAttributeOld);
                 }
 
                 StockAvailable::setProductOutOfStock((int)$product->id, StockAvailable::outOfStock($idProductOld));
@@ -1020,12 +1018,12 @@ class AdminProductsControllerCore extends AdminController
         if ($error) {
             $json = [
                 'status' => 'error',
-                'message' => $error
+                'message' => $error,
             ];
         } else {
             $json = [
                 'status' => 'ok',
-                'specificPrice' => $specificPriceData
+                'specificPrice' => $specificPriceData,
             ];
         }
         $this->ajaxDie(json_encode($json));
@@ -2358,7 +2356,6 @@ class AdminProductsControllerCore extends AdminController
             $idLang = Configuration::get('PS_LANG_DEFAULT', null, null, $this->context->shop->id);
         }
 
-
         if (!Validate::isLoadedObject($product) || !$product->id_category_default) {
             return null;
         }
@@ -2733,7 +2730,7 @@ class AdminProductsControllerCore extends AdminController
             $newDefaultSupplier = Tools::getIntValue('default_supplier');
             if ($newDefaultSupplier !== (int)$product->id_supplier) {
                 $this->object->setFieldsToUpdate([
-                    'id_supplier' => true
+                    'id_supplier' => true,
                 ]);
                 $this->object->id_supplier = $newDefaultSupplier;
                 $this->object->update();
@@ -2861,16 +2858,16 @@ class AdminProductsControllerCore extends AdminController
                         $associate = [];
                     }
                     if (count($create) > 1) {
-                        throw new PrestaShopException("Attempt to create multiple values for single-value feature");
+                        throw new PrestaShopException('Attempt to create multiple values for single-value feature');
                     }
                     if (count($associate) > 1) {
-                        throw new PrestaShopException("Attempt to associate multiple values for single-value feature");
+                        throw new PrestaShopException('Attempt to associate multiple values for single-value feature');
                     }
                 }
 
                 $data[$featureId] = [
                     'associate' => $associate,
-                    'create' => $create
+                    'create' => $create,
                 ];
             }
         }
@@ -3523,7 +3520,7 @@ class AdminProductsControllerCore extends AdminController
 
         if ($manufacturers) {
             foreach ($manufacturers as $manufacturer) {
-                $tmp = ["optionValue" => $manufacturer['id_manufacturer'], "optionDisplay" => htmlspecialchars(trim($manufacturer['name']))];
+                $tmp = ['optionValue' => $manufacturer['id_manufacturer'], 'optionDisplay' => htmlspecialchars(trim($manufacturer['name']))];
                 $jsonArray[] = json_encode($tmp);
             }
         }
@@ -3758,10 +3755,10 @@ class AdminProductsControllerCore extends AdminController
         }
 
         Media::addJsDef([
-	        'packItemUrlTemplate' => $this->context->link->getAdminLink('AdminProducts', true, [
+            'packItemUrlTemplate' => $this->context->link->getAdminLink('AdminProducts', true, [
                 'id_product' => 'PLACEHOLDER_PRODUCT_ID',
-                'updateproduct' => 1
-            ])
+                'updateproduct' => 1,
+            ]),
         ]);
 
         $parent = parent::renderForm();
@@ -4001,7 +3998,7 @@ class AdminProductsControllerCore extends AdminController
                     'combinations'   => $combinations,
                     'multi_shop'     => Shop::isFeatureActive(),
                     'link'           => new Link(),
-                    'packInfo'       => $packInfo
+                    'packInfo'       => $packInfo,
                 ]
             );
         } else {
@@ -4242,7 +4239,6 @@ class AdminProductsControllerCore extends AdminController
         $content .= '
 		</script>';
 
-
         $template = $this->createTemplate('specific_price_priorities.tpl');
         $template->assign([
             'cancelUrl' => $this->context->link->getAdminLink('AdminProducts').($page > 1 ? '&submitFilter'.$this->table.'='.(int) $page : ''),
@@ -4254,7 +4250,7 @@ class AdminProductsControllerCore extends AdminController
                 SpecificPrice::PRIORITY_CURRENCY => $this->l('Currency'),
                 SpecificPrice::PRIORITY_COUNTRY => $this->l('Country'),
                 SpecificPrice::PRIORITY_GROUP => $this->l('Group'),
-            ]
+            ],
         ]);
         $content .= $template->fetch();
 
@@ -4736,11 +4732,16 @@ class AdminProductsControllerCore extends AdminController
         array_push(
             $productProps,
             // physical product
-            'width', 'height', 'weight', 'active',
+            'width',
+            'height',
+            'weight',
+            'active',
             // virtual product
-            'is_virtual', 'cache_default_attribute',
+            'is_virtual',
+            'cache_default_attribute',
             // customization
-            'uploadable_files', 'text_fields'
+            'uploadable_files',
+            'text_fields'
         );
         // prices
         array_push(
@@ -4814,7 +4815,8 @@ class AdminProductsControllerCore extends AdminController
                 ];
             }
             if ($productId) {
-                $active = Db::readOnly()->getArray((new DbQuery())
+                $active = Db::readOnly()->getArray(
+                    (new DbQuery())
                     ->select('id_shop, active')
                     ->from('product_shop')
                     ->where('id_product = ' . $productId)
@@ -4884,7 +4886,7 @@ class AdminProductsControllerCore extends AdminController
                 }
                 $packWeight += ($weight * $quantity);
             }
-            $data->assign('packWeight', sprintf("%.2f", $packWeight));
+            $data->assign('packWeight', sprintf('%.2f', $packWeight));
         }
         $this->tpl_form_vars['custom_form'] = $data->fetch();
     }
@@ -5662,7 +5664,7 @@ class AdminProductsControllerCore extends AdminController
                     Pack::STOCK_TYPE_DECREMENT_PACK,
                     Pack::STOCK_TYPE_DECREMENT_PRODUCTS,
                     Pack::STOCK_TYPE_DECREMENT_PACK_AND_PRODUCTS,
-                    Pack::STOCK_TYPE_DECREMENT_GLOBAL_SETTINGS
+                    Pack::STOCK_TYPE_DECREMENT_GLOBAL_SETTINGS,
                 ])) {
                     $this->ajaxDie(json_encode(['error' => $this->l('Incorrect value')]));
                 }
@@ -5707,7 +5709,7 @@ class AdminProductsControllerCore extends AdminController
                 StockAvailable::setQuantity($product->id, Tools::getIntValue('id_product_attribute'), Tools::getIntValue('value'));
                 Hook::triggerEvent('actionProductUpdate', ['id_product' => (int) $product->id, 'product' => $product]);
                 break;
-            case 'advanced_stock_management' :
+            case 'advanced_stock_management':
                 if (Tools::getValue('value') === false) {
                     $this->ajaxDie(json_encode(['error' => $this->l('Undefined value')]));
                 }
@@ -5771,7 +5773,7 @@ class AdminProductsControllerCore extends AdminController
                                     $this->l('You cannot use advanced stock management for this pack because').'<br />'.
                                     $this->l('- advanced stock management is not enabled for these products').'<br />'.
                                     $this->l('- you have chosen to decrement products quantities.')
-                                )
+                                ),
                             ]
                         )
                     );
@@ -5793,7 +5795,7 @@ class AdminProductsControllerCore extends AdminController
 
                 $this->ajaxDie(json_encode([
                     'error' => false,
-                    'quantities' => $this->getProductQuantities($product)
+                    'quantities' => $this->getProductQuantities($product),
                 ]));
                 break;
             default:
@@ -6055,8 +6057,8 @@ class AdminProductsControllerCore extends AdminController
                 $conn->update('product_shop', [
                     'active' => [
                         'type' => 'sql',
-                        'value' => "(CASE WHEN id_shop IN ($list) THEN 1 ELSE 0 END)"
-                    ]
+                        'value' => "(CASE WHEN id_shop IN ($list) THEN 1 ELSE 0 END)",
+                    ],
                 ], "id_product = $productId");
             } else {
                 $conn->update('product_shop', ['active' => 0], "id_product = $productId");
@@ -6092,7 +6094,6 @@ class AdminProductsControllerCore extends AdminController
             return $this->getSaveShopIDs();
         }
     }
-
 
     /**
      * Get final price
@@ -6154,7 +6155,7 @@ class AdminProductsControllerCore extends AdminController
                     static::TAB_PERMISSION_NONE => $this->l('Tab is hidden'),
                     static::TAB_PERMISSION_FULL => $this->l('Read and write access'),
                 ],
-                'defaultLevel' => static::TAB_PERMISSION_FULL
+                'defaultLevel' => static::TAB_PERMISSION_FULL,
             ];
         }
         return $permissions;
@@ -6205,7 +6206,8 @@ class AdminProductsControllerCore extends AdminController
         foreach ($rewrites as $langId => &$rewrite) {
             $base = static::getBaseIdentifier($rewrite);
             $langId = (int)$langId;
-            $candidates = array_column($conn->getArray((new DbQuery())
+            $candidates = array_column($conn->getArray(
+                (new DbQuery())
                 ->select('DISTINCT link_rewrite')
                 ->from('product_lang')
                 ->where('id_lang = ' . $langId)
@@ -6235,7 +6237,7 @@ class AdminProductsControllerCore extends AdminController
         if (!$attributes) {
             $attributes = [[
                 'id_product_attribute' => 0,
-                'quantity' => StockAvailable::getQuantityAvailableByProduct($product->id)
+                'quantity' => StockAvailable::getQuantityAvailableByProduct($product->id),
             ]];
         }
         foreach ($attributes as $attribute) {
@@ -6381,6 +6383,5 @@ class AdminProductsControllerCore extends AdminController
             }
         }
     }
-
 
 }

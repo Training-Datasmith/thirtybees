@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -29,18 +31,18 @@
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
 
-use Thirtybees\Core\Package\PackageExtractor;
 use GuzzleHttp\Client;
+use Thirtybees\Core\Package\PackageExtractor;
 
 /**
  * Class AdminModulesControllerCore
  */
 class AdminModulesControllerCore extends AdminController
 {
-    const CATEGORY_ALL = 'all';
-    const CATEGORY_FAVORITES = 'favorites';
-    const CATEGORY_PREMIUM = 'premium';
-    const CATEGORY_OTHERS = 'others';
+    public const CATEGORY_ALL = 'all';
+    public const CATEGORY_FAVORITES = 'favorites';
+    public const CATEGORY_PREMIUM = 'premium';
+    public const CATEGORY_OTHERS = 'others';
 
     /** @var array map with $_GET keywords and their callback */
     protected $map = [
@@ -134,7 +136,7 @@ class AdminModulesControllerCore extends AdminController
             [
                 'PS_SHOW_TYPE_MODULES_'.(int) $this->id_employee,
                 'PS_SHOW_INSTALLED_MODULES_'.(int) $this->id_employee,
-                'PS_SHOW_ENABLED_MODULES_'.(int) $this->id_employee
+                'PS_SHOW_ENABLED_MODULES_'.(int) $this->id_employee,
             ]
         );
     }
@@ -416,7 +418,7 @@ class AdminModulesControllerCore extends AdminController
                 $upgradeAvailable[] = [
                     'anchor' => ucfirst($module->name),
                     'name' => $module->name,
-                    'displayName' => $module->displayName
+                    'displayName' => $module->displayName,
                 ];
             }
         }
@@ -446,7 +448,7 @@ class AdminModulesControllerCore extends AdminController
         }
 
         // Sort modules by display name from their config.xml instad of their `name` property.
-        uasort($modules, function($a, $b) {
+        uasort($modules, function ($a, $b) {
             return strcoll(mb_strtolower($a->displayName), mb_strtolower($b->displayName));
         });
 

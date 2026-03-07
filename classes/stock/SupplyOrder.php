@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -408,7 +410,7 @@ class SupplyOrderCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public function resetProducts()
+    public function resetProducts(): void
     {
         $products = $this->getEntriesCollection();
 
@@ -525,12 +527,10 @@ class SupplyOrderCore extends ObjectModel
     }
 
     /**
-     * @param array $data
      * @param int|null $idLang
      *
-     * @return void
      */
-    public function hydrate(array $data, $idLang = null)
+    public function hydrate(array $data, $idLang = null): void
     {
         $this->id_lang = $idLang;
         if (isset($data[$this->def['primary']])) {

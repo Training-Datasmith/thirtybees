@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -34,12 +36,12 @@
  */
 class PackCore extends Product
 {
-    const STOCK_TYPE_DECREMENT_PACK = 0;
-    const STOCK_TYPE_DECREMENT_PRODUCTS = 1;
-    const STOCK_TYPE_DECREMENT_PACK_AND_PRODUCTS = 2;
-    const STOCK_TYPE_DECREMENT_GLOBAL_SETTINGS = 3;
+    public const STOCK_TYPE_DECREMENT_PACK = 0;
+    public const STOCK_TYPE_DECREMENT_PRODUCTS = 1;
+    public const STOCK_TYPE_DECREMENT_PACK_AND_PRODUCTS = 2;
+    public const STOCK_TYPE_DECREMENT_GLOBAL_SETTINGS = 3;
 
-    const STOCK_TYPE_ITEMS = 1;
+    public const STOCK_TYPE_ITEMS = 1;
 
     /**
      * @param int $idProduct
@@ -56,7 +58,7 @@ class PackCore extends Product
         $items = static::getItems($idProduct, Configuration::get('PS_LANG_DEFAULT'));
         foreach ($items as $item) {
             /** @var Product $item */
-            $sum += $item->getPrice($priceDisplayMethod, ($item->id_pack_product_attribute ? $item->id_pack_product_attribute : null)) * $item->pack_quantity;
+            $sum += $item->getPrice($priceDisplayMethod, ($item->id_pack_product_attribute ?: null)) * $item->pack_quantity;
         }
 
         return $sum;
@@ -175,7 +177,7 @@ class PackCore extends Product
             $content[] = [
                 'id_product' => (int)$row['id_product'],
                 'id_product_attribute' => (int)$row['id_product_attribute'],
-                'quantity' => (int)$row['quantity']
+                'quantity' => (int)$row['quantity'],
             ];
         }
         return $content;
@@ -428,7 +430,7 @@ class PackCore extends Product
     {
         $idProduct = (int)$idProduct;
         $sql = (new DbQuery())
-            ->select("COUNT(1)")
+            ->select('COUNT(1)')
             ->from('pack')
             ->where('id_product_item = ' . $idProduct);
         return (bool)Db::readOnly()->getValue($sql);
@@ -483,7 +485,7 @@ class PackCore extends Product
      */
     public static function addItem($idProduct, $idItem, $qty, $idAttributeItem = 0)
     {
-        $idAttributeItem = (int)$idAttributeItem ? (int)$idAttributeItem : Product::getDefaultAttribute((int)$idItem);
+        $idAttributeItem = (int)$idAttributeItem ?: Product::getDefaultAttribute((int)$idItem);
 
         $conn = Db::getInstance();
         return $conn->update('product', ['cache_is_pack' => 1], 'id_product = ' . (int)$idProduct) &&
@@ -679,7 +681,7 @@ class PackCore extends Product
             if (static::isValidStockType($stockType)) {
                 return $stockType;
             }
-        } catch (Exception $ignored) {
+        } catch (Exception) {
         }
         return static::STOCK_TYPE_DECREMENT_PACK;
     }
@@ -699,6 +701,6 @@ class PackCore extends Product
             ->where('pack_dynamic');
         $conn = Db::readOnly();
         $result = $conn->getArray($sql);
-        return array_map('intval', array_column($result, 'id_product'));
+        return array_map(intval(...), array_column($result, 'id_product'));
     }
 }

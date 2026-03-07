@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -39,7 +41,7 @@ class AdminCustomerThreadsControllerCore extends AdminController
     /**
      * Settings controller
      */
-    const SETTINGS_CONTROLLER = 'AdminCustomerServiceSettings';
+    public const SETTINGS_CONTROLLER = 'AdminCustomerServiceSettings';
 
     /**
      * AdminCustomerThreadsControllerCore constructor.

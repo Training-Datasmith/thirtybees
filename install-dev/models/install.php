@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -39,7 +41,7 @@ use Defuse\Crypto\Key;
  */
 class InstallModelInstall extends InstallAbstractModel
 {
-    const SETTINGS_FILE = 'config/settings.inc.php';
+    public const SETTINGS_FILE = 'config/settings.inc.php';
 
     /**
      * @var string[]|null
@@ -120,7 +122,7 @@ class InstallModelInstall extends InstallAbstractModel
                 $secureKey = Key::createNewRandomKey();
                 $settingsConstants['_PHP_ENCRYPTION_KEY_'] = $secureKey->saveToAsciiSafeString();
             } catch (EnvironmentIsBrokenException $e) {
-                throw new PrestashopInstallerException("Failed to generate encryption key", 0, $e);
+                throw new PrestashopInstallerException('Failed to generate encryption key', 0, $e);
             }
         }
 
@@ -168,7 +170,7 @@ class InstallModelInstall extends InstallAbstractModel
         // Clear database (only tables with same prefix)
         require_once _PS_ROOT_DIR_.'/'.self::SETTINGS_FILE;
 
-        $conn = Db::createInstance( _DB_SERVER_, _DB_USER_, _DB_PASSWD_, _DB_NAME_);
+        $conn = Db::createInstance(_DB_SERVER_, _DB_USER_, _DB_PASSWD_, _DB_NAME_);
 
         $collations = $conn->getValue(
             'SELECT `COLLATION_NAME`
@@ -231,7 +233,7 @@ class InstallModelInstall extends InstallAbstractModel
      */
     public function clearDatabase($conn)
     {
-        $conn->execute("SET FOREIGN_KEY_CHECKS=0");
+        $conn->execute('SET FOREIGN_KEY_CHECKS=0');
         try {
             $result = $conn->getArray('SELECT DISTINCT TABLE_NAME AS t FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA=database()');
             $tables = array_column($result, 't');
@@ -241,7 +243,7 @@ class InstallModelInstall extends InstallAbstractModel
                 }
             }
         } finally {
-            $conn->execute("SET FOREIGN_KEY_CHECKS=1");
+            $conn->execute('SET FOREIGN_KEY_CHECKS=1');
         }
     }
 

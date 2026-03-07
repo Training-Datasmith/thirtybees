@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -67,12 +69,12 @@ abstract class ModuleGridCore extends Module
     /**
      * @var string column name on which to sort
      */
-    protected $_sort = null;
+    protected $_sort;
 
     /**
      * @var string sort direction DESC/ASC
      */
-    protected $_direction = null;
+    protected $_direction;
 
     /**
      * @var ModuleGridEngine grid engine
@@ -99,7 +101,7 @@ abstract class ModuleGridCore extends Module
      *
      * @throws PrestaShopException
      */
-    public function setEmployee($idEmployee)
+    public function setEmployee($idEmployee): void
     {
         $this->_employee = new Employee((int)$idEmployee);
     }
@@ -107,7 +109,7 @@ abstract class ModuleGridCore extends Module
     /**
      * @param int $idLang
      */
-    public function setLang($idLang)
+    public function setLang($idLang): void
     {
         $this->_id_lang = (int)$idLang;
     }
@@ -124,13 +126,13 @@ abstract class ModuleGridCore extends Module
      *
      * @throws PrestaShopException
      */
-    public function create($render, $type, $width, $height, $start, $limit, $sort, $dir)
+    public function create($render, $type, $width, $height, $start, $limit, $sort, $dir): void
     {
         if (!Validate::isModuleName($render)) {
-            throw new PrestaShopException("Failed to resolve renderer module");
+            throw new PrestaShopException('Failed to resolve renderer module');
         }
         if (!file_exists($file = _PS_ROOT_DIR_.'/modules/'.$render.'/'.$render.'.php')) {
-            throw new PrestaShopException("Invalid renderer module: " . $render);
+            throw new PrestaShopException('Invalid renderer module: ' . $render);
         }
         require_once($file);
         $this->_render = new $render($type);
@@ -149,10 +151,7 @@ abstract class ModuleGridCore extends Module
         $this->_render->setLimit($this->_start, $this->_limit);
     }
 
-    /**
-     * @return void
-     */
-    public function render()
+    public function render(): void
     {
         $this->_render->render();
     }

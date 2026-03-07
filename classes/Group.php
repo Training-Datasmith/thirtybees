@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -260,7 +262,7 @@ class GroupCore extends ObjectModel
      */
     public static function getPriceDisplayMethod($idGroup)
     {
-        if ( ! isset(static::$group_price_display_method[$idGroup])) {
+        if (! isset(static::$group_price_display_method[$idGroup])) {
             static::$group_price_display_method[$idGroup] = (int)Db::readOnly()->getValue(
                 (new DbQuery())
                     ->select('`price_display_method`')
@@ -301,7 +303,7 @@ class GroupCore extends ObjectModel
      */
     public static function isCurrentlyUsed($table = null, $hasActiveColumn = false)
     {
-        return (bool) (Db::readOnly()->getValue((new DbQuery())->select('COUNT(*)')->from('group')) > 3);
+        return Db::readOnly()->getValue((new DbQuery())->select('COUNT(*)')->from('group')) > 3;
     }
 
     /**
@@ -498,7 +500,7 @@ class GroupCore extends ObjectModel
             $conn->delete('category_group', '`id_group` = '.(int) $this->id);
             $conn->delete('group_reduction', '`id_group` = '.(int) $this->id);
             $conn->delete('product_group_reduction_cache', '`id_group` = '.(int) $this->id);
-            $this->truncateModulesRestrictions($this->id);
+            static::truncateModulesRestrictions($this->id);
 
             // Add default group (id 3) to customers without groups
             $conn->execute(

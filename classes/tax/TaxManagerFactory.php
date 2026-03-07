@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -42,7 +44,6 @@ class TaxManagerFactoryCore
     /**
      * Returns a tax manager able to handle this address
      *
-     * @param Address $address
      * @param int $taxRuleGroupId TaxRulesGroup id
      *
      * @return TaxManagerInterface
@@ -68,7 +69,6 @@ class TaxManagerFactoryCore
     /**
      * Check for a tax manager able to handle this type of address in the module list
      *
-     * @param Address $address
      * @param int $type TaxRulesGroup id
      *
      * @return TaxManagerInterface|false
@@ -76,7 +76,7 @@ class TaxManagerFactoryCore
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function execHookTaxManagerFactory(Address $address, $type)
+    public static function execHookTaxManagerFactory(Address $address, $type): \TaxManagerInterface|false
     {
         $hookName = 'taxManager';
         $modules = Hook::getModulesFromHook(Hook::getIdByName($hookName));
@@ -98,11 +98,8 @@ class TaxManagerFactoryCore
 
     /**
      * Create a unique identifier for the address
-     *
-     * @param Address $address
-     * @return string
      */
-    protected static function getCacheKey(Address $address)
+    protected static function getCacheKey(Address $address): string
     {
         return $address->id_country.'-'
             .(int) $address->id_state.'-'

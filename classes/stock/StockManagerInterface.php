@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -46,13 +48,11 @@ interface StockManagerInterface
      *
      * @param int $idProduct
      * @param int $idProductAttribute
-     * @param Warehouse $warehouse
      * @param int $quantity
      * @param int|null $idStockMovementReason
      * @param float $priceTe
      * @param bool $isUsable
      * @param int $idSupplyOrder optional
-     *
      * @return bool
      */
     public function addProduct($idProduct, $idProductAttribute, Warehouse $warehouse, $quantity, $idStockMovementReason, $priceTe, $isUsable = true, $idSupplyOrder = null);
@@ -62,14 +62,12 @@ interface StockManagerInterface
      *
      * @param int $idProduct
      * @param int|null $idProductAttribute
-     * @param Warehouse $warehouse
      * @param int $quantity
      * @param int $idStockMovementReason
      * @param bool $isUsable
      * @param int|null $idOrder
      * @param int $ignorePack
      * @param Employee|null $employee
-     * @param Stock|null $stock
      *
      * @return array|false - empty if an error occurred | details of removed products quantities with corresponding prices otherwise
      */

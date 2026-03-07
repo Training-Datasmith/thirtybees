@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -37,11 +39,11 @@ use Thirtybees\Core\Smarty\Cache\CacheResourceServerSideCache;
  */
 class SmartyCustomCore extends Smarty
 {
-    const CACHING_TYPE_FILESYSTEM = 'filesystem';
+    public const CACHING_TYPE_FILESYSTEM = 'filesystem';
 
-    const CACHING_TYPE_MYSQL = 'mysql';
+    public const CACHING_TYPE_MYSQL = 'mysql';
 
-    const CACHING_TYPE_SSC = 'ssc';
+    public const CACHING_TYPE_SSC = 'ssc';
 
     /**
      * @var array stack trace for currently rendering templates
@@ -69,7 +71,7 @@ class SmartyCustomCore extends Smarty
         if ($cachingType === static::CACHING_TYPE_MYSQL) {
             $this->registerCacheResource('mysql', new CacheResourceMysql(Encryptor::getInstance()));
             $this->caching_type = 'mysql';
-        }  elseif ($cachingType === static::CACHING_TYPE_SSC && Cache::isEnabled()) {
+        } elseif ($cachingType === static::CACHING_TYPE_SSC && Cache::isEnabled()) {
             $cache = Cache::getInstance();
             if ($cache->isAvailable()) {
                 $this->registerCacheResource('ssc', new CacheResourceServerSideCache($cache));
@@ -100,9 +102,8 @@ class SmartyCustomCore extends Smarty
             Db::getInstance()->execute('REPLACE INTO `'._DB_PREFIX_.'smarty_last_flush` (`type`, `last_flush`) VALUES (\'compile\', FROM_UNIXTIME('.time().'))');
 
             return 0;
-        } else {
-            return parent::clearCompiledTemplate($resourceName, $compileId, $expTime);
         }
+        return parent::clearCompiledTemplate($resourceName, $compileId, $expTime);
     }
 
     /**
@@ -201,7 +202,7 @@ class SmartyCustomCore extends Smarty
      *
      * @throws PrestaShopException
      */
-    public function check_compile_cache_invalidation()
+    public function check_compile_cache_invalidation(): void
     {
         static $checked = false;
         if (!$checked) {
@@ -258,7 +259,7 @@ class SmartyCustomCore extends Smarty
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function check_template_invalidation($template, $cacheId, $compileId)
+    public function check_template_invalidation($template, $cacheId, $compileId): void
     {
         static $lastFlush = null;
         $filename = $this->getCacheDir() . 'last_template_flush';
@@ -354,7 +355,7 @@ class SmartyCustomCore extends Smarty
      *
      * @throws PrestaShopException
      */
-    public function update_filepath($filepath, $template, $cacheId, $compileId)
+    public function update_filepath($filepath, $template, $cacheId, $compileId): void
     {
         $templateMd5 = md5($template);
         $sql = 'UPDATE `'._DB_PREFIX_.'smarty_lazy_cache`
@@ -377,17 +378,15 @@ class SmartyCustomCore extends Smarty
      * @param Smarty_Internal_Template $template
      * @throws SmartyException
      */
-    public static function beforeFetch($template)
+    public static function beforeFetch($template): void
     {
         static::$trace[] = static::getTemplateSource($template);
     }
 
     /**
      * Callback called after template rendering
-     *
-     * @return void
      */
-    public static function afterFetch()
+    public static function afterFetch(): void
     {
         array_pop(static::$trace);
     }
@@ -425,7 +424,7 @@ class SmartyCustomCore extends Smarty
     public static function isCompiledTemplate($file)
     {
         // dynamically evaluated templates -- path from stack contains eval()'d
-        if (strpos($file, "eval()") > -1 && strpos($file, 'smarty_internal_templatebase.php') > -1) {
+        if (strpos($file, 'eval()') > -1 && strpos($file, 'smarty_internal_templatebase.php') > -1) {
             return true;
         }
 
@@ -487,18 +486,17 @@ class SmartyCustomCore extends Smarty
                 $this->delete_from_lazy_cache($template, $cacheId, $compileId);
             }
             return true;
-        } else {
-            if ($this->caching_type === 'file') {
-                $fullpath = $this->getCacheDir() . $filepath;
-                if (!file_exists($fullpath)) {
-                    return false;
-                }
-                if (filemtime($fullpath) < $lastUpdate) {
-                    return false;
-                }
-            }
-            return $filepath;
         }
+        if ($this->caching_type === 'file') {
+            $fullpath = $this->getCacheDir() . $filepath;
+            if (!file_exists($fullpath)) {
+                return false;
+            }
+            if (filemtime($fullpath) < $lastUpdate) {
+                return false;
+            }
+        }
+        return $filepath;
     }
 }
 
@@ -508,7 +506,7 @@ class SmartyCustomCore extends Smarty
 class Smarty_Custom_Template extends Smarty_Internal_Template
 {
     /** @var SmartyCustom|null */
-    public $smarty = null;
+    public $smarty;
 
     /**
      * @param string|null $template
@@ -532,9 +530,8 @@ class Smarty_Custom_Template extends Smarty_Internal_Template
                 }
             }
             return $tpl;
-        } else {
-            return $this->fetchWithRetries($template, $cacheId, $compileId, $parent);
         }
+        return $this->fetchWithRetries($template, $cacheId, $compileId, $parent);
 
     }
 
