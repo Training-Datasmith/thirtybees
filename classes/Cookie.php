@@ -166,7 +166,7 @@ class CookieCore
         $this->_name = static::getCookieNamePrefix().'-'.md5($name.$this->_domain);
         $this->_allow_writing = true;
         $this->_salt = $this->_standalone
-            ? str_pad('', 32, md5('ps'.__FILE__))
+            ? bin2hex(random_bytes(16))
             : _COOKIE_IV_;
         $this->_secure = (bool) $secure;
 

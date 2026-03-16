@@ -1049,6 +1049,12 @@ class ValidateCore
             return (bool) preg_match(Tools::cleanNonUnicodeSupport('/^[~:#,$%&_=\(\)\.\? \+\-@\/a-zA-Z0-9\pL\pS-]+$/u'), $url);
         }
 
+        // Reject dangerous URL schemes (e.g. javascript:, data:, vbscript:)
+        $scheme = strtolower((string) parse_url($url, PHP_URL_SCHEME));
+        if (!in_array($scheme, ['http', 'https', 'ftp', 'ftps'], true)) {
+            return false;
+        }
+
         return true;
     }
 

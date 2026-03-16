@@ -2029,7 +2029,7 @@ class AdminControllerCore extends Controller
         // if token is provided it must match the expected token
         $token = Tools::getValue('token');
         if ($token) {
-            return $token === $this->token;
+            return hash_equals((string) $this->token, (string) $token);
         }
 
         // token was not provided. It is required, if security was explicitly strengthened
