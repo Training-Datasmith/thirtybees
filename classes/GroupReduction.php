@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,51 +30,31 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class GroupReductionCore
  */
-class GroupReductionCore extends ObjectModel
+class Group_Reduction_Core extends Object_Model
 {
     /**
      * @var float[]
      */
     protected static $reduction_cache = [];
-
     /**
      * @var int
      */
     public $id_group;
-
     /**
      * @var int
      */
     public $id_category;
-
     /**
      * @var float
      */
     public $reduction;
-
     /**
      * @var array Object model definition
      */
-    public static $definition = [
-        'table'   => 'group_reduction',
-        'primary' => 'id_group_reduction',
-        'primaryKeyDbType' => 'mediumint(8) unsigned',
-        'fields'  => [
-            'id_group'    => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true],
-            'id_category' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true],
-            'reduction'   => ['type' => self::TYPE_FLOAT, 'validate' => 'isPercentage', 'required' => true, 'size' => 4, 'decimals' => 3],
-        ],
-        'keys' => [
-            'group_reduction' => [
-                'id_group' => ['type' => ObjectModel::UNIQUE_KEY, 'columns' => ['id_group', 'id_category']],
-            ],
-        ],
-    ];
-
+    public static $definition = ['table' => 'group_reduction', 'primary' => 'id_group_reduction', 'primaryKeyDbType' => 'mediumint(8) unsigned', 'fields' => ['id_group' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true], 'id_category' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true], 'reduction' => ['type' => self::TYPE_FLOAT, 'validate' => 'isPercentage', 'required' => true, 'size' => 4, 'decimals' => 3]], 'keys' => ['group_reduction' => ['id_group' => ['type' => Object_Model::UNIQUE_KEY, 'columns' => ['id_group', 'id_category']]]]];
     /**
      * @param int $idGroup
      * @param int $idLang
@@ -84,18 +64,10 @@ class GroupReductionCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getGroupReductions($idGroup, $idLang)
+    public static function get_group_reductions($id_group, $id_lang)
     {
-        return Db::readOnly()->getArray(
-            (new DbQuery())
-                ->select('gr.`id_group_reduction`, gr.`id_group`, gr.`id_category`, gr.`reduction`, cl.`name` AS category_name')
-                ->from('group_reduction', 'gr')
-                ->leftJoin('category_lang', 'cl', 'cl.`id_category` = gr.`id_category`')
-                ->where('gr.`id_group` = '.(int) $idGroup)
-                ->where('cl.`id_lang` = '.(int) $idLang)
-        );
+        return Db::read_only()->get_array((new Db_Query())->select('gr.`id_group_reduction`, gr.`id_group`, gr.`id_category`, gr.`reduction`, cl.`name` AS category_name')->from('group_reduction', 'gr')->left_join('category_lang', 'cl', 'cl.`id_category` = gr.`id_category`')->where('gr.`id_group` = ' . (int) $id_group)->where('cl.`id_lang` = ' . (int) $id_lang));
     }
-
     /**
      * @param int $idProduct
      * @param int $idGroup
@@ -104,30 +76,21 @@ class GroupReductionCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function getValueForProduct($idProduct, $idGroup)
+    public static function get_value_for_product($id_product, $id_group)
     {
-        if (!Group::isFeatureActive()) {
+        if (!Group::is_feature_active()) {
             return false;
         }
-
-        if (!isset(static::$reduction_cache[$idProduct.'-'.$idGroup])) {
-            $value = Db::readOnly()->getValue(
-                (new DbQuery())
-                    ->select('`reduction`')
-                    ->from('product_group_reduction_cache')
-                    ->where('`id_product` = '.(int) $idProduct)
-                    ->where('`id_group` = '.(int) $idGroup)
-            );
+        if (!isset(static::$reduction_cache[$id_product . '-' . $id_group])) {
+            $value = Db::read_only()->get_value((new Db_Query())->select('`reduction`')->from('product_group_reduction_cache')->where('`id_product` = ' . (int) $id_product)->where('`id_group` = ' . (int) $id_group));
             if ($value !== false) {
-                $value = (float)$value;
+                $value = (float) $value;
             }
-            static::$reduction_cache[$idProduct.'-'.$idGroup] = $value;
+            static::$reduction_cache[$id_product . '-' . $id_group] = $value;
             return $value;
         }
-
-        return static::$reduction_cache[$idProduct.'-'.$idGroup];
+        return static::$reduction_cache[$id_product . '-' . $id_group];
     }
-
     /**
      * @param int $idGroup
      * @param int $idCategory
@@ -136,17 +99,10 @@ class GroupReductionCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function doesExist($idGroup, $idCategory)
+    public static function does_exist($id_group, $id_category)
     {
-        return (bool) Db::readOnly()->getValue(
-            (new DbQuery())
-                ->select('gr.`id_group`')
-                ->from('group_reduction', 'gr')
-                ->where('gr.`id_group` = '.(int) $idGroup)
-                ->where('gr.`id_category` = '.(int) $idCategory)
-        );
+        return (bool) Db::read_only()->get_value((new Db_Query())->select('gr.`id_group`')->from('group_reduction', 'gr')->where('gr.`id_group` = ' . (int) $id_group)->where('gr.`id_category` = ' . (int) $id_category));
     }
-
     /**
      * @deprecated 1.0.0
      *
@@ -156,18 +112,11 @@ class GroupReductionCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getGroupByCategoryId($idCategory)
+    public static function get_group_by_category_id($id_category)
     {
-        Tools::displayAsDeprecated('Use GroupReduction::getGroupsByCategoryId($id_category)');
-
-        return Db::readOnly()->getRow(
-            (new DbQuery())
-                ->select('gr.`id_group`')
-                ->from('group_reduction', 'gr')
-                ->where('gr.`id_category` = '.(int) $idCategory)
-        );
+        Tools::display_as_deprecated('Use GroupReduction::getGroupsByCategoryId($id_category)');
+        return Db::read_only()->get_row((new Db_Query())->select('gr.`id_group`')->from('group_reduction', 'gr')->where('gr.`id_category` = ' . (int) $id_category));
     }
-
     /**
      * @param int $idCategory
      *
@@ -176,16 +125,10 @@ class GroupReductionCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getGroupsReductionByCategoryId($idCategory)
+    public static function get_groups_reduction_by_category_id($id_category)
     {
-        return Db::readOnly()->getArray(
-            (new DbQuery())
-                ->select('gr.`id_group_reduction` AS `id_group_reduction`, gr.`id_group`')
-                ->from('group_reduction', 'gr')
-                ->where('`id_category` = '.(int) $idCategory)
-        );
+        return Db::read_only()->get_array((new Db_Query())->select('gr.`id_group_reduction` AS `id_group_reduction`, gr.`id_group`')->from('group_reduction', 'gr')->where('`id_category` = ' . (int) $id_category));
     }
-
     /**
      * @deprecated 1.0.0
      *
@@ -195,18 +138,11 @@ class GroupReductionCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getGroupReductionByCategoryId($idCategory)
+    public static function get_group_reduction_by_category_id($id_category)
     {
-        Tools::displayAsDeprecated('Use GroupReduction::getGroupsByCategoryId($id_category)');
-
-        return Db::readOnly()->getRow(
-            (new DbQuery())
-                ->select('gr.`id_group_reduction`')
-                ->from('group_reduction', 'gr')
-                ->where('`id_category` = '.(int) $idCategory)
-        );
+        Tools::display_as_deprecated('Use GroupReduction::getGroupsByCategoryId($id_category)');
+        return Db::read_only()->get_row((new Db_Query())->select('gr.`id_group_reduction`')->from('group_reduction', 'gr')->where('`id_category` = ' . (int) $id_category));
     }
-
     /**
      * @param int $idProduct
      * @param int|null $idGroup
@@ -218,28 +154,24 @@ class GroupReductionCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function setProductReduction($idProduct, $idGroup = null, $idCategory = null, $reduction = null)
+    public static function set_product_reduction($id_product, $id_group = null, $id_category = null, $reduction = null)
     {
         $res = true;
-        GroupReduction::deleteProductReduction((int) $idProduct);
-
-        $categories = Product::getProductCategories((int) $idProduct);
-
+        Group_Reduction::delete_product_reduction((int) $id_product);
+        $categories = Product::get_product_categories((int) $id_product);
         if ($categories) {
             foreach ($categories as $category) {
-                $reductions = GroupReduction::getGroupsByCategoryId((int) $category);
+                $reductions = Group_Reduction::get_groups_by_category_id((int) $category);
                 if ($reductions) {
                     foreach ($reductions as $reduction) {
-                        $currentGroupReduction = new GroupReduction((int) $reduction['id_group_reduction']);
-                        $res = $currentGroupReduction->_setCache() && $res;
+                        $current_group_reduction = new Group_Reduction((int) $reduction['id_group_reduction']);
+                        $res = $current_group_reduction->_set_cache() && $res;
                     }
                 }
             }
         }
-
         return $res;
     }
-
     /**
      * @param int $idProduct
      *
@@ -248,11 +180,10 @@ class GroupReductionCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function deleteProductReduction($idProduct)
+    public static function delete_product_reduction($id_product)
     {
-        return (bool) Db::getInstance()->delete('product_group_reduction_cache', '`id_product` = '.(int) $idProduct);
+        return (bool) Db::get_instance()->delete('product_group_reduction_cache', '`id_product` = ' . (int) $id_product);
     }
-
     /**
      * @param int $idCategory
      *
@@ -261,16 +192,10 @@ class GroupReductionCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getGroupsByCategoryId($idCategory)
+    public static function get_groups_by_category_id($id_category)
     {
-        return Db::readOnly()->getArray(
-            (new DbQuery())
-                ->select('gr.`id_group`, gr.`reduction`, gr.`id_group_reduction`')
-                ->from('group_reduction', 'gr')
-                ->where('`id_category` = '.(int) $idCategory)
-        );
+        return Db::read_only()->get_array((new Db_Query())->select('gr.`id_group`, gr.`reduction`, gr.`id_group_reduction`')->from('group_reduction', 'gr')->where('`id_category` = ' . (int) $id_category));
     }
-
     /**
      * @param int $idProductOld
      * @param int $idProduct
@@ -280,36 +205,21 @@ class GroupReductionCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function duplicateReduction($idProductOld, $idProduct)
+    public static function duplicate_reduction($id_product_old, $id_product)
     {
-        $res = Db::readOnly()->getArray(
-            (new DbQuery())
-                ->select('pgr.`id_product`, pgr.`id_group`, pgr.`reduction`')
-                ->from('product_group_reduction_cache', 'pgr')
-                ->where('pgr.`id_product` = '.(int) $idProductOld)
-        );
-
+        $res = Db::read_only()->get_array((new Db_Query())->select('pgr.`id_product`, pgr.`id_group`, pgr.`reduction`')->from('product_group_reduction_cache', 'pgr')->where('pgr.`id_product` = ' . (int) $id_product_old));
         if (!$res) {
             return true;
         }
-
         $insert = [];
-
         foreach ($res as $row) {
-            $insert[] = [
-                'id_product' => (int) $idProduct,
-                'id_group'   => (int) $row['id_group'],
-                'reduction'  => (float) $row['reduction'],
-            ];
+            $insert[] = ['id_product' => (int) $id_product, 'id_group' => (int) $row['id_group'], 'reduction' => (float) $row['reduction']];
         }
-
         if (empty($insert)) {
             return true;
         }
-
-        return Db::getInstance()->insert('product_group_reduction_cache', $insert, false, true, Db::ON_DUPLICATE_KEY);
+        return Db::get_instance()->insert('product_group_reduction_cache', $insert, false, true, Db::ON_DUPLICATE_KEY);
     }
-
     /**
      * @param int $idCategory
      *
@@ -318,11 +228,10 @@ class GroupReductionCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function deleteCategory($idCategory)
+    public static function delete_category($id_category)
     {
-        return (bool) Db::getInstance()->delete('group_reduction', '`id_category` = '.(int) $idCategory);
+        return (bool) Db::get_instance()->delete('group_reduction', '`id_category` = ' . (int) $id_category);
     }
-
     /**
      * @param bool $autoDate
      * @param bool $nullValues
@@ -331,41 +240,30 @@ class GroupReductionCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public function add($autoDate = true, $nullValues = false)
+    public function add($auto_date = true, $null_values = false)
     {
-        return (parent::add($autoDate, $nullValues) && $this->_setCache());
+        return parent::add($auto_date, $null_values) && $this->_set_cache();
     }
-
     /**
      * @return bool
      *
      * @throws PrestaShopException
      */
-    protected function _setCache()
+    protected function _set_cache()
     {
-        $products = Db::readOnly()->getArray(
-            (new DbQuery())
-                ->select('cp.`id_product`')
-                ->from('category_product', 'cp')
-                ->where('cp.`id_category` = '.(int) $this->id_category)
-        );
-
+        $products = Db::read_only()->get_array((new Db_Query())->select('cp.`id_product`')->from('category_product', 'cp')->where('cp.`id_category` = ' . (int) $this->id_category));
         $values = [];
         foreach ($products as $row) {
-            $values[] = '('.(int) $row['id_product'].', '.(int) $this->id_group.', '.(float) $this->reduction.')';
+            $values[] = '(' . (int) $row['id_product'] . ', ' . (int) $this->id_group . ', ' . (float) $this->reduction . ')';
         }
-
         if (count($values)) {
-            $query = 'INSERT INTO `'._DB_PREFIX_.'product_group_reduction_cache` (`id_product`, `id_group`, `reduction`)
-			VALUES '.implode(', ', $values).' ON DUPLICATE KEY UPDATE
+            $query = 'INSERT INTO `' . _DB_PREFIX_ . 'product_group_reduction_cache` (`id_product`, `id_group`, `reduction`)
+			VALUES ' . implode(', ', $values) . ' ON DUPLICATE KEY UPDATE
 			`reduction` = IF(VALUES(`reduction`) > `reduction`, VALUES(`reduction`), `reduction`)';
-
-            return (Db::getInstance()->execute($query));
+            return Db::get_instance()->execute($query);
         }
-
         return true;
     }
-
     /**
      * @param bool $nullValues
      *
@@ -374,43 +272,28 @@ class GroupReductionCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function update($nullValues = false)
+    public function update($null_values = false)
     {
-        return (parent::update($nullValues) && $this->_updateCache());
+        return parent::update($null_values) && $this->_update_cache();
     }
-
     /**
      * @return bool
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    protected function _updateCache()
+    protected function _update_cache()
     {
-        $products = Db::readOnly()->getArray(
-            (new DbQuery())
-                ->select('cp.`id_product`')
-                ->from('category_product', 'cp')
-                ->where('cp.`id_category` = '.(int) $this->id_category)
-        );
-
+        $products = Db::read_only()->get_array((new Db_Query())->select('cp.`id_product`')->from('category_product', 'cp')->where('cp.`id_category` = ' . (int) $this->id_category));
         $ids = [];
         foreach ($products as $product) {
             $ids[] = $product['id_product'];
         }
         if ($ids) {
-            return Db::getInstance()->update(
-                'product_group_reduction_cache',
-                [
-                    'reduction' => (float) $this->reduction,
-                ],
-                '`id_product` IN('.implode(', ', $ids).') AND `id_group` = '.(int) $this->id_group
-            );
+            return Db::get_instance()->update('product_group_reduction_cache', ['reduction' => (float) $this->reduction], '`id_product` IN(' . implode(', ', $ids) . ') AND `id_group` = ' . (int) $this->id_group);
         }
-
         return true;
     }
-
     /**
      * @return bool
      *
@@ -419,33 +302,24 @@ class GroupReductionCore extends ObjectModel
      */
     public function delete()
     {
-        $products = Db::readOnly()->getArray(
-            (new DbQuery())
-                ->select('cp.`id_product`')
-                ->from('category_product', 'cp')
-                ->where('cp.`id_category` = '.(int) $this->id_category)
-        );
-
+        $products = Db::read_only()->get_array((new Db_Query())->select('cp.`id_product`')->from('category_product', 'cp')->where('cp.`id_category` = ' . (int) $this->id_category));
         $ids = [];
         foreach ($products as $row) {
             $ids[] = $row['id_product'];
         }
-
         if ($ids) {
-            Db::getInstance()->delete('product_group_reduction_cache', '`id_product` IN ('.implode(', ', $ids).')');
+            Db::get_instance()->delete('product_group_reduction_cache', '`id_product` IN (' . implode(', ', $ids) . ')');
         }
-
-        return (parent::delete());
+        return parent::delete();
     }
-
     /**
      * @return bool
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    protected function _clearCache()
+    protected function _clear_cache()
     {
-        return Db::getInstance()->delete('product_group_reduction_cache', '`id_group` = '.(int) $this->id_group);
+        return Db::get_instance()->delete('product_group_reduction_cache', '`id_group` = ' . (int) $this->id_group);
     }
 }

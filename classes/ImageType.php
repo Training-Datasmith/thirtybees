@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,121 +30,75 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class ImageTypeCore
  */
-class ImageTypeCore extends ObjectModel
+class Image_Type_Core extends Object_Model
 {
     /**
      * @var string Name
      */
     public $name;
-
     /**
      * @var int Width
      */
     public $width;
-
     /**
      * @var int Height
      */
     public $height;
-
     /**
      * @var int $id_image_type_parent if set, the imageType acts like an alias
      */
     public $id_image_type_parent;
-
     /**
      * @var bool Apply to products
      *
      * @deprecated since 1.5 -> imageEntities are handled by table image_entity
      */
     public $products;
-
     /**
      * @var bool Apply to categories
      *
      * @deprecated since 1.5 -> imageEntities are handled by table image_entity
      */
     public $categories;
-
     /**
      * @var bool Apply to manufacturers
      *
      * @deprecated since 1.5 -> imageEntities are handled by table image_entity
      */
     public $manufacturers;
-
     /**
      * @var bool Apply to suppliers
      *
      * @deprecated since 1.5 -> imageEntities are handled by table image_entity
      */
     public $suppliers;
-
     /**
      * @var bool Apply to scenes
      *
      * @deprecated since 1.5 -> imageEntities are handled by table image_entity
      */
     public $scenes;
-
     /**
      * @var bool Apply to store
      *
      * @deprecated since 1.5 -> imageEntities are handled by table image_entity
      */
     public $stores;
-
     /**
      * @var string[]
      */
-    protected static $typeNameCache;
-
+    protected static $type_name_cache;
     /**
      * @var array Object model definition
      */
-    public static $definition = [
-        'table'   => 'image_type',
-        'primary' => 'id_image_type',
-        'fields'  => [
-            'name'                  => ['type' => self::TYPE_STRING, 'validate' => 'isImageTypeName', 'required' => true, 'size' => 64],
-            'width'                 => ['type' => self::TYPE_INT, 'validate' => 'isImageSize', 'required' => true],
-            'height'                => ['type' => self::TYPE_INT, 'validate' => 'isImageSize', 'required' => true],
-            'id_image_type_parent'  => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedInt'],
-            'products'              => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbType' => 'tinyint(1)', 'dbDefault' => '1'],
-            'categories'            => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbType' => 'tinyint(1)', 'dbDefault' => '1'],
-            'manufacturers'         => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbType' => 'tinyint(1)', 'dbDefault' => '1'],
-            'suppliers'             => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbType' => 'tinyint(1)', 'dbDefault' => '1'],
-            'scenes'                => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbType' => 'tinyint(1)', 'dbDefault' => '1'],
-            'stores'                => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbType' => 'tinyint(1)', 'dbDefault' => '1'],
-        ],
-        'keys' => [
-            'image_type' => [
-                'image_type_name' => ['type' => ObjectModel::KEY, 'columns' => ['name']],
-            ],
-        ],
-    ];
-
+    public static $definition = ['table' => 'image_type', 'primary' => 'id_image_type', 'fields' => ['name' => ['type' => self::TYPE_STRING, 'validate' => 'isImageTypeName', 'required' => true, 'size' => 64], 'width' => ['type' => self::TYPE_INT, 'validate' => 'isImageSize', 'required' => true], 'height' => ['type' => self::TYPE_INT, 'validate' => 'isImageSize', 'required' => true], 'id_image_type_parent' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedInt'], 'products' => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbType' => 'tinyint(1)', 'dbDefault' => '1'], 'categories' => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbType' => 'tinyint(1)', 'dbDefault' => '1'], 'manufacturers' => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbType' => 'tinyint(1)', 'dbDefault' => '1'], 'suppliers' => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbType' => 'tinyint(1)', 'dbDefault' => '1'], 'scenes' => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbType' => 'tinyint(1)', 'dbDefault' => '1'], 'stores' => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbType' => 'tinyint(1)', 'dbDefault' => '1']], 'keys' => ['image_type' => ['image_type_name' => ['type' => Object_Model::KEY, 'columns' => ['name']]]]];
     /**
      * @var array Webservice parameters
      */
-    protected $webserviceParameters = [
-        'objectsNodeName' => 'image_types',
-        'objectNodeName'  => 'image_type',
-        'fields'          => [],
-        'associations'    => [
-            'image_entities' => [
-                'resource' => 'image_entities',
-                'fields'   => [
-                    'id' => [],
-                ],
-            ],
-        ],
-    ];
-
+    protected $webservice_parameters = ['objectsNodeName' => 'image_types', 'objectNodeName' => 'image_type', 'fields' => [], 'associations' => ['image_entities' => ['resource' => 'image_entities', 'fields' => ['id' => []]]]];
     /**
      * @param int|null $id
      * @param int|null $idLang
@@ -152,19 +106,18 @@ class ImageTypeCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public function __construct($id = null, $idLang = null, $idShop = null)
+    public function __construct($id = null, $id_lang = null, $id_shop = null)
     {
-        parent::__construct($id, $idLang, $idShop);
-
+        parent::__construct($id, $id_lang, $id_shop);
         // BC: populate values of legacy properties based on entity association
         if ($id) {
-            foreach (ImageEntity::getLegacyImageEntities() as $entityType) {
-                $this->{$entityType} = 0;
-                $info = ImageEntity::getImageEntityInfo($entityType);
+            foreach (Image_Entity::get_legacy_image_entities() as $entity_type) {
+                $this->{$entity_type} = 0;
+                $info = Image_Entity::get_image_entity_info($entity_type);
                 if ($info) {
                     foreach ($info['imageTypes'] as $type) {
-                        if ((int)$type['id_image_type'] === $id) {
-                            $this->{$entityType} = 1;
+                        if ((int) $type['id_image_type'] === $id) {
+                            $this->{$entity_type} = 1;
                             break;
                         }
                     }
@@ -172,7 +125,6 @@ class ImageTypeCore extends ObjectModel
             }
         }
     }
-
     /**
      * @return bool
      *
@@ -181,17 +133,13 @@ class ImageTypeCore extends ObjectModel
      */
     public function delete()
     {
-        $db = Db::getInstance();
-
+        $db = Db::get_instance();
         // Delete image entity types
-        $db->delete('image_entity_type', 'id_image_type='.$this->id);
-
+        $db->delete('image_entity_type', 'id_image_type=' . $this->id);
         // Unhook aliases
-        $db->update('image_type', ['id_image_type_parent' => 0], 'id_image_type_parent='.$this->id);
-
+        $db->update('image_type', ['id_image_type_parent' => 0], 'id_image_type_parent=' . $this->id);
         return parent::delete();
     }
-
     /**
      * Return an instance for the named image type. If no such image type
      * exists yet, return an empty instance with just the name set.
@@ -205,26 +153,17 @@ class ImageTypeCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getInstanceByName($typeName, $themeName = null)
+    public static function get_instance_by_name($type_name, $theme_name = null)
     {
-        $name = $themeName ? $themeName.'_'.$typeName : $typeName;
-        if (! static::typeAlreadyExists($name)) {
-            $type = new ImageType();
+        $name = $theme_name ? $theme_name . '_' . $type_name : $type_name;
+        if (!static::type_already_exists($name)) {
+            $type = new Image_Type();
             $type->name = $name;
-
             return $type;
         }
-
-        $result = Db::readOnly()->getValue(
-            (new DbQuery())
-                ->select('`id_image_type`')
-                ->from('image_type')
-                ->where('`name` = \''.pSQL($name).'\'')
-        );
-
-        return new ImageType($result);
+        $result = Db::read_only()->get_value((new Db_Query())->select('`id_image_type`')->from('image_type')->where('`name` = \'' . p_sql($name) . '\''));
+        return new Image_Type($result);
     }
-
     /**
      * Returns image type definitions
      *
@@ -236,41 +175,35 @@ class ImageTypeCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function getImagesTypes($imageEntityName = null, $orderBySize = false)
+    public static function get_images_types($image_entity_name = null, $order_by_size = false)
     {
-        $cacheKey = $imageEntityName
-            ? 'ImageType::getImagesTypes_entity:' . $imageEntityName
-            : 'ImageType::getImagesTypes_all';
-
-        if (! Cache::isStored($cacheKey)) {
-            if ($imageEntityName) {
-                $imageEntity = ImageEntity::getImageEntityInfo($imageEntityName);
-                $imageTypes = $imageEntity['imageTypes'] ?? [];
+        $cache_key = $image_entity_name ? 'ImageType::getImagesTypes_entity:' . $image_entity_name : 'ImageType::getImagesTypes_all';
+        if (!Cache::is_stored($cache_key)) {
+            if ($image_entity_name) {
+                $image_entity = Image_Entity::get_image_entity_info($image_entity_name);
+                $image_types = $image_entity['imageTypes'] ?? [];
             } else {
-                $query = new DbQuery();
+                $query = new Db_Query();
                 $query->select('*');
                 $query->from(self::$definition['table']);
-                $query->orderBy('`name` ASC');
-                $imageTypes = Db::readOnly()->getArray($query);
+                $query->order_by('`name` ASC');
+                $image_types = Db::read_only()->get_array($query);
             }
-            Cache::store($cacheKey, $imageTypes);
+            Cache::store($cache_key, $image_types);
         } else {
-            $imageTypes = Cache::retrieve($cacheKey);
+            $image_types = Cache::retrieve($cache_key);
         }
-
-        if ($orderBySize) {
-            usort($imageTypes, function (array $a, array $b): float|int {
+        if ($order_by_size) {
+            usort($image_types, function (array $a, array $b): float|int {
                 $ret = $a['width'] - $b['width'];
-                if (! $ret) {
+                if (!$ret) {
                     return $a['height'] - $b['height'];
                 }
                 return $ret;
             });
         }
-
-        return $imageTypes;
+        return $image_types;
     }
-
     /**
      * Check if type is already registered in database.
      *
@@ -281,12 +214,11 @@ class ImageTypeCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function typeAlreadyExists($typeName)
+    public static function type_already_exists($type_name)
     {
-        $typeNameCache = static::getIndexedImageTypeNames();
-        return isset($typeNameCache[$typeName]);
+        $type_name_cache = static::get_indexed_image_type_names();
+        return isset($type_name_cache[$type_name]);
     }
-
     /**
      * Return indexed list of image type names
      *
@@ -295,37 +227,33 @@ class ImageTypeCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    protected static function getIndexedImageTypeNames()
+    protected static function get_indexed_image_type_names()
     {
-        if (is_null(static::$typeNameCache)) {
-
-            $imageTypes = static::getImagesTypes();
-
+        if (is_null(static::$type_name_cache)) {
+            $image_types = static::get_images_types();
             // index image types by name and ids
-            $byName = [];
-            $byId = [];
-            foreach ($imageTypes as $type) {
-                $name = (string)$type['name'];
-                $id = (int)$type['id_image_type'];
-                $byName[$name] = $type;
-                $byId[$id] = $type;
+            $by_name = [];
+            $by_id = [];
+            foreach ($image_types as $type) {
+                $name = (string) $type['name'];
+                $id = (int) $type['id_image_type'];
+                $by_name[$name] = $type;
+                $by_id[$id] = $type;
             }
-
-            static::$typeNameCache = array_map(function (array $type) use ($byId) {
+            static::$type_name_cache = array_map(function (array $type) use ($by_id) {
                 for ($i = 0; $i < 20; $i++) {
-                    $parentId = (int)$type['id_image_type_parent'];
-                    if ($parentId && array_key_exists($parentId, $byId)) {
-                        $type = $byId[$parentId];
+                    $parent_id = (int) $type['id_image_type_parent'];
+                    if ($parent_id && array_key_exists($parent_id, $by_id)) {
+                        $type = $by_id[$parent_id];
                     } else {
                         break;
                     }
                 }
                 return $type['name'];
-            }, $byName);
+            }, $by_name);
         }
-        return static::$typeNameCache;
+        return static::$type_name_cache;
     }
-
     /**
      * Find an existing variant of a specific image type.
      *
@@ -336,21 +264,20 @@ class ImageTypeCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getFormatedName($name)
+    public static function get_formated_name($name)
     {
         if (!$name) {
             return $name;
         }
-        $themeName = '';
-        $themeDir = '';
-        $theme = Context::getContext()->theme;
-        if (Validate::isLoadedObject($theme)) {
-            $themeName = $theme->name;
-            $themeDir = $theme->directory;
+        $theme_name = '';
+        $theme_dir = '';
+        $theme = Context::get_context()->theme;
+        if (Validate::is_loaded_object($theme)) {
+            $theme_name = $theme->name;
+            $theme_dir = $theme->directory;
         }
-        return static::resolveImageTypeName($name, $themeName, $themeDir, static::getIndexedImageTypeNames());
+        return static::resolve_image_type_name($name, $theme_name, $theme_dir, static::get_indexed_image_type_names());
     }
-
     /**
      * Helper method to resolve image type name to canonical version. If this method fails to
      * resolve image type, input $name value is returned
@@ -368,16 +295,15 @@ class ImageTypeCore extends ObjectModel
      * @param array $imageTypes indexed map of all image types
      * @return string
      */
-    protected static function resolveImageTypeName($name, $themeName, $themeDirectory, $imageTypes)
+    protected static function resolve_image_type_name($name, $theme_name, $theme_directory, $image_types)
     {
         static $cache = [];
-        $cacheKey = $name . '|' . $themeName . '|' . $themeDirectory;
-        if (! array_key_exists($cacheKey, $cache)) {
-            $cache[$cacheKey] = static::resolveImageTypeNameWithoutCache($name, $themeName, $themeDirectory, $imageTypes);
+        $cache_key = $name . '|' . $theme_name . '|' . $theme_directory;
+        if (!array_key_exists($cache_key, $cache)) {
+            $cache[$cache_key] = static::resolve_image_type_name_without_cache($name, $theme_name, $theme_directory, $image_types);
         }
-        return $cache[$cacheKey];
+        return $cache[$cache_key];
     }
-
     /**
      * Helper method to resolve image type name to canonical version. If this method fails to
      * resolve image type, input $name value is returned
@@ -388,59 +314,41 @@ class ImageTypeCore extends ObjectModel
      * @param array $imageTypes indexed map of all image types
      * @return string
      */
-    protected static function resolveImageTypeNameWithoutCache($name, $themeName, $themeDirectory, $imageTypes)
+    protected static function resolve_image_type_name_without_cache($name, $theme_name, $theme_directory, $image_types)
     {
         // normalize input $name -- remove all theme prefixes/suffixes.
-        $themeNames = array_unique([$themeName, $themeDirectory, 'default']);
+        $theme_names = array_unique([$theme_name, $theme_directory, 'default']);
         $regexps = [];
-        foreach ($themeNames as $item) {
+        foreach ($theme_names as $item) {
             $regexps[] = '/^' . preg_quote($item) . '_/i';
             $regexps[] = '/_' . preg_quote($item) . '$/i';
         }
-        $nameWithoutTheme = $name;
+        $name_without_theme = $name;
         do {
-            $nameWithoutTheme = preg_replace($regexps, '', (string) $nameWithoutTheme, -1, $count);
+            $name_without_theme = preg_replace($regexps, '', (string) $name_without_theme, -1, $count);
         } while ($count > 0);
-
         // possible variants of the input image type name that we accept, ordered by priority
-        $variants = [
-            $themeName.'_'.$nameWithoutTheme,
-            $themeDirectory.'_'.$nameWithoutTheme,
-            $nameWithoutTheme.'_'.$themeName,
-            $nameWithoutTheme.'_'.$themeDirectory,
-            $themeName.'_'.$nameWithoutTheme.'_default',
-            $themeDirectory.'_'.$nameWithoutTheme.'_default',
-            $nameWithoutTheme.'_'.$themeName . '_default',
-            $nameWithoutTheme.'_'.$themeDirectory .'_default',
-            $nameWithoutTheme,
-            $nameWithoutTheme.'_default',
-            $themeName.'_'.$nameWithoutTheme.'_'.$themeName,
-            $themeDirectory.'_'.$nameWithoutTheme.'_'.$themeDirectory,
-        ];
-
+        $variants = [$theme_name . '_' . $name_without_theme, $theme_directory . '_' . $name_without_theme, $name_without_theme . '_' . $theme_name, $name_without_theme . '_' . $theme_directory, $theme_name . '_' . $name_without_theme . '_default', $theme_directory . '_' . $name_without_theme . '_default', $name_without_theme . '_' . $theme_name . '_default', $name_without_theme . '_' . $theme_directory . '_default', $name_without_theme, $name_without_theme . '_default', $theme_name . '_' . $name_without_theme . '_' . $theme_name, $theme_directory . '_' . $name_without_theme . '_' . $theme_directory];
         // image type is not case sensitive
-        foreach ($imageTypes as $key => $value) {
+        foreach ($image_types as $key => $value) {
             $lower = strtolower((string) $key);
-            if ($lower != $key && !in_array($lower, $imageTypes)) {
-                $imageTypes[$lower] = $value;
+            if ($lower != $key && !in_array($lower, $image_types)) {
+                $image_types[$lower] = $value;
             }
         }
-
         // try to find variant for input name, and map it to actual name
         foreach ($variants as $variant) {
-            if (array_key_exists($variant, $imageTypes)) {
-                return $imageTypes[$variant];
+            if (array_key_exists($variant, $image_types)) {
+                return $image_types[$variant];
             }
             $lower = strtolower($variant);
-            if (array_key_exists($lower, $imageTypes)) {
-                return $imageTypes[$lower];
+            if (array_key_exists($lower, $image_types)) {
+                return $image_types[$lower];
             }
         }
-
         // Give up searching.
         return $name;
     }
-
     /**
      * @param int $imageTypeId ID (not name!) of imageType
      *
@@ -449,18 +357,17 @@ class ImageTypeCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getImageTypeAliases(int $imageTypeId): array
+    public static function get_image_type_aliases(int $image_type_id): array
     {
-        if ($imageTypeId) {
-            $query = new DbQuery();
+        if ($image_type_id) {
+            $query = new Db_Query();
             $query->select('*');
             $query->from(self::$definition['table']);
-            $query->where('id_image_type_parent = ' . (int)$imageTypeId);
-            return Db::getInstance()->getArray($query);
+            $query->where('id_image_type_parent = ' . (int) $image_type_id);
+            return Db::get_instance()->get_array($query);
         }
         return [];
     }
-
     /**
      * @param bool $autoDate
      * @param bool $nullValues
@@ -470,13 +377,12 @@ class ImageTypeCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function add($autoDate = true, $nullValues = false)
+    public function add($auto_date = true, $null_values = false)
     {
-        $res = parent::add($autoDate, $nullValues);
-        static::cleanCache();
+        $res = parent::add($auto_date, $null_values);
+        static::clean_cache();
         return $res;
     }
-
     /**
      * @param bool $nullValues
      *
@@ -485,40 +391,35 @@ class ImageTypeCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function update($nullValues = false)
+    public function update($null_values = false)
     {
-        $res = parent::update($nullValues);
-        static::cleanCache();
+        $res = parent::update($null_values);
+        static::clean_cache();
         return $res;
     }
-
     /**
      * @return array
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function getWsImageEntities()
+    public function get_ws_image_entities()
     {
         $result = [];
-        foreach (ImageEntity::getImageEntities() as $imageEntity) {
-            foreach ($imageEntity['imageTypes'] as $type) {
-                if ((int)$type['id_image_type'] === (int)$this->id) {
-                    $result[] = [
-                        'id' => (int)$imageEntity['id_image_entity'],
-                    ];
+        foreach (Image_Entity::get_image_entities() as $image_entity) {
+            foreach ($image_entity['imageTypes'] as $type) {
+                if ((int) $type['id_image_type'] === (int) $this->id) {
+                    $result[] = ['id' => (int) $image_entity['id_image_entity']];
                     break;
                 }
             }
         }
         return $result;
     }
-
-    public static function cleanCache(): void
+    public static function clean_cache(): void
     {
-        static::$typeNameCache = null;
+        static::$type_name_cache = null;
         Cache::clean('ImageType::*');
         Cache::clean('ImageEntity::*');
     }
-
 }

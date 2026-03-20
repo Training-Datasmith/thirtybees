@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,23 +30,20 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 use Defuse\Crypto\Crypto;
 use Defuse\Crypto\Encoding;
-use Defuse\Crypto\Exception\BadFormatException;
-use Defuse\Crypto\Exception\EnvironmentIsBrokenException;
+use Defuse\Crypto\Exception\Bad_Format_Exception;
+use Defuse\Crypto\Exception\Environment_Is_Broken_Exception;
 use Defuse\Crypto\Key;
-
 /**
  * Class PhpEncryptionCore
  */
-class PhpEncryptionCore
+class Php_Encryption_Core
 {
     /**
      * @var Key
      */
     protected $key;
-
     /**
      * PhpEncryptionCore constructor.
      *
@@ -55,11 +52,10 @@ class PhpEncryptionCore
      * @throws BadFormatException
      * @throws EnvironmentIsBrokenException
      */
-    public function __construct($asciiKey)
+    public function __construct($ascii_key)
     {
-        $this->key = Key::loadFromAsciiSafeString($asciiKey);
+        $this->key = Key::load_from_ascii_safe_string($ascii_key);
     }
-
     /**
      * @param string $plaintext
      *
@@ -70,7 +66,6 @@ class PhpEncryptionCore
     {
         return Crypto::encrypt($plaintext, $this->key);
     }
-
     /**
      * @param string $ciphertext
      *
@@ -78,25 +73,23 @@ class PhpEncryptionCore
      */
     public function decrypt($ciphertext)
     {
-        if (! is_string($ciphertext)) {
+        if (!is_string($ciphertext)) {
             return null;
         }
-
         try {
             return Crypto::decrypt($ciphertext, $this->key);
         } catch (Exception) {
             return null;
         }
     }
-
     /**
      *
      * @return string
      * @throws EnvironmentIsBrokenException
      */
-    public static function createKeyFromSalt(string $salt)
+    public static function create_key_from_salt(string $salt)
     {
         $bytes = str_pad('', Key::KEY_BYTE_SIZE, hash('sha256', 'KeyFromSalt' . $salt . __FILE__));
-        return Encoding::saveBytesToChecksummedAsciiSafeString(Key::KEY_CURRENT_VERSION, $bytes);
+        return Encoding::save_bytes_to_checksummed_ascii_safe_string(Key::KEY_CURRENT_VERSION, $bytes);
     }
 }

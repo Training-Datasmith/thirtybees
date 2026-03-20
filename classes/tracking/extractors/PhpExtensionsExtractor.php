@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -18,42 +18,38 @@ declare(strict_types=1);
  * @copyright 2017-2024 thirty bees
  * @license   Open Software License (OSL 3.0)
  */
-
 namespace Thirtybees\Core\Tracking\Extractor;
 
-use Thirtybees\Core\Tracking\DataExtractor;
-
+use Thirtybees\Core\Tracking\Data_Extractor;
 /**
  * Class PhpExtensionsExtractorCore
  */
-class PhpExtensionsExtractorCore extends DataExtractor
+class Php_Extensions_Extractor_Core extends Data_Extractor
 {
     /**
      * Returns data name
      *
      * @return string
      */
-    public function getName()
+    public function get_name()
     {
         return $this->l('Installed PHP extensions');
     }
-
     /**
      * Returns detailed information about this data
      *
      * @return string
      */
-    public function getDescription()
+    public function get_description()
     {
         return $this->l('Information about PHP extensions installed on your system');
     }
-
     /**
      * Extracts value
      *
      * @return array
      */
-    public function extractValue()
+    public function extract_value()
     {
         $extensions = [];
         foreach (@get_loaded_extensions() as $extension) {
@@ -61,5 +57,4 @@ class PhpExtensionsExtractorCore extends DataExtractor
         }
         return $extensions;
     }
-
 }

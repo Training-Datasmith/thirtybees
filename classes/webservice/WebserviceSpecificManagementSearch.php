@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,60 +30,50 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class WebserviceSpecificManagementSearchCore
  */
-class WebserviceSpecificManagementSearchCore implements WebserviceSpecificManagementInterface
+class Webservice_Specific_Management_Search_Core implements Webservice_Specific_Management_Interface
 {
     /**
      * @var WebserviceOutputBuilder
      */
-    protected $objOutput;
-
+    protected $obj_output;
     /**
      * @var string
      */
     protected $output;
-
     /**
      * @var WebserviceRequest
      */
-    protected $wsObject;
-
+    protected $ws_object;
     /* ------------------------------------------------
      * GETTERS & SETTERS
      * ------------------------------------------------ */
-    public function setObjectOutput(WebserviceOutputBuilderCore $obj): static
+    public function set_object_output(Webservice_Output_Builder_Core $obj): static
     {
-        $this->objOutput = $obj;
-
+        $this->obj_output = $obj;
         return $this;
     }
-
-    public function setWsObject(WebserviceRequestCore $obj): static
+    public function set_ws_object(Webservice_Request_Core $obj): static
     {
-        $this->wsObject = $obj;
-
+        $this->ws_object = $obj;
         return $this;
     }
-
     /**
      * @return WebserviceRequest
      */
-    public function getWsObject()
+    public function get_ws_object()
     {
-        return $this->wsObject;
+        return $this->ws_object;
     }
-
     /**
      * @return WebserviceOutputBuilder
      */
-    public function getObjectOutput()
+    public function get_object_output()
     {
-        return $this->objOutput;
+        return $this->obj_output;
     }
-
     /**
      * WebserviceRequestCore
      *
@@ -93,25 +83,23 @@ class WebserviceSpecificManagementSearchCore implements WebserviceSpecificManage
      */
     public function manage()
     {
-        if (!isset($this->wsObject->urlFragments['query']) || !isset($this->wsObject->urlFragments['language'])) {
-            throw new WebserviceException('You have to set both the \'language\' and \'query\' parameters to get a result', [100, 400]);
+        if (!isset($this->ws_object->url_fragments['query']) || !isset($this->ws_object->url_fragments['language'])) {
+            throw new Webservice_Exception('You have to set both the \'language\' and \'query\' parameters to get a result', [100, 400]);
         }
-        $objectsProducts = [];
-        $objectsCategories = [];
-        $objectsProducts['empty'] = new Product();
-        $objectsCategories['empty'] = new Category();
-
-        if (!$this->wsObject->setFieldsToDisplay()) {
+        $objects_products = [];
+        $objects_categories = [];
+        $objects_products['empty'] = new Product();
+        $objects_categories['empty'] = new Category();
+        if (!$this->ws_object->set_fields_to_display()) {
             return false;
         }
-
-        $results = Search::find($this->wsObject->urlFragments['language'], $this->wsObject->urlFragments['query'], 1, 1, 'position', 'desc', true, false);
+        $results = Search::find($this->ws_object->url_fragments['language'], $this->ws_object->url_fragments['query'], 1, 1, 'position', 'desc', true, false);
         $categories = [];
         foreach ($results as $result) {
             $current = new Product($result['id_product']);
-            $objectsProducts[] = $current;
-            $categoriesResult = $current->getWsCategories();
-            foreach ($categoriesResult as $category_result) {
+            $objects_products[] = $current;
+            $categories_result = $current->get_ws_categories();
+            foreach ($categories_result as $category_result) {
                 foreach ($category_result as $id) {
                     $categories[] = $id;
                 }
@@ -119,20 +107,18 @@ class WebserviceSpecificManagementSearchCore implements WebserviceSpecificManage
         }
         $categories = array_unique($categories);
         foreach ($categories as $id) {
-            $objectsCategories[] = new Category($id);
+            $objects_categories[] = new Category($id);
         }
-
-        $this->output .= $this->objOutput->getContent($objectsProducts, null, $this->wsObject->fieldsToDisplay, $this->wsObject->depth, WebserviceOutputBuilder::VIEW_LIST, false);
-        $this->output .= $this->objOutput->getContent($objectsCategories, null, $this->wsObject->fieldsToDisplay, $this->wsObject->depth, WebserviceOutputBuilder::VIEW_LIST, false);
+        $this->output .= $this->obj_output->get_content($objects_products, null, $this->ws_object->fields_to_display, $this->ws_object->depth, Webservice_Output_Builder::VIEW_LIST, false);
+        $this->output .= $this->obj_output->get_content($objects_categories, null, $this->ws_object->fields_to_display, $this->ws_object->depth, Webservice_Output_Builder::VIEW_LIST, false);
     }
-
     /**
      * This must be return a string with specific values as WebserviceRequest expects.
      *
      * @return string
      */
-    public function getContent()
+    public function get_content()
     {
-        return $this->objOutput->getObjectRender()->overrideContent($this->output);
+        return $this->obj_output->get_object_render()->override_content($this->output);
     }
 }

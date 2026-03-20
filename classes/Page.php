@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,87 +30,51 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class PageCore
  */
-class PageCore extends ObjectModel
+class Page_Core extends Object_Model
 {
     /**
      * @var int
      */
     public $id_page_type;
-
     /**
      * @var int
      */
     public $id_object;
-
     /**
      * @var array Object model definition
      */
-    public static $definition = [
-        'table'   => 'page',
-        'primary' => 'id_page',
-        'fields'  => [
-            'id_page_type' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true],
-            'id_object'    => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId'],
-        ],
-        'keys' => [
-            'page' => [
-                'id_object'    => ['type' => ObjectModel::KEY, 'columns' => ['id_object']],
-                'id_page_type' => ['type' => ObjectModel::KEY, 'columns' => ['id_page_type']],
-            ],
-        ],
-    ];
-
+    public static $definition = ['table' => 'page', 'primary' => 'id_page', 'fields' => ['id_page_type' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true], 'id_object' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId']], 'keys' => ['page' => ['id_object' => ['type' => Object_Model::KEY, 'columns' => ['id_object']], 'id_page_type' => ['type' => Object_Model::KEY, 'columns' => ['id_page_type']]]]];
     /**
      * @return int Current page ID
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getCurrentId()
+    public static function get_current_id()
     {
-        $controller = Dispatcher::getInstance()->getController();
-        $pageTypeId = Page::getPageTypeByName($controller);
-
+        $controller = Dispatcher::get_instance()->get_controller();
+        $page_type_id = Page::get_page_type_by_name($controller);
         // Some pages must be distinguished in order to record exactly what is being seen
         // @todo dispatcher module
-        $specialArray = [
-            'product'      => 'id_product',
-            'category'     => 'id_category',
-            'order'        => 'step',
-            'manufacturer' => 'id_manufacturer',
-        ];
-
+        $special_array = ['product' => 'id_product', 'category' => 'id_category', 'order' => 'step', 'manufacturer' => 'id_manufacturer'];
         $where = '';
-        $insertData = [
-            'id_page_type' => $pageTypeId,
-        ];
-
-        if (array_key_exists($controller, $specialArray)) {
-            $objectId = Tools::getValue($specialArray[$controller], null);
-            $where = ' AND `id_object` = '.(int) $objectId;
-            $insertData['id_object'] = (int) $objectId;
+        $insert_data = ['id_page_type' => $page_type_id];
+        if (array_key_exists($controller, $special_array)) {
+            $object_id = Tools::get_value($special_array[$controller], null);
+            $where = ' AND `id_object` = ' . (int) $object_id;
+            $insert_data['id_object'] = (int) $object_id;
         }
-
-        $result = Db::readOnly()->getRow(
-            (new DbQuery())
-                ->select('`id_page`')
-                ->from('page')
-                ->where('`id_page_type` = '.(int) $pageTypeId.$where)
-        );
+        $result = Db::read_only()->get_row((new Db_Query())->select('`id_page`')->from('page')->where('`id_page_type` = ' . (int) $page_type_id . $where));
         if ($result && $result['id_page']) {
-            return (int)$result['id_page'];
+            return (int) $result['id_page'];
         }
-
-        $conn = Db::getInstance();
-        $conn->insert('page', $insertData, true);
-
+        $conn = Db::get_instance();
+        $conn->insert('page', $insert_data, true);
         return $conn->Insert_ID();
     }
-
     /**
      * Return page type ID from page name
      *
@@ -119,57 +83,35 @@ class PageCore extends ObjectModel
      * @return false|int|null|string
      * @throws PrestaShopException
      */
-    public static function getPageTypeByName($name)
+    public static function get_page_type_by_name($name)
     {
-        if ($value = Db::readOnly()->getValue(
-            (new DbQuery())
-                ->select('`id_page_type`')
-                ->from('page_type')
-                ->where('`name` = \''.pSQL($name).'\'')
-        )) {
+        if ($value = Db::read_only()->get_value((new Db_Query())->select('`id_page_type`')->from('page_type')->where('`name` = \'' . p_sql($name) . '\''))) {
             return $value;
         }
-
-        $conn = Db::getInstance();
-        $conn->insert('page_type', ['name' => pSQL($name)]);
-
+        $conn = Db::get_instance();
+        $conn->insert('page_type', ['name' => p_sql($name)]);
         return $conn->Insert_ID();
     }
-
     /**
      * @param int $idPage
      *
      * @throws PrestaShopException
      */
-    public static function setPageViewed($idPage): void
+    public static function set_page_viewed($id_page): void
     {
-        $idDateRange = DateRange::getCurrentRange();
-        $context = Context::getContext();
-
+        $id_date_range = Date_Range::get_current_range();
+        $context = Context::get_context();
         // Try to increment the visits counter
-        $sql = 'UPDATE `'._DB_PREFIX_.'page_viewed`
+        $sql = 'UPDATE `' . _DB_PREFIX_ . 'page_viewed`
 				SET `counter` = `counter` + 1
-				WHERE `id_date_range` = '.(int) $idDateRange.'
-					AND `id_page` = '.(int) $idPage.'
-					AND `id_shop` = '.(int) $context->shop->id;
-        $conn = Db::getInstance();
+				WHERE `id_date_range` = ' . (int) $id_date_range . '
+					AND `id_page` = ' . (int) $id_page . '
+					AND `id_shop` = ' . (int) $context->shop->id;
+        $conn = Db::get_instance();
         $conn->execute($sql);
-
         // If no one has seen the page in this date range, it is added
         if ($conn->Affected_Rows() == 0) {
-            $conn->insert(
-                'page_viewed',
-                [
-                    'id_date_range' => (int) $idDateRange,
-                    'id_page'       => (int) $idPage,
-                    'counter'       => 1,
-                    'id_shop'       => (int) $context->shop->id,
-                    'id_shop_group' => (int) $context->shop->id_shop_group,
-                ],
-                false,
-                true,
-                Db::INSERT_IGNORE
-            );
+            $conn->insert('page_viewed', ['id_date_range' => (int) $id_date_range, 'id_page' => (int) $id_page, 'counter' => 1, 'id_shop' => (int) $context->shop->id, 'id_shop_group' => (int) $context->shop->id_shop_group], false, true, Db::INSERT_IGNORE);
         }
     }
 }

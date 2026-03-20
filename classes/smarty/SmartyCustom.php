@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,26 +30,20 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
-use Thirtybees\Core\Smarty\Cache\CacheResourceMysql;
-use Thirtybees\Core\Smarty\Cache\CacheResourceServerSideCache;
-
+use Thirtybees\Core\Smarty\Cache\Cache_Resource_Mysql;
+use Thirtybees\Core\Smarty\Cache\Cache_Resource_Server_Side_Cache;
 /**
  * Class SmartyCustomCore
  */
-class SmartyCustomCore extends Smarty
+class Smarty_Custom_Core extends Smarty
 {
     public const CACHING_TYPE_FILESYSTEM = 'filesystem';
-
     public const CACHING_TYPE_MYSQL = 'mysql';
-
     public const CACHING_TYPE_SSC = 'ssc';
-
     /**
      * @var array stack trace for currently rendering templates
      */
     public static $trace = [];
-
     /**
      * SmartyCustomCore constructor.
      *
@@ -59,22 +53,21 @@ class SmartyCustomCore extends Smarty
     {
         parent::__construct();
         $this->template_class = 'Smarty_Custom_Template';
-        $this->resolveCachingType();
+        $this->resolve_caching_type();
     }
-
     /**
      * @throws PrestaShopException
      */
-    protected function resolveCachingType()
+    protected function resolve_caching_type()
     {
-        $cachingType = Configuration::get(Configuration::SMARTY_CACHING_TYPE);
-        if ($cachingType === static::CACHING_TYPE_MYSQL) {
-            $this->registerCacheResource('mysql', new CacheResourceMysql(Encryptor::getInstance()));
+        $caching_type = Configuration::get(Configuration::SMARTY_CACHING_TYPE);
+        if ($caching_type === static::CACHING_TYPE_MYSQL) {
+            $this->register_cache_resource('mysql', new Cache_Resource_Mysql(Encryptor::get_instance()));
             $this->caching_type = 'mysql';
-        } elseif ($cachingType === static::CACHING_TYPE_SSC && Cache::isEnabled()) {
-            $cache = Cache::getInstance();
-            if ($cache->isAvailable()) {
-                $this->registerCacheResource('ssc', new CacheResourceServerSideCache($cache));
+        } elseif ($caching_type === static::CACHING_TYPE_SSC && Cache::is_enabled()) {
+            $cache = Cache::get_instance();
+            if ($cache->is_available()) {
+                $this->register_cache_resource('ssc', new Cache_Resource_Server_Side_Cache($cache));
                 $this->caching_type = 'ssc';
             } else {
                 $this->caching_type = 'file';
@@ -84,7 +77,6 @@ class SmartyCustomCore extends Smarty
             $this->caching_type = 'file';
         }
     }
-
     /**
      * Delete compiled template file (lazy delete if resource_name is not specified)
      *
@@ -96,16 +88,14 @@ class SmartyCustomCore extends Smarty
      *
      * @throws PrestaShopException
      */
-    public function clearCompiledTemplate($resourceName = null, $compileId = null, $expTime = null)
+    public function clear_compiled_template($resource_name = null, $compile_id = null, $exp_time = null)
     {
-        if ($resourceName == null) {
-            Db::getInstance()->execute('REPLACE INTO `'._DB_PREFIX_.'smarty_last_flush` (`type`, `last_flush`) VALUES (\'compile\', FROM_UNIXTIME('.time().'))');
-
+        if ($resource_name == null) {
+            Db::get_instance()->execute('REPLACE INTO `' . _DB_PREFIX_ . 'smarty_last_flush` (`type`, `last_flush`) VALUES (\'compile\', FROM_UNIXTIME(' . time() . '))');
             return 0;
         }
-        return parent::clearCompiledTemplate($resourceName, $compileId, $expTime);
+        return parent::clear_compiled_template($resource_name, $compile_id, $exp_time);
     }
-
     /**
      * Mark all template files to be regenerated
      *
@@ -116,13 +106,11 @@ class SmartyCustomCore extends Smarty
      *
      * @throws PrestaShopException
      */
-    public function clearAllCache($expTime = null, $type = null)
+    public function clear_all_cache($exp_time = null, $type = null)
     {
-        Db::getInstance()->execute('REPLACE INTO `'._DB_PREFIX_.'smarty_last_flush` (`type`, `last_flush`) VALUES (\'template\', FROM_UNIXTIME('.time().'))');
-
+        Db::get_instance()->execute('REPLACE INTO `' . _DB_PREFIX_ . 'smarty_last_flush` (`type`, `last_flush`) VALUES (\'template\', FROM_UNIXTIME(' . time() . '))');
         return $this->delete_from_lazy_cache(null, null, null);
     }
-
     /**
      * Delete the current template from the lazy cache or the whole cache if no template name is given
      *
@@ -134,33 +122,27 @@ class SmartyCustomCore extends Smarty
      *
      * @throws PrestaShopException
      */
-    public function delete_from_lazy_cache($template, $cacheId, $compileId)
+    public function delete_from_lazy_cache($template, $cache_id, $compile_id)
     {
-        $conn = Db::getInstance();
-
+        $conn = Db::get_instance();
         if (!$template) {
-            return $conn->execute('TRUNCATE TABLE `'._DB_PREFIX_.'smarty_lazy_cache`', false);
+            return $conn->execute('TRUNCATE TABLE `' . _DB_PREFIX_ . 'smarty_lazy_cache`', false);
         }
-
-        $templateMd5 = md5($template);
-        $sql = 'DELETE FROM `'._DB_PREFIX_.'smarty_lazy_cache`
-							WHERE template_hash=\''.pSQL($templateMd5).'\'';
-
-        if ($cacheId != null) {
-            $sql .= ' AND cache_id LIKE "'.pSQL((string) $cacheId).'%"';
+        $template_md5 = md5($template);
+        $sql = 'DELETE FROM `' . _DB_PREFIX_ . 'smarty_lazy_cache`
+							WHERE template_hash=\'' . p_sql($template_md5) . '\'';
+        if ($cache_id != null) {
+            $sql .= ' AND cache_id LIKE "' . p_sql((string) $cache_id) . '%"';
         }
-
-        if ($compileId != null) {
-            if (strlen($compileId) > 32) {
-                $compileId = md5($compileId);
+        if ($compile_id != null) {
+            if (strlen($compile_id) > 32) {
+                $compile_id = md5($compile_id);
             }
-            $sql .= ' AND compile_id="'.pSQL((string) $compileId).'"';
+            $sql .= ' AND compile_id="' . p_sql((string) $compile_id) . '"';
         }
         $conn->execute($sql, false);
-
         return $conn->Affected_Rows();
     }
-
     /**
      * Mark file to be regenerated for a specific template
      *
@@ -174,11 +156,10 @@ class SmartyCustomCore extends Smarty
      *
      * @throws PrestaShopException
      */
-    public function clearCache($templateName, $cacheId = null, $compileId = null, $expTime = null, $type = null)
+    public function clear_cache($template_name, $cache_id = null, $compile_id = null, $exp_time = null, $type = null)
     {
-        return $this->delete_from_lazy_cache($templateName, $cacheId, $compileId);
+        return $this->delete_from_lazy_cache($template_name, $cache_id, $compile_id);
     }
-
     /**
      * @param string|null $template
      * @param string|null $cacheId
@@ -190,13 +171,11 @@ class SmartyCustomCore extends Smarty
      * @throws PrestaShopException
      * @throws SmartyException
      */
-    public function fetch($template = null, $cacheId = null, $compileId = null, $parent = null)
+    public function fetch($template = null, $cache_id = null, $compile_id = null, $parent = null)
     {
         $this->check_compile_cache_invalidation();
-
-        return parent::fetch($template, $cacheId, $compileId, $parent);
+        return parent::fetch($template, $cache_id, $compile_id, $parent);
     }
-
     /**
      * Check the compile cache needs to be invalidated (multi front + local cache compatible)
      *
@@ -206,22 +185,21 @@ class SmartyCustomCore extends Smarty
     {
         static $checked = false;
         if (!$checked) {
-            $filename = $this->getCompileDir() . 'last_flush';
-            if (! @file_exists($filename)) {
-                Tools::changeFileMTime($filename);
-                parent::clearCompiledTemplate();
+            $filename = $this->get_compile_dir() . 'last_flush';
+            if (!@file_exists($filename)) {
+                Tools::change_file_m_time($filename);
+                parent::clear_compiled_template();
             } else {
                 $sql = 'SELECT UNIX_TIMESTAMP(last_flush) AS last_flush FROM `' . _DB_PREFIX_ . 'smarty_last_flush` WHERE type=\'compile\'';
-                $lastFlush = (int) Db::readOnly()->getValue($sql);
-                if ($lastFlush && @filemtime($filename) < $lastFlush) {
-                    Tools::changeFileMTime($filename);
-                    parent::clearCompiledTemplate();
+                $last_flush = (int) Db::read_only()->get_value($sql);
+                if ($last_flush && @filemtime($filename) < $last_flush) {
+                    Tools::change_file_m_time($filename);
+                    parent::clear_compiled_template();
                 }
             }
             $checked = true;
         }
     }
-
     /**
      * @param string $template
      * @param string $cacheId
@@ -234,21 +212,19 @@ class SmartyCustomCore extends Smarty
      * @throws PrestaShopException
      * @throws SmartyException
      */
-    public function createTemplate($template, $cacheId = null, $compileId = null, $parent = null, $doClone = true)
+    public function create_template($template, $cache_id = null, $compile_id = null, $parent = null, $do_clone = true)
     {
         $this->check_compile_cache_invalidation();
         if ($this->caching) {
-            $this->check_template_invalidation($template, $cacheId, $compileId);
-
-            $tpl = parent::createTemplate($template, $cacheId, $compileId, $parent, $doClone);
+            $this->check_template_invalidation($template, $cache_id, $compile_id);
+            $tpl = parent::create_template($template, $cache_id, $compile_id, $parent, $do_clone);
         } else {
-            $tpl = parent::createTemplate($template, $cacheId, $compileId, $parent, $doClone);
+            $tpl = parent::create_template($template, $cache_id, $compile_id, $parent, $do_clone);
         }
-        $tpl->startRenderCallbacks[] = ['SmartyCustom', 'beforeFetch'];
-        $tpl->endRenderCallbacks[] = ['SmartyCustom', 'afterFetch'];
+        $tpl->start_render_callbacks[] = ['SmartyCustom', 'beforeFetch'];
+        $tpl->end_render_callbacks[] = ['SmartyCustom', 'afterFetch'];
         return $tpl;
     }
-
     /**
      * Handle the lazy template cache invalidation
      *
@@ -259,36 +235,33 @@ class SmartyCustomCore extends Smarty
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function check_template_invalidation($template, $cacheId, $compileId): void
+    public function check_template_invalidation($template, $cache_id, $compile_id): void
     {
-        static $lastFlush = null;
-        $filename = $this->getCacheDir() . 'last_template_flush';
-        if (! @file_exists($filename)) {
-            Tools::changeFileMTime($filename);
-            parent::clearAllCache();
+        static $last_flush = null;
+        $filename = $this->get_cache_dir() . 'last_template_flush';
+        if (!@file_exists($filename)) {
+            Tools::change_file_m_time($filename);
+            parent::clear_all_cache();
         } else {
-            if ($lastFlush === null) {
-                $sql = 'SELECT UNIX_TIMESTAMP(last_flush) AS last_flush FROM `'._DB_PREFIX_.'smarty_last_flush` WHERE type=\'template\'';
-                $lastFlush = Db::readOnly()->getValue($sql);
+            if ($last_flush === null) {
+                $sql = 'SELECT UNIX_TIMESTAMP(last_flush) AS last_flush FROM `' . _DB_PREFIX_ . 'smarty_last_flush` WHERE type=\'template\'';
+                $last_flush = Db::read_only()->get_value($sql);
             }
-
-            if ((int) $lastFlush && @filemtime($filename) < $lastFlush) {
-                Tools::changeFileMTime($filename);
-                parent::clearAllCache();
+            if ((int) $last_flush && @filemtime($filename) < $last_flush) {
+                Tools::change_file_m_time($filename);
+                parent::clear_all_cache();
             } else {
-                if (is_object($cacheId) || is_array($cacheId)) {
-                    $cacheId = null;
+                if (is_object($cache_id) || is_array($cache_id)) {
+                    $cache_id = null;
                 }
-
-                if ($this->is_in_lazy_cache($template, $cacheId, $compileId) === false) {
+                if ($this->is_in_lazy_cache($template, $cache_id, $compile_id) === false) {
                     // insert in cache before the effective cache creation to avoid nasty race condition
-                    $this->insert_in_lazy_cache($template, $cacheId, $compileId);
-                    parent::clearCache($template, $cacheId, $compileId);
+                    $this->insert_in_lazy_cache($template, $cache_id, $compile_id);
+                    parent::clear_cache($template, $cache_id, $compile_id);
                 }
             }
         }
     }
-
     /**
      * Check if the current template is stored in the lazy cache
      * Entry in the lazy cache = no need to regenerate the template
@@ -302,20 +275,18 @@ class SmartyCustomCore extends Smarty
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function is_in_lazy_cache($template, $cacheId, $compileId)
+    public function is_in_lazy_cache($template, $cache_id, $compile_id)
     {
-        $templateMd5 = md5($template);
-        if (!is_null($compileId) && strlen($compileId) > 32) {
-            $compileId = md5($compileId);
+        $template_md5 = md5($template);
+        if (!is_null($compile_id) && strlen($compile_id) > 32) {
+            $compile_id = md5($compile_id);
         }
-        $key = 'SmartyCustom::lazy_cache_' . md5($templateMd5.$cacheId.$compileId);
-
-        if (! Cache::isStored($key)) {
-            Cache::store($key, $this->fetchIsInLazyCache($templateMd5, $cacheId, $compileId, $template));
+        $key = 'SmartyCustom::lazy_cache_' . md5($template_md5 . $cache_id . $compile_id);
+        if (!Cache::is_stored($key)) {
+            Cache::store($key, $this->fetch_is_in_lazy_cache($template_md5, $cache_id, $compile_id, $template));
         }
         return Cache::retrieve($key);
     }
-
     /**
      * Insert the current template in the lazy cache
      *
@@ -327,24 +298,20 @@ class SmartyCustomCore extends Smarty
      *
      * @throws PrestaShopException
      */
-    public function insert_in_lazy_cache($template, $cacheId, $compileId)
+    public function insert_in_lazy_cache($template, $cache_id, $compile_id)
     {
         $template_md5 = md5($template);
-        $sql = 'INSERT IGNORE INTO `'._DB_PREFIX_.'smarty_lazy_cache`
+        $sql = 'INSERT IGNORE INTO `' . _DB_PREFIX_ . 'smarty_lazy_cache`
 							(`template_hash`, `cache_id`, `compile_id`, `last_update`)
-							VALUES (\''.pSQL($template_md5).'\'';
-
-        $sql .= ',"'.pSQL((string) $cacheId).'"';
-
-        if (!is_null($compileId) && strlen($compileId) > 32) {
-            $compileId = md5($compileId);
+							VALUES (\'' . p_sql($template_md5) . '\'';
+        $sql .= ',"' . p_sql((string) $cache_id) . '"';
+        if (!is_null($compile_id) && strlen($compile_id) > 32) {
+            $compile_id = md5($compile_id);
         }
-        $sql .= ',"'.pSQL((string) $compileId).'"';
-        $sql .= ', FROM_UNIXTIME('.time().'))';
-
-        return Db::getInstance()->execute($sql);
+        $sql .= ',"' . p_sql((string) $compile_id) . '"';
+        $sql .= ', FROM_UNIXTIME(' . time() . '))';
+        return Db::get_instance()->execute($sql);
     }
-
     /**
      * Store the cache file path
      *
@@ -355,22 +322,19 @@ class SmartyCustomCore extends Smarty
      *
      * @throws PrestaShopException
      */
-    public function update_filepath($filepath, $template, $cacheId, $compileId): void
+    public function update_filepath($filepath, $template, $cache_id, $compile_id): void
     {
-        $templateMd5 = md5($template);
-        $sql = 'UPDATE `'._DB_PREFIX_.'smarty_lazy_cache`
-							SET filepath=\''.pSQL($filepath).'\'
-							WHERE `template_hash`=\''.pSQL($templateMd5).'\'';
-
-        $sql .= ' AND cache_id="'.pSQL((string) $cacheId).'"';
-
-        if (!is_null($compileId) && strlen($compileId) > 32) {
-            $compileId = md5($compileId);
+        $template_md5 = md5($template);
+        $sql = 'UPDATE `' . _DB_PREFIX_ . 'smarty_lazy_cache`
+							SET filepath=\'' . p_sql($filepath) . '\'
+							WHERE `template_hash`=\'' . p_sql($template_md5) . '\'';
+        $sql .= ' AND cache_id="' . p_sql((string) $cache_id) . '"';
+        if (!is_null($compile_id) && strlen($compile_id) > 32) {
+            $compile_id = md5($compile_id);
         }
-        $sql .= ' AND compile_id="'.pSQL((string) $compileId).'"';
-        Db::getInstance()->execute($sql);
+        $sql .= ' AND compile_id="' . p_sql((string) $compile_id) . '"';
+        Db::get_instance()->execute($sql);
     }
-
     /**
      * Callback called before template rendering. It is used to track
      * current template stack
@@ -378,19 +342,17 @@ class SmartyCustomCore extends Smarty
      * @param Smarty_Internal_Template $template
      * @throws SmartyException
      */
-    public static function beforeFetch($template): void
+    public static function before_fetch($template): void
     {
-        static::$trace[] = static::getTemplateSource($template);
+        static::$trace[] = static::get_template_source($template);
     }
-
     /**
      * Callback called after template rendering
      */
-    public static function afterFetch(): void
+    public static function after_fetch(): void
     {
         array_pop(static::$trace);
     }
-
     /**
      * Helper method to returns file path to current template
      *
@@ -398,58 +360,51 @@ class SmartyCustomCore extends Smarty
      * @return string
      * @throws SmartyException
      */
-    private static function getTemplateSource($template)
+    private static function get_template_source($template)
     {
         // first check whether resource descriptor points directly to template file
         if (@file_exists($template->template_resource)) {
             return $template->template_resource;
         }
-
         // we need to parse resource
-        $filePath = Smarty_Resource::source($template)->filepath;
-        if ($filePath) {
-            return $filePath;
+        $file_path = Smarty_Resource::source($template)->filepath;
+        if ($file_path) {
+            return $file_path;
         }
-
         // return resource descriptor if it does not refers to physical file
         return $template->template_resource;
     }
-
     /**
      * Method returns true, if $file is compiled template
      *
      * @param string $file filepath
      * @return bool
      */
-    public static function isCompiledTemplate($file)
+    public static function is_compiled_template($file)
     {
         // dynamically evaluated templates -- path from stack contains eval()'d
         if (strpos($file, 'eval()') > -1 && strpos($file, 'smarty_internal_templatebase.php') > -1) {
             return true;
         }
-
         // compiled templates are found in compile directory
         if (strpos($file, 'cache/smarty/compile/') > -1) {
             return true;
         }
         return false;
     }
-
     /**
      * Returns currently rendering template, if any
      *
      * @return string | null
      */
-    public static function getCurrentTemplate()
+    public static function get_current_template()
     {
         if (static::$trace) {
             $length = count(static::$trace);
             return static::$trace[$length - 1];
         }
-
         return null;
     }
-
     /**
      * @param string $templateMd5
      * @param string $cacheId
@@ -461,45 +416,35 @@ class SmartyCustomCore extends Smarty
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    protected function fetchIsInLazyCache($templateMd5, $cacheId, $compileId, $template)
+    protected function fetch_is_in_lazy_cache($template_md5, $cache_id, $compile_id, $template)
     {
-        $sql = (new DbQuery())
-            ->select('UNIX_TIMESTAMP(last_update) AS last_update')
-            ->select('filepath')
-            ->from('smarty_lazy_cache')
-            ->where('template_hash="' . pSQL((string)$templateMd5) . '"')
-            ->where('cache_id="' . pSQL((string)$cacheId) . '"')
-            ->where('compile_id="' . pSQL((string)$compileId) . '"');
-
-        $result = Db::readOnly()->getRow($sql);
-
+        $sql = (new Db_Query())->select('UNIX_TIMESTAMP(last_update) AS last_update')->select('filepath')->from('smarty_lazy_cache')->where('template_hash="' . p_sql((string) $template_md5) . '"')->where('cache_id="' . p_sql((string) $cache_id) . '"')->where('compile_id="' . p_sql((string) $compile_id) . '"');
+        $result = Db::read_only()->get_row($sql);
         if ($result === false) {
             return false;
         }
-
-        $filepath = trim((string)$result['filepath']);
-        $lastUpdate = (int)$result['last_update'];
+        $filepath = trim((string) $result['filepath']);
+        $last_update = (int) $result['last_update'];
         if ($filepath === '') {
             // If the cache update is stalled for more than 1min, something should be wrong,
             // remove the entry from the lazy cache
-            if ($lastUpdate < time() - 60) {
-                $this->delete_from_lazy_cache($template, $cacheId, $compileId);
+            if ($last_update < time() - 60) {
+                $this->delete_from_lazy_cache($template, $cache_id, $compile_id);
             }
             return true;
         }
         if ($this->caching_type === 'file') {
-            $fullpath = $this->getCacheDir() . $filepath;
+            $fullpath = $this->get_cache_dir() . $filepath;
             if (!file_exists($fullpath)) {
                 return false;
             }
-            if (filemtime($fullpath) < $lastUpdate) {
+            if (filemtime($fullpath) < $last_update) {
                 return false;
             }
         }
         return $filepath;
     }
 }
-
 /**
  * Class Smarty_Custom_Template
  */
@@ -507,7 +452,6 @@ class Smarty_Custom_Template extends Smarty_Internal_Template
 {
     /** @var SmartyCustom|null */
     public $smarty;
-
     /**
      * @param string|null $template
      * @param string|null $cacheId
@@ -519,22 +463,20 @@ class Smarty_Custom_Template extends Smarty_Internal_Template
      * @throws PrestaShopException
      * @throws SmartyException
      */
-    public function fetch($template = null, $cacheId = null, $compileId = null, $parent = null)
+    public function fetch($template = null, $cache_id = null, $compile_id = null, $parent = null)
     {
         if ($this->smarty->caching) {
-            $tpl = $this->fetchWithRetries($template, $cacheId, $compileId, $parent);
+            $tpl = $this->fetch_with_retries($template, $cache_id, $compile_id, $parent);
             if (property_exists($this, 'cached')) {
-                $filepath = str_replace($this->smarty->getCacheDir(), '', $this->cached->filepath);
+                $filepath = str_replace($this->smarty->get_cache_dir(), '', $this->cached->filepath);
                 if ($this->smarty->is_in_lazy_cache($this->template_resource, $this->cache_id, $this->compile_id) != $filepath) {
                     $this->smarty->update_filepath($filepath, $this->template_resource, $this->cache_id, $this->compile_id);
                 }
             }
             return $tpl;
         }
-        return $this->fetchWithRetries($template, $cacheId, $compileId, $parent);
-
+        return $this->fetch_with_retries($template, $cache_id, $compile_id, $parent);
     }
-
     /**
      * Helper method to render template
      *
@@ -546,17 +488,17 @@ class Smarty_Custom_Template extends Smarty_Internal_Template
      * @throws SmartyException
      * @throws Exception
      */
-    public function fetchWithRetries($template, $cacheId, $compileId, $parent)
+    public function fetch_with_retries($template, $cache_id, $compile_id, $parent)
     {
         $count = 0;
-        $maxTries = 3;
+        $max_tries = 3;
         while (true) {
             try {
-                $tpl = parent::fetch($template, $cacheId, $compileId, $parent);
+                $tpl = parent::fetch($template, $cache_id, $compile_id, $parent);
                 return $tpl ?? '';
-            } catch (SmartyException $e) {
+            } catch (Smarty_Exception $e) {
                 // handle exception
-                if (++$count === $maxTries) {
+                if (++$count === $max_tries) {
                     throw $e;
                 }
                 usleep(1);

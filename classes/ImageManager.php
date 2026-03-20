@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,22 +30,18 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
-use Thirtybees\Core\Error\ErrorUtils;
-
+use Thirtybees\Core\Error\Error_Utils;
 /**
  * Class ImageManagerCore
  */
-class ImageManagerCore
+class Image_Manager_Core
 {
     public const ERROR_FILE_NOT_EXIST = 1;
     public const ERROR_FILE_WIDTH = 2;
     public const ERROR_MEMORY_LIMIT = 3;
     public const ERROR_FORBIDDEN_IMAGE_EXTENSION = 4;
-
     public const DO_NOT_USE_WEBP = 0;
     public const USE_WEBP = 1;
-
     /**
      * Generate a cached thumbnail for object lists (eg. carrier, order statuses...etc)
      *
@@ -60,15 +56,14 @@ class ImageManagerCore
      *
      * @throws PrestaShopException
      */
-    public static function thumbnail($image, $cacheImage, $size, $imageExtension = null, $disableCache = true, $regenerate = false): string|array|int|float|false|null
+    public static function thumbnail($image, $cache_image, $size, $image_extension = null, $disable_cache = true, $regenerate = false): string|array|int|float|false|null
     {
-        $imagePath = static::getThumbnailUrl($image, $cacheImage, $size, $imageExtension, $disableCache, $regenerate);
-        if ($imagePath) {
-            return '<img src="'.$imagePath.'" alt="" class="imgm img-thumbnail" />';
+        $image_path = static::get_thumbnail_url($image, $cache_image, $size, $image_extension, $disable_cache, $regenerate);
+        if ($image_path) {
+            return '<img src="' . $image_path . '" alt="" class="imgm img-thumbnail" />';
         }
-        return $imagePath;
+        return $image_path;
     }
-
     /**
      * Generate a cached thumbnail for image file and returns url to it
      *
@@ -82,61 +77,50 @@ class ImageManagerCore
      *
      * @throws PrestaShopException
      */
-    public static function getThumbnailUrl($image, string $cacheImage, $size, $imageExtension = null, $disableCache = true, $regenerate = false): string
+    public static function get_thumbnail_url($image, string $cache_image, $size, $image_extension = null, $disable_cache = true, $regenerate = false): string
     {
-        if (!file_exists($image) && (!$image = static::tryRestoreImage($image))) {
+        if (!file_exists($image) && !$image = static::try_restore_image($image)) {
             return '';
         }
-
-        $targetFile = _PS_TMP_IMG_DIR_ . $cacheImage;
-
+        $target_file = _PS_TMP_IMG_DIR_ . $cache_image;
         // delete existing thumbnail file if we are instructed to regenerate
-        if (file_exists($targetFile) && $regenerate) {
-            @unlink($targetFile);
+        if (file_exists($target_file) && $regenerate) {
+            @unlink($target_file);
         }
-
         // generate thumbnail file if it not exists yet
-        if (!file_exists($targetFile)) {
+        if (!file_exists($target_file)) {
             $infos = getimagesize($image);
-
             // Evaluate the memory required to resize the image: if it's too much, you can't resize it.
-            if (!ImageManager::checkImageMemoryLimit($image)) {
+            if (!Image_Manager::check_image_memory_limit($image)) {
                 return '';
             }
-
             $x = $infos[0];
             $y = $infos[1];
-            $maxX = $size * 3;
-
+            $max_x = $size * 3;
             // Size is already ok
-            if ($y < $size && $x <= $maxX) {
-                copy($image, $targetFile);
-            } // We need to resize */
-            else {
+            if ($y < $size && $x <= $max_x) {
+                copy($image, $target_file);
+            } else {
                 $ratio_x = $x / ($y / $size);
-                if ($ratio_x > $maxX) {
-                    $ratio_x = $maxX;
-                    $size = $y / ($x / $maxX);
+                if ($ratio_x > $max_x) {
+                    $ratio_x = $max_x;
+                    $size = $y / ($x / $max_x);
                 }
-
-                ImageManager::resize($image, $targetFile, (int)$ratio_x, (int)$size, $imageExtension);
+                Image_Manager::resize($image, $target_file, (int) $ratio_x, (int) $size, $image_extension);
             }
         }
-
-        if ($disableCache) {
-            $ts = file_exists($targetFile) ? filemtime($targetFile) : time();
+        if ($disable_cache) {
+            $ts = file_exists($target_file) ? filemtime($target_file) : time();
             $suffix = '?v=' . $ts;
         } else {
             $suffix = '';
         }
-
         // Relative link will always work, whatever the base uri set in the admin
-        if (Context::getContext()->controller->controller_type == 'admin') {
-            return '../img/tmp/'.$cacheImage . $suffix;
+        if (Context::get_context()->controller->controller_type == 'admin') {
+            return '../img/tmp/' . $cache_image . $suffix;
         }
-        return _PS_TMP_IMG_.$cacheImage . $suffix;
+        return _PS_TMP_IMG_ . $cache_image . $suffix;
     }
-
     /**
      * Returns file name of product image thumbnail
      *
@@ -146,11 +130,10 @@ class ImageManagerCore
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getProductImageThumbnailFileName($imageId): string
+    public static function get_product_image_thumbnail_file_name($image_id): string
     {
-        return 'image_mini_'.(int) $imageId . '.'.ImageManager::getDefaultImageExtension();
+        return 'image_mini_' . (int) $image_id . '.' . Image_Manager::get_default_image_extension();
     }
-
     /**
      * Return path to product image thumbnail
      *
@@ -160,11 +143,10 @@ class ImageManagerCore
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getProductImageThumbnailFilePath($imageId): string
+    public static function get_product_image_thumbnail_file_path($image_id): string
     {
-        return _PS_TMP_IMG_DIR_ . static::getProductImageThumbnailFileName($imageId);
+        return _PS_TMP_IMG_DIR_ . static::get_product_image_thumbnail_file_name($image_id);
     }
-
     /**
      * Deletes product image thumbnail, if exists
      *
@@ -175,15 +157,14 @@ class ImageManagerCore
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function deleteProductImageThumbnail($imageId)
+    public static function delete_product_image_thumbnail($image_id)
     {
-        $path = static::getProductImageThumbnailFilePath($imageId);
+        $path = static::get_product_image_thumbnail_file_path($image_id);
         if ($path && file_exists($path)) {
             return @unlink($path);
         }
         return false;
     }
-
     /**
      * @param int $imageId
      * @param bool $disableCache
@@ -191,53 +172,46 @@ class ImageManagerCore
      * @return string
      * @throws PrestaShopException
      */
-    public static function getProductImageThumbnailTag($imageId, $disableCache = true)
+    public static function get_product_image_thumbnail_tag($image_id, $disable_cache = true)
     {
-        $imageId = (int)$imageId;
-        if ($imageId) {
-            $sourceFile = '';
-            foreach (ImageManager::getAllowedImageExtensions(false, true) as $imageExtension) {
-                if (file_exists($sourceFile = _PS_PROD_IMG_DIR_ . Image::resolveFilePath($imageId, $imageExtension))) {
+        $image_id = (int) $image_id;
+        if ($image_id) {
+            $source_file = '';
+            foreach (Image_Manager::get_allowed_image_extensions(false, true) as $image_extension) {
+                if (file_exists($source_file = _PS_PROD_IMG_DIR_ . Image::resolve_file_path($image_id, $image_extension))) {
                     break;
                 }
             }
-
-            $name = static::getProductImageThumbnailFileName($imageId);
-            return static::thumbnail($sourceFile, $name, 45, null, $disableCache);
+            $name = static::get_product_image_thumbnail_file_name($image_id);
+            return static::thumbnail($source_file, $name, 45, null, $disable_cache);
         }
         return '';
     }
-
     /**
      * Check if memory limit is too long or not
      *
      * @param string $image
      */
-    public static function checkImageMemoryLimit($image): bool
+    public static function check_image_memory_limit($image): bool
     {
         $infos = @getimagesize($image);
-
         if (!is_array($infos) || !isset($infos['bits'])) {
             return true;
         }
-
-        $memoryLimit = Tools::getMemoryLimit();
+        $memory_limit = Tools::get_memory_limit();
         // memory_limit == -1 => unlimited memory
-        if ((int) $memoryLimit != -1) {
-            $currentMemory = memory_get_usage();
+        if ((int) $memory_limit != -1) {
+            $current_memory = memory_get_usage();
             $bits = $infos['bits'] / 8;
             $channel = $infos['channels'] ?? 1;
-
             // Evaluate the memory required to resize the image: if it's too much, you can't resize it.
             // For perfs, avoid computing static maths formulas in the code. pow(2, 16) = 65536 ; 1024 * 1024 = 1048576
-            if (($infos[0] * $infos[1] * $bits * $channel + 65536) * 1.8 + $currentMemory > $memoryLimit - 1048576) {
+            if (($infos[0] * $infos[1] * $bits * $channel + 65536) * 1.8 + $current_memory > $memory_limit - 1048576) {
                 return false;
             }
         }
-
         return true;
     }
-
     /**
      * Resize, cut and optimize image
      *
@@ -258,132 +232,78 @@ class ImageManagerCore
      *
      * @throws PrestaShopException
      */
-    public static function resize(
-        $srcFile,
-        string $dstFile,
-        $dstWidth = null,
-        $dstHeight = null,
-        $imageExtension = null,
-        $forceType = false,
-        &$error = 0,
-        &$tgtWidth = null,
-        &$tgtHeight = null,
-        $quality = 5,
-        &$srcWidth = null,
-        &$srcHeight = null
-    ) {
-        clearstatcache(true, $srcFile);
-
-        if (!file_exists($srcFile) || !filesize($srcFile)) {
-            return !($error = static::ERROR_FILE_NOT_EXIST);
+    public static function resize($src_file, string $dst_file, $dst_width = null, $dst_height = null, $image_extension = null, $force_type = false, &$error = 0, &$tgt_width = null, &$tgt_height = null, $quality = 5, &$src_width = null, &$src_height = null)
+    {
+        clearstatcache(true, $src_file);
+        if (!file_exists($src_file) || !filesize($src_file)) {
+            return !$error = static::ERROR_FILE_NOT_EXIST;
         }
-
-        if (is_null($imageExtension)) {
+        if (is_null($image_extension)) {
             // try to detect extension from target file name
-            $imageExtension = static::getImageExtensionFromFilename($dstFile);
-            if (! $imageExtension) {
+            $image_extension = static::get_image_extension_from_filename($dst_file);
+            if (!$image_extension) {
                 // fallback to system default extension
-                $imageExtension = static::getDefaultImageExtension();
+                $image_extension = static::get_default_image_extension();
             }
         }
-
-        [$tmpWidth, $tmpHeight, $type] = getimagesize($srcFile);
-
-        $srcWidth = $tmpWidth;
-        $srcHeight = $tmpHeight;
-
-        if (!$srcWidth) {
-            return !($error = static::ERROR_FILE_WIDTH);
+        [$tmp_width, $tmp_height, $type] = getimagesize($src_file);
+        $src_width = $tmp_width;
+        $src_height = $tmp_height;
+        if (!$src_width) {
+            return !$error = static::ERROR_FILE_WIDTH;
         }
-
-        $dstWidth = (int)$dstWidth;
-        if (!$dstWidth) {
-            $dstWidth = $srcWidth;
+        $dst_width = (int) $dst_width;
+        if (!$dst_width) {
+            $dst_width = $src_width;
         }
-
-        $dstHeight = (int)$dstHeight;
-        if (!$dstHeight) {
-            $dstHeight = $srcHeight;
+        $dst_height = (int) $dst_height;
+        if (!$dst_height) {
+            $dst_height = $src_height;
         }
-
-        $widthDiff = $dstWidth / $srcWidth;
-        $heightDiff = $dstHeight / $srcHeight;
-
-        $psImageGenerationMethod = Configuration::get('PS_IMAGE_GENERATION_METHOD');
-        if ($widthDiff > 1 && $heightDiff > 1) {
-            $nextWidth = $srcWidth;
-            $nextHeight = $srcHeight;
+        $width_diff = $dst_width / $src_width;
+        $height_diff = $dst_height / $src_height;
+        $ps_image_generation_method = Configuration::get('PS_IMAGE_GENERATION_METHOD');
+        if ($width_diff > 1 && $height_diff > 1) {
+            $next_width = $src_width;
+            $next_height = $src_height;
+        } else if ($ps_image_generation_method == 2 || !$ps_image_generation_method && $width_diff > $height_diff) {
+            $next_height = $dst_height;
+            $next_width = (int) round($src_width * $next_height / $src_height);
+            $dst_width = !$ps_image_generation_method ? $dst_width : $next_width;
         } else {
-            if ($psImageGenerationMethod == 2 || (!$psImageGenerationMethod && $widthDiff > $heightDiff)) {
-                $nextHeight = $dstHeight;
-                $nextWidth = (int) round(($srcWidth * $nextHeight) / $srcHeight);
-                $dstWidth = !$psImageGenerationMethod ? $dstWidth : $nextWidth;
-            } else {
-                $nextWidth = (int) $dstWidth;
-                $nextHeight = (int) round($srcHeight * $dstWidth / $srcWidth);
-                $dstHeight = !$psImageGenerationMethod ? $dstHeight : $nextHeight;
-            }
+            $next_width = (int) $dst_width;
+            $next_height = (int) round($src_height * $dst_width / $src_width);
+            $dst_height = !$ps_image_generation_method ? $dst_height : $next_height;
         }
-
-        if (!ImageManager::checkImageMemoryLimit($srcFile)) {
-            return !($error = static::ERROR_MEMORY_LIMIT);
+        if (!Image_Manager::check_image_memory_limit($src_file)) {
+            return !$error = static::ERROR_MEMORY_LIMIT;
         }
-
-        $tgtWidth = $dstWidth;
-        $tgtHeight = $dstHeight;
-
-        $destImage = imagecreatetruecolor($dstWidth, $dstHeight);
-
+        $tgt_width = $dst_width;
+        $tgt_height = $dst_height;
+        $dest_image = imagecreatetruecolor($dst_width, $dst_height);
         // If image is a PNG or WEBP and the output is PNG/WEBP, fill with transparency. Else fill with white background.
-        if ($imageExtension == 'png' || $imageExtension === 'webp' || $imageExtension === 'avif') {
-            imagealphablending($destImage, false);
-            imagesavealpha($destImage, true);
-            $transparent = imagecolorallocatealpha($destImage, 255, 255, 255, 127);
-            imagefilledrectangle($destImage, 0, 0, $dstWidth, $dstHeight, $transparent);
+        if ($image_extension == 'png' || $image_extension === 'webp' || $image_extension === 'avif') {
+            imagealphablending($dest_image, false);
+            imagesavealpha($dest_image, true);
+            $transparent = imagecolorallocatealpha($dest_image, 255, 255, 255, 127);
+            imagefilledrectangle($dest_image, 0, 0, $dst_width, $dst_height, $transparent);
         } else {
-            $white = imagecolorallocate($destImage, 255, 255, 255);
-            imagefilledrectangle($destImage, 0, 0, $dstWidth, $dstHeight, $white);
+            $white = imagecolorallocate($dest_image, 255, 255, 255);
+            imagefilledrectangle($dest_image, 0, 0, $dst_width, $dst_height, $white);
         }
-
-        $srcImage = ImageManager::create($type, $srcFile);
-
-        if (! $srcImage) {
+        $src_image = Image_Manager::create($type, $src_file);
+        if (!$src_image) {
             return false;
         }
-
-        if ($dstWidth >= $srcWidth && $dstHeight >= $srcHeight) {
-            imagecopyresized(
-                $destImage,
-                $srcImage,
-                (int) (($dstWidth - $nextWidth) / 2),
-                (int) (($dstHeight - $nextHeight) / 2),
-                0,
-                0,
-                $nextWidth,
-                $nextHeight,
-                $srcWidth,
-                $srcHeight
-            );
+        if ($dst_width >= $src_width && $dst_height >= $src_height) {
+            imagecopyresized($dest_image, $src_image, (int) (($dst_width - $next_width) / 2), (int) (($dst_height - $next_height) / 2), 0, 0, $next_width, $next_height, $src_width, $src_height);
         } else {
-            imagecopyresampled(
-                $destImage,
-                $srcImage,
-                (int) (($dstWidth - $nextWidth) / 2),
-                (int) (($dstHeight - $nextHeight) / 2),
-                0,
-                0,
-                $nextWidth,
-                $nextHeight,
-                $srcWidth,
-                $srcHeight
-            );
+            imagecopyresampled($dest_image, $src_image, (int) (($dst_width - $next_width) / 2), (int) (($dst_height - $next_height) / 2), 0, 0, $next_width, $next_height, $src_width, $src_height);
         }
-        $writeFile = ImageManager::write($imageExtension, $destImage, $dstFile);
-        @imagedestroy($srcImage);
-
-        return $writeFile;
+        $write_file = Image_Manager::write($image_extension, $dest_image, $dst_file);
+        @imagedestroy($src_image);
+        return $write_file;
     }
-
     /**
      * Create an image with GD extension from a given type
      *
@@ -392,38 +312,30 @@ class ImageManagerCore
      *
      * @return false|GdImage|resource
      */
-    public static function create($type, $filename): \GdImage|false
+    public static function create($type, $filename): \Gd_Image|false
     {
         // avif is supported from PHP8.1 only
-        if (! defined('IMAGETYPE_AVIF')) {
+        if (!defined('IMAGETYPE_AVIF')) {
             define('IMAGETYPE_AVIF', 19);
         }
-
         switch ($type) {
-            case IMAGETYPE_GIF :
+            case IMAGETYPE_GIF:
                 $resource = imagecreatefromgif($filename);
-                imagepalettetotruecolor($resource); // Otherwise gif to webp can lead in fatal error
+                imagepalettetotruecolor($resource);
+                // Otherwise gif to webp can lead in fatal error
                 return $resource;
-
-            case IMAGETYPE_PNG :
+            case IMAGETYPE_PNG:
                 return imagecreatefrompng($filename);
-
             case IMAGETYPE_WEBP:
                 return imagecreatefromwebp($filename);
-
-            case IMAGETYPE_JPEG :
+            case IMAGETYPE_JPEG:
                 return imagecreatefromjpeg($filename);
-
             case IMAGETYPE_AVIF:
-                return function_exists('imagecreatefromavif')
-                    ? imagecreatefromavif($filename)
-                    : false;
-
+                return function_exists('imagecreatefromavif') ? imagecreatefromavif($filename) : false;
             default:
                 return false;
         }
     }
-
     /**
      * @param GdImage $dstImage
      * @param GdImage $srcImage
@@ -440,12 +352,11 @@ class ImageManagerCore
      *
      * @deprecated 1.4.0
      */
-    public static function imagecopyresampled($dstImage, $srcImage, $dstX, $dstY, $srcX, $srcY, $dstW, $dstH, $srcW, $srcH, $quality = 3): bool
+    public static function imagecopyresampled($dst_image, $src_image, $dst_x, $dst_y, $src_x, $src_y, $dst_w, $dst_h, $src_w, $src_h, $quality = 3): bool
     {
-        Tools::displayAsDeprecated();
-        return imagecopyresampled($dstImage, $srcImage, $dstX, $dstY, $srcX, $srcY, $dstW, $dstH, $srcW, $srcH);
+        Tools::display_as_deprecated();
+        return imagecopyresampled($dst_image, $src_image, $dst_x, $dst_y, $src_x, $src_y, $dst_w, $dst_h, $src_w, $src_h);
     }
-
     /**
      * Generate and write image
      *
@@ -458,59 +369,49 @@ class ImageManagerCore
      *
      * @throws PrestaShopException
      */
-    public static function write($imageExtension, $resource, $filename, $quality = null)
+    public static function write($image_extension, $resource, $filename, $quality = null)
     {
         if (is_null($quality)) {
             $quality = Configuration::get('TB_IMAGE_QUALITY') ?: 90;
         }
-
-        if (!Validate::isInt($quality) || $quality <= 0 || $quality > 100) {
-            throw new PrestaShopException('Image quality value needs to be between 0 and 100!');
+        if (!Validate::is_int($quality) || $quality <= 0 || $quality > 100) {
+            throw new Presta_Shop_Exception('Image quality value needs to be between 0 and 100!');
         }
-
-        if (!in_array($imageExtension, static::getAllowedImageExtensions(false, true))) {
-            throw new PrestaShopException("The image extensions {$imageExtension} is not supported!");
+        if (!in_array($image_extension, static::get_allowed_image_extensions(false, true))) {
+            throw new Presta_Shop_Exception("The image extensions {$image_extension} is not supported!");
         }
-
-        switch ($imageExtension) {
+        switch ($image_extension) {
             case 'gif':
                 $success = imagegif($resource, $filename);
                 break;
-
             case 'png':
                 // PNG compression (0 => biggest file, 9 => smallest file)
                 // This little mechanism transforms 0-100 range to a sensible compression value
                 $quality *= -1;
                 $quality += 100;
                 $quality /= 10;
-
                 $success = imagepng($resource, $filename, (int) $quality);
                 break;
-
             case 'webp':
                 $success = imagewebp($resource, $filename, (int) $quality);
                 break;
-
             case 'avif':
                 $success = function_exists('imageavif') && imageavif($resource, $filename, $quality);
                 break;
-
             case 'jpg':
             case 'jpeg':
             default:
-                imageinterlace($resource, 1); /// make it PROGRESSIVE
+                imageinterlace($resource, 1);
+                /// make it PROGRESSIVE
                 $success = imagejpeg($resource, $filename, (int) $quality);
                 break;
         }
         imagedestroy($resource);
-
         if (@file_exists(@$filename)) {
             @chmod($filename, 0664);
         }
-
         return $success;
     }
-
     /**
      * Copy and convert an image file
      *
@@ -521,43 +422,36 @@ class ImageManagerCore
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function convertImageToExtension($sourceImage, string $newImageExtension, $newImageDest = '', $unlinkOldImage = false, &$error = 0): bool
+    public static function convert_image_to_extension($source_image, string $new_image_extension, $new_image_dest = '', $unlink_old_image = false, &$error = 0): bool
     {
-        if (empty($info = getimagesize($sourceImage)) || empty($info[2])) {
-            $error = ImageManager::ERROR_FILE_NOT_EXIST;
+        if (empty($info = getimagesize($source_image)) || empty($info[2])) {
+            $error = Image_Manager::ERROR_FILE_NOT_EXIST;
             return false;
         }
-
-        if (!ImageManager::checkImageMemoryLimit($sourceImage)) {
+        if (!Image_Manager::check_image_memory_limit($source_image)) {
             $error = static::ERROR_MEMORY_LIMIT;
             return false;
         }
-
-        if (!in_array($newImageExtension, static::getAllowedImageExtensions(false, true))) {
+        if (!in_array($new_image_extension, static::get_allowed_image_extensions(false, true))) {
             $error = static::ERROR_FORBIDDEN_IMAGE_EXTENSION;
             return false;
         }
-
-        if ($resource = static::create($info[2], $sourceImage)) {
-
-            if (!$newImageDest) {
-                $oldImageExtension = pathinfo($sourceImage, PATHINFO_EXTENSION);
-                $newImageDest = str_replace('.'.$oldImageExtension, '.'.$newImageExtension, $sourceImage);
+        if ($resource = static::create($info[2], $source_image)) {
+            if (!$new_image_dest) {
+                $old_image_extension = pathinfo($source_image, PATHINFO_EXTENSION);
+                $new_image_dest = str_replace('.' . $old_image_extension, '.' . $new_image_extension, $source_image);
             }
-
             // Note: when we copy/convert an image, we don't want to lose quality
-            if (static::write($newImageExtension, $resource, $newImageDest, 100)) {
-                if ($unlinkOldImage) {
-                    unlink($sourceImage);
+            if (static::write($new_image_extension, $resource, $new_image_dest, 100)) {
+                if ($unlink_old_image) {
+                    unlink($source_image);
                 }
                 @imagedestroy($resource);
                 return true;
             }
         }
-
         return false;
     }
-
     /**
      * Regenerate images for one entity
      *
@@ -568,107 +462,69 @@ class ImageManagerCore
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function generateImageTypesByEntity($entityType, $idEntity, $idsImage = [])
+    public static function generate_image_types_by_entity($entity_type, $id_entity, $ids_image = [])
     {
-        $imageEntity = ImageEntity::getImageEntityInfo($entityType);
-        if (! $imageEntity) {
+        $image_entity = Image_Entity::get_image_entity_info($entity_type);
+        if (!$image_entity) {
             return false;
         }
-
-        $imageTypes = $imageEntity['imageTypes'];
-        if (! $imageTypes) {
+        $image_types = $image_entity['imageTypes'];
+        if (!$image_types) {
             return false;
         }
-
         // Get all source image paths, that are related to this entity
-        $possibleSourceImages = [];
-
-        if ($entityType == ImageEntity::ENTITY_TYPE_PRODUCTS) {
-            if (empty($idsImage)) {
-                $idsImage = array_column(Image::getImages(null, $idEntity), 'id_image');
+        $possible_source_images = [];
+        if ($entity_type == Image_Entity::ENTITY_TYPE_PRODUCTS) {
+            if (empty($ids_image)) {
+                $ids_image = array_column(Image::get_images(null, $id_entity), 'id_image');
             }
-            foreach ($idsImage as $idImage) {
-                $possibleSourceImages[] = [
-                    'description' => 'product ' . $idEntity . ', image ' . $idImage,
-                    'path' => $imageEntity['path'].Image::getImgFolderStatic($idImage),
-                    'filename' => $idImage,
-                ];
+            foreach ($ids_image as $id_image) {
+                $possible_source_images[] = ['description' => 'product ' . $id_entity . ', image ' . $id_image, 'path' => $image_entity['path'] . Image::get_img_folder_static($id_image), 'filename' => $id_image];
             }
         } else {
-            $possibleSourceImages[] = [
-                'description' => lcfirst((string)$imageEntity['classname']) . ' ' . $idEntity,
-                'path' => $imageEntity['path'],
-                'filename' => $idEntity,
-            ];
+            $possible_source_images[] = ['description' => lcfirst((string) $image_entity['classname']) . ' ' . $id_entity, 'path' => $image_entity['path'], 'filename' => $id_entity];
         }
-
-        $watermarkModules = Db::getInstance()->getArray(
-            (new DbQuery())
-                ->select('m.`name`')
-                ->from('module', 'm')
-                ->leftJoin('hook_module', 'hm', 'hm.`id_module` = m.`id_module`')
-                ->leftJoin('hook', 'h', 'hm.`id_hook` = h.`id_hook`')
-                ->where('h.`name` = \'actionWatermark\'')
-                ->where('m.`active` = 1')
-        );
-
+        $watermark_modules = Db::get_instance()->get_array((new Db_Query())->select('m.`name`')->from('module', 'm')->left_join('hook_module', 'hm', 'hm.`id_module` = m.`id_module`')->left_join('hook', 'h', 'hm.`id_hook` = h.`id_hook`')->where('h.`name` = \'actionWatermark\'')->where('m.`active` = 1'));
         // Loop through all possible source image paths
         $success = true;
-
-        foreach ($possibleSourceImages as $possibleSourceImage) {
-
-            ImageManager::cleanSourceImage($possibleSourceImage['path'], $possibleSourceImage['filename']);
-
+        foreach ($possible_source_images as $possible_source_image) {
+            Image_Manager::clean_source_image($possible_source_image['path'], $possible_source_image['filename']);
             // Check if the image does really exist
-            if ($sourceImage = ImageManager::getSourceImage($possibleSourceImage['path'], $possibleSourceImage['filename'])) {
-                [$sourceWidth, $sourceHeight] = getimagesize($sourceImage);
-                $baseName = pathinfo($sourceImage, PATHINFO_DIRNAME) . '/' . pathinfo($sourceImage, PATHINFO_FILENAME);
-                $defaultImageExtension = ImageManager::getDefaultImageExtension();
-
-                foreach ($imageTypes as $imageType) {
-
+            if ($source_image = Image_Manager::get_source_image($possible_source_image['path'], $possible_source_image['filename'])) {
+                [$source_width, $source_height] = getimagesize($source_image);
+                $base_name = pathinfo($source_image, PATHINFO_DIRNAME) . '/' . pathinfo($source_image, PATHINFO_FILENAME);
+                $default_image_extension = Image_Manager::get_default_image_extension();
+                foreach ($image_types as $image_type) {
                     // Check if imageType is alias
-                    if ($imageType['id_image_type_parent']) {
+                    if ($image_type['id_image_type_parent']) {
                         continue;
                     }
-
-                    $dstFile = $baseName . '-' . stripslashes((string) $imageType['name']) . '.' . $defaultImageExtension;
-                    $success = static::resize($sourceImage, $dstFile, $imageType['width'], $imageType['height'], $defaultImageExtension) && $success;
-
+                    $dst_file = $base_name . '-' . stripslashes((string) $image_type['name']) . '.' . $default_image_extension;
+                    $success = static::resize($source_image, $dst_file, $image_type['width'], $image_type['height'], $default_image_extension) && $success;
                     // Only generate if size of sourceImage is big enough
-                    if (static::retinaSupport() && (($sourceWidth >= $imageType['width'] * 2) || ($sourceHeight >= $imageType['height'] * 2))) {
-                        $dstFileRetina = $baseName . '-' . stripslashes((string) $imageType['name']) . '2x.' . $defaultImageExtension;
-                        $success = static::resize($sourceImage, $dstFileRetina, $imageType['width'] * 2, $imageType['height'] * 2, $defaultImageExtension) && $success;
+                    if (static::retina_support() && ($source_width >= $image_type['width'] * 2 || $source_height >= $image_type['height'] * 2)) {
+                        $dst_file_retina = $base_name . '-' . stripslashes((string) $image_type['name']) . '2x.' . $default_image_extension;
+                        $success = static::resize($source_image, $dst_file_retina, $image_type['width'] * 2, $image_type['height'] * 2, $default_image_extension) && $success;
                     }
                 }
-
                 // Call actionWatermark hook
-                if (is_array($watermarkModules) && count($watermarkModules) && ($entityType == ImageEntity::ENTITY_TYPE_PRODUCTS)) {
-                    foreach ($watermarkModules as $module) {
-                        $moduleInstance = Module::getInstanceByName($module['name']);
-                        if ($moduleInstance && is_callable([$moduleInstance, 'hookActionWatermark'])) {
-                            call_user_func([$moduleInstance, 'hookActionWatermark'], [
-                                'id_image' => $possibleSourceImage['filename'],
-                                'id_product' => $idEntity,
-                                'image_type' => $imageTypes,
-                            ]);
+                if (is_array($watermark_modules) && count($watermark_modules) && $entity_type == Image_Entity::ENTITY_TYPE_PRODUCTS) {
+                    foreach ($watermark_modules as $module) {
+                        $module_instance = Module::get_instance_by_name($module['name']);
+                        if ($module_instance && is_callable([$module_instance, 'hookActionWatermark'])) {
+                            call_user_func([$module_instance, 'hookActionWatermark'], ['id_image' => $possible_source_image['filename'], 'id_product' => $id_entity, 'image_type' => $image_types]);
                         }
                     }
                 }
-            } else {
-                if ($entityType === ImageEntity::ENTITY_TYPE_PRODUCTS) {
-                    $description = $possibleSourceImage['description'];
-                    $path = $possibleSourceImage['path'] . $possibleSourceImage['filename'] . '.' . static::getDefaultImageExtension();
-                    $path = ErrorUtils::getRelativeFile($path);
-                    throw new PrestaShopException("Source image file for $description not found ($path)");
-                }
+            } else if ($entity_type === Image_Entity::ENTITY_TYPE_PRODUCTS) {
+                $description = $possible_source_image['description'];
+                $path = $possible_source_image['path'] . $possible_source_image['filename'] . '.' . static::get_default_image_extension();
+                $path = Error_Utils::get_relative_file($path);
+                throw new Presta_Shop_Exception("Source image file for {$description} not found ({$path})");
             }
-
         }
-
         return $success;
     }
-
     /**
      * Validate image upload (check image type and weight)
      *
@@ -678,23 +534,19 @@ class ImageManagerCore
      *
      * @return bool|string Return false if no error encountered
      */
-    public static function validateUpload(array $file, $maxFileSize = 0, $allowedExtensions = null)
+    public static function validate_upload(array $file, $max_file_size = 0, $allowed_extensions = null)
     {
-        if ((int) $maxFileSize > 0 && $file['size'] > (int) $maxFileSize) {
-            return sprintf(Tools::displayError('Image is too large (%1$d kB). Maximum allowed: %2$d kB'), $file['size'] / 1024, $maxFileSize / 1024);
+        if ((int) $max_file_size > 0 && $file['size'] > (int) $max_file_size) {
+            return sprintf(Tools::display_error('Image is too large (%1$d kB). Maximum allowed: %2$d kB'), $file['size'] / 1024, $max_file_size / 1024);
         }
         if ($file['error']) {
-            return Tools::decodeUploadError($file['error']);
+            return Tools::decode_upload_error($file['error']);
         }
-        if (!ImageManager::isRealImage($file['tmp_name'], $file['type']) ||
-            !ImageManager::isCorrectImageFileExt($file['name'], $allowedExtensions) ||
-            preg_match('/%00/', (string) $file['name'])
-        ) {
-            return Tools::displayError('Image format not recognized, allowed formats are: ').implode(', ', static::getAllowedImageExtensions());
+        if (!Image_Manager::is_real_image($file['tmp_name'], $file['type']) || !Image_Manager::is_correct_image_file_ext($file['name'], $allowed_extensions) || preg_match('/%00/', (string) $file['name'])) {
+            return Tools::display_error('Image format not recognized, allowed formats are: ') . implode(', ', static::get_allowed_image_extensions());
         }
         return false;
     }
-
     /**
      * Check if file is a real image
      *
@@ -702,57 +554,50 @@ class ImageManagerCore
      * @param string $fileMimeType File known mime type (generally from $_FILES)
      * @param array $mimeTypeList Allowed MIME types
      */
-    public static function isRealImage($filename, $fileMimeType = null, $mimeTypeList = null): bool
+    public static function is_real_image($filename, $file_mime_type = null, $mime_type_list = null): bool
     {
         // Detect mime content type
-        $mimeType = false;
-
-        if (!$mimeTypeList) {
-            foreach (Media::getFileInformations('images') as $imageFileInfo) {
-                $mimeTypeList[] = $imageFileInfo['mimeType'];
+        $mime_type = false;
+        if (!$mime_type_list) {
+            foreach (Media::get_file_informations('images') as $image_file_info) {
+                $mime_type_list[] = $image_file_info['mimeType'];
             }
         }
-
         // Try 4 different methods to determine the mime type
         if (function_exists('getimagesize')) {
-            $imageInfo = @getimagesize($filename);
-
-            if ($imageInfo) {
-                $mimeType = $imageInfo['mime'];
+            $image_info = @getimagesize($filename);
+            if ($image_info) {
+                $mime_type = $image_info['mime'];
             } else {
-                $fileMimeType = false;
+                $file_mime_type = false;
             }
         } elseif (function_exists('finfo_open')) {
             $const = defined('FILEINFO_MIME_TYPE') ? FILEINFO_MIME_TYPE : FILEINFO_MIME;
             $finfo = finfo_open($const);
-            $mimeType = finfo_file($finfo, $filename);
+            $mime_type = finfo_file($finfo, $filename);
             finfo_close($finfo);
         } elseif (function_exists('mime_content_type')) {
-            $mimeType = mime_content_type($filename);
+            $mime_type = mime_content_type($filename);
         } elseif (function_exists('exec')) {
-            $mimeType = trim(exec('file -b --mime-type '.escapeshellarg($filename)));
-            if (!$mimeType) {
-                $mimeType = trim(exec('file --mime '.escapeshellarg($filename)));
+            $mime_type = trim(exec('file -b --mime-type ' . escapeshellarg($filename)));
+            if (!$mime_type) {
+                $mime_type = trim(exec('file --mime ' . escapeshellarg($filename)));
             }
-            if (!$mimeType) {
-                $mimeType = trim(exec('file -bi '.escapeshellarg($filename)));
+            if (!$mime_type) {
+                $mime_type = trim(exec('file -bi ' . escapeshellarg($filename)));
             }
         }
-
-        if ($fileMimeType && (empty($mimeType) || $mimeType == 'regular file' || $mimeType == 'text/plain')) {
-            $mimeType = $fileMimeType;
+        if ($file_mime_type && (empty($mime_type) || $mime_type == 'regular file' || $mime_type == 'text/plain')) {
+            $mime_type = $file_mime_type;
         }
-
         // For each allowed MIME type, we are looking for it inside the current MIME type
-        foreach ($mimeTypeList as $type) {
-            if (strstr($mimeType, (string) $type)) {
+        foreach ($mime_type_list as $type) {
+            if (strstr($mime_type, (string) $type)) {
                 return true;
             }
         }
-
         return false;
     }
-
     /**
      * Check if image file extension is correct
      *
@@ -761,17 +606,15 @@ class ImageManagerCore
      *
      * @return bool True if it's correct
      */
-    public static function isCorrectImageFileExt($filename, $allowedExtensions = null): bool
+    public static function is_correct_image_file_ext($filename, $allowed_extensions = null): bool
     {
         // Filter on file extension
-        if ($allowedExtensions === null) {
-            $allowedExtensions = static::getAllowedImageExtensions();
+        if ($allowed_extensions === null) {
+            $allowed_extensions = static::get_allowed_image_extensions();
         }
-
-        $extension = strtolower(pathinfo((string)$filename, PATHINFO_EXTENSION));
-        return in_array($extension, $allowedExtensions);
+        $extension = strtolower(pathinfo((string) $filename, PATHINFO_EXTENSION));
+        return in_array($extension, $allowed_extensions);
     }
-
     /**
      * Validate icon upload
      *
@@ -780,25 +623,19 @@ class ImageManagerCore
      *
      * @return bool|string Return false if no error encountered
      */
-    public static function validateIconUpload(array $file, $maxFileSize = 0)
+    public static function validate_icon_upload(array $file, $max_file_size = 0)
     {
-        if ((int) $maxFileSize > 0 && $file['size'] > $maxFileSize) {
-            return sprintf(
-                Tools::displayError('Image is too large (%1$d kB). Maximum allowed: %2$d kB'),
-                $file['size'] / 1000,
-                $maxFileSize / 1000
-            );
+        if ((int) $max_file_size > 0 && $file['size'] > $max_file_size) {
+            return sprintf(Tools::display_error('Image is too large (%1$d kB). Maximum allowed: %2$d kB'), $file['size'] / 1000, $max_file_size / 1000);
         }
         if (!str_ends_with((string) $file['name'], '.ico') && !str_ends_with((string) $file['name'], '.png')) {
-            return Tools::displayError('Image format not recognized, allowed formats are: .ico, .png');
+            return Tools::display_error('Image format not recognized, allowed formats are: .ico, .png');
         }
         if ($file['error']) {
-            return Tools::displayError('Error while uploading image; please change your server\'s settings.');
+            return Tools::display_error('Error while uploading image; please change your server\'s settings.');
         }
-
         return false;
     }
-
     /**
      * Cut image
      *
@@ -814,41 +651,31 @@ class ImageManagerCore
      *
      * @throws PrestaShopException
      */
-    public static function cut($srcFile, $dstFile, $dstWidth = null, $dstHeight = null, $imageExtension = null, $dstX = 0, $dstY = 0)
+    public static function cut($src_file, $dst_file, $dst_width = null, $dst_height = null, $image_extension = null, $dst_x = 0, $dst_y = 0)
     {
-        if (!file_exists($srcFile)) {
+        if (!file_exists($src_file)) {
             return false;
         }
-
-        if (is_null($imageExtension)) {
-            $imageExtension = ImageManager::getDefaultImageExtension();
+        if (is_null($image_extension)) {
+            $image_extension = Image_Manager::get_default_image_extension();
         }
-
         // Source information
-        $srcInfo = getimagesize($srcFile);
-        $src = [
-            'width'     => $srcInfo[0],
-            'height'    => $srcInfo[1],
-            'ressource' => ImageManager::create($srcInfo[2], $srcFile),
-        ];
-
+        $src_info = getimagesize($src_file);
+        $src = ['width' => $src_info[0], 'height' => $src_info[1], 'ressource' => Image_Manager::create($src_info[2], $src_file)];
         // Destination information
         $dest = [];
-        $dest['x'] = $dstX;
-        $dest['y'] = $dstY;
-        $dest['width'] = !is_null($dstWidth) ? $dstWidth : $src['width'];
-        $dest['height'] = !is_null($dstHeight) ? $dstHeight : $src['height'];
-        $dest['ressource'] = ImageManager::createWhiteImage($dest['width'], $dest['height']);
-
+        $dest['x'] = $dst_x;
+        $dest['y'] = $dst_y;
+        $dest['width'] = !is_null($dst_width) ? $dst_width : $src['width'];
+        $dest['height'] = !is_null($dst_height) ? $dst_height : $src['height'];
+        $dest['ressource'] = Image_Manager::create_white_image($dest['width'], $dest['height']);
         $white = imagecolorallocate($dest['ressource'], 255, 255, 255);
         imagecopyresampled($dest['ressource'], $src['ressource'], 0, 0, $dest['x'], $dest['y'], $dest['width'], $dest['height'], $dest['width'], $dest['height']);
         imagecolortransparent($dest['ressource'], $white);
-        $return = ImageManager::write($imageExtension, $dest['ressource'], $dstFile);
+        $return = Image_Manager::write($image_extension, $dest['ressource'], $dst_file);
         @imagedestroy($src['ressource']);
-
         return $return;
     }
-
     /**
      * Create an empty image with white background
      *
@@ -857,15 +684,13 @@ class ImageManagerCore
      *
      * @return resource
      */
-    public static function createWhiteImage($width, $height): \GdImage|false
+    public static function create_white_image($width, $height): \Gd_Image|false
     {
         $image = imagecreatetruecolor($width, $height);
         $white = imagecolorallocate($image, 255, 255, 255);
         imagefill($image, 0, 0, $white);
-
         return $image;
     }
-
     /**
      * Return the mime type by the file extension
      *
@@ -873,27 +698,22 @@ class ImageManagerCore
      *
      * @return string
      */
-    public static function getMimeTypeByExtension($fileName)
+    public static function get_mime_type_by_extension($file_name)
     {
-        $imageExtensionInfos = Media::getFileInformations('images');
-        $imageExtension = substr($fileName, strrpos($fileName, '.') + 1);
-
-        $mimeType = null;
-
-        foreach ($imageExtensionInfos as $imageExtensionInfo) {
-            if (in_array($imageExtension, $imageExtensionInfo)) {
-                $mimeType = $imageExtensionInfo['mimeType'];
+        $image_extension_infos = Media::get_file_informations('images');
+        $image_extension = substr($file_name, strrpos($file_name, '.') + 1);
+        $mime_type = null;
+        foreach ($image_extension_infos as $image_extension_info) {
+            if (in_array($image_extension, $image_extension_info)) {
+                $mime_type = $image_extension_info['mimeType'];
                 break;
             }
         }
-
-        if ($mimeType === null) {
+        if ($mime_type === null) {
             return 'image/jpeg';
         }
-
-        return $mimeType;
+        return $mime_type;
     }
-
     /**
      * Returns an array of image extensions depending on filters
      *
@@ -902,27 +722,21 @@ class ImageManagerCore
      * @param null|bool $uploadFrontOffice Are customers allowed to upload this extension in FO?
      * @param null|bool $uploadBackOffice Are merchants allowed to upload this extension in BO?
      */
-    public static function getAllowedImageExtensions($returnMainExtensions = false, $imageSupport = null, $uploadFrontOffice = null, $uploadBackOffice = null): array
+    public static function get_allowed_image_extensions($return_main_extensions = false, $image_support = null, $upload_front_office = null, $upload_back_office = null): array
     {
-        $imageExtensions = Media::getFileInformations('images');
-        $returnHelper = [];
-
-        foreach ($imageExtensions as $mainExtension => $imageExtension) {
-            if (
-                (is_null($imageSupport) || $imageSupport == $imageExtension['imageSupport']) &&
-                (is_null($uploadFrontOffice) || $uploadFrontOffice == $imageExtension['uploadFrontOffice']) &&
-                (is_null($uploadBackOffice) || $uploadBackOffice == $imageExtension['uploadBackOffice'])
-            ) {
-                if ($returnMainExtensions) {
-                    $returnHelper[] = $mainExtension;
+        $image_extensions = Media::get_file_informations('images');
+        $return_helper = [];
+        foreach ($image_extensions as $main_extension => $image_extension) {
+            if ((is_null($image_support) || $image_support == $image_extension['imageSupport']) && (is_null($upload_front_office) || $upload_front_office == $image_extension['uploadFrontOffice']) && (is_null($upload_back_office) || $upload_back_office == $image_extension['uploadBackOffice'])) {
+                if ($return_main_extensions) {
+                    $return_helper[] = $main_extension;
                 } else {
-                    $returnHelper = array_merge($returnHelper, $imageExtension['extensions']);
+                    $return_helper = array_merge($return_helper, $image_extension['extensions']);
                 }
             }
         }
-        return $returnHelper;
+        return $return_helper;
     }
-
     /**
      *
      * @return string returns either jpg|png|gif|webp
@@ -930,15 +744,14 @@ class ImageManagerCore
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getDefaultImageExtension()
+    public static function get_default_image_extension()
     {
-        $imageExtension = Configuration::get('TB_IMAGE_EXTENSION');
-        if (! $imageExtension) {
+        $image_extension = Configuration::get('TB_IMAGE_EXTENSION');
+        if (!$image_extension) {
             return 'jpg';
         }
-        return $imageExtension;
+        return $image_extension;
     }
-
     /**
      * Add an image to the generator.
      *
@@ -957,11 +770,10 @@ class ImageManagerCore
      * @license GNU General Public License v2.0
      * @source https://github.com/chrisbliss18/php-ico
      */
-    public static function generateFavicon($source, $sizes = [['16', '16'], ['24', '24'], ['32', '32'], ['48', '48'], ['64', '64']])
+    public static function generate_favicon($source, $sizes = [['16', '16'], ['24', '24'], ['32', '32'], ['48', '48'], ['64', '64']])
     {
         $images = [];
-
-        if (! getimagesize($source)) {
+        if (!getimagesize($source)) {
             return false;
         }
         if (!$file_data = file_get_contents($source)) {
@@ -974,16 +786,14 @@ class ImageManagerCore
         if (empty($sizes)) {
             $sizes = [imagesx($im), imagesy($im)];
         }
-
         // If just a single size was passed, put it in array.
-        if (! is_array($sizes[0])) {
+        if (!is_array($sizes[0])) {
             $sizes = [$sizes];
         }
-
         foreach ((array) $sizes as $size) {
             [$width, $height] = $size;
-            $width = (int)$width;
-            $height = (int)$height;
+            $width = (int) $width;
+            $height = (int) $height;
             $new_im = imagecreatetruecolor($width, $height);
             imagecolortransparent($new_im, imagecolorallocatealpha($new_im, 0, 0, 0, 127));
             imagealphablending($new_im, false);
@@ -993,13 +803,10 @@ class ImageManagerCore
             if (false === imagecopyresampled($new_im, $im, 0, 0, 0, 0, $width, $height, $source_width, $source_height)) {
                 continue;
             }
-
-            static::addFaviconImageData($new_im, $images);
+            static::add_favicon_image_data($new_im, $images);
         }
-
-        return static::getIcoData($images);
+        return static::get_ico_data($images);
     }
-
     /**
      * Generate the final ICO data by creating a file header and adding the image data.
      *
@@ -1008,7 +815,7 @@ class ImageManagerCore
      * @license GNU General Public License v2.0
      * @source https://github.com/chrisbliss18/php-ico
      */
-    protected static function getIcoData($images): false|string
+    protected static function get_ico_data($images): false|string
     {
         if (!is_array($images) || empty($images)) {
             return false;
@@ -1016,7 +823,7 @@ class ImageManagerCore
         $data = pack('vvv', 0, 1, count($images));
         $pixel_data = '';
         $icon_dir_entry_size = 16;
-        $offset = 6 + ($icon_dir_entry_size * count($images));
+        $offset = 6 + $icon_dir_entry_size * count($images);
         foreach ($images as $image) {
             $data .= pack('CCCCvvVV', $image['width'], $image['height'], $image['color_palette_colors'], 0, 1, $image['bits_per_pixel'], $image['size'], $offset);
             $pixel_data .= $image['data'];
@@ -1026,7 +833,6 @@ class ImageManagerCore
         unset($pixel_data);
         return $data;
     }
-
     /**
      * Take a GD image resource and change it into a raw BMP format.
      *
@@ -1035,138 +841,115 @@ class ImageManagerCore
      * @license GNU General Public License v2.0
      * @source https://github.com/chrisbliss18/php-ico
      */
-    protected static function addFaviconImageData($im, array &$images)
+    protected static function add_favicon_image_data($im, array &$images)
     {
-        $width  = imagesx($im);
+        $width = imagesx($im);
         $height = imagesy($im);
-
-        $pixel_data   = [];
+        $pixel_data = [];
         $opacity_data = [];
         $current_opacity_val = 0;
-
         for ($y = $height - 1; $y >= 0; $y--) {
             for ($x = 0; $x < $width; $x++) {
                 // get the raw color & alpha
                 $color = imagecolorat($im, $x, $y);
-                $rawA  = ($color & 0x7F000000) >> 24;               // 0–127
-
+                $raw_a = ($color & 0x7f000000) >> 24;
+                // 0–127
                 // compute fully‑scaled alpha and cast to int before shifting
-                $alpha = (int) round((1 - ($rawA / 127)) * 255);    // 0–255
-
+                $alpha = (int) round((1 - $raw_a / 127) * 255);
+                // 0–255
                 // clear old alpha bits, then re‑insert ours
-                $color &= 0x00FFFFFF;
-                $color |= ($alpha << 24);
-
+                $color &= 0xffffff;
+                $color |= $alpha << 24;
                 $pixel_data[] = $color;
-
                 // build the 1‑bit opacity mask
-                $opacity = ($alpha <= 127) ? 1 : 0;
-                $current_opacity_val = ($current_opacity_val << 1) | $opacity;
-                if ((($x + 1) % 32) === 0) {
+                $opacity = $alpha <= 127 ? 1 : 0;
+                $current_opacity_val = $current_opacity_val << 1 | $opacity;
+                if (($x + 1) % 32 === 0) {
                     $opacity_data[] = $current_opacity_val;
                     $current_opacity_val = 0;
                 }
             }
-
             // pad remaining bits in row to a multiple of 32
-            if (($x % 32) > 0) {
-                while (($x++ % 32) > 0) {
+            if ($x % 32 > 0) {
+                while ($x++ % 32 > 0) {
                     $current_opacity_val <<= 1;
                 }
                 $opacity_data[] = $current_opacity_val;
                 $current_opacity_val = 0;
             }
         }
-
         // header sizes
-        $image_header_size  = 40;
-        $color_mask_size    = $width * $height * 4;
-        $opacity_mask_size  = (ceil($width / 32) * 4) * $height;
-
+        $image_header_size = 40;
+        $color_mask_size = $width * $height * 4;
+        $opacity_mask_size = ceil($width / 32) * 4 * $height;
         // build ICO directory header
         $data = pack(
             'VVVvvVVVVVV',
-            40,               // header size
+            40,
+            // header size
             $width,
-            $height * 2,      // BMP stores height*2
-            1,                // planes
-            32,               // bits per pixel
+            $height * 2,
+            // BMP stores height*2
+            1,
+            // planes
+            32,
+            // bits per pixel
             0,
             0,
             0,
             0,
             0,
-            0  // rest zeroed
+            0
         );
-
         // append pixel data
         foreach ($pixel_data as $col) {
             $data .= pack('V', $col);
         }
-
         // append opacity mask
         foreach ($opacity_data as $mask) {
             $data .= pack('N', $mask);
         }
-
-        $images[] = [
-            'width'                => $width,
-            'height'               => $height,
-            'color_palette_colors' => 0,
-            'bits_per_pixel'       => 32,
-            'size'                 => $image_header_size + $color_mask_size + $opacity_mask_size,
-            'data'                 => $data,
-        ];
+        $images[] = ['width' => $width, 'height' => $height, 'color_palette_colors' => 0, 'bits_per_pixel' => 32, 'size' => $image_header_size + $color_mask_size + $opacity_mask_size, 'data' => $data];
     }
-
     /**
      * Returns true, if webp images can be used for current request
      *
      * @return bool
      */
-    public static function webpSupport()
+    public static function webp_support()
     {
         static $supported = null;
-
         if ($supported === null) {
-            $supported = (
-                static::getWebpPreference() === static::USE_WEBP &&
-                static::serverSupportsWebp()
-            );
+            $supported = static::get_webp_preference() === static::USE_WEBP && static::server_supports_webp();
         }
-
         return $supported;
     }
-
     /**
      * Returns true, if browser that initiated request supports webp images
      *
      * @return bool
      */
-    public static function browserSupportsWebp()
+    public static function browser_supports_webp()
     {
         if (array_key_exists('HTTP_ACCEPT', $_SERVER)) {
             return str_contains((string) $_SERVER['HTTP_ACCEPT'], 'image/webp');
         }
         return false;
     }
-
     /**
      * Returns true, if server supports webp images
      */
-    public static function serverSupportsWebp(): bool
+    public static function server_supports_webp(): bool
     {
         return function_exists('imagewebp');
     }
-
     /**
      * Returns true, if server supports avif images
      */
-    public static function serverSupportsAvif(): bool
+    public static function server_supports_avif(): bool
     {
         return function_exists('imageavif');
     }
-
     /**
      * Returns true, if webp images should be generated. That does not necessary mean that webp images
      * will be used by store
@@ -1174,43 +957,39 @@ class ImageManagerCore
      *
      * @deprecated 1.5.0 This specific webp function is obsolete, since we support webp consistently
      */
-    public static function generateWebpImages(): bool
+    public static function generate_webp_images(): bool
     {
-        $preference = static::getWebpPreference();
-        return ($preference === static::USE_WEBP);
+        $preference = static::get_webp_preference();
+        return $preference === static::USE_WEBP;
     }
-
     /**
      * Returns current webp settings preference
      *
      * @return int
      */
-    protected static function getWebpPreference()
+    protected static function get_webp_preference()
     {
         try {
-            return (int)(Configuration::get('TB_IMAGE_EXTENSION') == 'webp');
-        } catch (PrestaShopException) {
+            return (int) (Configuration::get('TB_IMAGE_EXTENSION') == 'webp');
+        } catch (Presta_Shop_Exception) {
             return static::DO_NOT_USE_WEBP;
         }
     }
-
     /**
      * @return bool
      */
-    public static function retinaSupport()
+    public static function retina_support()
     {
         static $supported = null;
         if ($supported === null) {
             try {
                 $supported = (bool) Configuration::get('PS_HIGHT_DPI');
-            } catch (PrestaShopException) {
+            } catch (Presta_Shop_Exception) {
                 $supported = false;
             }
         }
-
         return $supported;
     }
-
     /**
      * Important function to convert core image files in "wrong" format. Also needed when merchant switches image extension.
      * Typical example: orderStatus icons. Originally they are stored in gif, but in lists they are needed in configured image extension.
@@ -1220,28 +999,23 @@ class ImageManagerCore
      * @return string|null Returns full path to source image
      *
      */
-    public static function tryRestoreImage($image)
+    public static function try_restore_image($image)
     {
-        if (! $image) {
+        if (!$image) {
             return null;
         }
-
         if (@file_exists($image)) {
             return $image;
         }
-
-        $baseSourcePath = pathinfo($image, PATHINFO_DIRNAME) . '/' . pathinfo($image, PATHINFO_FILENAME);
-
-        foreach (ImageManager::getAllowedImageExtensions(false, true) as $imageExtension) {
-            $sourcePath = $baseSourcePath . '.' . $imageExtension;
-            if (@file_exists($sourcePath)) {
-                return $sourcePath;
+        $base_source_path = pathinfo($image, PATHINFO_DIRNAME) . '/' . pathinfo($image, PATHINFO_FILENAME);
+        foreach (Image_Manager::get_allowed_image_extensions(false, true) as $image_extension) {
+            $source_path = $base_source_path . '.' . $image_extension;
+            if (@file_exists($source_path)) {
+                return $source_path;
             }
         }
-
         return null;
     }
-
     /**
      * Get a source file in any extension
      *
@@ -1255,53 +1029,40 @@ class ImageManagerCore
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getSourceImage($path, string $filename, $expectedImageExtension = null, $convertImage = true)
+    public static function get_source_image($path, string $filename, $expected_image_extension = null, $convert_image = true)
     {
-        $defaultImageExtension = Configuration::get('TB_IMAGE_EXTENSION');
-
+        $default_image_extension = Configuration::get('TB_IMAGE_EXTENSION');
         // First check default imageExtension (saving time)
-        if (!$expectedImageExtension) {
-            $expectedImageExtension = $defaultImageExtension;
+        if (!$expected_image_extension) {
+            $expected_image_extension = $default_image_extension;
         }
-
         if (!str_ends_with($path, '/')) {
             $path .= '/';
         }
-
         // Check if image in expected extension is available (ideal situation)
-        if (file_exists($path . $filename . '.' . $expectedImageExtension)) {
-            return $path . $filename . '.' . $expectedImageExtension;
+        if (file_exists($path . $filename . '.' . $expected_image_extension)) {
+            return $path . $filename . '.' . $expected_image_extension;
         }
-
         // Image is not available in the expected extension
-        $sourceImage = false;
-        $foundExtension = false;
-
-        foreach (ImageManager::getAllowedImageExtensions(false, true) as $imageExtension) {
-            if ($imageExtension != $expectedImageExtension && file_exists($path . $filename . '.' . $imageExtension)) {
-                $sourceImage = $path . $filename . '.' . $imageExtension;
-                $foundExtension = $imageExtension;
+        $source_image = false;
+        $found_extension = false;
+        foreach (Image_Manager::get_allowed_image_extensions(false, true) as $image_extension) {
+            if ($image_extension != $expected_image_extension && file_exists($path . $filename . '.' . $image_extension)) {
+                $source_image = $path . $filename . '.' . $image_extension;
+                $found_extension = $image_extension;
                 break;
             }
         }
-
         // Check if we should convert the found sourceImage
-        if ($convertImage) {
-            $imageConversion = Configuration::get('TB_IMAGE_CONVERSION');
-
-            if (
-                $foundExtension &&
-                $foundExtension != $defaultImageExtension &&
-                ($imageConversion == 'converted' || $imageConversion == 'both')
-            ) {
-                $unlinkOldImage = ($imageConversion == 'converted') && ($defaultImageExtension != Configuration::get('TB_IMAGE_EXTENSION'));
-                ImageManager::convertImageToExtension($sourceImage, $defaultImageExtension, '', $unlinkOldImage);
+        if ($convert_image) {
+            $image_conversion = Configuration::get('TB_IMAGE_CONVERSION');
+            if ($found_extension && $found_extension != $default_image_extension && ($image_conversion == 'converted' || $image_conversion == 'both')) {
+                $unlink_old_image = $image_conversion == 'converted' && $default_image_extension != Configuration::get('TB_IMAGE_EXTENSION');
+                Image_Manager::convert_image_to_extension($source_image, $default_image_extension, '', $unlink_old_image);
             }
         }
-
-        return $sourceImage;
+        return $source_image;
     }
-
     /**
      * Removing unnecessary source image extensions
      *
@@ -1311,71 +1072,60 @@ class ImageManagerCore
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function cleanSourceImage($path, string $filename): void
+    public static function clean_source_image($path, string $filename): void
     {
-
         if (!str_ends_with($path, '/')) {
             $path .= '/';
         }
-
-        $imageConversion = Configuration::get('TB_IMAGE_CONVERSION');
-
-        if ($imageConversion == 'converted') {
-
+        $image_conversion = Configuration::get('TB_IMAGE_CONVERSION');
+        if ($image_conversion == 'converted') {
             // Making 100% sure, that source file is available in correct extension
-            $source_file_to_hold = ImageManager::getSourceImage($path, $filename);
-
-            foreach (ImageManager::getAllowedImageExtensions(false, true) as $imageExtension) {
-                $source_file_to_check = $path.$filename.'.'.$imageExtension;
-
-                if ($source_file_to_check != $source_file_to_hold && $imageExtension != ImageManager::getDefaultImageExtension()) {
+            $source_file_to_hold = Image_Manager::get_source_image($path, $filename);
+            foreach (Image_Manager::get_allowed_image_extensions(false, true) as $image_extension) {
+                $source_file_to_check = $path . $filename . '.' . $image_extension;
+                if ($source_file_to_check != $source_file_to_hold && $image_extension != Image_Manager::get_default_image_extension()) {
                     if (file_exists($source_file_to_check)) {
                         unlink($source_file_to_check);
                     }
                 }
             }
-
         }
     }
-
     /**
      * Resolves valid image extension from filepath. File does not need to exits -- extension is extracted from name
      * only
      *
      *
      */
-    protected static function getImageExtensionFromFilename(string $filepath): ?string
+    protected static function get_image_extension_from_filename(string $filepath): ?string
     {
         $extension = strtolower(pathinfo($filepath, PATHINFO_EXTENSION));
         if ($extension) {
-            $allowedExtensions = static::getAllowedImageExtensions(true, true);
-            if (in_array($extension, $allowedExtensions)) {
+            $allowed_extensions = static::get_allowed_image_extensions(true, true);
+            if (in_array($extension, $allowed_extensions)) {
                 return $extension;
             }
         }
         return null;
     }
-
     /**
      * Resolves valid image extension from filepath. File have to exists - image extension is resolved from file content
      *
      * @return string|null
      */
-    public static function getImageExtension(string $filepath)
+    public static function get_image_extension(string $filepath)
     {
-        $imageInfo = @getimagesize($filepath);
-        if (! $imageInfo) {
+        $image_info = @getimagesize($filepath);
+        if (!$image_info) {
             return null;
         }
-
-        $mimeType = $imageInfo['mime'] ?? null;
-        if (! $mimeType) {
+        $mime_type = $image_info['mime'] ?? null;
+        if (!$mime_type) {
             return null;
         }
-
         // Detect mime content type
-        foreach (Media::getFileInformations('images') as $ext => $imageFileInfo) {
-            if (strstr($mimeType, (string) $imageFileInfo['mimeType'])) {
+        foreach (Media::get_file_informations('images') as $ext => $image_file_info) {
+            if (strstr($mime_type, (string) $image_file_info['mimeType'])) {
                 return $ext;
             }
         }

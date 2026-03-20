@@ -1,74 +1,45 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace Thirtybees\Core\View\Model;
 
 use Combination;
-use PrestaShopException;
+use Presta_Shop_Exception;
 use Product;
-use StockAvailable;
-
-class ProductViewModelCore extends Product
+use Stock_Available;
+class Product_View_Model_Core extends Product
 {
-    public const LEGACY_PROPERTY_GETTER = [
-        'id_image' => 'getCoverImageId',
-        'allow_oosp' => 'availableWhenOutOfStock',
-        'id_product_attribute' => 'getSelectedCombinationId',
-    ];
-
+    public const LEGACY_PROPERTY_GETTER = ['id_image' => 'getCoverImageId', 'allow_oosp' => 'availableWhenOutOfStock', 'id_product_attribute' => 'getSelectedCombinationId'];
     /**
      * @var array
      */
-    protected $legacyPropertyValues = [];
-
+    protected $legacy_property_values = [];
     /**
      * @var Combination|null
      */
-    protected $selectedCombination;
-
+    protected $selected_combination;
     /**
      * @var int|null
      */
-    protected $coverImageId;
-
+    protected $cover_image_id;
     /**
      *
      * @throws PrestaShopException
      */
-    public function __construct(int $productId, int $combinationId, int $languageId, int $shopId)
+    public function __construct(int $product_id, int $combination_id, int $language_id, int $shop_id)
     {
-        parent::__construct($productId, true, $languageId, $shopId);
-        if ($combinationId) {
-            $this->selectedCombination = new Combination($combinationId, $languageId, $shopId);
-
+        parent::__construct($product_id, true, $language_id, $shop_id);
+        if ($combination_id) {
+            $this->selected_combination = new Combination($combination_id, $language_id, $shop_id);
             // recalculate price
-            $this->price = static::getPriceStatic(
-                (int) $this->id,
-                false,
-                $combinationId,
-                _TB_PRICE_DATABASE_PRECISION_,
-                null,
-                false,
-                true,
-                1,
-                false,
-                null,
-                null,
-                null,
-                $this->specificPrice
-            );
-            $this->unit_price = ($this->unit_price_ratio != 0)
-                ? round($this->price / $this->unit_price_ratio, _TB_PRICE_DATABASE_PRECISION_)
-                : 0;
-
+            $this->price = static::get_price_static((int) $this->id, false, $combination_id, _TB_PRICE_DATABASE_PRECISION_, null, false, true, 1, false, null, null, null, $this->specific_price);
+            $this->unit_price = $this->unit_price_ratio != 0 ? round($this->price / $this->unit_price_ratio, _TB_PRICE_DATABASE_PRECISION_) : 0;
             // recalculate quantity
-            $this->quantity = StockAvailable::getQuantityAvailableByProduct($this->id, $combinationId);
-            $this->out_of_stock = StockAvailable::outOfStock($this->id, $shopId, $combinationId);
-            $this->depends_on_stock = StockAvailable::dependsOnStock($this->id, $shopId, $combinationId);
+            $this->quantity = Stock_Available::get_quantity_available_by_product($this->id, $combination_id);
+            $this->out_of_stock = Stock_Available::out_of_stock($this->id, $shop_id, $combination_id);
+            $this->depends_on_stock = Stock_Available::depends_on_stock($this->id, $shop_id, $combination_id);
         }
     }
-
     /**
      * Get all available attribute groups
      *
@@ -78,21 +49,20 @@ class ProductViewModelCore extends Product
      *
      * @throws PrestaShopException
      */
-    public function getAttributesGroups($idLang)
+    public function get_attributes_groups($id_lang)
     {
-        $attributeGroups = parent::getAttributesGroups($idLang);
-        if ($this->selectedCombination) {
-            $combinationAttributes = $this->selectedCombination->getAttributes();
-            foreach ($attributeGroups as &$attributeGroup) {
-                $attributeGroupId = (int)$attributeGroup['id_attribute_group'];
-                $attributeId = (int)$attributeGroup['id_attribute'];
-                $combinationAttributeId = $combinationAttributes[$attributeGroupId] ?? 0;
-                $attributeGroup['default_on'] = $combinationAttributeId === $attributeId ? 1 : 0;
+        $attribute_groups = parent::get_attributes_groups($id_lang);
+        if ($this->selected_combination) {
+            $combination_attributes = $this->selected_combination->get_attributes();
+            foreach ($attribute_groups as &$attribute_group) {
+                $attribute_group_id = (int) $attribute_group['id_attribute_group'];
+                $attribute_id = (int) $attribute_group['id_attribute'];
+                $combination_attribute_id = $combination_attributes[$attribute_group_id] ?? 0;
+                $attribute_group['default_on'] = $combination_attribute_id === $attribute_id ? 1 : 0;
             }
         }
-        return $attributeGroups;
+        return $attribute_groups;
     }
-
     /**
      * Get product price
      * Same as static function getPriceStatic, no need to specify product id
@@ -106,25 +76,23 @@ class ProductViewModelCore extends Product
      *
      * @throws PrestaShopException
      */
-    public function getPrice($tax = true, $idProductAttribute = null, $decimals = _TB_PRICE_DATABASE_PRECISION_, $divisor = null, $onlyReduc = false, $usereduc = true, $quantity = 1)
+    public function get_price($tax = true, $id_product_attribute = null, $decimals = _TB_PRICE_DATABASE_PRECISION_, $divisor = null, $only_reduc = false, $usereduc = true, $quantity = 1)
     {
-        if ($idProductAttribute === null) {
-            $idProductAttribute = $this->getSelectedCombinationId();
+        if ($id_product_attribute === null) {
+            $id_product_attribute = $this->get_selected_combination_id();
         }
-        return parent::getPrice($tax, $idProductAttribute, $decimals, $divisor, $onlyReduc, $usereduc, $quantity);
+        return parent::get_price($tax, $id_product_attribute, $decimals, $divisor, $only_reduc, $usereduc, $quantity);
     }
-
     /**
      * @return int|null
      */
-    public function getSelectedCombinationId()
+    public function get_selected_combination_id()
     {
-        if ($this->selectedCombination) {
-            return (int)$this->selectedCombination->id;
+        if ($this->selected_combination) {
+            return (int) $this->selected_combination->id;
         }
         return null;
     }
-
     /**
      * @param string $property
      *
@@ -132,34 +100,31 @@ class ProductViewModelCore extends Product
      */
     public function &__get($property)
     {
-        if (array_key_exists($property, $this->legacyPropertyValues)) {
-            return $this->legacyPropertyValues[$property];
+        if (array_key_exists($property, $this->legacy_property_values)) {
+            return $this->legacy_property_values[$property];
         }
         if (array_key_exists($property, static::LEGACY_PROPERTY_GETTER)) {
-            $methodName = static::LEGACY_PROPERTY_GETTER[$property];
-            $this->legacyPropertyValues[$property] = $this->$methodName();
-            return $this->legacyPropertyValues[$property];
+            $method_name = static::LEGACY_PROPERTY_GETTER[$property];
+            $this->legacy_property_values[$property] = $this->{$method_name}();
+            return $this->legacy_property_values[$property];
         }
-        return parent::__get($property) ;
+        return parent::__get($property);
     }
-
     /**
      * @throws PrestaShopException
      */
-    public function getCoverImageId(): int
+    public function get_cover_image_id(): int
     {
-        $cover = Product::getCover($this->id);
+        $cover = Product::get_cover($this->id);
         return $cover['id_image'] ?? 0;
     }
-
     /**
      * return bool|int
      *
      * @throws PrestaShopException
      */
-    public function availableWhenOutOfStock(): bool
+    public function available_when_out_of_stock(): bool
     {
-        return Product::isAvailableWhenOutOfStock($this->out_of_stock);
+        return Product::is_available_when_out_of_stock($this->out_of_stock);
     }
-
 }

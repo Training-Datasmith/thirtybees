@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,27 +30,21 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class HTMLTemplateCore
  */
-abstract class HTMLTemplateCore
+abstract class Html_Template_Core
 {
     /** @var string $title */
     public $title;
-
     /** @var string $date */
     public $date;
-
     /** @var bool $available_in_your_account */
     public $available_in_your_account = true;
-
     /** @var Smarty */
     public $smarty;
-
     /** @var Shop */
     public $shop;
-
     /**
      * Returns the template's HTML header
      *
@@ -58,13 +52,11 @@ abstract class HTMLTemplateCore
      * @throws PrestaShopException
      * @throws SmartyException
      */
-    public function getHeader()
+    public function get_header()
     {
-        $this->assignCommonHeaderData();
-
-        return $this->smarty->fetch($this->getTemplate('header'));
+        $this->assign_common_header_data();
+        return $this->smarty->fetch($this->get_template('header'));
     }
-
     /**
      * Returns the template's HTML footer
      *
@@ -73,26 +65,13 @@ abstract class HTMLTemplateCore
      * @throws PrestaShopException
      * @throws SmartyException
      */
-    public function getFooter()
+    public function get_footer()
     {
-        $shopAddress = $this->getShopAddress();
-
-        $idShop = (int) $this->shop->id;
-
-        $this->smarty->assign(
-            [
-                'available_in_your_account' => $this->available_in_your_account,
-                'shop_address'              => $shopAddress,
-                'shop_fax'                  => Configuration::get('PS_SHOP_FAX', null, null, $idShop),
-                'shop_phone'                => Configuration::get('PS_SHOP_PHONE', null, null, $idShop),
-                'shop_email'                => Configuration::get('PS_SHOP_EMAIL', null, null, $idShop),
-                'free_text'                 => Configuration::get('PS_INVOICE_FREE_TEXT', (int) Context::getContext()->language->id, null, $idShop),
-            ]
-        );
-
-        return $this->smarty->fetch($this->getTemplate('footer'));
+        $shop_address = $this->get_shop_address();
+        $id_shop = (int) $this->shop->id;
+        $this->smarty->assign(['available_in_your_account' => $this->available_in_your_account, 'shop_address' => $shop_address, 'shop_fax' => Configuration::get('PS_SHOP_FAX', null, null, $id_shop), 'shop_phone' => Configuration::get('PS_SHOP_PHONE', null, null, $id_shop), 'shop_email' => Configuration::get('PS_SHOP_EMAIL', null, null, $id_shop), 'free_text' => Configuration::get('PS_INVOICE_FREE_TEXT', (int) Context::get_context()->language->id, null, $id_shop)]);
+        return $this->smarty->fetch($this->get_template('footer'));
     }
-
     /**
      * Returns the shop address
      *
@@ -100,112 +79,81 @@ abstract class HTMLTemplateCore
      *
      * @throws PrestaShopException
      */
-    protected function getShopAddress()
+    protected function get_shop_address()
     {
-        return AddressFormat::generateAddress($this->shop->getAddress(), [], ' - ', ' ');
+        return Address_Format::generate_address($this->shop->get_address(), [], ' - ', ' ');
     }
-
     /**
      * Returns the invoice logo
      *
      * @throws PrestaShopException
      */
-    protected function getLogo()
+    protected function get_logo()
     {
         $logo = '';
-
-        $idShop = (int) $this->shop->id;
-
-        if (Configuration::get('PS_LOGO_INVOICE', null, null, $idShop) != false && file_exists(_PS_IMG_DIR_.Configuration::get('PS_LOGO_INVOICE', null, null, $idShop))) {
-            $logo = _PS_IMG_DIR_.Configuration::get('PS_LOGO_INVOICE', null, null, $idShop);
-        } elseif (Configuration::get('PS_LOGO', null, null, $idShop) != false && file_exists(_PS_IMG_DIR_.Configuration::get('PS_LOGO', null, null, $idShop))) {
-            $logo = _PS_IMG_DIR_.Configuration::get('PS_LOGO', null, null, $idShop);
+        $id_shop = (int) $this->shop->id;
+        if (Configuration::get('PS_LOGO_INVOICE', null, null, $id_shop) != false && file_exists(_PS_IMG_DIR_ . Configuration::get('PS_LOGO_INVOICE', null, null, $id_shop))) {
+            $logo = _PS_IMG_DIR_ . Configuration::get('PS_LOGO_INVOICE', null, null, $id_shop);
+        } elseif (Configuration::get('PS_LOGO', null, null, $id_shop) != false && file_exists(_PS_IMG_DIR_ . Configuration::get('PS_LOGO', null, null, $id_shop))) {
+            $logo = _PS_IMG_DIR_ . Configuration::get('PS_LOGO', null, null, $id_shop);
         }
-
         return $logo;
     }
-
     /**
      * Assign common header data to smarty variables
      *
      * @throws PrestaShopException
      */
-    public function assignCommonHeaderData(): void
+    public function assign_common_header_data(): void
     {
-        $this->setShopId();
-        $idShop = (int) $this->shop->id;
-        $shopName = Configuration::get('PS_SHOP_NAME', null, null, $idShop);
-
-        $pathLogo = $this->getLogo();
-
+        $this->set_shop_id();
+        $id_shop = (int) $this->shop->id;
+        $shop_name = Configuration::get('PS_SHOP_NAME', null, null, $id_shop);
+        $path_logo = $this->get_logo();
         $width = 0;
         $height = 0;
-        if (!empty($pathLogo)) {
-            [$width, $height] = getimagesize($pathLogo);
+        if (!empty($path_logo)) {
+            [$width, $height] = getimagesize($path_logo);
         }
-
         // Limit the height of the logo for the PDF render
-        $maximumHeight = 100;
-        if ($height > $maximumHeight) {
-            $ratio = $maximumHeight / $height;
+        $maximum_height = 100;
+        if ($height > $maximum_height) {
+            $ratio = $maximum_height / $height;
             $height *= $ratio;
             $width *= $ratio;
         }
-
-        $this->smarty->assign(
-            [
-                'logo_path'       => $pathLogo,
-                'img_ps_dir'      => Tools::getShopProtocol().Tools::getMediaServer(_PS_IMG_)._PS_IMG_,
-                'img_update_time' => Configuration::get('PS_IMG_UPDATE_TIME'),
-                'date'            => $this->date,
-                'title'           => $this->title,
-                'shop_name'       => $shopName,
-                'shop_details'    => Configuration::get('PS_SHOP_DETAILS', null, null, $idShop),
-                'width_logo'      => $width,
-                'height_logo'     => $height,
-            ]
-        );
+        $this->smarty->assign(['logo_path' => $path_logo, 'img_ps_dir' => Tools::get_shop_protocol() . Tools::get_media_server(_PS_IMG_) . _PS_IMG_, 'img_update_time' => Configuration::get('PS_IMG_UPDATE_TIME'), 'date' => $this->date, 'title' => $this->title, 'shop_name' => $shop_name, 'shop_details' => Configuration::get('PS_SHOP_DETAILS', null, null, $id_shop), 'width_logo' => $width, 'height_logo' => $height]);
     }
-
     /**
      * Assign hook data
      *
      * @param ObjectModel $object generally the object used in the constructor
      * @throws PrestaShopException
      */
-    public function assignHookData($object): void
+    public function assign_hook_data($object): void
     {
         $template = ucfirst(str_replace('HTMLTemplate', '', static::class));
-        $hookName = 'displayPDF'.$template;
-
-        $this->smarty->assign(
-            [
-                'HOOK_DISPLAY_PDF' => Hook::displayHook($hookName, ['object' => $object]),
-            ]
-        );
+        $hook_name = 'displayPDF' . $template;
+        $this->smarty->assign(['HOOK_DISPLAY_PDF' => Hook::display_hook($hook_name, ['object' => $object])]);
     }
-
     /**
      * Returns the template's HTML content
      *
      * @return string HTML content
      */
-    abstract public function getContent();
-
+    abstract public function get_content();
     /**
      * Returns the template filename
      *
      * @return string filename
      */
-    abstract public function getFilename();
-
+    abstract public function get_filename();
     /**
      * Returns the template filename when using bulk rendering
      *
      * @return string filename
      */
-    abstract public function getBulkFilename();
-
+    abstract public function get_bulk_filename();
     /**
      * If the template is not present in the theme directory, it will return the default template
      * in _PS_PDF_DIR_ directory
@@ -213,20 +161,18 @@ abstract class HTMLTemplateCore
      *
      * @return string
      */
-    protected function getTemplate(string $templateName)
+    protected function get_template(string $template_name)
     {
         $template = false;
-        $defaultTemplate = rtrim(_PS_PDF_DIR_, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.$templateName.'.tpl';
-        $overriddenTemplate = _PS_ALL_THEMES_DIR_.$this->shop->getTheme().DIRECTORY_SEPARATOR.'pdf'.DIRECTORY_SEPARATOR.$templateName.'.tpl';
-        if (file_exists($overriddenTemplate)) {
-            $template = $overriddenTemplate;
-        } elseif (file_exists($defaultTemplate)) {
-            $template = $defaultTemplate;
+        $default_template = rtrim(_PS_PDF_DIR_, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $template_name . '.tpl';
+        $overridden_template = _PS_ALL_THEMES_DIR_ . $this->shop->get_theme() . DIRECTORY_SEPARATOR . 'pdf' . DIRECTORY_SEPARATOR . $template_name . '.tpl';
+        if (file_exists($overridden_template)) {
+            $template = $overridden_template;
+        } elseif (file_exists($default_template)) {
+            $template = $default_template;
         }
-
         return $template;
     }
-
     /**
      * Translation method
      *
@@ -236,26 +182,23 @@ abstract class HTMLTemplateCore
      */
     protected static function l($string)
     {
-        return Translate::getPdfTranslation($string);
+        return Translate::get_pdf_translation($string);
     }
-
     /**
      * @throws PrestaShopException
      */
-    protected function setShopId()
+    protected function set_shop_id()
     {
-        if (isset($this->order) && Validate::isLoadedObject($this->order)) {
-            $idShop = (int) $this->order->id_shop;
+        if (isset($this->order) && Validate::is_loaded_object($this->order)) {
+            $id_shop = (int) $this->order->id_shop;
         } else {
-            $idShop = (int) Context::getContext()->shop->id;
+            $id_shop = (int) Context::get_context()->shop->id;
         }
-
-        $this->shop = new Shop($idShop);
-        if (Validate::isLoadedObject($this->shop)) {
-            Shop::setContext(Shop::CONTEXT_SHOP, (int) $this->shop->id);
+        $this->shop = new Shop($id_shop);
+        if (Validate::is_loaded_object($this->shop)) {
+            Shop::set_context(Shop::CONTEXT_SHOP, (int) $this->shop->id);
         }
     }
-
     /**
      * Returns the template's HTML pagination block
      *
@@ -263,8 +206,8 @@ abstract class HTMLTemplateCore
      *
      * @throws SmartyException
      */
-    public function getPagination()
+    public function get_pagination()
     {
-        return $this->smarty->fetch($this->getTemplate('pagination'));
+        return $this->smarty->fetch($this->get_template('pagination'));
     }
 }

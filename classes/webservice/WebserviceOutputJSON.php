@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,42 +30,35 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class WebserviceOutputJSON
  */
-class WebserviceOutputJSONCore implements WebserviceOutputInterface
+class Webservice_Output_Json_Core implements Webservice_Output_Interface
 {
     /**
      * @var string
      */
-    public $docUrl = '';
-
+    public $doc_url = '';
     /**
      * @var string
      */
-    protected $wsUrl;
-
+    protected $ws_url;
     /**
      * @var string
      */
-    protected $schemaToDisplay;
-
+    protected $schema_to_display;
     /**
      * @var array Current entity
      */
-    protected $currentEntity;
-
+    protected $current_entity;
     /**
      * @var array Current association
      */
-    protected $currentAssociatedEntity = [];
-
+    protected $current_associated_entity = [];
     /**
      * @var array Json content
      */
     protected $content = [];
-
     /**
      * WebserviceOutputJSON constructor.
      *
@@ -74,249 +67,211 @@ class WebserviceOutputJSONCore implements WebserviceOutputInterface
     public function __construct(public $languages = [])
     {
     }
-
     /**
      * @param string $schema
      */
-    public function setSchemaToDisplay($schema): static
+    public function set_schema_to_display($schema): static
     {
         if (is_string($schema)) {
-            $this->schemaToDisplay = $schema;
+            $this->schema_to_display = $schema;
         }
-
         return $this;
     }
-
     /**
      * @return string
      */
-    public function getSchemaToDisplay()
+    public function get_schema_to_display()
     {
-        return $this->schemaToDisplay;
+        return $this->schema_to_display;
     }
-
     /**
      * @param string $url
      */
-    public function setWsUrl($url): static
+    public function set_ws_url($url): static
     {
-        $this->wsUrl = $url;
-
+        $this->ws_url = $url;
         return $this;
     }
-
     /**
      * @return string
      */
-    public function getWsUrl()
+    public function get_ws_url()
     {
-        return $this->wsUrl;
+        return $this->ws_url;
     }
-
-    public function getContentType(): string
+    public function get_content_type(): string
     {
         return 'application/json';
     }
-
     /**
      * @param string $message
      * @param int|null $code
      * @param array $extra
      */
-    public function renderErrors($message, $code = null, $extra = []): string
+    public function render_errors($message, $code = null, $extra = []): string
     {
-        $error = [ 'message' => $message ];
-        if (! is_null($code)) {
+        $error = ['message' => $message];
+        if (!is_null($code)) {
             $error['code'] = $code;
         }
-        if (! is_null($extra)) {
+        if (!is_null($extra)) {
             $error = array_merge($extra, $error);
         }
         $this->content['errors'][] = $error;
-
         return '';
     }
-
     /**
      * @param array $field
      */
-    public function renderField($field): string
+    public function render_field($field): string
     {
-        $isAssociation = (isset($field['is_association']) && $field['is_association'] == true);
-
-        if (!$isAssociation) {
+        $is_association = isset($field['is_association']) && $field['is_association'] == true;
+        if (!$is_association) {
             // Case 1 : fields of the current entity (not an association)
-            $this->currentEntity[$field['sqlId']] = $this->getFieldValue($field);
+            $this->current_entity[$field['sqlId']] = $this->get_field_value($field);
         } else {
             // Case 2 : fields of an associated entity to the current one
-            $this->currentAssociatedEntity[] = [
-                'name' => $field['entities_name'],
-                'key' => $field['sqlId'],
-                'value' => $this->getFieldValue($field),
-            ];
+            $this->current_associated_entity[] = ['name' => $field['entities_name'], 'key' => $field['sqlId'], 'value' => $this->get_field_value($field)];
         }
-
         return '';
     }
-
     /**
      * @param string $nodeName
      * @param array $params
      * @param array|null $moreAttr
      * @param bool $hasChild
      */
-    public function renderNodeHeader($nodeName, $params, $moreAttr = null, $hasChild = true): string
+    public function render_node_header($node_name, $params, $more_attr = null, $has_child = true): string
     {
         // api ?
-        static $isAPICall = false;
-        if ($nodeName == 'api' && ($isAPICall == false)) {
-            $isAPICall = true;
+        static $is_api_call = false;
+        if ($node_name == 'api' && $is_api_call == false) {
+            $is_api_call = true;
         }
-        if ($isAPICall && !in_array($nodeName, ['description', 'schema', 'api'])) {
-            $this->content[] = $nodeName;
+        if ($is_api_call && !in_array($node_name, ['description', 'schema', 'api'])) {
+            $this->content[] = $node_name;
         }
-        if (isset($moreAttr, $moreAttr['id'])) {
-            $this->content[$params['objectsNodeName']][] = ['id' => $moreAttr['id']];
+        if (isset($more_attr, $more_attr['id'])) {
+            $this->content[$params['objectsNodeName']][] = ['id' => $more_attr['id']];
         }
-
         return '';
     }
-
     /**
      * @return string
      */
-    public function getNodeName(array $params)
+    public function get_node_name(array $params)
     {
         return $params['objectNodeName'] ?? '';
     }
-
     /**
      * @param string $nodeName
      * @param array $params
      */
-    public function renderNodeFooter($nodeName, $params): string
+    public function render_node_footer($node_name, $params): string
     {
-        if (isset($params['objectNodeName']) && $params['objectNodeName'] == $nodeName) {
+        if (isset($params['objectNodeName']) && $params['objectNodeName'] == $node_name) {
             if (array_key_exists('display', $_GET)) {
-                $this->content[$params['objectsNodeName']][] = $this->currentEntity;
+                $this->content[$params['objectsNodeName']][] = $this->current_entity;
             } else {
-                $this->content[$params['objectNodeName']] = $this->currentEntity;
+                $this->content[$params['objectNodeName']] = $this->current_entity;
             }
-            $this->currentEntity = [];
+            $this->current_entity = [];
         }
-        if (count($this->currentAssociatedEntity) > 0) {
+        if (count($this->current_associated_entity) > 0) {
             $current = [];
-            $name = $this->currentAssociatedEntity[0]['name'];
-            foreach ($this->currentAssociatedEntity as $element) {
+            $name = $this->current_associated_entity[0]['name'];
+            foreach ($this->current_associated_entity as $element) {
                 $current[$element['key']] = $element['value'];
             }
-            $this->currentEntity['associations'][$name][] = $current;
-            $this->currentAssociatedEntity = [];
+            $this->current_entity['associations'][$name][] = $current;
+            $this->current_associated_entity = [];
         }
         return '';
     }
-
     /**
      * @param string $content
      */
-    public function overrideContent($content): string
+    public function override_content($content): string
     {
         $options = 0;
-        if (Tools::getValue('unescaped') === 'true') {
+        if (Tools::get_value('unescaped') === 'true') {
             $options |= JSON_UNESCAPED_UNICODE;
         }
-        if (Tools::getValue('pretty') === 'true') {
+        if (Tools::get_value('pretty') === 'true') {
             $options |= JSON_PRETTY_PRINT;
         }
-
         $content = '';
-
         return $content . json_encode($this->content, $options);
     }
-
     /**
      * @param array $languages
      */
-    public function setLanguages($languages): static
+    public function set_languages($languages): static
     {
         $this->languages = $languages;
-
         return $this;
     }
-
-    public function renderAssociationWrapperHeader(): string
+    public function render_association_wrapper_header(): string
     {
         return '';
     }
-
-    public function renderAssociationWrapperFooter(): string
+    public function render_association_wrapper_footer(): string
     {
         return '';
     }
-
     /**
      * @param ObjectModel$obj
      * @param array $params
      * @param string $assocName
      * @param bool $closedTags
      */
-    public function renderAssociationHeader($obj, $params, $assocName, $closedTags = false): string
+    public function render_association_header($obj, $params, $assoc_name, $closed_tags = false): string
     {
         return '';
     }
-
     /**
      * @param ObjectModel $obj
      * @param array $params
      * @param string $assocName
      */
-    public function renderAssociationFooter($obj, $params, $assocName): string
+    public function render_association_footer($obj, $params, $assoc_name): string
     {
         return '';
     }
-
-    public function renderErrorsHeader(): string
+    public function render_errors_header(): string
     {
         return '';
     }
-
-    public function renderErrorsFooter(): string
+    public function render_errors_footer(): string
     {
         return '';
     }
-
     /**
      * @param array $field
      */
-    public function renderAssociationField($field): string
+    public function render_association_field($field): string
     {
         return '';
     }
-
     /**
      * @param array $field
      */
-    public function renderi18nField($field): string
+    public function renderi18n_field($field): string
     {
         return '';
     }
-
     /**
      * Returns field value
      *
      * @return string
      */
-    protected function getFieldValue(array $field)
+    protected function get_field_value(array $field)
     {
         $value = $field['value'] ?? null;
-
         if (is_array($value)) {
             $tmp = [];
-            foreach ($this->languages as $idLang) {
-                $tmp[] = [
-                    'id' => $idLang,
-                    'value' => array_key_exists($idLang, $value) ? $value[$idLang] : '',
-                ];
+            foreach ($this->languages as $id_lang) {
+                $tmp[] = ['id' => $id_lang, 'value' => array_key_exists($id_lang, $value) ? $value[$id_lang] : ''];
             }
             if (count($tmp) == 1) {
                 $value = $tmp[0]['value'];
@@ -324,7 +279,6 @@ class WebserviceOutputJSONCore implements WebserviceOutputInterface
                 $value = $tmp;
             }
         }
-
         return $value;
     }
 }

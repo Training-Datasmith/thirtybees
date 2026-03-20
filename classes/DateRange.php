@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,11 +30,10 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class DateRangeCore
  */
-class DateRangeCore extends ObjectModel
+class Date_Range_Core extends Object_Model
 {
     /** @var string $time_start */
     public $time_start;
@@ -43,40 +42,25 @@ class DateRangeCore extends ObjectModel
     /**
      * @var array Object model definition
      */
-    public static $definition = [
-        'table'   => 'date_range',
-        'primary' => 'id_date_range',
-        'fields'  => [
-            'time_start' => ['type' => self::TYPE_DATE, 'validate' => 'isDate', 'required' => true],
-            'time_end'   => ['type' => self::TYPE_DATE, 'validate' => 'isDate', 'required' => true],
-        ],
-    ];
-
+    public static $definition = ['table' => 'date_range', 'primary' => 'id_date_range', 'fields' => ['time_start' => ['type' => self::TYPE_DATE, 'validate' => 'isDate', 'required' => true], 'time_end' => ['type' => self::TYPE_DATE, 'validate' => 'isDate', 'required' => true]]];
     /**
      * @return int
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getCurrentRange()
+    public static function get_current_range()
     {
-        $result = Db::readOnly()->getRow(
-            (new DbQuery())
-                ->select('`id_date_range`, `time_end`')
-                ->from('date_range')
-                ->where('`time_end` = (SELECT MAX(`time_end`) FROM `'._DB_PREFIX_.'date_range`)')
-        );
+        $result = Db::read_only()->get_row((new Db_Query())->select('`id_date_range`, `time_end`')->from('date_range')->where('`time_end` = (SELECT MAX(`time_end`) FROM `' . _DB_PREFIX_ . 'date_range`)'));
         if (!$result['id_date_range'] || strtotime((string) $result['time_end']) < strtotime(date('Y-m-d H:i:s'))) {
             // The default range is set to 1 day less 1 second (in seconds)
-            $rangeSize = 86399;
-            $dateRange = new static();
-            $dateRange->time_start = date('Y-m-d', time());
-            $dateRange->time_end = date('Y-m-d H:i:s', time() + $rangeSize);
-            $dateRange->add();
-
-            return $dateRange->id;
+            $range_size = 86399;
+            $date_range = new static();
+            $date_range->time_start = date('Y-m-d', time());
+            $date_range->time_end = date('Y-m-d H:i:s', time() + $range_size);
+            $date_range->add();
+            return $date_range->id;
         }
-
         return $result['id_date_range'];
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -18,73 +18,48 @@ declare(strict_types=1);
  * @copyright 2017-2024 thirty bees
  * @license   Open Software License (OSL 3.0)
  */
-
 namespace Thirtybees\Core\Tracking;
 
 use Context;
 use Db;
-use DbQuery;
-use ObjectModel;
-use PrestaShopDatabaseException;
-use PrestaShopException;
-use Thirtybees\Core\Database\ReadOnlyConnection;
-use Thirtybees\Core\InitializationCallback;
-
+use Db_Query;
+use Object_Model;
+use Presta_Shop_Database_Exception;
+use Presta_Shop_Exception;
+use Thirtybees\Core\Database\Read_Only_Connection;
+use Thirtybees\Core\Initialization_Callback;
 /**
  * Class ConsentCore
  */
-class ConsentCore extends ObjectModel implements InitializationCallback
+class Consent_Core extends Object_Model implements Initialization_Callback
 {
     public const CONSENT_ALL = 'all';
     public const PREFIX_GROUP = 'group_';
     public const PREFIX_EXTRACTOR = 'extractor_';
-
     /**
      * @var array Object model definition
      */
-    public static $definition = [
-        'table'   => 'tracking_consent',
-        'primary' => 'id_tracking_consent',
-        'multishop' => false,
-        'fields'  => [
-            'id_employee' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedInt', 'required' => true],
-            'identifier'  => ['type' => self::TYPE_STRING, 'size' => 80, 'required' => true],
-            'consent'     => ['type' => self::TYPE_BOOL, 'required' => true],
-            'date_add'    => ['type' => self::TYPE_DATE, 'validate' => 'isDate', 'dbNullable' => false],
-            'date_upd'    => ['type' => self::TYPE_DATE, 'validate' => 'isDate', 'dbNullable' => false],
-        ],
-        'keys' => [
-            'tracking_consent' => [
-                'identifier' => ['type' => ObjectModel::UNIQUE_KEY, 'columns' => ['identifier']],
-            ],
-        ],
-    ];
-
+    public static $definition = ['table' => 'tracking_consent', 'primary' => 'id_tracking_consent', 'multishop' => false, 'fields' => ['id_employee' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedInt', 'required' => true], 'identifier' => ['type' => self::TYPE_STRING, 'size' => 80, 'required' => true], 'consent' => ['type' => self::TYPE_BOOL, 'required' => true], 'date_add' => ['type' => self::TYPE_DATE, 'validate' => 'isDate', 'dbNullable' => false], 'date_upd' => ['type' => self::TYPE_DATE, 'validate' => 'isDate', 'dbNullable' => false]], 'keys' => ['tracking_consent' => ['identifier' => ['type' => Object_Model::UNIQUE_KEY, 'columns' => ['identifier']]]]];
     /**
      * @var string Employee that decided
      */
     public $id_employee;
-
     /**
      * @var string Information identifier
      */
     public $identifier;
-
     /**
      * @var bool Flat indicating if information can be send or not
      */
     public $consent;
-
     /**
      * @var string Object creation date
      */
     public $date_add;
-
     /**
      * @var string Object update date
      */
     public $date_upd;
-
     /**
      * Returns list of allowed extractors
      *
@@ -93,21 +68,20 @@ class ConsentCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getAllowedExtractors()
+    public static function get_allowed_extractors()
     {
-        $consents = static::getConsents(Db::readOnly());
-        $groups = DataExtractor::getGroups();
+        $consents = static::get_consents(Db::read_only());
+        $groups = Data_Extractor::get_groups();
         $allowed = [];
-        foreach ($groups as $groupId => $group) {
-            foreach ($group['extractors'] as $extractorId) {
-                if (static::extractorAllowed($groupId, $extractorId, $consents)) {
-                    $allowed[] = $extractorId;
+        foreach ($groups as $group_id => $group) {
+            foreach ($group['extractors'] as $extractor_id) {
+                if (static::extractor_allowed($group_id, $extractor_id, $consents)) {
+                    $allowed[] = $extractor_id;
                 }
             }
         }
         return $allowed;
     }
-
     /**
      * Return all consents
      *
@@ -116,20 +90,15 @@ class ConsentCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getConsents(ReadOnlyConnection $conn)
+    public static function get_consents(Read_Only_Connection $conn)
     {
         $consents = [];
-        $result = $conn->getArray(
-            (new DbQuery())
-            ->select('identifier, consent')
-            ->from(static::$definition['table'])
-        );
+        $result = $conn->get_array((new Db_Query())->select('identifier, consent')->from(static::$definition['table']));
         foreach ($result as $row) {
-            $consents[$row['identifier']] = (bool)$row['consent'];
+            $consents[$row['identifier']] = (bool) $row['consent'];
         }
         return $consents;
     }
-
     /**
      * Returns true, if extractor $extractorId from group $groupId is allowed
      *
@@ -143,17 +112,16 @@ class ConsentCore extends ObjectModel implements InitializationCallback
      * @param array $consents
      * @return bool
      */
-    protected static function extractorAllowed($groupId, $extractorId, $consents)
+    protected static function extractor_allowed($group_id, $extractor_id, $consents)
     {
-        if (static::hasConsent(static::CONSENT_ALL, $consents)) {
+        if (static::has_consent(static::CONSENT_ALL, $consents)) {
             return true;
         }
-        if (static::hasConsent(static::PREFIX_GROUP . $groupId, $consents)) {
+        if (static::has_consent(static::PREFIX_GROUP . $group_id, $consents)) {
             return true;
         }
-        return static::hasConsent(static::PREFIX_EXTRACTOR . $extractorId, $consents);
+        return static::has_consent(static::PREFIX_EXTRACTOR . $extractor_id, $consents);
     }
-
     /**
      * Returns true, if $key exists in $consents and is set to true
      *
@@ -161,29 +129,27 @@ class ConsentCore extends ObjectModel implements InitializationCallback
      * @param array $consents
      * @return bool
      */
-    protected static function hasConsent($key, $consents)
+    protected static function has_consent($key, $consents)
     {
         return array_key_exists($key, $consents) && !!$consents[$key];
     }
-
     /**
      * Callback method to initialize class
      *
      * @throws PrestaShopException
      */
-    public static function initializationCallback(Db $conn): void
+    public static function initialization_callback(Db $conn): void
     {
-        $consents = static::getConsents($conn);
-        $groups = DataExtractor::getGroups();
-        static::ensureConsentExists(static::CONSENT_ALL, $consents);
-        foreach ($groups as $groupId => $group) {
-            static::ensureConsentExists(static::PREFIX_GROUP . $groupId, $consents);
-            foreach ($group['extractors'] as $extractorId) {
-                static::ensureConsentExists(static::PREFIX_EXTRACTOR . $extractorId, $consents);
+        $consents = static::get_consents($conn);
+        $groups = Data_Extractor::get_groups();
+        static::ensure_consent_exists(static::CONSENT_ALL, $consents);
+        foreach ($groups as $group_id => $group) {
+            static::ensure_consent_exists(static::PREFIX_GROUP . $group_id, $consents);
+            foreach ($group['extractors'] as $extractor_id) {
+                static::ensure_consent_exists(static::PREFIX_EXTRACTOR . $extractor_id, $consents);
             }
         }
     }
-
     /**
      * Ensures that consent with identifier $key exists in database
      *
@@ -192,11 +158,11 @@ class ConsentCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    protected static function ensureConsentExists($key, $consents)
+    protected static function ensure_consent_exists($key, $consents)
     {
-        if (! array_key_exists($key, $consents)) {
+        if (!array_key_exists($key, $consents)) {
             $consent = new static();
-            $consent->id_employee = Context::getContext()->employee->id;
+            $consent->id_employee = Context::get_context()->employee->id;
             $consent->identifier = $key;
             $consent->consent = true;
             $consent->add();

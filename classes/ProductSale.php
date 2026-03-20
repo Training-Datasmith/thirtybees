@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,11 +30,10 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class ProductSaleCore
  */
-class ProductSaleCore
+class Product_Sale_Core
 {
     /**
      * Fill the `product_sale` SQL table with data from `order_detail`
@@ -43,16 +42,14 @@ class ProductSaleCore
      *
      * @throws PrestaShopException
      */
-    public static function fillProductSales()
+    public static function fill_product_sales()
     {
-        $sql = 'REPLACE INTO '._DB_PREFIX_.'product_sale
+        $sql = 'REPLACE INTO ' . _DB_PREFIX_ . 'product_sale
 				(`id_product`, `quantity`, `sale_nbr`, `date_upd`)
 				SELECT od.product_id, SUM(od.product_quantity), COUNT(od.product_id), NOW()
-							FROM '._DB_PREFIX_.'order_detail od GROUP BY od.product_id';
-
-        return Db::getInstance()->execute($sql);
+							FROM ' . _DB_PREFIX_ . 'order_detail od GROUP BY od.product_id';
+        return Db::get_instance()->execute($sql);
     }
-
     /**
      * Get number of actives products sold
      *
@@ -60,18 +57,10 @@ class ProductSaleCore
      *
      * @throws PrestaShopException
      */
-    public static function getNbSales(): int
+    public static function get_nb_sales(): int
     {
-        return (int) Db::readOnly()->getValue(
-            (new DbQuery())
-                ->select('COUNT(ps.`id_product`) AS `nb`')
-                ->from('product_sale', 'ps')
-                ->leftJoin('product', 'p', 'p.`id_product` = ps.`id_product`')
-                ->join(Shop::addSqlAssociation('product', 'p'))
-                ->where('product_shop.`active` = 1')
-        );
+        return (int) Db::read_only()->get_value((new Db_Query())->select('COUNT(ps.`id_product`) AS `nb`')->from('product_sale', 'ps')->left_join('product', 'p', 'p.`id_product` = ps.`id_product`')->join(Shop::add_sql_association('product', 'p'))->where('product_shop.`active` = 1'));
     }
-
     /**
      * Get required informations on best sales products
      *
@@ -86,77 +75,43 @@ class ProductSaleCore
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getBestSales($idLang, $pageNumber = 0, $nbProducts = 10, $orderBy = null, $orderWay = null)
+    public static function get_best_sales($id_lang, $page_number = 0, $nb_products = 10, $order_by = null, $order_way = null)
     {
-        $context = Context::getContext();
-        if ($pageNumber < 0) {
-            $pageNumber = 0;
+        $context = Context::get_context();
+        if ($page_number < 0) {
+            $page_number = 0;
         }
-        if ($nbProducts < 1) {
-            $nbProducts = 10;
+        if ($nb_products < 1) {
+            $nb_products = 10;
         }
-
-        $orderTable = '';
-        if (is_null($orderBy)) {
-            $orderBy = 'quantity';
-            $orderTable = 'ps';
+        $order_table = '';
+        if (is_null($order_by)) {
+            $order_by = 'quantity';
+            $order_table = 'ps';
         }
-
-        if ($orderBy == 'date_add' || $orderBy == 'date_upd') {
-            $orderTable = 'product_shop';
+        if ($order_by == 'date_add' || $order_by == 'date_upd') {
+            $order_table = 'product_shop';
         }
-
-        if (is_null($orderWay) || $orderBy == 'sales') {
-            $orderWay = 'DESC';
+        if (is_null($order_way) || $order_by == 'sales') {
+            $order_way = 'DESC';
         }
-
-        $interval = Validate::isUnsignedInt(Configuration::get('PS_NB_DAYS_NEW_PRODUCT')) ? Configuration::get('PS_NB_DAYS_NEW_PRODUCT') : 20;
-
+        $interval = Validate::is_unsigned_int(Configuration::get('PS_NB_DAYS_NEW_PRODUCT')) ? Configuration::get('PS_NB_DAYS_NEW_PRODUCT') : 20;
         // no group by needed : there's only one attribute with default_on=1 for a given id_product + shop
         // same for image with cover=1
-        $sql = (new DbQuery())
-            ->select('p.*, product_shop.*, stock.`out_of_stock`, IFNULL(stock.quantity, 0) as quantity')
-            ->select(Combination::isFeatureActive() ? 'product_attribute_shop.minimal_quantity AS product_attribute_minimal_quantity, IFNULL(product_attribute_shop.id_product_attribute,0) id_product_attribute' : '')
-            ->select('pl.`description`, pl.`description_short`, pl.`link_rewrite`, pl.`meta_description`')
-            ->select('pl.`meta_keywords`, pl.`meta_title`, pl.`name`, pl.`available_now`, pl.`available_later`')
-            ->select('m.`name` AS manufacturer_name, p.`id_manufacturer` as id_manufacturer')
-            ->select('image_shop.`id_image` id_image, il.`legend`')
-            ->select('ps.`quantity` AS sales, t.`rate`, pl.`meta_keywords`, pl.`meta_title`, pl.`meta_description`')
-            ->select('DATEDIFF(p.`date_add`, DATE_SUB("'.date('Y-m-d').' 00:00:00"')
-            ->select('INTERVAL '.(int) $interval.' DAY)) > 0 AS new')
-            ->from('product_sale', 'ps')
-            ->leftJoin('product', 'p', 'ps.`id_product` = p.`id_product`')
-            ->join(Shop::addSqlAssociation('product', 'p', false))
-            ->join(Combination::isFeatureActive() ? 'LEFT JOIN `'._DB_PREFIX_.'product_attribute_shop` product_attribute_shop ON (p.`id_product` = product_attribute_shop.`id_product` AND product_attribute_shop.`default_on` = 1 AND product_attribute_shop.id_shop='.(int) $context->shop->id.')' : '')
-            ->leftJoin('product_lang', 'pl', 'p.`id_product` = pl.`id_product`')
-            ->leftJoin('image_shop', 'image_shop', 'image_shop.`id_product` = p.`id_product` AND image_shop.`cover` = 1 AND image_shop.`id_shop` = '.(int) $context->shop->id)
-            ->leftJoin('image_lang', 'il', 'image_shop.`id_image` = il.`id_image`')
-            ->leftJoin('manufacturer', 'm', 'm.`id_manufacturer` = p.`id_manufacturer`')
-            ->leftJoin('tax_rule', 'tr', 'product_shop.`id_tax_rules_group` = tr.`id_tax_rules_group` AND tr.`id_country` = '.(int) $context->country->id.' AND tr.`id_state` = 0')
-            ->leftJoin('tax', 't', 't.`id_tax` = tr.`id_tax` '.Product::sqlStock('p', 0))
-            ->where('pl.`id_lang` = '.(int) $idLang.Shop::addSqlRestrictionOnLang('pl'))
-            ->where('il.`id_lang` = '.(int) $idLang)
-            ->where('product_shop.`active` = 1')
-            ->where('p.`visibility` != \'none\'')
-            ->where('EXISTS(SELECT 1 FROM `'._DB_PREFIX_.'category_product` cp JOIN `'._DB_PREFIX_.'category_group` cg ON (cp.id_category = cg.id_category AND cg.`id_group` '.(count(FrontController::getCurrentCustomerGroups()) ? 'IN ('.implode(',', FrontController::getCurrentCustomerGroups()).')' : '= 1').') WHERE cp.`id_product` = p.`id_product`)');
-
-        if ($orderBy !== 'price' && $orderBy !== 'position') {
-            $sql->orderBy((!empty($orderTable) ? '`'.pSQL($orderTable).'`.' : '').'`'.pSQL($orderBy).'` '.pSQL($orderWay));
-            $sql->limit((int) $nbProducts, (int) ($pageNumber * $nbProducts));
+        $sql = (new Db_Query())->select('p.*, product_shop.*, stock.`out_of_stock`, IFNULL(stock.quantity, 0) as quantity')->select(Combination::is_feature_active() ? 'product_attribute_shop.minimal_quantity AS product_attribute_minimal_quantity, IFNULL(product_attribute_shop.id_product_attribute,0) id_product_attribute' : '')->select('pl.`description`, pl.`description_short`, pl.`link_rewrite`, pl.`meta_description`')->select('pl.`meta_keywords`, pl.`meta_title`, pl.`name`, pl.`available_now`, pl.`available_later`')->select('m.`name` AS manufacturer_name, p.`id_manufacturer` as id_manufacturer')->select('image_shop.`id_image` id_image, il.`legend`')->select('ps.`quantity` AS sales, t.`rate`, pl.`meta_keywords`, pl.`meta_title`, pl.`meta_description`')->select('DATEDIFF(p.`date_add`, DATE_SUB("' . date('Y-m-d') . ' 00:00:00"')->select('INTERVAL ' . (int) $interval . ' DAY)) > 0 AS new')->from('product_sale', 'ps')->left_join('product', 'p', 'ps.`id_product` = p.`id_product`')->join(Shop::add_sql_association('product', 'p', false))->join(Combination::is_feature_active() ? 'LEFT JOIN `' . _DB_PREFIX_ . 'product_attribute_shop` product_attribute_shop ON (p.`id_product` = product_attribute_shop.`id_product` AND product_attribute_shop.`default_on` = 1 AND product_attribute_shop.id_shop=' . (int) $context->shop->id . ')' : '')->left_join('product_lang', 'pl', 'p.`id_product` = pl.`id_product`')->left_join('image_shop', 'image_shop', 'image_shop.`id_product` = p.`id_product` AND image_shop.`cover` = 1 AND image_shop.`id_shop` = ' . (int) $context->shop->id)->left_join('image_lang', 'il', 'image_shop.`id_image` = il.`id_image`')->left_join('manufacturer', 'm', 'm.`id_manufacturer` = p.`id_manufacturer`')->left_join('tax_rule', 'tr', 'product_shop.`id_tax_rules_group` = tr.`id_tax_rules_group` AND tr.`id_country` = ' . (int) $context->country->id . ' AND tr.`id_state` = 0')->left_join('tax', 't', 't.`id_tax` = tr.`id_tax` ' . Product::sql_stock('p', 0))->where('pl.`id_lang` = ' . (int) $id_lang . Shop::add_sql_restriction_on_lang('pl'))->where('il.`id_lang` = ' . (int) $id_lang)->where('product_shop.`active` = 1')->where('p.`visibility` != \'none\'')->where('EXISTS(SELECT 1 FROM `' . _DB_PREFIX_ . 'category_product` cp JOIN `' . _DB_PREFIX_ . 'category_group` cg ON (cp.id_category = cg.id_category AND cg.`id_group` ' . (count(Front_Controller::get_current_customer_groups()) ? 'IN (' . implode(',', Front_Controller::get_current_customer_groups()) . ')' : '= 1') . ') WHERE cp.`id_product` = p.`id_product`)');
+        if ($order_by !== 'price' && $order_by !== 'position') {
+            $sql->order_by((!empty($order_table) ? '`' . p_sql($order_table) . '`.' : '') . '`' . p_sql($order_by) . '` ' . p_sql($order_way));
+            $sql->limit((int) $nb_products, (int) ($page_number * $nb_products));
         }
-
-        $result = Db::readOnly()->getArray($sql);
-
-        if ($orderBy === 'price') {
-            Tools::orderbyPrice($result, $orderWay);
+        $result = Db::read_only()->get_array($sql);
+        if ($order_by === 'price') {
+            Tools::orderby_price($result, $order_way);
         }
         if (!$result) {
             return false;
         }
-
-        return Product::getProductsProperties($idLang, $result);
+        return Product::get_products_properties($id_lang, $result);
     }
-
     /**
      * Get required informations on best sales products
      *
@@ -167,18 +122,17 @@ class ProductSaleCore
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getBestSalesLight($idLang, $pageNumber = 0, $nbProducts = 10, ?Context $context = null)
+    public static function get_best_sales_light($id_lang, $page_number = 0, $nb_products = 10, ?Context $context = null)
     {
         if (!$context) {
-            $context = Context::getContext();
+            $context = Context::get_context();
         }
-        if ($pageNumber < 0) {
-            $pageNumber = 0;
+        if ($page_number < 0) {
+            $page_number = 0;
         }
-        if ($nbProducts < 1) {
-            $nbProducts = 10;
+        if ($nb_products < 1) {
+            $nb_products = 10;
         }
-
         // no group by needed : there's only one attribute with default_on=1 for a given id_product + shop
         // same for image with cover=1
         $sql = '
@@ -187,46 +141,40 @@ class ProductSaleCore
 			image_shop.`id_image` id_image, il.`legend`,
 			ps.`quantity` AS sales, p.`ean13`, p.`upc`, cl.`link_rewrite` AS category, p.show_price, p.available_for_order, IFNULL(stock.quantity, 0) as quantity, p.customizable,
 			IFNULL(pa.minimal_quantity, p.minimal_quantity) as minimal_quantity, stock.out_of_stock,
-			product_shop.`date_add` > "'.date('Y-m-d', strtotime('-'.(Configuration::get('PS_NB_DAYS_NEW_PRODUCT') ? (int) Configuration::get('PS_NB_DAYS_NEW_PRODUCT') : 20).' DAY')).'" as new,
+			product_shop.`date_add` > "' . date('Y-m-d', strtotime('-' . (Configuration::get('PS_NB_DAYS_NEW_PRODUCT') ? (int) Configuration::get('PS_NB_DAYS_NEW_PRODUCT') : 20) . ' DAY')) . '" as new,
 			product_shop.`on_sale`, product_attribute_shop.minimal_quantity AS product_attribute_minimal_quantity
-		FROM `'._DB_PREFIX_.'product_sale` ps
-		LEFT JOIN `'._DB_PREFIX_.'product` p ON ps.`id_product` = p.`id_product`
-		'.Shop::addSqlAssociation('product', 'p').'
-		LEFT JOIN `'._DB_PREFIX_.'product_attribute_shop` product_attribute_shop
-			ON (p.`id_product` = product_attribute_shop.`id_product` AND product_attribute_shop.`default_on` = 1 AND product_attribute_shop.id_shop='.(int) $context->shop->id.')
-		LEFT JOIN `'._DB_PREFIX_.'product_attribute` pa ON (product_attribute_shop.id_product_attribute=pa.id_product_attribute)
-		LEFT JOIN `'._DB_PREFIX_.'product_lang` pl
+		FROM `' . _DB_PREFIX_ . 'product_sale` ps
+		LEFT JOIN `' . _DB_PREFIX_ . 'product` p ON ps.`id_product` = p.`id_product`
+		' . Shop::add_sql_association('product', 'p') . '
+		LEFT JOIN `' . _DB_PREFIX_ . 'product_attribute_shop` product_attribute_shop
+			ON (p.`id_product` = product_attribute_shop.`id_product` AND product_attribute_shop.`default_on` = 1 AND product_attribute_shop.id_shop=' . (int) $context->shop->id . ')
+		LEFT JOIN `' . _DB_PREFIX_ . 'product_attribute` pa ON (product_attribute_shop.id_product_attribute=pa.id_product_attribute)
+		LEFT JOIN `' . _DB_PREFIX_ . 'product_lang` pl
 			ON p.`id_product` = pl.`id_product`
-			AND pl.`id_lang` = '.(int) $idLang.Shop::addSqlRestrictionOnLang('pl').'
-		LEFT JOIN `'._DB_PREFIX_.'image_shop` image_shop
-			ON (image_shop.`id_product` = p.`id_product` AND image_shop.cover=1 AND image_shop.id_shop='.(int) $context->shop->id.')
-		LEFT JOIN `'._DB_PREFIX_.'image_lang` il ON (image_shop.`id_image` = il.`id_image` AND il.`id_lang` = '.(int) $idLang.')
-		LEFT JOIN `'._DB_PREFIX_.'category_lang` cl
+			AND pl.`id_lang` = ' . (int) $id_lang . Shop::add_sql_restriction_on_lang('pl') . '
+		LEFT JOIN `' . _DB_PREFIX_ . 'image_shop` image_shop
+			ON (image_shop.`id_product` = p.`id_product` AND image_shop.cover=1 AND image_shop.id_shop=' . (int) $context->shop->id . ')
+		LEFT JOIN `' . _DB_PREFIX_ . 'image_lang` il ON (image_shop.`id_image` = il.`id_image` AND il.`id_lang` = ' . (int) $id_lang . ')
+		LEFT JOIN `' . _DB_PREFIX_ . 'category_lang` cl
 			ON cl.`id_category` = product_shop.`id_category_default`
-			AND cl.`id_lang` = '.(int) $idLang.Shop::addSqlRestrictionOnLang('cl').Product::sqlStock('p', 0);
-
+			AND cl.`id_lang` = ' . (int) $id_lang . Shop::add_sql_restriction_on_lang('cl') . Product::sql_stock('p', 0);
         $sql .= '
 		WHERE product_shop.`active` = 1
 		AND p.`visibility` != \'none\'';
-
-        if (Group::isFeatureActive()) {
-            $groups = FrontController::getCurrentCustomerGroups();
-            $sql .= ' AND EXISTS(SELECT 1 FROM `'._DB_PREFIX_.'category_product` cp
-				JOIN `'._DB_PREFIX_.'category_group` cg ON (cp.id_category = cg.id_category AND cg.`id_group` '.(count($groups) ? 'IN ('.implode(',', $groups).')' : '= 1').')
+        if (Group::is_feature_active()) {
+            $groups = Front_Controller::get_current_customer_groups();
+            $sql .= ' AND EXISTS(SELECT 1 FROM `' . _DB_PREFIX_ . 'category_product` cp
+				JOIN `' . _DB_PREFIX_ . 'category_group` cg ON (cp.id_category = cg.id_category AND cg.`id_group` ' . (count($groups) ? 'IN (' . implode(',', $groups) . ')' : '= 1') . ')
 				WHERE cp.`id_product` = p.`id_product`)';
         }
-
         $sql .= '
 		ORDER BY ps.quantity DESC
-		LIMIT '.(int) ($pageNumber * $nbProducts).', '.(int) $nbProducts;
-
-        if (!$result = Db::readOnly()->getArray($sql)) {
+		LIMIT ' . (int) ($page_number * $nb_products) . ', ' . (int) $nb_products;
+        if (!$result = Db::read_only()->get_array($sql)) {
             return false;
         }
-
-        return Product::getProductsProperties($idLang, $result);
+        return Product::get_products_properties($id_lang, $result);
     }
-
     /**
      * @param int $idProduct
      * @param int $qty
@@ -235,17 +183,14 @@ class ProductSaleCore
      *
      * @throws PrestaShopException
      */
-    public static function addProductSale($idProduct, $qty = 1)
+    public static function add_product_sale($id_product, $qty = 1)
     {
-        return Db::getInstance()->execute(
-            '
-			INSERT INTO '._DB_PREFIX_.'product_sale
+        return Db::get_instance()->execute('
+			INSERT INTO ' . _DB_PREFIX_ . 'product_sale
 			(`id_product`, `quantity`, `sale_nbr`, `date_upd`)
-			VALUES ('.(int) $idProduct.', '.(int) $qty.', 1, NOW())
-			ON DUPLICATE KEY UPDATE `quantity` = `quantity` + '.(int) $qty.', `sale_nbr` = `sale_nbr` + 1, `date_upd` = NOW()'
-        );
+			VALUES (' . (int) $id_product . ', ' . (int) $qty . ', 1, NOW())
+			ON DUPLICATE KEY UPDATE `quantity` = `quantity` + ' . (int) $qty . ', `sale_nbr` = `sale_nbr` + 1, `date_upd` = NOW()');
     }
-
     /**
      * @param int $idProduct
      * @param int $qty
@@ -255,25 +200,21 @@ class ProductSaleCore
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function removeProductSale($idProduct, $qty = 1)
+    public static function remove_product_sale($id_product, $qty = 1)
     {
-        $totalSales = ProductSale::getNbrSales($idProduct);
-        $conn = Db::getInstance();
-        if ($totalSales > 1) {
-            return $conn->execute(
-                '
-				UPDATE '._DB_PREFIX_.'product_sale
-				SET `quantity` = CAST(`quantity` AS SIGNED) - '.(int) $qty.', `sale_nbr` = CAST(`sale_nbr` AS SIGNED) - 1, `date_upd` = NOW()
-				WHERE `id_product` = '.(int) $idProduct
-            );
+        $total_sales = Product_Sale::get_nbr_sales($id_product);
+        $conn = Db::get_instance();
+        if ($total_sales > 1) {
+            return $conn->execute('
+				UPDATE ' . _DB_PREFIX_ . 'product_sale
+				SET `quantity` = CAST(`quantity` AS SIGNED) - ' . (int) $qty . ', `sale_nbr` = CAST(`sale_nbr` AS SIGNED) - 1, `date_upd` = NOW()
+				WHERE `id_product` = ' . (int) $id_product);
         }
-        if ($totalSales == 1) {
-            return $conn->delete('product_sale', 'id_product = '.(int) $idProduct);
+        if ($total_sales == 1) {
+            return $conn->delete('product_sale', 'id_product = ' . (int) $id_product);
         }
-
         return true;
     }
-
     /**
      * @param int $idProduct
      *
@@ -281,13 +222,12 @@ class ProductSaleCore
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getNbrSales($idProduct): int
+    public static function get_nbr_sales($id_product): int
     {
-        $result = Db::readOnly()->getRow('SELECT `sale_nbr` FROM '._DB_PREFIX_.'product_sale WHERE `id_product` = '.(int) $idProduct);
+        $result = Db::read_only()->get_row('SELECT `sale_nbr` FROM ' . _DB_PREFIX_ . 'product_sale WHERE `id_product` = ' . (int) $id_product);
         if (empty($result) || !array_key_exists('sale_nbr', $result)) {
             return -1;
         }
-
         return (int) $result['sale_nbr'];
     }
 }

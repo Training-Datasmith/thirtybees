@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,27 +30,24 @@ declare(strict_types=1);
  *  @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class Core_Foundation_Database_EntityManager_QueryBuilder
  */
-class Core_Foundation_Database_EntityManager_QueryBuilder
+class Core_foundation_database_entity_Manager_query_Builder
 {
     /**
      * @var Core_Foundation_Database_DatabaseInterface
      */
     protected $db;
-
     /**
      * Core_Foundation_Database_EntityManager_QueryBuilder constructor.
      *
      * @param Core_Foundation_Database_DatabaseInterface $db
      */
-    public function __construct(Core_Foundation_Database_DatabaseInterface $db)
+    public function __construct(Core_foundation_database_database_Interface $db)
     {
         $this->db = $db;
     }
-
     /**
      * @param string $value
      *
@@ -59,14 +56,12 @@ class Core_Foundation_Database_EntityManager_QueryBuilder
     public function quote($value)
     {
         $escaped = $this->db->escape($value);
-
         if (is_string($value)) {
-            return "'".$escaped."'";
+            return "'" . $escaped . "'";
         } else {
             return $escaped;
         }
     }
-
     /**
      * @param string $andOrOr
      * @param array $conditions
@@ -74,28 +69,24 @@ class Core_Foundation_Database_EntityManager_QueryBuilder
      * @return string
      * @throws Core_Foundation_Database_Exception
      */
-    public function buildWhereConditions($andOrOr, array $conditions)
+    public function build_where_conditions($and_or_or, array $conditions)
     {
-        $operator = strtoupper($andOrOr);
-
+        $operator = strtoupper($and_or_or);
         if ($operator !== 'AND' && $operator !== 'OR') {
-            throw new Core_Foundation_Database_Exception(sprintf('Invalid operator %s - must be "and" or "or".', $andOrOr));
+            throw new Core_Foundation_Database_Exception(sprintf('Invalid operator %s - must be "and" or "or".', $and_or_or));
         }
-
         $parts = [];
-
         foreach ($conditions as $key => $value) {
             if (is_scalar($value)) {
-                $parts[] = $key.' = '.$this->quote($value);
+                $parts[] = $key . ' = ' . $this->quote($value);
             } else {
                 $list = [];
                 foreach ($value as $item) {
                     $list[] = $this->quote($item);
                 }
-                $parts[] = $key.' IN ('.implode(', ', $list).')';
+                $parts[] = $key . ' IN (' . implode(', ', $list) . ')';
             }
         }
-
-        return implode(" $operator ", $parts);
+        return implode(" {$operator} ", $parts);
     }
 }

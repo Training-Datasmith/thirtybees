@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,35 +30,29 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class WebserviceExceptionCore
  */
-class WebserviceExceptionCore extends Exception
+class Webservice_Exception_Core extends Exception
 {
     /**
      * @var int
      */
     protected $status;
-
     /**
      * @var string
      */
     protected $wrong_value;
-
     /**
      * @var array
      */
     protected $available_values;
-
     /**
      * @var int
      */
     protected $type;
-
     public const SIMPLE = 0;
     public const DID_YOU_MEAN = 1;
-
     /**
      * WebserviceExceptionCore constructor.
      *
@@ -67,78 +61,68 @@ class WebserviceExceptionCore extends Exception
      */
     public function __construct($message, $code)
     {
-        $exceptionCode = $code;
+        $exception_code = $code;
         if (is_array($code)) {
-            $exceptionCode = $code[0];
-            $this->setStatus($code[1]);
+            $exception_code = $code[0];
+            $this->set_status($code[1]);
         }
-        parent::__construct($message, $exceptionCode);
+        parent::__construct($message, $exception_code);
         $this->type = static::SIMPLE;
     }
-
     /**
      * @return int
      */
-    public function getType()
+    public function get_type()
     {
         return $this->type;
     }
-
     /**
      * @param int $type
      */
-    public function setType($type): static
+    public function set_type($type): static
     {
         $this->type = $type;
-
         return $this;
     }
-
     /**
      * @param int $status
      */
-    public function setStatus($status): static
+    public function set_status($status): static
     {
-        if (Validate::isInt($status)) {
+        if (Validate::is_int($status)) {
             $this->status = $status;
         }
-
         return $this;
     }
-
     /**
      * @return int
      */
-    public function getStatus()
+    public function get_status()
     {
         return $this->status;
     }
-
     /**
      * @return string
      */
-    public function getWrongValue()
+    public function get_wrong_value()
     {
         return $this->wrong_value;
     }
-
     /**
      * @param string $wrongValue
      * @param array $availableValues
      */
-    public function setDidYouMean($wrongValue, $availableValues): static
+    public function set_did_you_mean($wrong_value, $available_values): static
     {
         $this->type = static::DID_YOU_MEAN;
-        $this->wrong_value = $wrongValue;
-        $this->available_values = $availableValues;
-
+        $this->wrong_value = $wrong_value;
+        $this->available_values = $available_values;
         return $this;
     }
-
     /**
      * @return array
      */
-    public function getAvailableValues()
+    public function get_available_values()
     {
         return $this->available_values;
     }

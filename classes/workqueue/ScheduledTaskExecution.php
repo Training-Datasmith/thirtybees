@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -18,43 +18,28 @@ declare(strict_types=1);
  * @copyright 2017-2024 thirty bees
  * @license   Open Software License (OSL 3.0)
  */
+namespace Thirtybees\Core\Work_Queue;
 
-namespace Thirtybees\Core\WorkQueue;
-
-use ObjectModel;
-
+use Object_Model;
 /**
  * Class ScheduledTaskExecutionCore
  */
-class ScheduledTaskExecutionCore extends ObjectModel
+class Scheduled_Task_Execution_Core extends Object_Model
 {
     /**
      * @var array Object model definition
      */
-    public static $definition = [
-        'table'   => 'scheduled_task_execution',
-        'primary' => 'id_scheduled_task_execution',
-        'multishop' => false,
-        'fields'  => [
-            'id_scheduled_task'  => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedInt', 'required' => true],
-            'id_workqueue_task'  => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedInt', 'required' => true],
-            'date_add'           => ['type' => self::TYPE_DATE, 'validate' => 'isDate', 'dbNullable' => false],
-        ],
-    ];
-
+    public static $definition = ['table' => 'scheduled_task_execution', 'primary' => 'id_scheduled_task_execution', 'multishop' => false, 'fields' => ['id_scheduled_task' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedInt', 'required' => true], 'id_workqueue_task' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedInt', 'required' => true], 'date_add' => ['type' => self::TYPE_DATE, 'validate' => 'isDate', 'dbNullable' => false]]];
     /**
      * @var int Scheduled task id
      */
     public $id_scheduled_task;
-
     /**
      * @var int Work queue task id
      */
     public $id_workqueue_task;
-
     /**
      * @var string DateTime of execution
      */
     public $date_add;
-
 }

@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,124 +30,103 @@ declare(strict_types=1);
  *  @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Interface ITreeToolbarButtonCore
  */
-interface ITreeToolbarButtonCore
+interface I_Tree_Toolbar_Button_Core
 {
     /**
      * @return string
      */
     public function __toString();
-
     /**
      * @param string $name
      * @param mixed $value
      * @return static
      */
-    public function setAttribute($name, $value);
-
+    public function set_attribute($name, $value);
     /**
      * @param string $name
      * @return mixed
      */
-    public function getAttribute($name);
-
+    public function get_attribute($name);
     /**
      * @param array $value
      * @return mixed
      */
-    public function setAttributes($value);
-
+    public function set_attributes($value);
     /**
      * @return array
      */
-    public function getAttributes();
-
+    public function get_attributes();
     /**
      * @param string $value
      * @return static
      */
-    public function setClass($value);
-
+    public function set_class($value);
     /**
      * @return string
      */
-    public function getClass();
-
+    public function get_class();
     /**
      * @param string $value
      * @return static
      */
-    public function setContext($value);
-
+    public function set_context($value);
     /**
      * @return string
      */
-    public function getContext();
-
+    public function get_context();
     /**
      * @param string $value
      * @return static
      */
-    public function setId($value);
-
+    public function set_id($value);
     /**
      * @return string
      */
-    public function getId();
-
+    public function get_id();
     /**
      * @param string $value
      * @return static
      */
-    public function setLabel($value);
-
+    public function set_label($value);
     /**
      * @return string
      */
-    public function getLabel();
-
+    public function get_label();
     /**
      * @param string $value
      * @return static
      */
-    public function setName($value);
-
+    public function set_name($value);
     /**
      * @return string
      */
-    public function getName();
-
+    public function get_name();
     /**
      * @param string $value
      * @return static
      */
-    public function setTemplate($value);
-
+    public function set_template($value);
     /**
      * @return string
      */
-    public function getTemplate();
-
+    public function get_template();
     /**
      * @param string $value
      * @return static
      */
-    public function setTemplateDirectory($value);
-
+    public function set_template_directory($value);
     /**
      * @return string
      */
-    public function getTemplateDirectory();
-
+    public function get_template_directory();
     /**
      * @param string $name
      * @return bool
      */
-    public function hasAttribute($name);
-
+    public function has_attribute($name);
     /**
      * @return string
      */

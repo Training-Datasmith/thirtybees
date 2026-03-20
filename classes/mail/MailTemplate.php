@@ -1,30 +1,26 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace Thirtybees\Core\Mail;
 
-interface MailTemplate
+interface Mail_Template
 {
     /**
      * Returns name of template
      */
-    public function getTemplateName(): string;
-
+    public function get_template_name(): string;
     /**
      * Returns template content type
      */
-    public function getContentType(): string;
-
+    public function get_content_type(): string;
     /**
      * Returns template content
      */
-    public function getTemplate(): string;
-
+    public function get_template(): string;
     /**
      * Renders mail content from parameters
      *
      * @param array $parameters template paramters
      */
-    public function renderTemplate(array $parameters): string;
+    public function render_template(array $parameters): string;
 }

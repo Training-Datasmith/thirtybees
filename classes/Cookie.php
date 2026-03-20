@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,7 +30,6 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class CookieCore
  *
@@ -87,53 +86,42 @@ declare(strict_types=1);
  * @property int $stats_id_zone
  * @property int $statsstock_id_category
  */
-class CookieCore
+class Cookie_Core
 {
     public const VERSION = 'v2';
-
     public const CSV_SEPARATOR = ',';
     public const CSV_ENCLOSURE = '"';
     public const CSV_ESCAPE = '';
-
     /**
      * @var array Contain cookie content in a key => value format
      */
     protected array $_content;
-
     /**
      * @var array Crypted cookie name for setcookie()
      */
     protected string $_name;
-
     /**
      * @var array expiration date for setcookie()
      */
     protected int $_expire;
-
     /**
      * @var array Website domain for setcookie()
      */
     protected $_domain;
-
     /**
      * @var array Path for setcookie()
      */
     protected string $_path;
-
     /**
      * @var bool $_modified
      */
     protected $_modified = false;
-
     protected bool $_allow_writing;
-
     /**
      * @var string
      */
     protected $_salt;
-
     protected bool $_secure;
-
     /**
      * Get data if the cookie exists and else initialize an new one
      *
@@ -145,14 +133,13 @@ class CookieCore
      * @param bool $secure
      * @throws PrestaShopException
      */
-    public function __construct(string $name, string $path = '', $expire = null, $sharedUrls = null, protected $_standalone = false, $secure = false)
+    public function __construct(string $name, string $path = '', $expire = null, $shared_urls = null, protected $_standalone = false, $secure = false)
     {
         $this->_content = [];
         $this->_expire = is_null($expire) ? time() + 1728000 : (int) $expire;
-
-        $this->_path = trim(($this->_standalone ? '' : Context::getContext()->shop->physical_uri).$path, '/\\').'/';
+        $this->_path = trim(($this->_standalone ? '' : Context::get_context()->shop->physical_uri) . $path, '/\\') . '/';
         if ($this->_path[0] != '/') {
-            $this->_path = '/'.$this->_path;
+            $this->_path = '/' . $this->_path;
         }
         $this->_path = rawurlencode($this->_path);
         $this->_path = str_replace('%2F', '/', $this->_path);
@@ -161,18 +148,13 @@ class CookieCore
         if (DIRECTORY_SEPARATOR === '\\') {
             $this->_path = mb_strtolower($this->_path);
         }
-
-        $this->_domain = $this->getDomain($sharedUrls);
-        $this->_name = static::getCookieNamePrefix().'-'.md5($name.$this->_domain);
+        $this->_domain = $this->get_domain($shared_urls);
+        $this->_name = static::get_cookie_name_prefix() . '-' . md5($name . $this->_domain);
         $this->_allow_writing = true;
-        $this->_salt = $this->_standalone
-            ? bin2hex(random_bytes(16))
-            : _COOKIE_IV_;
+        $this->_salt = $this->_standalone ? bin2hex(random_bytes(16)) : _COOKIE_IV_;
         $this->_secure = (bool) $secure;
-
         $this->update();
     }
-
     /**
      * @param array|null $sharedUrls
      *
@@ -180,34 +162,26 @@ class CookieCore
      *
      * @throws PrestaShopException
      */
-    protected function getDomain($sharedUrls = null): false|string
+    protected function get_domain($shared_urls = null): false|string
     {
         $r = '!(?:(\w+)://)?(?:(\w+)\:(\w+)@)?([^/:]+)?(?:\:(\d*))?([^#?]+)?(?:\?([^#]+))?(?:#(.+$))?!i';
-
-        if (!preg_match($r, Tools::getHttpHost(false, false), $out) || !isset($out[4])) {
+        if (!preg_match($r, Tools::get_http_host(false, false), $out) || !isset($out[4])) {
             return false;
         }
-
-        if (preg_match(
-            '/^(((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]{1}[0-9]|[1-9]).)'.
-            '{1}((25[0-5]|2[0-4][0-9]|[1]{1}[0-9]{2}|[1-9]{1}[0-9]|[0-9]).)'.
-            '{2}((25[0-5]|2[0-4][0-9]|[1]{1}[0-9]{2}|[1-9]{1}[0-9]|[0-9]){1}))$/',
-            $out[4]
-        )) {
+        if (preg_match('/^(((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]{1}[0-9]|[1-9]).)' . '{1}((25[0-5]|2[0-4][0-9]|[1]{1}[0-9]{2}|[1-9]{1}[0-9]|[0-9]).)' . '{2}((25[0-5]|2[0-4][0-9]|[1]{1}[0-9]{2}|[1-9]{1}[0-9]|[0-9]){1}))$/', $out[4])) {
             return false;
         }
-        if (!strstr(Tools::getHttpHost(false, false), '.')) {
+        if (!strstr(Tools::get_http_host(false, false), '.')) {
             return false;
         }
-
         $domain = false;
-        if ($sharedUrls !== null) {
-            foreach ($sharedUrls as $sharedUrl) {
-                if ($sharedUrl != $out[4]) {
+        if ($shared_urls !== null) {
+            foreach ($shared_urls as $shared_url) {
+                if ($shared_url != $out[4]) {
                     continue;
                 }
-                if (preg_match('/^(?:.*\.)?([^.]*(?:.{2,4})?\..{2,3})$/Ui', (string) $sharedUrl, $res)) {
-                    $domain = '.'.$res[1];
+                if (preg_match('/^(?:.*\.)?([^.]*(?:.{2,4})?\..{2,3})$/Ui', (string) $shared_url, $res)) {
+                    $domain = '.' . $res[1];
                     break;
                 }
             }
@@ -215,30 +189,25 @@ class CookieCore
         if (!$domain) {
             return $out[4];
         }
-
         return $domain;
     }
-
     /**
      * Get cookie content
      *
      * @throws PrestaShopException
      */
-    public function update($nullValues = false): void
+    public function update($null_values = false): void
     {
         if (isset($_COOKIE[$this->_name])) {
-
             /* Decrypt cookie content */
             $valid = false;
-            $rawContent = $this->getCipherTool()->decrypt($_COOKIE[$this->_name]);
-            if ($rawContent && strlen((string) $rawContent) >= 64) {
-
+            $raw_content = $this->get_cipher_tool()->decrypt($_COOKIE[$this->_name]);
+            if ($raw_content && strlen((string) $raw_content) >= 64) {
                 // Verify checksum
-                $storedChecksum = substr((string) $rawContent, 0, 64);
-                $data = substr((string) $rawContent, 64);
-                $calculatedChecksum = $this->getSignature($data);
-
-                if ($storedChecksum === $calculatedChecksum) {
+                $stored_checksum = substr((string) $raw_content, 0, 64);
+                $data = substr((string) $raw_content, 64);
+                $calculated_checksum = $this->get_signature($data);
+                if ($stored_checksum === $calculated_checksum) {
                     if ($data) {
                         $array = str_getcsv($data, static::CSV_SEPARATOR, static::CSV_ENCLOSURE, static::CSV_ESCAPE);
                         $len = count($array);
@@ -254,25 +223,21 @@ class CookieCore
                     }
                 }
             }
-
-            if (! $valid) {
+            if (!$valid) {
                 $this->delete();
             }
         }
-
         // set creation date
         if (!isset($this->_content['date_add'])) {
             $this->_content['date_add'] = date('Y-m-d H:i:s');
         }
-
         //checks if the language exists, if not choose the default language
-        if (!$this->_standalone && !Language::getLanguage((int) $this->id_lang)) {
+        if (!$this->_standalone && !Language::get_language((int) $this->id_lang)) {
             $this->_content['id_lang'] = Configuration::get('PS_LANG_DEFAULT');
             // set detect_language to force going through Tools::setCookieLanguage to figure out browser lang
             $this->_content['detect_language'] = true;
         }
     }
-
     /**
      * Returns cookie name prefix.
      *
@@ -281,13 +246,10 @@ class CookieCore
      *
      * @return string
      */
-    protected static function getCookieNamePrefix()
+    protected static function get_cookie_name_prefix()
     {
-        return defined('_TB_COOKIE_NAME_PREFIX_')
-            ? _TB_COOKIE_NAME_PREFIX_
-            : 'thirtybees';
+        return defined('_TB_COOKIE_NAME_PREFIX_') ? _TB_COOKIE_NAME_PREFIX_ : 'thirtybees';
     }
-
     /**
      * Delete cookie
      *
@@ -296,10 +258,9 @@ class CookieCore
      */
     public function logout(): void
     {
-        Tools::displayAsDeprecated();
+        Tools::display_as_deprecated();
         $this->delete();
     }
-
     /**
      * Deletes cookie
      *
@@ -312,7 +273,6 @@ class CookieCore
         unset($_COOKIE[$this->_name]);
         $this->_modified = true;
     }
-
     /**
      * Setcookie according to php version
      *
@@ -321,31 +281,27 @@ class CookieCore
     protected function _setcookie($cookie = null): bool
     {
         if ($cookie) {
-            $content = $this->getCipherTool()->encrypt($cookie);
+            $content = $this->get_cipher_tool()->encrypt($cookie);
             $time = $this->_expire;
         } else {
             $content = '';
             $time = 1;
         }
-
         return setrawcookie($this->_name, (string) $content, ['expires' => $time, 'path' => $this->_path, 'domain' => $this->_domain, 'secure' => $this->_secure, 'httponly' => true]);
     }
-
-    public function disallowWriting(): void
+    public function disallow_writing(): void
     {
         $this->_allow_writing = false;
     }
-
     /**
      * Set expiration date
      *
      * @param int $expire Expiration time from now
      */
-    public function setExpire($expire): void
+    public function set_expire($expire): void
     {
-        $this->_expire = (int) ($expire);
+        $this->_expire = (int) $expire;
     }
-
     /**
      * Magic method wich return cookie data from _content array
      *
@@ -357,7 +313,6 @@ class CookieCore
     {
         return $this->_content[$key] ?? false;
     }
-
     /**
      * Magic method which adds data into _content array
      *
@@ -367,18 +322,17 @@ class CookieCore
     public function __set(string $key, mixed $value)
     {
         if ($key === '_cipherTool') {
-            Tools::displayAsDeprecated('Cookie object no longer contains _cipherTool property');
+            Tools::display_as_deprecated('Cookie object no longer contains _cipherTool property');
             return;
         }
         if (is_array($value)) {
             throw new RuntimeException("Value can't be array");
         }
-        if (!$this->_modified && (!isset($this->_content[$key]) || (isset($this->_content[$key]) && $this->_content[$key] != $value))) {
+        if (!$this->_modified && (!isset($this->_content[$key]) || isset($this->_content[$key]) && $this->_content[$key] != $value)) {
             $this->_modified = true;
         }
         $this->_content[$key] = $value;
     }
-
     /**
      * Magic method which check if key exists in the cookie
      *
@@ -390,7 +344,6 @@ class CookieCore
     {
         return isset($this->_content[$key]);
     }
-
     /**
      * Magic method wich delete data into _content array
      *
@@ -403,7 +356,6 @@ class CookieCore
         }
         unset($this->_content[$key]);
     }
-
     /**
      * Check customer informations saved into cookie and return customer validity
      *
@@ -413,21 +365,18 @@ class CookieCore
      * @throws PrestaShopException
      * @deprecated 1.0.0 use Customer::isLogged() instead
      */
-    public function isLogged($withGuest = false): bool
+    public function is_logged($with_guest = false): bool
     {
-        Tools::displayAsDeprecated();
-        if (!$withGuest && $this->is_guest == 1) {
+        Tools::display_as_deprecated();
+        if (!$with_guest && $this->is_guest == 1) {
             return false;
         }
-
         /* Customer is valid only if it can be load and if cookie password is the same as database one */
-        if ($this->logged == 1 && $this->id_customer && Validate::isUnsignedId($this->id_customer) && Customer::checkPassword((int) ($this->id_customer), $this->passwd)) {
+        if ($this->logged == 1 && $this->id_customer && Validate::is_unsigned_id($this->id_customer) && Customer::check_password((int) $this->id_customer, $this->passwd)) {
             return true;
         }
-
         return false;
     }
-
     /**
      * Check employee informations saved into cookie and return employee validity
      *
@@ -435,18 +384,16 @@ class CookieCore
      * @throws PrestaShopException
      * @deprecated 1.0.0 use Employee::isLoggedBack() instead
      */
-    public function isLoggedBack()
+    public function is_logged_back()
     {
-        Tools::displayAsDeprecated();
-
-        $employeeId = (int)$this->id_employee ?? 0;
-        if ($employeeId) {
-            $empoyee = new Employee($employeeId);
-            return $empoyee->isLoggedBack();
+        Tools::display_as_deprecated();
+        $employee_id = (int) $this->id_employee ?? 0;
+        if ($employee_id) {
+            $empoyee = new Employee($employee_id);
+            return $empoyee->is_logged_back();
         }
         return false;
     }
-
     /**
      * Soft logout, delete everything links to the customer
      * but leave there affiliate's informations.
@@ -470,18 +417,16 @@ class CookieCore
         unset($this->_content['id_address_delivery']);
         $this->_modified = true;
     }
-
     /**
      * @throws PrestaShopException
      */
-    public function makeNewLog(): void
+    public function make_new_log(): void
     {
         unset($this->_content['id_customer']);
         unset($this->_content['id_guest']);
-        Guest::setNewGuest($this);
+        Guest::set_new_guest($this);
         $this->_modified = true;
     }
-
     /**
      * @throws PrestaShopException
      */
@@ -489,7 +434,6 @@ class CookieCore
     {
         $this->write();
     }
-
     /**
      * Save cookie with setcookie()
      *
@@ -502,11 +446,9 @@ class CookieCore
         if (!$this->_modified) {
             return true;
         }
-
         if (headers_sent() || !$this->_allow_writing) {
             return false;
         }
-
         /* Serialize cookie content */
         $data = [];
         foreach ($this->_content as $key => $value) {
@@ -519,33 +461,29 @@ class CookieCore
         }
         rewind($f);
         $content = stream_get_contents($f);
-
         /* Calculate checksum and add it to cookie */
-        $checksum = $this->getSignature($content);
+        $checksum = $this->get_signature($content);
         $cookie = $checksum . $content;
         $this->_modified = false;
-
         /* Cookies are encrypted for evident security reasons */
         return $this->_setcookie($cookie);
     }
-
     /**
      * @param string $origin
      */
-    public function unsetFamily($origin): void
+    public function unset_family($origin): void
     {
-        $family = $this->getFamily($origin);
+        $family = $this->get_family($origin);
         foreach (array_keys($family) as $member) {
-            unset($this->$member);
+            unset($this->{$member});
         }
     }
-
     /**
      * Get a family of variables (e.g. "filter_")
      *
      * @param string $origin
      */
-    public function getFamily($origin): array
+    public function get_family($origin): array
     {
         $result = [];
         if (count($this->_content) == 0) {
@@ -556,26 +494,22 @@ class CookieCore
                 $result[$key] = $value;
             }
         }
-
         return $result;
     }
-
     /**
      * @return array
      */
-    public function getAll()
+    public function get_all()
     {
         return $this->_content;
     }
-
     /**
      * @return String name of cookie
      */
-    public function getName()
+    public function get_name()
     {
         return $this->_name;
     }
-
     /**
      * Check if the cookie exists
      */
@@ -583,7 +517,6 @@ class CookieCore
     {
         return isset($_COOKIE[$this->_name]);
     }
-
     /**
      * Get the cipher tool instance used by this cookie instance
      *
@@ -591,14 +524,11 @@ class CookieCore
      *
      * @throws PrestaShopException
      */
-    public function getCipherTool()
+    public function get_cipher_tool()
     {
-        return $this->_standalone
-            ? Encryptor::getStandaloneInstance(__FILE__)
-            : Encryptor::getInstance();
+        return $this->_standalone ? Encryptor::get_standalone_instance(__FILE__) : Encryptor::get_instance();
     }
-
-    protected function getSignature(string $data): string
+    protected function get_signature(string $data): string
     {
         $payload = $this->_salt . static::VERSION . $data;
         return hash('sha256', $payload);

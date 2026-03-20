@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,7 +30,6 @@ declare(strict_types=1);
  *  @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class ImportModuleCore
  *
@@ -42,49 +41,42 @@ declare(strict_types=1);
  *             make sure you refactor everything to directly use the `Db` class instead of the
  *             methods of this class.
  */
-abstract class ImportModuleCore extends Module
+abstract class Import_Module_Core extends Module
 {
     /**
      * @var mixed
      */
     protected $_link;
-
     /**
      * @var mixed
      */
     public $server;
-
     /**
      * @var mixed
      */
     public $user;
-
     /**
      * @var mixed
      */
     public $passwd;
-
     /**
      * @var mixed
      */
     public $database;
-
     /**
      * @var string Prefix database
      */
     public $prefix;
-
     /**
      * @return PDO
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    protected function initDatabaseConnection()
+    protected function init_database_connection()
     {
-        return Db::getInstance()->getLink();
+        return Db::get_instance()->get_link();
     }
-
     /**
      * @param string|DbQuery $query
      *
@@ -93,11 +85,10 @@ abstract class ImportModuleCore extends Module
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function executeS($query)
+    public function execute_s($query)
     {
-        return Db::readOnly()->getArray($query);
+        return Db::read_only()->get_array($query);
     }
-
     /**
      * @param string|DbQuery $query
      *
@@ -110,9 +101,8 @@ abstract class ImportModuleCore extends Module
      */
     public function execute($query)
     {
-        return (bool) Db::getInstance()->execute($query);
+        return (bool) Db::get_instance()->execute($query);
     }
-
     /**
      * @param string|DbQuery $query
      *
@@ -121,36 +111,33 @@ abstract class ImportModuleCore extends Module
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function getValue($query)
+    public function get_value($query)
     {
-        $this->initDatabaseConnection();
-        $result = $this->executeS($query);
+        $this->init_database_connection();
+        $result = $this->execute_s($query);
         if (!count($result)) {
             return 0;
         }
         return array_shift($result[0]);
     }
-
     /**
      * @return array
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getImportModulesOnDisk()
+    public static function get_import_modules_on_disk()
     {
-        $modules = Module::getModulesOnDisk(true);
+        $modules = Module::get_modules_on_disk(true);
         foreach ($modules as $key => $module) {
             if (!isset($module->parent_class) || $module->parent_class != 'ImportModule') {
                 unset($modules[$key]);
             }
         }
-
         return $modules;
     }
-
     /**
      * @return int
      */
-    abstract public function getDefaultIdLang();
+    abstract public function get_default_id_lang();
 }

@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,89 +30,75 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /** @noinspection PhpUnhandledExceptionInspection */
-
 if (!defined('_PS_ADMIN_DIR_')) {
     define('_PS_ADMIN_DIR_', getcwd());
 }
-include_once(_PS_ADMIN_DIR_.'/../config/config.inc.php');
-
-$module = Tools::getValue('module');
-$type = Tools::getValue('type');
-$option = Tools::getValue('option');
-$layers = Tools::getValue('layers');
-$width = Tools::getValue('width');
-$height = Tools::getValue('height');
-$id_employee = Tools::getIntValue('id_employee');
-$id_lang = Tools::getIntValue('id_lang');
-
+include_once _PS_ADMIN_DIR_ . '/../config/config.inc.php';
+$module = Tools::get_value('module');
+$type = Tools::get_value('type');
+$option = Tools::get_value('option');
+$layers = Tools::get_value('layers');
+$width = Tools::get_value('width');
+$height = Tools::get_value('height');
+$id_employee = Tools::get_int_value('id_employee');
+$id_lang = Tools::get_int_value('id_lang');
 if (!isset($cookie->id_employee) || !$cookie->id_employee || $cookie->id_employee != $id_employee) {
-    throw new PrestaShopException(Tools::displayError('Employee not validated'));
+    throw new Presta_Shop_Exception(Tools::display_error('Employee not validated'));
 }
-
-if (!Validate::isModuleName($module)) {
-    throw new PrestaShopException(sprintf(Tools::displayError('Invalid module name [%s]'), Tools::safeOutput($module)));
+if (!Validate::is_module_name($module)) {
+    throw new Presta_Shop_Exception(sprintf(Tools::display_error('Invalid module name [%s]'), Tools::safe_output($module)));
 }
-
 /** @var StatsModule $statsModuleInstance */
-$statsModuleInstance = Module::getInstanceByName('statsmodule');
-
-if ($statsModuleInstance->active && in_array($module, $statsModuleInstance->modules)) {
-    $module_path = _PS_ROOT_DIR_.'/modules/statsmodule/stats/'.$module.'.php';
-} else {
-    if (!file_exists($module_path = _PS_ROOT_DIR_.'/modules/'.$module.'/'.$module.'.php')) {
-        throw new PrestaShopException(sprintf(Tools::displayError('Module [%s] not found'), Tools::safeOutput($module)));
-    }
+$stats_module_instance = Module::get_instance_by_name('statsmodule');
+if ($stats_module_instance->active && in_array($module, $stats_module_instance->modules)) {
+    $module_path = _PS_ROOT_DIR_ . '/modules/statsmodule/stats/' . $module . '.php';
+} else if (!file_exists($module_path = _PS_ROOT_DIR_ . '/modules/' . $module . '/' . $module . '.php')) {
+    throw new Presta_Shop_Exception(sprintf(Tools::display_error('Module [%s] not found'), Tools::safe_output($module)));
 }
-
 $shop_id = '';
-Shop::setContext(Shop::CONTEXT_ALL);
-if (Context::getContext()->cookie->shopContext) {
-    $split = explode('-', Context::getContext()->cookie->shopContext);
+Shop::set_context(Shop::CONTEXT_ALL);
+if (Context::get_context()->cookie->shop_context) {
+    $split = explode('-', Context::get_context()->cookie->shop_context);
     if (count($split) == 2) {
         if ($split[0] == 'g') {
-            if (Context::getContext()->employee->hasAuthOnShopGroup($split[1])) {
-                Shop::setContext(Shop::CONTEXT_GROUP, $split[1]);
+            if (Context::get_context()->employee->has_auth_on_shop_group($split[1])) {
+                Shop::set_context(Shop::CONTEXT_GROUP, $split[1]);
             } else {
-                $shop_id = Context::getContext()->employee->getDefaultShopID();
-                Shop::setContext(Shop::CONTEXT_SHOP, $shop_id);
+                $shop_id = Context::get_context()->employee->get_default_shop_id();
+                Shop::set_context(Shop::CONTEXT_SHOP, $shop_id);
             }
-        } elseif (Shop::getShop($split[1]) && Context::getContext()->employee->hasAuthOnShop($split[1])) {
+        } elseif (Shop::get_shop($split[1]) && Context::get_context()->employee->has_auth_on_shop($split[1])) {
             $shop_id = $split[1];
-            Shop::setContext(Shop::CONTEXT_SHOP, $shop_id);
+            Shop::set_context(Shop::CONTEXT_SHOP, $shop_id);
         } else {
-            $shop_id = Context::getContext()->employee->getDefaultShopID();
-            Shop::setContext(Shop::CONTEXT_SHOP, $shop_id);
+            $shop_id = Context::get_context()->employee->get_default_shop_id();
+            Shop::set_context(Shop::CONTEXT_SHOP, $shop_id);
         }
     }
 }
-
 // Check multishop context and set right context if need
-if (Shop::getContext()) {
-    if (Shop::getContext() == Shop::CONTEXT_SHOP && !Shop::CONTEXT_SHOP) {
-        Shop::setContext(Shop::CONTEXT_GROUP, Shop::getContextShopGroupID());
+if (Shop::get_context()) {
+    if (Shop::get_context() == Shop::CONTEXT_SHOP && !Shop::CONTEXT_SHOP) {
+        Shop::set_context(Shop::CONTEXT_GROUP, Shop::get_context_shop_group_id());
     }
-    if (Shop::getContext() == Shop::CONTEXT_GROUP && !Shop::CONTEXT_GROUP) {
-        Shop::setContext(Shop::CONTEXT_ALL);
+    if (Shop::get_context() == Shop::CONTEXT_GROUP && !Shop::CONTEXT_GROUP) {
+        Shop::set_context(Shop::CONTEXT_ALL);
     }
 }
-
 // Replace existing shop if necessary
 if (!$shop_id) {
-    Context::getContext()->shop = new Shop(Configuration::get('PS_SHOP_DEFAULT'));
-} elseif (Context::getContext()->shop->id != $shop_id) {
-    Context::getContext()->shop = new Shop($shop_id);
+    Context::get_context()->shop = new Shop(Configuration::get('PS_SHOP_DEFAULT'));
+} elseif (Context::get_context()->shop->id != $shop_id) {
+    Context::get_context()->shop = new Shop($shop_id);
 }
-
-require_once($module_path);
-
+require_once $module_path;
 /** @var StatsModule $graph */
 $graph = new $module();
-$graph->setEmployee($id_employee);
-$graph->setLang($id_lang);
+$graph->set_employee($id_employee);
+$graph->set_lang($id_lang);
 if ($option) {
-    $graph->setOption($option, $layers);
+    $graph->set_option($option, $layers);
 }
-$graph->createGraph(null, $type, $width, $height, $layers);
+$graph->create_graph(null, $type, $width, $height, $layers);
 $graph->draw();

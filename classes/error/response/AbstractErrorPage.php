@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -18,35 +18,31 @@ declare(strict_types=1);
  * @copyright 2017-2024 thirty bees
  * @license   Open Software License (OSL 3.0)
  */
-
 namespace Thirtybees\Core\Error\Response;
 
-use Thirtybees\Core\Error\ErrorDescription;
+use Thirtybees\Core\Error\Error_Description;
 use Throwable;
-
 /**
  * Class AbstractErrorPageCore
  */
-abstract class AbstractErrorPageCore implements ErrorResponseInterface
+abstract class Abstract_Error_Page_Core implements Error_Response_Interface
 {
     /**
      * @var string | null
      */
-    private $contentType;
-
-    public function sendResponse(ErrorDescription $errorDescription): void
+    private $content_type;
+    public function send_response(Error_Description $error_description): void
     {
         // get error page content
-        $content = $this->renderError($errorDescription);
-
+        $content = $this->render_error($error_description);
         // output content
-        $this->beforeRender($errorDescription);
+        $this->before_render($error_description);
         if (!headers_sent()) {
-            if (! $this->contentType) {
-                $this->contentType = $this->getContentType();
+            if (!$this->content_type) {
+                $this->content_type = $this->get_content_type();
             }
             header('HTTP/1.1 500 Internal Server Error');
-            header('Content-Type: ' . $this->contentType);
+            header('Content-Type: ' . $this->content_type);
         }
         //clean any output buffer there might be
         while (ob_get_level()) {
@@ -54,31 +50,29 @@ abstract class AbstractErrorPageCore implements ErrorResponseInterface
         }
         // render error page content
         echo $content;
-        $this->afterRender($errorDescription);
+        $this->after_render($error_description);
         exit;
     }
-
     /**
      * @return string
      */
-    public function getPageContent(ErrorDescription $errorDescription)
+    public function get_page_content(Error_Description $error_description)
     {
         try {
-            return $this->renderError($errorDescription);
+            return $this->render_error($error_description);
         } catch (Throwable $t) {
             // It's very unlikely that exception will be thrown during error message rendering. If that happen,
             // simply give up
-            $this->contentType = 'text/plain';
+            $this->content_type = 'text/plain';
             if (_PS_MODE_DEV_) {
                 $message = "Failed to display exception:\n";
-                $message .= $errorDescription->getMessage();
+                $message .= $error_description->get_message();
                 $message .= "\n\nFailure reason:\n";
                 return $message . $t;
             }
             return 'Fatal error';
         }
     }
-
     /**
      * Display a phtml template file
      *
@@ -87,54 +81,45 @@ abstract class AbstractErrorPageCore implements ErrorResponseInterface
      *
      * @return string Content
      */
-    protected function displayErrorTemplate($file, $params)
+    protected function display_error_template($file, $params)
     {
         foreach ($params as $name => $param) {
             ${$name} = $param;
         }
-
         ob_start();
-
-        include($file);
-
+        include $file;
         $content = ob_get_contents();
         if (ob_get_level() && ob_get_length() > 0) {
             ob_end_clean();
         }
-
         return $content;
     }
-
     /**
      * Called at the start of error page rendering, before content is sent to client.
      * Subclasses can use it to add its own content to server response
      *
      * @return void
      */
-    protected function beforeRender(ErrorDescription $errorDescription)
+    protected function before_render(Error_Description $error_description)
     {
         // noop
     }
-
     /**
      * Called at the end of error page rendering, after content was send to client.
      * Subclasses can use this to implement various logging, cleanup, etc.
      *
      * @return void
      */
-    protected function afterRender(ErrorDescription $errorDescription)
+    protected function after_render(Error_Description $error_description)
     {
         // noop
     }
-
     /**
      * @return string
      */
-    abstract protected function getContentType();
-
+    abstract protected function get_content_type();
     /**
      * @return string
      */
-    abstract protected function renderError(ErrorDescription $errorDescription);
-
+    abstract protected function render_error(Error_Description $error_description);
 }

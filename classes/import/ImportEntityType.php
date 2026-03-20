@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -18,31 +18,26 @@ declare(strict_types=1);
  * @copyright 2017-2024 thirty bees
  * @license   Open Software License (OSL 3.0)
  */
-
 namespace Thirtybees\Core\Import;
 
-interface ImportEntityType
+interface Import_Entity_Type
 {
     /**
      * Return plural name of imported entities, ie. 'Products'
      */
-    public function getName(): string;
-
+    public function get_name(): string;
     /**
      * @return array[]
      */
-    public function getAvailableFields(): array;
-
-    public function supportTruncate(): bool;
-
+    public function get_available_fields(): array;
+    public function support_truncate(): bool;
     /**
      * @return true|string[]
      */
     public function truncate();
-
     /**
      *
      * @return array ['errors' => [], 'warnings' => []]
      */
-    public function import(array $data, bool $validateOnly);
+    public function import(array $data, bool $validate_only);
 }

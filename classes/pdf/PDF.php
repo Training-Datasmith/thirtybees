@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,30 +30,24 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class PDFCore
  */
-class PDFCore
+class Pdf_Core
 {
     /** @var string $filename */
     public $filename;
-
     /** @var PDFGenerator */
     public $pdf_renderer;
-
     /** @var bool */
     public $send_bulk_flag = false;
-
     /** @var Smarty */
     public $smarty;
-
     public const TEMPLATE_INVOICE = 'Invoice';
     public const TEMPLATE_ORDER_RETURN = 'OrderReturn';
     public const TEMPLATE_ORDER_SLIP = 'OrderSlip';
     public const TEMPLATE_DELIVERY_SLIP = 'DeliverySlip';
     public const TEMPLATE_SUPPLY_ORDER_FORM = 'SupplyOrderForm';
-
     /**
      * @param ObjectModel[]|Iterator|ObjectModel $objects
      * @param string $template
@@ -62,17 +56,16 @@ class PDFCore
      */
     public function __construct(public $objects, public $template, $smarty, $orientation = 'P')
     {
-        $this->pdf_renderer = new PDFGenerator(false, $orientation);
+        $this->pdf_renderer = new Pdf_Generator(false, $orientation);
         $this->smarty = $smarty;
-        if (!($this->objects instanceof Iterator) && !is_array($this->objects)) {
-            $this->objects = [ $this->objects ];
+        if (!$this->objects instanceof Iterator && !is_array($this->objects)) {
+            $this->objects = [$this->objects];
         }
-
-        if (count($this->objects) > 1) { // when bulk mode only
+        if (count($this->objects) > 1) {
+            // when bulk mode only
             $this->send_bulk_flag = true;
         }
     }
-
     /**
      * Render PDF
      *
@@ -85,42 +78,34 @@ class PDFCore
     public function render($display = true)
     {
         $render = false;
-        $this->pdf_renderer->setFontForLang(Context::getContext()->language->iso_code);
+        $this->pdf_renderer->set_font_for_lang(Context::get_context()->language->iso_code);
         foreach ($this->objects as $object) {
-            $this->pdf_renderer->startPageGroup();
-            $template = $this->getTemplateObject($object);
-
+            $this->pdf_renderer->start_page_group();
+            $template = $this->get_template_object($object);
             if (empty($this->filename)) {
-                $this->filename = $template->getFilename();
+                $this->filename = $template->get_filename();
                 if (count($this->objects) > 1) {
-                    $this->filename = $template->getBulkFilename();
+                    $this->filename = $template->get_bulk_filename();
                 }
             }
-
-            $template->assignHookData($object);
-
-            $this->pdf_renderer->createHeader($template->getHeader());
-            $this->pdf_renderer->createFooter($template->getFooter());
-            $this->pdf_renderer->createPagination($template->getPagination());
-            $this->pdf_renderer->createContent($template->getContent());
-            $this->pdf_renderer->writePage();
+            $template->assign_hook_data($object);
+            $this->pdf_renderer->create_header($template->get_header());
+            $this->pdf_renderer->create_footer($template->get_footer());
+            $this->pdf_renderer->create_pagination($template->get_pagination());
+            $this->pdf_renderer->create_content($template->get_content());
+            $this->pdf_renderer->write_page();
             $render = true;
-
             unset($template);
         }
-
         if ($render) {
             // clean the output buffer
             if (ob_get_level() && ob_get_length() > 0) {
                 ob_clean();
             }
-
             return $this->pdf_renderer->render($this->filename, $display);
         }
-
         return '';
     }
-
     /**
      * Get correct PDF template classes
      *
@@ -129,28 +114,28 @@ class PDFCore
      * @return HTMLTemplate
      * @throws PrestaShopException
      */
-    public function getTemplateObject($object): \HTMLTemplateInvoice|\HTMLTemplateOrderReturn|\HTMLTemplateOrderSlip|\HTMLTemplateDeliverySlip|\HTMLTemplateSupplyOrderForm|\HTMLTemplate
+    public function get_template_object($object): \Html_Template_Invoice|\Html_Template_Order_Return|\Html_Template_Order_Slip|\Html_Template_Delivery_Slip|\Html_Template_Supply_Order_Form|\Html_Template
     {
         switch ($this->template) {
             case static::TEMPLATE_INVOICE:
-                return new HTMLTemplateInvoice($object, $this->smarty, $this->send_bulk_flag);
+                return new Html_Template_Invoice($object, $this->smarty, $this->send_bulk_flag);
             case static::TEMPLATE_ORDER_RETURN:
-                return new HTMLTemplateOrderReturn($object, $this->smarty);
+                return new Html_Template_Order_Return($object, $this->smarty);
             case static::TEMPLATE_ORDER_SLIP:
-                return new HTMLTemplateOrderSlip($object, $this->smarty);
+                return new Html_Template_Order_Slip($object, $this->smarty);
             case static::TEMPLATE_DELIVERY_SLIP:
-                return new HTMLTemplateDeliverySlip($object, $this->smarty, $this->send_bulk_flag);
+                return new Html_Template_Delivery_Slip($object, $this->smarty, $this->send_bulk_flag);
             case static::TEMPLATE_SUPPLY_ORDER_FORM:
-                return new HTMLTemplateSupplyOrderForm($object, $this->smarty);
+                return new Html_Template_Supply_Order_Form($object, $this->smarty);
             default:
-                $className = 'HTMLTemplate'.$this->template;
-                if (class_exists($className)) {
-                    $instance = new $className($object, $this->smarty, $this->send_bulk_flag);
-                    if ($instance instanceof HTMLTemplate) {
+                $class_name = 'HTMLTemplate' . $this->template;
+                if (class_exists($class_name)) {
+                    $instance = new $class_name($object, $this->smarty, $this->send_bulk_flag);
+                    if ($instance instanceof Html_Template) {
                         return $instance;
                     }
                 }
-                throw new PrestaShopException('Unknown template: '.$this->template);
+                throw new Presta_Shop_Exception('Unknown template: ' . $this->template);
         }
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,101 +30,66 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class CMSCore
  */
-class CMSCore extends ObjectModel
+class Cms_Core extends Object_Model
 {
     /**
      * @var array Object model definition
      */
-    public static $definition = [
-        'table'          => 'cms',
-        'primary'        => 'id_cms',
-        'multilang'      => true,
-        'multilang_shop' => true,
-        'fields'         => [
-            'id_cms_category'  => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedInt', 'dbNullable' => false],
-            'position'         => ['type' => self::TYPE_INT, 'dbDefault' => '0'],
-            'active'           => ['type' => self::TYPE_BOOL, 'dbDefault' => '0'],
-            'indexation'       => ['type' => self::TYPE_BOOL, 'dbDefault' => '1'],
-
-            /* Lang fields */
-            'meta_title'       => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isGenericName', 'required' => true, 'size' => 128],
-            'meta_description' => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isGenericName',                     'size' => 255],
-            'meta_keywords'    => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isGenericName',                     'size' => 255],
-            'content'          => ['type' => self::TYPE_HTML,   'lang' => true, 'validate' => 'isCleanHtml',                       'size' => ObjectModel::SIZE_LONG_TEXT],
-            'link_rewrite'     => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isLinkRewrite', 'required' => true, 'size' => 128],
-        ],
-        'keys' => [
-            'cms_shop' => [
-                'id_shop' => ['type' => ObjectModel::KEY, 'columns' => ['id_shop']],
-            ],
-            'cms_lang' => [
-                'primary'       => ['type' => ObjectModel::PRIMARY_KEY, 'columns' => ['id_cms', 'id_shop', 'id_lang']],
-            ],
-        ],
-    ];
-
+    public static $definition = ['table' => 'cms', 'primary' => 'id_cms', 'multilang' => true, 'multilang_shop' => true, 'fields' => [
+        'id_cms_category' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedInt', 'dbNullable' => false],
+        'position' => ['type' => self::TYPE_INT, 'dbDefault' => '0'],
+        'active' => ['type' => self::TYPE_BOOL, 'dbDefault' => '0'],
+        'indexation' => ['type' => self::TYPE_BOOL, 'dbDefault' => '1'],
+        /* Lang fields */
+        'meta_title' => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isGenericName', 'required' => true, 'size' => 128],
+        'meta_description' => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isGenericName', 'size' => 255],
+        'meta_keywords' => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isGenericName', 'size' => 255],
+        'content' => ['type' => self::TYPE_HTML, 'lang' => true, 'validate' => 'isCleanHtml', 'size' => Object_Model::SIZE_LONG_TEXT],
+        'link_rewrite' => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isLinkRewrite', 'required' => true, 'size' => 128],
+    ], 'keys' => ['cms_shop' => ['id_shop' => ['type' => Object_Model::KEY, 'columns' => ['id_shop']]], 'cms_lang' => ['primary' => ['type' => Object_Model::PRIMARY_KEY, 'columns' => ['id_cms', 'id_shop', 'id_lang']]]]];
     /**
      * @var string|string[] Name
      */
     public $meta_title;
-
     /**
      * @var string|string[]
      */
     public $meta_description;
-
     /**
      * @var string|string[]
      */
     public $meta_keywords;
-
     /**
      * @var string|string[]
      */
     public $content;
-
     /**
      * @var string|string[]
      */
     public $link_rewrite;
-
     /**
      * @var int
      */
     public $id_cms_category;
-
     /**
      * @var int
      */
     public $position;
-
     /**
      * @var bool
      */
     public $indexation;
-
     /**
      * @var bool
      */
     public $active;
-
     /**
      * @var array Webservice parameters
      */
-    protected $webserviceParameters = [
-        'objectNodeName'  => 'content',
-        'objectsNodeName' => 'content_management_system',
-        'fields'          => [
-            'id_cms_category' => [
-                'xlink_resource' => 'cms_categories',
-            ],
-        ],
-    ];
-
+    protected $webservice_parameters = ['objectNodeName' => 'content', 'objectsNodeName' => 'content_management_system', 'fields' => ['id_cms_category' => ['xlink_resource' => 'cms_categories']]];
     /**
      * @param int $idLang
      * @param array|null $selection
@@ -135,34 +100,21 @@ class CMSCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getLinks($idLang, $selection = null, $active = true, ?Link $link = null)
+    public static function get_links($id_lang, $selection = null, $active = true, ?Link $link = null)
     {
         if (!$link) {
-            $link = Context::getContext()->link;
+            $link = Context::get_context()->link;
         }
-        $result = Db::readOnly()->getArray(
-            (new DbQuery())
-                ->select('c.`id_cms`, cl.`link_rewrite`, cl.`meta_title`')
-                ->from('cms', 'c')
-                ->leftJoin('cms_lang', 'cl', 'c.`id_cms` = cl.`id_cms` AND cl.`id_lang` = '.(int) $idLang)
-                ->join(Shop::addSqlAssociation('cms', 'c'))
-                ->where($selection !== null ? 'c.`id_cms` IN ('.implode(',', array_map(intval(...), $selection)).')' : '')
-                ->where($active ? 'c.`active` = 1 ' : '')
-                ->groupBy('c.`id_cms`')
-                ->orderBy('c.`position`')
-        );
-
+        $result = Db::read_only()->get_array((new Db_Query())->select('c.`id_cms`, cl.`link_rewrite`, cl.`meta_title`')->from('cms', 'c')->left_join('cms_lang', 'cl', 'c.`id_cms` = cl.`id_cms` AND cl.`id_lang` = ' . (int) $id_lang)->join(Shop::add_sql_association('cms', 'c'))->where($selection !== null ? 'c.`id_cms` IN (' . implode(',', array_map(intval(...), $selection)) . ')' : '')->where($active ? 'c.`active` = 1 ' : '')->group_by('c.`id_cms`')->order_by('c.`position`'));
         $links = [];
         if ($result) {
             foreach ($result as $row) {
-                $row['link'] = $link->getCMSLink((int) $row['id_cms'], $row['link_rewrite']);
+                $row['link'] = $link->get_cms_link((int) $row['id_cms'], $row['link_rewrite']);
                 $links[] = $row;
             }
         }
-
         return $links;
     }
-
     /**
      * @param int|null $idLang
      * @param bool $idBlock
@@ -173,26 +125,13 @@ class CMSCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function listCms($idLang = null, $idBlock = false, $active = true)
+    public static function list_cms($id_lang = null, $id_block = false, $active = true)
     {
-        if (empty($idLang)) {
-            $idLang = (int) Configuration::get('PS_LANG_DEFAULT');
+        if (empty($id_lang)) {
+            $id_lang = (int) Configuration::get('PS_LANG_DEFAULT');
         }
-
-        return Db::readOnly()->getArray(
-            (new DbQuery())
-                ->select('c.`id_cms`, l.`meta_title`')
-                ->from('cms', 'c')
-                ->innerJoin('cms_lang', 'l', 'c.`id_cms` = l.`id_cms`')
-                ->join($idBlock ? 'JOIN `'._DB_PREFIX_.'block_cms` b ON (c.`id_cms` = b.`id_cms`)' : '')
-                ->where('l.`id_lang` = '.(int) $idLang)
-                ->where($idBlock ? 'b.`id_block` = '.(int) $idBlock : '')
-                ->where($active ? 'c.`active` = 1' : '')
-                ->groupBy('c.`id_cms`')
-                ->orderBy('c.`position`')
-        );
+        return Db::read_only()->get_array((new Db_Query())->select('c.`id_cms`, l.`meta_title`')->from('cms', 'c')->inner_join('cms_lang', 'l', 'c.`id_cms` = l.`id_cms`')->join($id_block ? 'JOIN `' . _DB_PREFIX_ . 'block_cms` b ON (c.`id_cms` = b.`id_cms`)' : '')->where('l.`id_lang` = ' . (int) $id_lang)->where($id_block ? 'b.`id_block` = ' . (int) $id_block : '')->where($active ? 'c.`active` = 1' : '')->group_by('c.`id_cms`')->order_by('c.`position`'));
     }
-
     /**
      * @param int|null $idLang
      * @param int|null $idCmsCategory
@@ -204,37 +143,30 @@ class CMSCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getCMSPages($idLang = null, $idCmsCategory = null, $active = true, $idShop = null)
+    public static function get_cms_pages($id_lang = null, $id_cms_category = null, $active = true, $id_shop = null)
     {
-        $sql = new DbQuery();
+        $sql = new Db_Query();
         $sql->select('*');
         $sql->from('cms', 'c');
-
-        if ($idLang) {
-            if ($idShop) {
-                $sql->innerJoin('cms_lang', 'l', 'c.`id_cms` = l.`id_cms` AND l.`id_lang` = '.(int) $idLang.' AND l.`id_shop` = '.(int) $idShop);
+        if ($id_lang) {
+            if ($id_shop) {
+                $sql->inner_join('cms_lang', 'l', 'c.`id_cms` = l.`id_cms` AND l.`id_lang` = ' . (int) $id_lang . ' AND l.`id_shop` = ' . (int) $id_shop);
             } else {
-                $sql->innerJoin('cms_lang', 'l', 'c.`id_cms` = l.`id_cms` AND l.`id_lang` = '.(int) $idLang);
+                $sql->inner_join('cms_lang', 'l', 'c.`id_cms` = l.`id_cms` AND l.`id_lang` = ' . (int) $id_lang);
             }
         }
-
-        if ($idShop) {
-            $sql->innerJoin('cms_shop', 'cs', 'c.`id_cms` = cs.`id_cms` AND cs.`id_shop` = '.(int) $idShop);
+        if ($id_shop) {
+            $sql->inner_join('cms_shop', 'cs', 'c.`id_cms` = cs.`id_cms` AND cs.`id_shop` = ' . (int) $id_shop);
         }
-
         if ($active) {
             $sql->where('c.`active` = 1');
         }
-
-        if ($idCmsCategory) {
-            $sql->where('c.`id_cms_category` = '.(int) $idCmsCategory);
+        if ($id_cms_category) {
+            $sql->where('c.`id_cms_category` = ' . (int) $id_cms_category);
         }
-
-        $sql->orderBy('position');
-
-        return Db::readOnly()->getArray($sql);
+        $sql->order_by('position');
+        return Db::read_only()->get_array($sql);
     }
-
     /**
      * @param int $idCms
      *
@@ -243,19 +175,10 @@ class CMSCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getUrlRewriteInformations($idCms)
+    public static function get_url_rewrite_informations($id_cms)
     {
-        return Db::readOnly()->getArray(
-            (new DbQuery())
-                ->select('l.`id_lang`, c.`link_rewrite`')
-                ->from('cms_lang', 'c')
-                ->leftJoin('lang', 'l', 'c.`id_lang` = l.`id_lang`')
-                ->where('c.`id_cms` = '.(int) $idCms)
-                ->where('l.`active` = 1')
-                ->addCurrentShopRestriction('c')
-        );
+        return Db::read_only()->get_array((new Db_Query())->select('l.`id_lang`, c.`link_rewrite`')->from('cms_lang', 'c')->left_join('lang', 'l', 'c.`id_lang` = l.`id_lang`')->where('c.`id_cms` = ' . (int) $id_cms)->where('l.`active` = 1')->add_current_shop_restriction('c'));
     }
-
     /**
      * @param int $idCms
      * @param int|null $idLang
@@ -266,33 +189,23 @@ class CMSCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getCMSContent($idCms, $idLang = null, $idShop = null)
+    public static function get_cms_content($id_cms, $id_lang = null, $id_shop = null)
     {
-        if (is_null($idLang)) {
-            $idLang = (int) Configuration::get('PS_LANG_DEFAULT');
+        if (is_null($id_lang)) {
+            $id_lang = (int) Configuration::get('PS_LANG_DEFAULT');
         }
-        if (is_null($idShop)) {
-            $idShop = (int) Configuration::get('PS_SHOP_DEFAULT');
+        if (is_null($id_shop)) {
+            $id_shop = (int) Configuration::get('PS_SHOP_DEFAULT');
         }
-
-        return Db::readOnly()->getRow(
-            (new DbQuery())
-                ->select('`content`')
-                ->from('cms_lang')
-                ->where('`id_cms` = '.(int) $idCms)
-                ->where('`id_lang` = '.(int) $idLang)
-                ->where('`id_shop` = '.(int) $idShop)
-        );
+        return Db::read_only()->get_row((new Db_Query())->select('`content`')->from('cms_lang')->where('`id_cms` = ' . (int) $id_cms)->where('`id_lang` = ' . (int) $id_lang)->where('`id_shop` = ' . (int) $id_shop));
     }
-
     /**
      * @return string
      */
-    public static function getRepositoryClassName()
+    public static function get_repository_class_name()
     {
         return 'Core_Business_CMS_CMSRepository';
     }
-
     /**
      * @param bool $autoDate
      * @param bool $nullValues
@@ -301,13 +214,11 @@ class CMSCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public function add($autoDate = true, $nullValues = false)
+    public function add($auto_date = true, $null_values = false)
     {
-        $this->position = CMS::getLastPosition((int) $this->id_cms_category);
-
-        return parent::add($autoDate, true);
+        $this->position = CMS::get_last_position((int) $this->id_cms_category);
+        return parent::add($auto_date, true);
     }
-
     /**
      * @param int $idCategory
      *
@@ -315,16 +226,10 @@ class CMSCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function getLastPosition($idCategory)
+    public static function get_last_position($id_category)
     {
-        return Db::readOnly()->getValue(
-            (new DbQuery())
-                ->select('MAX(`position`) + 1')
-                ->from('cms')
-                ->where('`id_cms_category` = '.(int) $idCategory)
-        );
+        return Db::read_only()->get_value((new Db_Query())->select('MAX(`position`) + 1')->from('cms')->where('`id_cms_category` = ' . (int) $id_category));
     }
-
     /**
      * @param bool $nullValues
      *
@@ -333,19 +238,16 @@ class CMSCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function update($nullValues = false)
+    public function update($null_values = false)
     {
-        if (PageCache::isEnabled()) {
-            PageCache::invalidateEntity('cms', $this->id);
+        if (Page_Cache::is_enabled()) {
+            Page_Cache::invalidate_entity('cms', $this->id);
         }
-
-        if (parent::update($nullValues)) {
-            return static::cleanPositions($this->id_cms_category);
+        if (parent::update($null_values)) {
+            return static::clean_positions($this->id_cms_category);
         }
-
         return false;
     }
-
     /**
      * @param int $idCategory
      *
@@ -354,29 +256,14 @@ class CMSCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function cleanPositions($idCategory)
+    public static function clean_positions($id_category)
     {
-        $result = Db::readOnly()->getArray(
-            (new DbQuery())
-                ->select('`id_cms`')
-                ->from('cms')
-                ->where('`id_cms_category` = '.(int) $idCategory)
-                ->orderBy('`position`')
-        );
-
+        $result = Db::read_only()->get_array((new Db_Query())->select('`id_cms`')->from('cms')->where('`id_cms_category` = ' . (int) $id_category)->order_by('`position`'));
         for ($i = 0, $total = count($result); $i < $total; ++$i) {
-            Db::getInstance()->update(
-                'cms',
-                [
-                    'position' => $i,
-                ],
-                '`id_cms_category` = '.(int) $idCategory.' AND `id_cms` = '.(int) $result[$i]['id_cms']
-            );
+            Db::get_instance()->update('cms', ['position' => $i], '`id_cms_category` = ' . (int) $id_category . ' AND `id_cms` = ' . (int) $result[$i]['id_cms']);
         }
-
         return true;
     }
-
     /**
      * @return bool
      *
@@ -385,17 +272,14 @@ class CMSCore extends ObjectModel
      */
     public function delete()
     {
-        if (PageCache::isEnabled()) {
-            PageCache::invalidateEntity('cms', $this->id);
+        if (Page_Cache::is_enabled()) {
+            Page_Cache::invalidate_entity('cms', $this->id);
         }
-
         if (parent::delete()) {
-            return static::cleanPositions($this->id_cms_category);
+            return static::clean_positions($this->id_cms_category);
         }
-
         return false;
     }
-
     /**
      * @param bool $way
      * @param int $position
@@ -405,43 +289,22 @@ class CMSCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function updatePosition($way, $position)
+    public function update_position($way, $position)
     {
-        if (!$res = Db::readOnly()->getArray(
-            (new DbQuery())
-                ->select('cp.`id_cms`, cp.`position`, cp.`id_cms_category`')
-                ->from('cms', 'cp')
-                ->where('cp.`id_cms_category` = '.(int) $this->id_cms_category)
-                ->orderBy('cp.`position` ASC')
-        )) {
+        if (!$res = Db::read_only()->get_array((new Db_Query())->select('cp.`id_cms`, cp.`position`, cp.`id_cms_category`')->from('cms', 'cp')->where('cp.`id_cms_category` = ' . (int) $this->id_cms_category)->order_by('cp.`position` ASC'))) {
             return false;
         }
-
         foreach ($res as $cms) {
             if ((int) $cms['id_cms'] == (int) $this->id) {
-                $movedCms = $cms;
+                $moved_cms = $cms;
             }
         }
-
-        if (!isset($movedCms) || !isset($position)) {
+        if (!isset($moved_cms) || !isset($position)) {
             return false;
         }
-
         // < and > statements rather than BETWEEN operator
         // since BETWEEN is treated differently according to databases
-        $conn = Db::getInstance();
-        return ($conn->update(
-            'cms',
-            [
-                'position' => ['type' => 'sql', 'value' => '`position` '.($way ? '- 1' : '+ 1')],
-            ],
-            '`position` '.($way ? '> '.(int) $movedCms['position'].' AND `position` <= '.(int) $position : '< '.(int) $movedCms['position'].' AND `position` >= '.(int) $position).' AND `id_cms_category`='.(int) $movedCms['id_cms_category']
-        ) && $conn->update(
-            'cms',
-            [
-                'position' => (int) $position,
-            ],
-            '`id_cms` = '.(int) $movedCms['id_cms'].' AND `id_cms_category`='.(int) $movedCms['id_cms_category']
-        ));
+        $conn = Db::get_instance();
+        return $conn->update('cms', ['position' => ['type' => 'sql', 'value' => '`position` ' . ($way ? '- 1' : '+ 1')]], '`position` ' . ($way ? '> ' . (int) $moved_cms['position'] . ' AND `position` <= ' . (int) $position : '< ' . (int) $moved_cms['position'] . ' AND `position` >= ' . (int) $position) . ' AND `id_cms_category`=' . (int) $moved_cms['id_cms_category']) && $conn->update('cms', ['position' => (int) $position], '`id_cms` = ' . (int) $moved_cms['id_cms'] . ' AND `id_cms_category`=' . (int) $moved_cms['id_cms_category']);
     }
 }

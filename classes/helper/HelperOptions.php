@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,22 +30,19 @@ declare(strict_types=1);
  *  @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Use this helper to generate preferences forms, with values stored in the configuration table
  */
-class HelperOptionsCore extends Helper
+class Helper_Options_Core extends Helper
 {
     /**
      * @var bool $required
      */
     public $required = false;
-
     /**
      * @var int $id
      */
     public $id;
-
     /**
      * HelperOptionsCore constructor.
      */
@@ -55,7 +52,6 @@ class HelperOptionsCore extends Helper
         $this->base_tpl = 'options.tpl';
         parent::__construct();
     }
-
     /**
      * Generate a form for options
      *
@@ -67,143 +63,101 @@ class HelperOptionsCore extends Helper
      * @throws PrestaShopException
      * @throws SmartyException
      */
-    public function generateOptions($optionList)
+    public function generate_options($option_list)
     {
-        $this->tpl = $this->createTemplate($this->base_tpl);
-        $tab = Tab::getTab($this->context->language->id, $this->id);
-        $languages = Language::getLanguages(false);
-
-        $useMultishop = false;
-        $hideMultishopCheckbox = Shop::getTotalShops(false, null) < 2;
-        foreach ($optionList as $category => $categoryData) {
-            if (!is_array($categoryData)) {
+        $this->tpl = $this->create_template($this->base_tpl);
+        $tab = Tab::get_tab($this->context->language->id, $this->id);
+        $languages = Language::get_languages(false);
+        $use_multishop = false;
+        $hide_multishop_checkbox = Shop::get_total_shops(false, null) < 2;
+        foreach ($option_list as $category => $category_data) {
+            if (!is_array($category_data)) {
                 continue;
             }
-
-            if (!isset($categoryData['image']) && $tab) {
-                $categoryData['image'] = (!empty($tab['module']) && file_exists($_SERVER['DOCUMENT_ROOT']._MODULE_DIR_.$tab['module'].'/'.$tab['class_name'].'.gif') ? _MODULE_DIR_.$tab['module'].'/' : '../img/t/').$tab['class_name'].'.gif';
+            if (!isset($category_data['image']) && $tab) {
+                $category_data['image'] = (!empty($tab['module']) && file_exists($_SERVER['DOCUMENT_ROOT'] . _MODULE_DIR_ . $tab['module'] . '/' . $tab['class_name'] . '.gif') ? _MODULE_DIR_ . $tab['module'] . '/' : '../img/t/') . $tab['class_name'] . '.gif';
             }
-
-            if (!isset($categoryData['fields'])) {
-                $categoryData['fields'] = [];
+            if (!isset($category_data['fields'])) {
+                $category_data['fields'] = [];
             }
-
-            $categoryData['hide_multishop_checkbox'] = true;
-
-            if (isset($categoryData['tabs'])) {
-                $tabs[$category] = $categoryData['tabs'];
+            $category_data['hide_multishop_checkbox'] = true;
+            if (isset($category_data['tabs'])) {
+                $tabs[$category] = $category_data['tabs'];
                 $tabs[$category]['misc'] = $this->l('Miscellaneous');
             }
-
-            foreach ($categoryData['fields'] as $key => $field) {
-                if (empty($field['no_multishop_checkbox']) && !$hideMultishopCheckbox) {
-                    $categoryData['hide_multishop_checkbox'] = false;
+            foreach ($category_data['fields'] as $key => $field) {
+                if (empty($field['no_multishop_checkbox']) && !$hide_multishop_checkbox) {
+                    $category_data['hide_multishop_checkbox'] = false;
                 }
-
                 // Set field value unless explicitly denied
                 if (!isset($field['auto_value']) || $field['auto_value']) {
-                    $field['value'] = $this->getOptionValue($key, $field);
+                    $field['value'] = $this->get_option_value($key, $field);
                 }
-
                 // Check if var is invisible (can't edit it in current shop context), or disable (use default value for multishop)
-                $isDisabled = $isInvisible = false;
-                if (Shop::isFeatureActive()) {
-                    if (isset($field['visibility']) && $field['visibility'] > Shop::getContext()) {
-                        $isDisabled = true;
-                        $isInvisible = true;
-                    } elseif (Shop::getContext() != Shop::CONTEXT_ALL && !Configuration::isOverridenByCurrentContext($key)) {
-                        $isDisabled = true;
+                $is_disabled = $is_invisible = false;
+                if (Shop::is_feature_active()) {
+                    if (isset($field['visibility']) && $field['visibility'] > Shop::get_context()) {
+                        $is_disabled = true;
+                        $is_invisible = true;
+                    } elseif (Shop::get_context() != Shop::CONTEXT_ALL && !Configuration::is_overriden_by_current_context($key)) {
+                        $is_disabled = true;
                     }
                 }
-                $field['is_disabled'] = $isDisabled;
-                $field['is_invisible'] = $isInvisible;
-
+                $field['is_disabled'] = $is_disabled;
+                $field['is_invisible'] = $is_invisible;
                 $field['required'] ??= $this->required;
-
-                $controller = $this->getController();
+                $controller = $this->get_controller();
                 if ($field['type'] === 'color') {
-                    $controller->addJqueryPlugin('colorpicker');
+                    $controller->add_jquery_plugin('colorpicker');
                 }
-
                 if ($field['type'] === 'textarea' || $field['type'] === 'textareaLang') {
-                    $controller->addJqueryPlugin('autosize');
+                    $controller->add_jquery_plugin('autosize');
                 }
-
                 if ($field['type'] === 'code') {
-                    $controller->addJS(_PS_JS_DIR_.'ace/ace.js');
-                    $controller->addJS(_PS_JS_DIR_.'ace/ext-language_tools.js');
-                    $controller->addJS(_PS_JS_DIR_.'ace/snippets/'.$field['mode'].'.js');
-                    $controller->addCSS(_PS_JS_DIR_.'ace/aceinput.css');
+                    $controller->add_js(_PS_JS_DIR_ . 'ace/ace.js');
+                    $controller->add_js(_PS_JS_DIR_ . 'ace/ext-language_tools.js');
+                    $controller->add_js(_PS_JS_DIR_ . 'ace/snippets/' . $field['mode'] . '.js');
+                    $controller->add_css(_PS_JS_DIR_ . 'ace/aceinput.css');
                 }
-
                 if ($field['type'] == 'tags') {
-                    $controller->addJqueryPlugin('tagify');
+                    $controller->add_jquery_plugin('tagify');
                 }
-
                 if ($field['type'] == 'file') {
-                    $uploader = new HelperUploader();
-                    $uploader->setId($field['id'] ?? null);
-                    $uploader->setName($field['name']);
-                    $uploader->setUrl($field['url'] ?? null);
-                    $uploader->setMultiple($field['multiple'] ?? false);
-                    $uploader->setUseAjax($field['ajax'] ?? false);
-                    $uploader->setMaxFiles($field['max_files'] ?? null);
-
+                    $uploader = new Helper_Uploader();
+                    $uploader->set_id($field['id'] ?? null);
+                    $uploader->set_name($field['name']);
+                    $uploader->set_url($field['url'] ?? null);
+                    $uploader->set_multiple($field['multiple'] ?? false);
+                    $uploader->set_use_ajax($field['ajax'] ?? false);
+                    $uploader->set_max_files($field['max_files'] ?? null);
                     if (isset($field['files']) && $field['files']) {
-                        $uploader->setFiles($field['files']);
-                    } elseif (isset($field['image']) && $field['image']) { // Use for retrocompatibility
-                        $uploader->setFiles(
-                            [
-                                0 => [
-                                    'type'       => HelperUploader::TYPE_IMAGE,
-                                    'image'      => $field['image'],
-                                    'size'       => $field['size'] ?? null,
-                                    'delete_url' => $field['delete_url'] ?? null,
-                                ],
-                            ]
-                        );
+                        $uploader->set_files($field['files']);
+                    } elseif (isset($field['image']) && $field['image']) {
+                        // Use for retrocompatibility
+                        $uploader->set_files([0 => ['type' => Helper_Uploader::TYPE_IMAGE, 'image' => $field['image'], 'size' => $field['size'] ?? null, 'delete_url' => $field['delete_url'] ?? null]]);
                     }
-
-                    if (isset($field['file']) && $field['file']) { // Use for retrocompatibility
-                        $uploader->setFiles(
-                            [
-                                0 => [
-                                    'type'         => HelperUploader::TYPE_FILE,
-                                    'size'         => $field['size'] ?? null,
-                                    'delete_url'   => $field['delete_url'] ?? null,
-                                    'download_url' => $field['file'],
-                                ],
-                            ]
-                        );
+                    if (isset($field['file']) && $field['file']) {
+                        // Use for retrocompatibility
+                        $uploader->set_files([0 => ['type' => Helper_Uploader::TYPE_FILE, 'size' => $field['size'] ?? null, 'delete_url' => $field['delete_url'] ?? null, 'download_url' => $field['file']]]);
                     }
-
-                    if (isset($field['thumb']) && $field['thumb']) { // Use for retrocompatibility
-                        $uploader->setFiles(
-                            [
-                                0 => [
-                                    'type'  => HelperUploader::TYPE_IMAGE,
-                                    'image' => '<img src="'.$field['thumb'].'" alt="'.$field['title'].'" title="'.$field['title'].'" />',
-                                ],
-                            ]
-                        );
+                    if (isset($field['thumb']) && $field['thumb']) {
+                        // Use for retrocompatibility
+                        $uploader->set_files([0 => ['type' => Helper_Uploader::TYPE_IMAGE, 'image' => '<img src="' . $field['thumb'] . '" alt="' . $field['title'] . '" title="' . $field['title'] . '" />']]);
                     }
-
-                    $uploader->setTitle($field['title'] ?? null);
+                    $uploader->set_title($field['title'] ?? null);
                     $field['file'] = $uploader->render();
                 }
-
                 // Cast options values if specified
                 if ($field['type'] == 'select' && isset($field['cast'])) {
-                    foreach ($field['list'] as $optionKey => $option) {
-                        $field['list'][$optionKey][$field['identifier']] = Tools::castInput($field['cast'], $option[$field['identifier']]);
+                    foreach ($field['list'] as $option_key => $option) {
+                        $field['list'][$option_key][$field['identifier']] = Tools::cast_input($field['cast'], $option[$field['identifier']]);
                     }
                 }
-
                 // Fill values for all languages for all lang fields
                 if (str_ends_with((string) $field['type'], 'Lang')) {
                     foreach ($languages as $language) {
                         if ($field['type'] == 'textLang') {
-                            $value = Tools::getValue($key.'_'.$language['id_lang'], Configuration::get($key, $language['id_lang']));
+                            $value = Tools::get_value($key . '_' . $language['id_lang'], Configuration::get($key, $language['id_lang']));
                         } elseif ($field['type'] == 'textareaLang') {
                             $value = Configuration::get($key, $language['id_lang']);
                         } elseif ($field['type'] == 'selectLang') {
@@ -213,51 +167,28 @@ class HelperOptionsCore extends Helper
                         if (!is_array($field['value'])) {
                             $field['value'] = [];
                         }
-                        $field['value'][$language['id_lang']] = $this->getOptionValue($key.'_'.strtoupper((string) $language['iso_code']), $field);
+                        $field['value'][$language['id_lang']] = $this->get_option_value($key . '_' . strtoupper((string) $language['iso_code']), $field);
                     }
                 }
-
                 // Multishop default value
                 $field['multishop_default'] = false;
-                if (Shop::isFeatureActive() && Shop::getContext() != Shop::CONTEXT_ALL && !$isInvisible) {
+                if (Shop::is_feature_active() && Shop::get_context() != Shop::CONTEXT_ALL && !$is_invisible) {
                     $field['multishop_default'] = true;
-                    $useMultishop = true;
+                    $use_multishop = true;
                 }
-
                 // Assign the modifications back to parent array
-                $categoryData['fields'][$key] = $field;
-
+                $category_data['fields'][$key] = $field;
                 // Is at least one required field present?
                 if (isset($field['required']) && $field['required']) {
-                    $categoryData['required_fields'] = true;
+                    $category_data['required_fields'] = true;
                 }
             }
             // Assign the modifications back to parent array
-            $optionList[$category] = $categoryData;
+            $option_list[$category] = $category_data;
         }
-
-        $this->tpl->assign(
-            [
-                'title' => $this->title,
-                'toolbar_btn' => $this->toolbar_btn,
-                'show_toolbar' => $this->show_toolbar,
-                'toolbar_scroll' => $this->toolbar_scroll,
-                'current' => $this->currentIndex,
-                'table' => $this->table,
-                'token' => $this->token,
-                'tabs' => $tabs ?? null,
-                'option_list' => $optionList,
-                'current_id_lang' => $this->context->language->id,
-                'languages' => $languages ?? null,
-                'currency_left_sign' => $this->context->currency->getSign('left'),
-                'currency_right_sign' => $this->context->currency->getSign('right'),
-                'use_multishop' => $useMultishop,
-            ]
-        );
-
+        $this->tpl->assign(['title' => $this->title, 'toolbar_btn' => $this->toolbar_btn, 'show_toolbar' => $this->show_toolbar, 'toolbar_scroll' => $this->toolbar_scroll, 'current' => $this->current_index, 'table' => $this->table, 'token' => $this->token, 'tabs' => $tabs ?? null, 'option_list' => $option_list, 'current_id_lang' => $this->context->language->id, 'languages' => $languages ?? null, 'currency_left_sign' => $this->context->currency->get_sign('left'), 'currency_right_sign' => $this->context->currency->get_sign('right'), 'use_multishop' => $use_multishop]);
         return parent::generate();
     }
-
     /**
      * @param string $key
      * @param array $field
@@ -266,28 +197,23 @@ class HelperOptionsCore extends Helper
      *
      * @throws PrestaShopException
      */
-    public function getOptionValue($key, $field)
+    public function get_option_value($key, $field)
     {
         if ($field['type'] === 'code') {
             // don't perform any value sanitization and preprocessing for code fields
-            $value = Tools::getValueRaw($key, Configuration::get($key));
-
+            $value = Tools::get_value_raw($key, Configuration::get($key));
             if (isset($field['defaultValue']) && !$value) {
                 return $field['defaultValue'];
             }
-
             return $value;
         }
-
-        $value = Tools::getValue($key, Configuration::get($key));
-        if (!Validate::isCleanHtml($value)) {
+        $value = Tools::get_value($key, Configuration::get($key));
+        if (!Validate::is_clean_html($value)) {
             $value = Configuration::get($key);
         }
-
         if (isset($field['defaultValue']) && !$value) {
             $value = $field['defaultValue'];
         }
-
-        return Tools::purifyHTML($value);
+        return Tools::purify_html($value);
     }
 }

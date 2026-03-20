@@ -1,31 +1,26 @@
 <?php
 
-declare(strict_types=1);
-include('config/config.php');
-
-$path_thumb = normalizePath(Tools::getValue('path_thumb', ''));
-if (! $path_thumb) {
+declare (strict_types=1);
+include 'config/config.php';
+$path_thumb = normalize_path(Tools::get_value('path_thumb', ''));
+if (!$path_thumb) {
     die('wrong path');
 }
 $path_thumb = FILE_MANAGER_THUMB_BASE_DIR . $path_thumb;
-
-$path = normalizePath(Tools::getValue('path', ''));
-if (! $path) {
+$path = normalize_path(Tools::get_value('path', ''));
+if (!$path) {
     die('wrong path');
 }
 $path = FILE_MANAGER_BASE_DIR . $path;
-
-$name = Tools::getValue('name', '');
-if (preg_match('/\.{1,2}[\/|\\\]/', $name) !== 0) {
+$name = Tools::get_value('name', '');
+if (preg_match('/\.{1,2}[\/|\\\\]/', $name) !== 0) {
     die('wrong name');
 }
-
-$action = Tools::getValue('action', '');
+$action = Tools::get_value('action', '');
 $info = pathinfo($path);
-if (isset($info['extension']) && $action !== 'delete_folder' && !in_array(strtolower($info['extension']), getFileExtensions())) {
+if (isset($info['extension']) && $action !== 'delete_folder' && !in_array(strtolower($info['extension']), get_file_extensions())) {
     die('wrong extension');
 }
-
 switch ($action) {
     case 'delete_file':
         if (file_exists($path)) {
@@ -37,10 +32,10 @@ switch ($action) {
         break;
     case 'delete_folder':
         if (is_dir($path_thumb)) {
-            deleteDir($path_thumb);
+            delete_dir($path_thumb);
         }
         if (is_dir($path)) {
-            deleteDir($path);
+            delete_dir($path);
         }
         break;
     case 'create_folder':
@@ -49,7 +44,6 @@ switch ($action) {
     case 'rename_folder':
         $name = fix_filename($name);
         $name = str_replace('.', '', $name);
-
         if (!empty($name)) {
             if (!rename_folder($path, $name)) {
                 die(lang_Rename_existing_folder);

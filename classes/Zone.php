@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,45 +30,27 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class ZoneCore
  */
-class ZoneCore extends ObjectModel
+class Zone_Core extends Object_Model
 {
     /**
      * @var array Object model definition
      */
-    public static $definition = [
-        'table'   => 'zone',
-        'primary' => 'id_zone',
-        'fields'  => [
-            'name'   => ['type' => self::TYPE_STRING, 'validate' => 'isGenericName', 'required' => true, 'size' => 64],
-            'active' => ['type' => self::TYPE_BOOL,   'validate' => 'isBool', 'dbDefault' => '0'],
-        ],
-        'keys' => [
-            'zone_shop' => [
-                'id_shop' => ['type' => ObjectModel::KEY, 'columns' => ['id_shop']],
-            ],
-        ],
-
-    ];
-
+    public static $definition = ['table' => 'zone', 'primary' => 'id_zone', 'fields' => ['name' => ['type' => self::TYPE_STRING, 'validate' => 'isGenericName', 'required' => true, 'size' => 64], 'active' => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbDefault' => '0']], 'keys' => ['zone_shop' => ['id_shop' => ['type' => Object_Model::KEY, 'columns' => ['id_shop']]]]];
     /**
      * @var string Name
      */
     public $name;
-
     /**
      * @var bool Zone status
      */
     public $active = true;
-
     /**
      * @var array Webservice parameters
      */
-    protected $webserviceParameters = [];
-
+    protected $webservice_parameters = [];
     /**
      * Get all available geographical zones
      *
@@ -79,25 +61,16 @@ class ZoneCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getZones($active = false)
+    public static function get_zones($active = false)
     {
-        $cacheId = 'Zone::getZones_'.(bool) $active;
-        if (!Cache::isStored($cacheId)) {
-            $result = Db::readOnly()->getArray(
-                (new DbQuery())
-                    ->select('*')
-                    ->from('zone')
-                    ->where($active ? '`active` = 1' : '')
-                    ->orderBy('`name` ASC')
-            );
-            Cache::store($cacheId, $result);
-
+        $cache_id = 'Zone::getZones_' . (bool) $active;
+        if (!Cache::is_stored($cache_id)) {
+            $result = Db::read_only()->get_array((new Db_Query())->select('*')->from('zone')->where($active ? '`active` = 1' : '')->order_by('`name` ASC'));
+            Cache::store($cache_id, $result);
             return $result;
         }
-
-        return Cache::retrieve($cacheId);
+        return Cache::retrieve($cache_id);
     }
-
     /**
      * Get a zone ID from its default language name
      *
@@ -107,16 +80,10 @@ class ZoneCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function getIdByName($name)
+    public static function get_id_by_name($name)
     {
-        return Db::readOnly()->getValue(
-            (new DbQuery())
-                ->select('`id_zone`')
-                ->from('zone')
-                ->where('`name` = \''.pSQL($name).'\'')
-        );
+        return Db::read_only()->get_value((new Db_Query())->select('`id_zone`')->from('zone')->where('`name` = \'' . p_sql($name) . '\''));
     }
-
     /**
      * Delete a zone
      *
@@ -129,16 +96,13 @@ class ZoneCore extends ObjectModel
     {
         if (parent::delete()) {
             // Delete regarding delivery preferences
-            $conn = Db::getInstance();
-            $result = $conn->delete('carrier_zone', 'id_zone = '.(int) $this->id);
-            $result = $conn->delete('delivery', 'id_zone = '.(int) $this->id) && $result;
-
+            $conn = Db::get_instance();
+            $result = $conn->delete('carrier_zone', 'id_zone = ' . (int) $this->id);
+            $result = $conn->delete('delivery', 'id_zone = ' . (int) $this->id) && $result;
             // Update Country & state zone with 0
-            $result = $conn->update('country', ['id_zone' => 0], 'id_zone = '.(int) $this->id) && $result;
-
-            return $conn->update('state', ['id_zone' => 0], 'id_zone = '.(int) $this->id) && $result;
+            $result = $conn->update('country', ['id_zone' => 0], 'id_zone = ' . (int) $this->id) && $result;
+            return $conn->update('state', ['id_zone' => 0], 'id_zone = ' . (int) $this->id) && $result;
         }
-
         return false;
     }
 }

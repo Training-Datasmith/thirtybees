@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,25 +30,23 @@ declare(strict_types=1);
  *  @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Interface Core_Foundation_Database_DatabaseInterface
  *
  * @sin
  */
-interface Core_Foundation_Database_DatabaseInterface
+interface Core_foundation_database_database_Interface
 {
     /**
      * @param string $sqlString
      *
      * @return array|false
      */
-    public function select($sqlString);
-
+    public function select($sql_string);
     /**
      * @param mixed $unsafeData
      *
      * @return string
      */
-    public function escape($unsafeData);
+    public function escape($unsafe_data);
 }

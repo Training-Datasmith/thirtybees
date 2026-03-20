@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,77 +30,56 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class ContactCore
  */
-class ContactCore extends ObjectModel
+class Contact_Core extends Object_Model
 {
     /**
      * @var int
      */
     public $id;
-
     /**
      * @var string|string[] Name
      */
     public $name;
-
     /**
      * @var string e-mail
      */
     public $email;
-
     /**
      * @var string|string[] Detailed description
      */
     public $description;
-
     /**
      * @var bool
      */
     public $customer_service;
-
     /**
      * @var int
      */
     public $position;
-
     /**
      * @var bool Active
      */
     public $active;
-
     /**
      * @var bool Active
      */
     public $send_confirm;
-
     /**
      * @var array Object model definition
      */
-    public static $definition = [
-        'table'     => 'contact',
-        'primary'   => 'id_contact',
-        'multilang' => true,
-        'fields'    => [
-            'email'            => ['type' => self::TYPE_STRING, 'validate' => 'isEmail', 'size' => 128, 'dbNullable' => false],
-            'customer_service' => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbType' => 'tinyint(1)', 'dbDefault' => '0'],
-            'position'         => ['type' => self::TYPE_INT, 'dbType' => 'tinyint(2) unsigned', 'dbDefault' => '0'],
-            'active'           => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbDefault' => '1'],
-            'send_confirm'     => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbDefault' => '1'],
-
-            /* Lang fields */
-            'name'             => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isGenericName', 'required' => true, 'size' => 32],
-            'description'      => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isCleanHtml', 'size' => ObjectModel::SIZE_TEXT],
-        ],
-        'keys' => [
-            'contact_shop' => [
-                'id_shop' => ['type' => ObjectModel::KEY, 'columns' => ['id_shop']],
-            ],
-        ],
-    ];
-
+    public static $definition = ['table' => 'contact', 'primary' => 'id_contact', 'multilang' => true, 'fields' => [
+        'email' => ['type' => self::TYPE_STRING, 'validate' => 'isEmail', 'size' => 128, 'dbNullable' => false],
+        'customer_service' => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbType' => 'tinyint(1)', 'dbDefault' => '0'],
+        'position' => ['type' => self::TYPE_INT, 'dbType' => 'tinyint(2) unsigned', 'dbDefault' => '0'],
+        'active' => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbDefault' => '1'],
+        'send_confirm' => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbDefault' => '1'],
+        /* Lang fields */
+        'name' => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isGenericName', 'required' => true, 'size' => 32],
+        'description' => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isCleanHtml', 'size' => Object_Model::SIZE_TEXT],
+    ], 'keys' => ['contact_shop' => ['id_shop' => ['type' => Object_Model::KEY, 'columns' => ['id_shop']]]]];
     /**
      * Return available contacts
      *
@@ -111,21 +90,10 @@ class ContactCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getContacts($idLang, $onlyActive = false)
+    public static function get_contacts($id_lang, $only_active = false)
     {
-        return Db::readOnly()->getArray(
-            (new DbQuery())
-                ->select('*')
-                ->from('contact', 'c')
-                ->join(Shop::addSqlAssociation('contact', 'c', false))
-                ->leftJoin('contact_lang', 'cl', 'c.`id_contact` = cl.`id_contact` AND cl.`id_lang` = '.(int) $idLang)
-                ->where('contact_shop.`id_shop` IN ('.implode(', ', array_map(intval(...), Shop::getContextListShopID())).')')
-                ->where(($onlyActive ? 'active = true' : '1'))
-                ->groupBy('c.`id_contact`')
-                ->orderBy('`name` ASC')
-        );
+        return Db::read_only()->get_array((new Db_Query())->select('*')->from('contact', 'c')->join(Shop::add_sql_association('contact', 'c', false))->left_join('contact_lang', 'cl', 'c.`id_contact` = cl.`id_contact` AND cl.`id_lang` = ' . (int) $id_lang)->where('contact_shop.`id_shop` IN (' . implode(', ', array_map(intval(...), Shop::get_context_list_shop_id())) . ')')->where($only_active ? 'active = true' : '1')->group_by('c.`id_contact`')->order_by('`name` ASC'));
     }
-
     /**
      * Return available categories contacts
      *
@@ -134,17 +102,8 @@ class ContactCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getCategoriesContacts()
+    public static function get_categories_contacts()
     {
-        return Db::readOnly()->getArray(
-            (new DbQuery())
-                ->select('cl.*')
-                ->from('contact', 'ct')
-                ->join(Shop::addSqlAssociation('contact', 'ct', false))
-                ->leftJoin('contact_lang', 'cl', 'cl.`id_contact` = ct.`id_contact` AND cl.`id_lang` = '.(int) Context::getContext()->language->id)
-                ->where('ct.`customer_service` = 1')
-                ->where('contact_shop.`id_shop` IN ('.implode(', ', array_map(intval(...), Shop::getContextListShopID())).')')
-                ->groupBy('ct.`id_contact`')
-        );
+        return Db::read_only()->get_array((new Db_Query())->select('cl.*')->from('contact', 'ct')->join(Shop::add_sql_association('contact', 'ct', false))->left_join('contact_lang', 'cl', 'cl.`id_contact` = ct.`id_contact` AND cl.`id_lang` = ' . (int) Context::get_context()->language->id)->where('ct.`customer_service` = 1')->where('contact_shop.`id_shop` IN (' . implode(', ', array_map(intval(...), Shop::get_context_list_shop_id())) . ')')->group_by('ct.`id_contact`'));
     }
 }

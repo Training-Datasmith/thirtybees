@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,11 +30,10 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class QuickAccessCore
  */
-class QuickAccessCore extends ObjectModel
+class Quick_Access_Core extends Object_Model
 {
     /** @var string|string[] Name */
     public $name;
@@ -42,22 +41,15 @@ class QuickAccessCore extends ObjectModel
     public $link;
     /** @var bool New windows or not */
     public $new_window;
-
     /**
      * @var array Object model definition
      */
-    public static $definition = [
-        'table'     => 'quick_access',
-        'primary'   => 'id_quick_access',
-        'multilang' => true,
-        'fields'    => [
-            'new_window' => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'required' => true, 'dbType' => 'tinyint(1)', 'dbDefault' => '0'],
-            'link'       => ['type' => self::TYPE_STRING, 'validate' => 'isUrl', 'required' => true, 'size' => 255],
-            /* Lang fields */
-            'name'       => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isCleanHtml', 'required' => true, 'size' => 32],
-        ],
-    ];
-
+    public static $definition = ['table' => 'quick_access', 'primary' => 'id_quick_access', 'multilang' => true, 'fields' => [
+        'new_window' => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'required' => true, 'dbType' => 'tinyint(1)', 'dbDefault' => '0'],
+        'link' => ['type' => self::TYPE_STRING, 'validate' => 'isUrl', 'required' => true, 'size' => 255],
+        /* Lang fields */
+        'name' => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isCleanHtml', 'required' => true, 'size' => 32],
+    ]];
     /**
      * Get all available quick_accesses
      *
@@ -68,28 +60,18 @@ class QuickAccessCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getQuickAccesses($idLang)
+    public static function get_quick_accesses($id_lang)
     {
-        return Db::readOnly()->getArray(
-            (new DbQuery())
-                ->select('*')
-                ->from(bqSQL(static::$definition['table']), 'qa')
-                ->leftJoin(bqSQL(static::$definition['table']).'_lang', 'qal', 'qa.`'.bqSQL(static::$definition['primary']).'` = qal.`'.bqSQL(static::$definition['primary']).'`')
-                ->orderBy('`name` ASC')
-                ->where('qal.`id_lang` = '.(int) $idLang)
-        );
+        return Db::read_only()->get_array((new Db_Query())->select('*')->from(bq_sql(static::$definition['table']), 'qa')->left_join(bq_sql(static::$definition['table']) . '_lang', 'qal', 'qa.`' . bq_sql(static::$definition['primary']) . '` = qal.`' . bq_sql(static::$definition['primary']) . '`')->order_by('`name` ASC')->where('qal.`id_lang` = ' . (int) $id_lang));
     }
-
     /**
      * @return bool
      * @throws PrestaShopException
      */
-    public function toggleNewWindow()
+    public function toggle_new_window()
     {
-        $this->setFieldsToUpdate(['new_window' => true]);
-
+        $this->set_fields_to_update(['new_window' => true]);
         $this->new_window = !(int) $this->new_window;
-
         return $this->update(false);
     }
 }

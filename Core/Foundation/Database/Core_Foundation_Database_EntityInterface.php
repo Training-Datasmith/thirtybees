@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,11 +30,10 @@ declare(strict_types=1);
  *  @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Interface Core_Foundation_Database_EntityInterface
  */
-interface Core_Foundation_Database_EntityInterface
+interface Core_foundation_database_entity_Interface
 {
     /**
      * Returns the name of the repository class for this entity.
@@ -42,22 +41,19 @@ interface Core_Foundation_Database_EntityInterface
      *
      * @return string or falsey value
      */
-    public static function getRepositoryClassName();
-
+    public static function get_repository_class_name();
     /**
      * @return mixed
      */
     public function save();
-
     /**
      * @return mixed
      */
     public function delete();
-
     /**
      * @param array $keyValueData
      *
      * @return mixed
      */
-    public function hydrate(array $keyValueData);
+    public function hydrate(array $key_value_data);
 }

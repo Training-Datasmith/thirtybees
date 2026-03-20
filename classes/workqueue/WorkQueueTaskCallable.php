@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -18,15 +18,13 @@ declare(strict_types=1);
  * @copyright 2017-2024 thirty bees
  * @license   Open Software License (OSL 3.0)
  */
-
-namespace Thirtybees\Core\WorkQueue;
+namespace Thirtybees\Core\Work_Queue;
 
 use Throwable;
-
 /**
  * Class WorkQueueTaskCallable
  */
-interface WorkQueueTaskCallable
+interface Work_Queue_Task_Callable
 {
     /**
      *
@@ -34,5 +32,5 @@ interface WorkQueueTaskCallable
      *
      * @throws Throwable
      */
-    public function execute(WorkQueueContext $context, array $parameters);
+    public function execute(Work_Queue_Context $context, array $parameters);
 }

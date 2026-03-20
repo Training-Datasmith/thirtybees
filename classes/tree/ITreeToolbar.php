@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,83 +30,69 @@ declare(strict_types=1);
  *  @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Interface ITreeToolbarCore
  */
-interface ITreeToolbarCore
+interface I_Tree_Toolbar_Core
 {
     /**
      * @return string
      */
     public function __toString();
-
     /**
      * @param ITreeToolbarButtonCore[] $value
      * @return static
      */
-    public function setActions($value);
-
+    public function set_actions($value);
     /**
      * @return ITreeToolbarButtonCore[]
      */
-    public function getActions();
-
+    public function get_actions();
     /**
      * @param Context $value
      * @return static
      */
-    public function setContext($value);
-
+    public function set_context($value);
     /**
      * @return Context
      */
-    public function getContext();
-
+    public function get_context();
     /**
      * @param array $value
      * @return static
      */
-    public function setData($value);
-
+    public function set_data($value);
     /**
      * @return array
      */
-    public function getData();
-
+    public function get_data();
     /**
      * @param string $value
      * @return static
      */
-    public function setTemplate($value);
-
+    public function set_template($value);
     /**
      * @return string
      */
-    public function getTemplate();
-
+    public function get_template();
     /**
      * @param string $value
      * @return static
      */
-    public function setTemplateDirectory($value);
-
+    public function set_template_directory($value);
     /**
      * @return string
      */
-    public function getTemplateDirectory();
-
+    public function get_template_directory();
     /**
      * @param ITreeToolbarButtonCore $action
      * @return static
      */
-    public function addAction($action);
-
+    public function add_action($action);
     /**
      * @return static
      */
-    public function removeActions();
-
+    public function remove_actions();
     /**
      * @return string
      */

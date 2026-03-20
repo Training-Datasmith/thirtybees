@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,17 +30,15 @@ declare(strict_types=1);
  *  @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class StockManagerModuleCore
  */
-abstract class StockManagerModuleCore extends Module
+abstract class Stock_Manager_Module_Core extends Module
 {
     /**
      * @var string
      */
     public $stock_manager_class;
-
     /**
      * @return bool
      *
@@ -49,33 +47,27 @@ abstract class StockManagerModuleCore extends Module
      */
     public function install()
     {
-        return (parent::install() && $this->registerHook('stockManager'));
+        return parent::install() && $this->register_hook('stockManager');
     }
-
     /**
      * @return false | StockManagerInterface
      *
      * @throws PrestaShopException
      */
-    public function hookStockManager()
+    public function hook_stock_manager()
     {
-        $classFile = _PS_MODULE_DIR_.'/'.$this->name.'/'.$this->stock_manager_class.'.php';
-
-        if (!isset($this->stock_manager_class) || !file_exists($classFile)) {
-            throw new PrestaShopException(sprintf(Tools::displayError('Incorrect Stock Manager class [%s]'), $this->stock_manager_class));
+        $class_file = _PS_MODULE_DIR_ . '/' . $this->name . '/' . $this->stock_manager_class . '.php';
+        if (!isset($this->stock_manager_class) || !file_exists($class_file)) {
+            throw new Presta_Shop_Exception(sprintf(Tools::display_error('Incorrect Stock Manager class [%s]'), $this->stock_manager_class));
         }
-
-        require_once($classFile);
-
+        require_once $class_file;
         if (!class_exists($this->stock_manager_class)) {
-            throw new PrestaShopException(sprintf(Tools::displayError('Stock Manager class not found [%s]'), $this->stock_manager_class));
+            throw new Presta_Shop_Exception(sprintf(Tools::display_error('Stock Manager class not found [%s]'), $this->stock_manager_class));
         }
-
         $class = $this->stock_manager_class;
         if (call_user_func([$class, 'isAvailable'])) {
             return new $class();
         }
-
         return false;
     }
 }

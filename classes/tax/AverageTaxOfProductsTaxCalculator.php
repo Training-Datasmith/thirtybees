@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,11 +30,10 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class AverageTaxOfProductsTaxCalculator
  */
-class AverageTaxOfProductsTaxCalculatorCore
+class Average_Tax_Of_Products_Tax_Calculator_Core
 {
     /** @var int $id_order */
     protected $id_order;
@@ -44,28 +43,24 @@ class AverageTaxOfProductsTaxCalculatorCore
     protected $db;
     /** @var string $computation_method */
     public $computation_method = 'average_tax_of_products';
-
     /**
      * AverageTaxOfProductsTaxCalculator constructor.
      *
      * @param Core_Foundation_Database_DatabaseInterface $db Making sure we stay connected to the same db instance
      */
-    public function __construct(Core_Foundation_Database_DatabaseInterface $db, Core_Business_ConfigurationInterface $configuration)
+    public function __construct(Core_foundation_database_database_Interface $db, Core_business_configuration_Interface $configuration)
     {
         $this->db = $db;
         $this->configuration = $configuration;
     }
-
     /**
      * @param int $idOrder
      */
-    public function setIdOrder($idOrder): static
+    public function set_id_order($id_order): static
     {
-        $this->id_order = $idOrder;
-
+        $this->id_order = $id_order;
         return $this;
     }
-
     /**
      * @param float $priceBeforeTax
      *
@@ -73,46 +68,32 @@ class AverageTaxOfProductsTaxCalculatorCore
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function getTaxesAmount($priceBeforeTax): array
+    public function get_taxes_amount($price_before_tax): array
     {
-        $taxBreakdown = [];
-        $totalBase = 0;
-        foreach ($this->getProductTaxes() as $row) {
-            $taxId = (int)$row['id_tax'];
-            $rate = (float)$row['rate'];
-            $base = (float)$row['total_price_tax_excl'];
-            $taxBreakdown[$taxId] = [
-                'rate' => $rate,
-                'base' => $base,
-            ];
-            $totalBase += $base;
+        $tax_breakdown = [];
+        $total_base = 0;
+        foreach ($this->get_product_taxes() as $row) {
+            $tax_id = (int) $row['id_tax'];
+            $rate = (float) $row['rate'];
+            $base = (float) $row['total_price_tax_excl'];
+            $tax_breakdown[$tax_id] = ['rate' => $rate, 'base' => $base];
+            $total_base += $base;
         }
-
         $amounts = [];
-        foreach ($taxBreakdown as $taxId => $taxInfo) {
-            $value = $priceBeforeTax * ($taxInfo['base'] / $totalBase) * $taxInfo['rate'] / 100.0;
-            $amounts[$taxId] = Tools::ps_round($value, _TB_PRICE_DATABASE_PRECISION_);
+        foreach ($tax_breakdown as $tax_id => $tax_info) {
+            $value = $price_before_tax * ($tax_info['base'] / $total_base) * $tax_info['rate'] / 100.0;
+            $amounts[$tax_id] = Tools::ps_round($value, _TB_PRICE_DATABASE_PRECISION_);
         }
         return $amounts;
     }
-
     /**
      * @return array|false
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    protected function getProductTaxes()
+    protected function get_product_taxes()
     {
-        return $this->db->select(
-            (new DbQuery())
-                ->select('t.`id_tax`, t.rate, SUM(od.total_price_tax_excl) as total_price_tax_excl')
-                ->from('orders', 'o')
-                ->innerJoin('order_detail', 'od', 'od.`id_order` = o.`id_order`')
-                ->innerJoin('order_detail_tax', 'odt', 'odt.`id_order_detail` = od.`id_order_detail`')
-                ->innerJoin('tax', 't', 't.`id_tax` = odt.`id_tax`')
-                ->where('o.`id_order` = '.(int) $this->id_order)
-                ->groupBy('t.id_tax, t.rate')
-        );
+        return $this->db->select((new Db_Query())->select('t.`id_tax`, t.rate, SUM(od.total_price_tax_excl) as total_price_tax_excl')->from('orders', 'o')->inner_join('order_detail', 'od', 'od.`id_order` = o.`id_order`')->inner_join('order_detail_tax', 'odt', 'odt.`id_order_detail` = od.`id_order_detail`')->inner_join('tax', 't', 't.`id_tax` = odt.`id_tax`')->where('o.`id_order` = ' . (int) $this->id_order)->group_by('t.id_tax, t.rate'));
     }
 }

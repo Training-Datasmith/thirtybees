@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,31 +30,26 @@ declare(strict_types=1);
  *  @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
-use Thirtybees\Core\InitializationCallback;
-
+use Thirtybees\Core\Initialization_Callback;
 /**
  * Class ConfigurationKPICore
  */
-class ConfigurationKPICore extends Configuration implements InitializationCallback
+class Configuration_Kpi_Core extends Configuration implements Initialization_Callback
 {
     /**
      * @var array
      */
     public static $definition_backup;
-
-    public static function setKpiDefinition(): void
+    public static function set_kpi_definition(): void
     {
-        ConfigurationKPI::$definition_backup = Configuration::$definition;
+        Configuration_Kpi::$definition_backup = Configuration::$definition;
         Configuration::$definition['table'] = 'configuration_kpi';
         Configuration::$definition['primary'] = 'id_configuration_kpi';
     }
-
-    public static function unsetKpiDefinition(): void
+    public static function unset_kpi_definition(): void
     {
-        Configuration::$definition = ConfigurationKPI::$definition_backup;
+        Configuration::$definition = Configuration_Kpi::$definition_backup;
     }
-
     /**
      * @param string $key
      * @param int|null $idShopGroup
@@ -64,26 +59,23 @@ class ConfigurationKPICore extends Configuration implements InitializationCallba
      *
      * @throws PrestaShopException
      */
-    public static function getIdByName($key, $idShopGroup = null, $idShop = null)
+    public static function get_id_by_name($key, $id_shop_group = null, $id_shop = null)
     {
-        ConfigurationKPI::setKpiDefinition();
-        $r = parent::getIdByName($key, $idShopGroup, $idShop);
-        ConfigurationKPI::unsetKpiDefinition();
-
+        Configuration_Kpi::set_kpi_definition();
+        $r = parent::get_id_by_name($key, $id_shop_group, $id_shop);
+        Configuration_Kpi::unset_kpi_definition();
         return $r;
     }
-
     /**
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function loadConfiguration(): void
+    public static function load_configuration(): void
     {
-        ConfigurationKPI::setKpiDefinition();
-        parent::loadConfiguration();
-        ConfigurationKPI::unsetKpiDefinition();
+        Configuration_Kpi::set_kpi_definition();
+        parent::load_configuration();
+        Configuration_Kpi::unset_kpi_definition();
     }
-
     /**
      * @param string $key
      * @param int|null $idLang
@@ -94,15 +86,13 @@ class ConfigurationKPICore extends Configuration implements InitializationCallba
      *
      * @throws PrestaShopException
      */
-    public static function get($key, $idLang = null, $idShopGroup = null, $idShop = null)
+    public static function get($key, $id_lang = null, $id_shop_group = null, $id_shop = null)
     {
-        ConfigurationKPI::setKpiDefinition();
-        $r = parent::get($key, $idLang, $idShopGroup, $idShop);
-        ConfigurationKPI::unsetKpiDefinition();
-
+        Configuration_Kpi::set_kpi_definition();
+        $r = parent::get($key, $id_lang, $id_shop_group, $id_shop);
+        Configuration_Kpi::unset_kpi_definition();
         return $r;
     }
-
     /**
      * @param string $key
      * @param int|null $idLang
@@ -111,15 +101,13 @@ class ConfigurationKPICore extends Configuration implements InitializationCallba
      *
      * @throws PrestaShopException
      */
-    public static function getGlobalValue($key, $idLang = null)
+    public static function get_global_value($key, $id_lang = null)
     {
-        ConfigurationKPI::setKpiDefinition();
-        $r = parent::getGlobalValue($key, $idLang);
-        ConfigurationKPI::unsetKpiDefinition();
-
+        Configuration_Kpi::set_kpi_definition();
+        $r = parent::get_global_value($key, $id_lang);
+        Configuration_Kpi::unset_kpi_definition();
         return $r;
     }
-
     /**
      * @param string $key
      * @param int|null $idShopGroup
@@ -129,15 +117,13 @@ class ConfigurationKPICore extends Configuration implements InitializationCallba
      *
      * @throws PrestaShopException
      */
-    public static function getInt($key, $idShopGroup = null, $idShop = null)
+    public static function get_int($key, $id_shop_group = null, $id_shop = null)
     {
-        ConfigurationKPI::setKpiDefinition();
-        $r = parent::getInt($key, $idShopGroup, $idShop);
-        ConfigurationKPI::unsetKpiDefinition();
-
+        Configuration_Kpi::set_kpi_definition();
+        $r = parent::get_int($key, $id_shop_group, $id_shop);
+        Configuration_Kpi::unset_kpi_definition();
         return $r;
     }
-
     /**
      * @param array $keys
      * @param int|null $idLang
@@ -148,15 +134,13 @@ class ConfigurationKPICore extends Configuration implements InitializationCallba
      *
      * @throws PrestaShopException
      */
-    public static function getMultiple($keys, $idLang = null, $idShopGroup = null, $idShop = null)
+    public static function get_multiple($keys, $id_lang = null, $id_shop_group = null, $id_shop = null)
     {
-        ConfigurationKPI::setKpiDefinition();
-        $r = parent::getMultiple($keys, $idLang, $idShopGroup, $idShop);
-        ConfigurationKPI::unsetKpiDefinition();
-
+        Configuration_Kpi::set_kpi_definition();
+        $r = parent::get_multiple($keys, $id_lang, $id_shop_group, $id_shop);
+        Configuration_Kpi::unset_kpi_definition();
         return $r;
     }
-
     /**
      * @param string $key
      * @param int|null $idLang
@@ -168,15 +152,13 @@ class ConfigurationKPICore extends Configuration implements InitializationCallba
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function hasKey($key, $idLang = null, $idShopGroup = null, $idShop = null)
+    public static function has_key($key, $id_lang = null, $id_shop_group = null, $id_shop = null)
     {
-        ConfigurationKPI::setKpiDefinition();
-        $r = parent::hasKey($key, $idLang, $idShopGroup, $idShop);
-        ConfigurationKPI::unsetKpiDefinition();
-
+        Configuration_Kpi::set_kpi_definition();
+        $r = parent::has_key($key, $id_lang, $id_shop_group, $id_shop);
+        Configuration_Kpi::unset_kpi_definition();
         return $r;
     }
-
     /**
      * @param string $key
      * @param mixed $values
@@ -185,13 +167,12 @@ class ConfigurationKPICore extends Configuration implements InitializationCallba
      *
      * @throws PrestaShopException
      */
-    public static function set($key, $values, $idShopGroup = null, $idShop = null): void
+    public static function set($key, $values, $id_shop_group = null, $id_shop = null): void
     {
-        ConfigurationKPI::setKpiDefinition();
-        parent::set($key, $values, $idShopGroup, $idShop);
-        ConfigurationKPI::unsetKpiDefinition();
+        Configuration_Kpi::set_kpi_definition();
+        parent::set($key, $values, $id_shop_group, $id_shop);
+        Configuration_Kpi::unset_kpi_definition();
     }
-
     /**
      * @param string $key
      * @param mixed $values
@@ -201,15 +182,13 @@ class ConfigurationKPICore extends Configuration implements InitializationCallba
      *
      * @throws PrestaShopException
      */
-    public static function updateGlobalValue($key, $values, $html = false)
+    public static function update_global_value($key, $values, $html = false)
     {
-        ConfigurationKPI::setKpiDefinition();
-        $r = parent::updateGlobalValue($key, $values, $html);
-        ConfigurationKPI::unsetKpiDefinition();
-
+        Configuration_Kpi::set_kpi_definition();
+        $r = parent::update_global_value($key, $values, $html);
+        Configuration_Kpi::unset_kpi_definition();
         return $r;
     }
-
     /**
      * @param string $key
      * @param mixed $values
@@ -221,15 +200,13 @@ class ConfigurationKPICore extends Configuration implements InitializationCallba
      *
      * @throws PrestaShopException
      */
-    public static function updateValue($key, $values, $html = false, $idShopGroup = null, $idShop = null)
+    public static function update_value($key, $values, $html = false, $id_shop_group = null, $id_shop = null)
     {
-        ConfigurationKPI::setKpiDefinition();
-        $r = parent::updateValue($key, $values, $html, $idShopGroup, $idShop);
-        ConfigurationKPI::unsetKpiDefinition();
-
+        Configuration_Kpi::set_kpi_definition();
+        $r = parent::update_value($key, $values, $html, $id_shop_group, $id_shop);
+        Configuration_Kpi::unset_kpi_definition();
         return $r;
     }
-
     /**
      * @param string $key
      *
@@ -238,28 +215,25 @@ class ConfigurationKPICore extends Configuration implements InitializationCallba
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function deleteByName($key)
+    public static function delete_by_name($key)
     {
-        ConfigurationKPI::setKpiDefinition();
-        $r = parent::deleteByName($key);
-        ConfigurationKPI::unsetKpiDefinition();
-
+        Configuration_Kpi::set_kpi_definition();
+        $r = parent::delete_by_name($key);
+        Configuration_Kpi::unset_kpi_definition();
         return $r;
     }
-
     /**
      * @param string $key
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function deleteFromContext($key): void
+    public static function delete_from_context($key): void
     {
-        ConfigurationKPI::setKpiDefinition();
-        parent::deleteFromContext($key);
-        ConfigurationKPI::unsetKpiDefinition();
+        Configuration_Kpi::set_kpi_definition();
+        parent::delete_from_context($key);
+        Configuration_Kpi::unset_kpi_definition();
     }
-
     /**
      * @param string $key
      * @param int $idLang
@@ -270,15 +244,13 @@ class ConfigurationKPICore extends Configuration implements InitializationCallba
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function hasContext($key, $idLang, $context)
+    public static function has_context($key, $id_lang, $context)
     {
-        ConfigurationKPI::setKpiDefinition();
-        $r = parent::hasContext($key, $idLang, $context);
-        ConfigurationKPI::unsetKpiDefinition();
-
+        Configuration_Kpi::set_kpi_definition();
+        $r = parent::has_context($key, $id_lang, $context);
+        Configuration_Kpi::unset_kpi_definition();
         return $r;
     }
-
     /**
      * @param string $key
      *
@@ -286,15 +258,13 @@ class ConfigurationKPICore extends Configuration implements InitializationCallba
      *
      * @throws PrestaShopException
      */
-    public static function isOverridenByCurrentContext($key)
+    public static function is_overriden_by_current_context($key)
     {
-        ConfigurationKPI::setKpiDefinition();
-        $r = parent::isOverridenByCurrentContext($key);
-        ConfigurationKPI::unsetKpiDefinition();
-
+        Configuration_Kpi::set_kpi_definition();
+        $r = parent::is_overriden_by_current_context($key);
+        Configuration_Kpi::unset_kpi_definition();
         return $r;
     }
-
     /**
      * @param string $key
      *
@@ -302,35 +272,31 @@ class ConfigurationKPICore extends Configuration implements InitializationCallba
      *
      * @throws PrestaShopException
      */
-    public static function isLangKey($key)
+    public static function is_lang_key($key)
     {
-        ConfigurationKPI::setKpiDefinition();
-        $r = parent::isLangKey($key);
-        ConfigurationKPI::unsetKpiDefinition();
-
+        Configuration_Kpi::set_kpi_definition();
+        $r = parent::is_lang_key($key);
+        Configuration_Kpi::unset_kpi_definition();
         return $r;
     }
-
     /**
      * @param int $idShopGroup
      * @param int $idShop
      *
      * @return string
      */
-    protected static function sqlRestriction($idShopGroup, $idShop)
+    protected static function sql_restriction($id_shop_group, $id_shop)
     {
-        ConfigurationKPI::setKpiDefinition();
-        $r = parent::sqlRestriction($idShopGroup, $idShop);
-        ConfigurationKPI::unsetKpiDefinition();
-
+        Configuration_Kpi::set_kpi_definition();
+        $r = parent::sql_restriction($id_shop_group, $id_shop);
+        Configuration_Kpi::unset_kpi_definition();
         return $r;
     }
-
     /**
      *
      * @throws PrestaShopException
      */
-    public static function initializationCallback(Db $conn): void
+    public static function initialization_callback(Db $conn): void
     {
         $conn->delete('configuration_kpi_lang', 'IFNULL(value, "") = ""');
     }

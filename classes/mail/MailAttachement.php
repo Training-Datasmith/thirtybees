@@ -1,26 +1,22 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace Thirtybees\Core\Mail;
 
-class MailAttachementCore
+class Mail_Attachement_Core
 {
     public function __construct(protected string $content, protected string $name, protected string $mime)
     {
     }
-
-    public function getContent(): string
+    public function get_content(): string
     {
         return $this->content;
     }
-
-    public function getName(): string
+    public function get_name(): string
     {
         return $this->name;
     }
-
-    public function getMime(): string
+    public function get_mime(): string
     {
         return $this->mime;
     }

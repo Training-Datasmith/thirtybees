@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,15 +30,13 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 // TODO: remove global defines
 define('PS_UNPACK_NATIVE', 1);
 define('PS_UNPACK_MODIFIED', 2);
-
 /**
  * Class BlowfishCore
  */
-class BlowfishCore extends CryptBlowfish
+class Blowfish_Core extends Crypt_Blowfish
 {
     /**
      * @param string $plaintext
@@ -50,20 +48,17 @@ class BlowfishCore extends CryptBlowfish
         if (($length = strlen($plaintext)) >= 1048576) {
             return false;
         }
-
         $ciphertext = '';
         $paddedtext = $this->maxi_pad($plaintext);
         $strlen = strlen($paddedtext);
         for ($x = 0; $x < $strlen; $x += 8) {
             $piece = substr($paddedtext, $x, 8);
-            $cipherPiece = parent::encrypt($piece);
-            $encoded = base64_encode($cipherPiece);
-            $ciphertext = $ciphertext.$encoded;
+            $cipher_piece = parent::encrypt($piece);
+            $encoded = base64_encode($cipher_piece);
+            $ciphertext = $ciphertext . $encoded;
         }
-
-        return $ciphertext.sprintf('%06d', $length);
+        return $ciphertext . sprintf('%06d', $length);
     }
-
     /**
      * @param string $plaintext
      *
@@ -71,15 +66,13 @@ class BlowfishCore extends CryptBlowfish
      */
     public function maxi_pad($plaintext)
     {
-        $strLen = strlen($plaintext);
-        $padLen = $strLen % 8;
-        for ($x = 0; $x < $padLen; $x++) {
-            $plaintext = $plaintext.' ';
+        $str_len = strlen($plaintext);
+        $pad_len = $str_len % 8;
+        for ($x = 0; $x < $pad_len; $x++) {
+            $plaintext = $plaintext . ' ';
         }
-
         return $plaintext;
     }
-
     /**
      * @param string $ciphertext
      *
@@ -87,19 +80,17 @@ class BlowfishCore extends CryptBlowfish
      */
     public function decrypt($ciphertext)
     {
-        $plainTextLength = intval(substr($ciphertext, -6));
+        $plain_text_length = intval(substr($ciphertext, -6));
         $ciphertext = substr($ciphertext, 0, -6);
-
         $plaintext = '';
         $chunks = explode('=', $ciphertext);
-        $endingValue = count($chunks);
-        for ($counter = 0; $counter < ($endingValue - 1); $counter++) {
-            $chunk = $chunks[$counter].'=';
+        $ending_value = count($chunks);
+        for ($counter = 0; $counter < $ending_value - 1; $counter++) {
+            $chunk = $chunks[$counter] . '=';
             $decoded = base64_decode($chunk);
             $piece = parent::decrypt($decoded);
-            $plaintext = $plaintext.$piece;
+            $plaintext = $plaintext . $piece;
         }
-
-        return substr($plaintext, 0, $plainTextLength);
+        return substr($plaintext, 0, $plain_text_length);
     }
 }

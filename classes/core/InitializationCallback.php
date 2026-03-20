@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -18,20 +18,18 @@ declare(strict_types=1);
  * @copyright 2017-2024 thirty bees
  * @license   Open Software License (OSL 3.0)
  */
-
 namespace Thirtybees\Core;
 
 use Db;
-
 /**
  * Interface InitializationCallback
  */
-interface InitializationCallback
+interface Initialization_Callback
 {
     /**
      * Callback method to initialize class
      *
      * @return void
      */
-    public static function initializationCallback(Db $conn);
+    public static function initialization_callback(Db $conn);
 }

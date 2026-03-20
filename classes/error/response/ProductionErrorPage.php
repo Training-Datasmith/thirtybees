@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -18,42 +18,32 @@ declare(strict_types=1);
  * @copyright 2017-2024 thirty bees
  * @license   Open Software License (OSL 3.0)
  */
-
 namespace Thirtybees\Core\Error\Response;
 
 use Configuration;
-use Thirtybees\Core\Error\ErrorDescription;
+use Thirtybees\Core\Error\Error_Description;
 use Throwable;
-
 /**
  * Class DebugErrorPageCore
  */
-class ProductionErrorPageCore extends AbstractErrorPage
+class Production_Error_Page_Core extends Abstract_Error_Page
 {
     /**
      * Return content type
      * @return string
      */
-    protected function getContentType()
+    protected function get_content_type()
     {
         return 'text/html';
     }
-
     /**
      * @return string
      */
-    protected function renderError(ErrorDescription $errorDescription)
+    protected function render_error(Error_Description $error_description)
     {
-        return static::displayErrorTemplate(
-            _PS_ROOT_DIR_.'/error500.phtml',
-            [
-                'shopEmail' => $this->getShopEmail(),
-                'encrypted' => $this->getEncryptedMessage($errorDescription),
-            ]
-        );
+        return static::display_error_template(_PS_ROOT_DIR_ . '/error500.phtml', ['shopEmail' => $this->get_shop_email(), 'encrypted' => $this->get_encrypted_message($error_description)]);
     }
-
-    protected function getShopEmail(): string
+    protected function get_shop_email(): string
     {
         try {
             $email = Configuration::get('PS_SHOP_EMAIL');
@@ -64,20 +54,19 @@ class ProductionErrorPageCore extends AbstractErrorPage
         }
         return 'contact@thirtybees.com';
     }
-
     /**
      * @return string
      */
-    private function getEncryptedMessage(ErrorDescription $errorDescription)
+    private function get_encrypted_message(Error_Description $error_description)
     {
         try {
-            $msg = $errorDescription->encrypt();
+            $msg = $error_description->encrypt();
             if ($msg) {
                 return $msg;
             }
             return 'Failed to generate encrypted message';
         } catch (Throwable $e) {
-            return 'Failed to generate encrypted message: ' . $e->getMessage();
+            return 'Failed to generate encrypted message: ' . $e->get_message();
         }
     }
 }

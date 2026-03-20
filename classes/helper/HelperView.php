@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,37 +30,31 @@ declare(strict_types=1);
  *  @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class HelperViewCore
  */
-class HelperViewCore extends Helper
+class Helper_View_Core extends Helper
 {
     /**
      * @var int
      */
     public $id;
-
     /**
      * @var bool
      */
     public $toolbar = true;
-
     /**
      * @var string
      */
     public $table;
-
     /**
      * @var string
      */
     public $token;
-
     /**
      * @var string|null If not null, a title will be added on that list
      */
     public $title;
-
     /**
      * HelperViewCore constructor.
      */
@@ -70,30 +64,16 @@ class HelperViewCore extends Helper
         $this->base_tpl = 'view.tpl';
         parent::__construct();
     }
-
     /**
      * @return string
      *
      * @throws SmartyException
      * @throws PrestaShopException
      */
-    public function generateView()
+    public function generate_view()
     {
-        $this->tpl = $this->createTemplate($this->base_tpl);
-
-        $this->tpl->assign(
-            [
-                'title'          => $this->title,
-                'current'        => $this->currentIndex,
-                'token'          => $this->token,
-                'table'          => $this->table,
-                'show_toolbar'   => $this->show_toolbar,
-                'toolbar_scroll' => $this->toolbar_scroll,
-                'toolbar_btn'    => $this->toolbar_btn,
-                'link'           => $this->context->link,
-            ]
-        );
-
+        $this->tpl = $this->create_template($this->base_tpl);
+        $this->tpl->assign(['title' => $this->title, 'current' => $this->current_index, 'token' => $this->token, 'table' => $this->table, 'show_toolbar' => $this->show_toolbar, 'toolbar_scroll' => $this->toolbar_scroll, 'toolbar_btn' => $this->toolbar_btn, 'link' => $this->context->link]);
         return parent::generate();
     }
 }

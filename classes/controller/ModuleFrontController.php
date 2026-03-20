@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,17 +30,15 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class ModuleFrontControllerCore
  */
-class ModuleFrontControllerCore extends FrontController
+class Module_Front_Controller_Core extends Front_Controller
 {
     /**
      * @var Module $module
      */
     public $module;
-
     /**
      * ModuleFrontControllerCore constructor.
      *
@@ -48,27 +46,22 @@ class ModuleFrontControllerCore extends FrontController
      */
     public function __construct()
     {
-        $this->module = Module::getInstanceByName(Tools::getValue('module'));
+        $this->module = Module::get_instance_by_name(Tools::get_value('module'));
         if (!$this->module->active) {
             Tools::redirect('index');
         }
-
-        $this->page_name = 'module-'.$this->module->name.'-'.Dispatcher::getInstance()->getController();
-
+        $this->page_name = 'module-' . $this->module->name . '-' . Dispatcher::get_instance()->get_controller();
         parent::__construct();
-
         $this->controller_type = 'modulefront';
-
         $theme = $this->context->theme;
-        if ($this->page_name && Validate::isLoadedObject($theme) && $theme->hasColumnsSettings($this->page_name)) {
-            $this->display_column_left = $theme->hasLeftColumn($this->page_name);
-            $this->display_column_right = $theme->hasRightColumn($this->page_name);
+        if ($this->page_name && Validate::is_loaded_object($theme) && $theme->has_columns_settings($this->page_name)) {
+            $this->display_column_left = $theme->has_left_column($this->page_name);
+            $this->display_column_right = $theme->has_right_column($this->page_name);
         } else {
             $this->display_column_left ??= true;
             $this->display_column_right ??= true;
         }
     }
-
     /**
      * Assigns module template for page content
      *
@@ -76,15 +69,13 @@ class ModuleFrontControllerCore extends FrontController
      *
      * @throws PrestaShopException
      */
-    public function setTemplate($template): void
+    public function set_template($template): void
     {
-        if (!$path = $this->getTemplatePath($template)) {
-            throw new PrestaShopException("Template '$template' not found");
+        if (!$path = $this->get_template_path($template)) {
+            throw new Presta_Shop_Exception("Template '{$template}' not found");
         }
-
         $this->template = $path;
     }
-
     /**
      * Finds and returns module front template that take the highest precedence
      *
@@ -92,33 +83,31 @@ class ModuleFrontControllerCore extends FrontController
      *
      * @return string|false
      */
-    public function getTemplatePath($template)
+    public function get_template_path($template)
     {
-        if (file_exists(_PS_THEME_DIR_.'modules/'.$this->module->name.'/'.$template)) {
-            return _PS_THEME_DIR_.'modules/'.$this->module->name.'/'.$template;
+        if (file_exists(_PS_THEME_DIR_ . 'modules/' . $this->module->name . '/' . $template)) {
+            return _PS_THEME_DIR_ . 'modules/' . $this->module->name . '/' . $template;
         }
-        if (file_exists(_PS_THEME_DIR_.'modules/'.$this->module->name.'/views/templates/front/'.$template)) {
-            return _PS_THEME_DIR_.'modules/'.$this->module->name.'/views/templates/front/'.$template;
+        if (file_exists(_PS_THEME_DIR_ . 'modules/' . $this->module->name . '/views/templates/front/' . $template)) {
+            return _PS_THEME_DIR_ . 'modules/' . $this->module->name . '/views/templates/front/' . $template;
         }
-        if (file_exists(_PS_MODULE_DIR_.$this->module->name.'/views/templates/front/'.$template)) {
-            return _PS_MODULE_DIR_.$this->module->name.'/views/templates/front/'.$template;
+        if (file_exists(_PS_MODULE_DIR_ . $this->module->name . '/views/templates/front/' . $template)) {
+            return _PS_MODULE_DIR_ . $this->module->name . '/views/templates/front/' . $template;
         }
-
         return false;
     }
-
     /**
      * @throws PrestaShopException
      */
-    public function initContent(): void
+    public function init_content(): void
     {
-        if (Tools::isSubmit('module') && Tools::getValue('controller') == 'payment') {
-            $currency = Currency::getCurrency((int) $this->context->cart->id_currency);
-            $minimalPurchase = Tools::convertPrice((float) Configuration::get('PS_PURCHASE_MINIMUM'), $currency);
-            if ($this->context->cart->getOrderTotal(false, Cart::ONLY_PRODUCTS) < $minimalPurchase) {
+        if (Tools::is_submit('module') && Tools::get_value('controller') == 'payment') {
+            $currency = Currency::get_currency((int) $this->context->cart->id_currency);
+            $minimal_purchase = Tools::convert_price((float) Configuration::get('PS_PURCHASE_MINIMUM'), $currency);
+            if ($this->context->cart->get_order_total(false, Cart::ONLY_PRODUCTS) < $minimal_purchase) {
                 Tools::redirect('index.php?controller=order&step=1');
             }
         }
-        parent::initContent();
+        parent::init_content();
     }
 }

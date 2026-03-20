@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,17 +30,15 @@ declare(strict_types=1);
  *  @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class TreeToolbarSearchCore
  */
-class TreeToolbarSearchCore extends TreeToolbarButtonCore implements ITreeToolbarButtonCore
+class Tree_Toolbar_Search_Core extends Tree_Toolbar_Button_Core implements I_Tree_Toolbar_Button_Core
 {
     /**
      * @var string
      */
     protected $_template = 'tree_toolbar_search.tpl';
-
     /**
      * TreeToolbarSearchCore constructor.
      *
@@ -52,12 +50,10 @@ class TreeToolbarSearchCore extends TreeToolbarButtonCore implements ITreeToolba
     public function __construct($label, $id, $name = null, $class = null)
     {
         parent::__construct($label);
-
-        $this->setId($id);
-        $this->setName($name);
-        $this->setClass($class);
+        $this->set_id($id);
+        $this->set_name($name);
+        $this->set_class($class);
     }
-
     /**
      *
      * @throws PrestaShopException
@@ -65,58 +61,43 @@ class TreeToolbarSearchCore extends TreeToolbarButtonCore implements ITreeToolba
      */
     public function render(): string
     {
-        if ($this->hasAttribute('data_search')) {
-            $this->setAttribute(
-                'typeahead_source',
-                $this->_renderData($this->getAttribute('data_search'))
-            );
-        } elseif ($this->hasAttribute('data')) {
-            $this->setAttribute(
-                'typeahead_source',
-                $this->_renderData($this->getAttribute('data'))
-            );
+        if ($this->has_attribute('data_search')) {
+            $this->set_attribute('typeahead_source', $this->_render_data($this->get_attribute('data_search')));
+        } elseif ($this->has_attribute('data')) {
+            $this->set_attribute('typeahead_source', $this->_render_data($this->get_attribute('data')));
         }
-
-        $adminWebpath = str_ireplace(_PS_CORE_DIR_, '', _PS_ADMIN_DIR_);
-        $adminWebpath = preg_replace('/^'.preg_quote(DIRECTORY_SEPARATOR, '/').'/', '', $adminWebpath);
-        $boTheme = ((Validate::isLoadedObject($this->getContext()->employee)
-            && $this->getContext()->employee->bo_theme) ? $this->getContext()->employee->bo_theme : 'default');
-
-        if (!file_exists(_PS_BO_ALL_THEMES_DIR_.$boTheme.DIRECTORY_SEPARATOR.'template')) {
-            $boTheme = 'default';
+        $admin_webpath = str_ireplace(_PS_CORE_DIR_, '', _PS_ADMIN_DIR_);
+        $admin_webpath = preg_replace('/^' . preg_quote(DIRECTORY_SEPARATOR, '/') . '/', '', $admin_webpath);
+        $bo_theme = Validate::is_loaded_object($this->get_context()->employee) && $this->get_context()->employee->bo_theme ? $this->get_context()->employee->bo_theme : 'default';
+        if (!file_exists(_PS_BO_ALL_THEMES_DIR_ . $bo_theme . DIRECTORY_SEPARATOR . 'template')) {
+            $bo_theme = 'default';
         }
-
-        if ($this->getContext()->controller->ajax) {
-            $path = Media::getUriWithVersion(__PS_BASE_URI__.$adminWebpath.'/themes/'.$boTheme.'/js/vendor/typeahead.min.js');
-            $html = '<script type="text/javascript">$(function(){ $.ajax({url: "'.$path.'",cache:true,dataType: "script"})});</script>';
+        if ($this->get_context()->controller->ajax) {
+            $path = Media::get_uri_with_version(__PS_BASE_URI__ . $admin_webpath . '/themes/' . $bo_theme . '/js/vendor/typeahead.min.js');
+            $html = '<script type="text/javascript">$(function(){ $.ajax({url: "' . $path . '",cache:true,dataType: "script"})});</script>';
         } else {
-            $this->getContext()->controller->addJs(__PS_BASE_URI__.$adminWebpath.'/themes/'.$boTheme.'/js/vendor/typeahead.min.js');
+            $this->get_context()->controller->add_js(__PS_BASE_URI__ . $admin_webpath . '/themes/' . $bo_theme . '/js/vendor/typeahead.min.js');
         }
-
-        return ($html ?? '').parent::render();
+        return ($html ?? '') . parent::render();
     }
-
     /**
      * @param array $data
      *
      * @throws PrestaShopException
      * @deprecated 2.0.0
      */
-    protected function _renderData($data): string
+    protected function _render_data($data): string
     {
         if (!is_array($data) && !$data instanceof Traversable) {
-            throw new PrestaShopException('Data value must be a traversable array');
+            throw new Presta_Shop_Exception('Data value must be a traversable array');
         }
-
         $html = '';
-
         foreach ($data as $item) {
-            $html .= json_encode($item).',';
+            $html .= json_encode($item) . ',';
             if (array_key_exists('children', $item) && !empty($item['children'])) {
-                $html .= $this->_renderData($item['children']);
+                $html .= $this->_render_data($item['children']);
             }
         }
-
         return $html;
     }
 }

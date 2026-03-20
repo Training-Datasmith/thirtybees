@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -18,54 +18,38 @@ declare(strict_types=1);
  * @copyright 2017-2024 thirty bees
  * @license   Open Software License (OSL 3.0)
  */
-
 namespace Thirtybees\Core\Tracking;
 
-use PrestaShopException;
+use Presta_Shop_Exception;
 use RuntimeException;
 use Translate;
-
 /**
  * Class DataExtractor
  */
-abstract class DataExtractorCore
+abstract class Data_Extractor_Core
 {
     public const GROUP_ENVIRONMENT = 'environment';
-
     /**
      * Return extractor id
      * @return string
      */
-    public function getId()
+    public function get_id()
     {
         $class = static::class;
-        if (preg_match('#^.*\\\([a-zA-Z]+)Extractor(Core)*$#', $this::class, $matches)) {
+        if (preg_match('#^.*\\\\([a-zA-Z]+)Extractor(Core)*$#', $this::class, $matches)) {
             return lcfirst($matches[1]);
         }
         throw new RuntimeException('Invariant: failed to resolve extractor ID for class ' . $class);
     }
-
     /**
      * Return list of extractor groups
      *
      * @return array
      */
-    public static function getGroups()
+    public static function get_groups()
     {
-        return [
-            static::GROUP_ENVIRONMENT => [
-                'name' => Translate::getAdminTranslation('Environment', 'AdminDataCollection'),
-                'extractors' => [
-                    'system',
-                    'phpVersion',
-                    'phpExtensions',
-                    'serverSettings',
-                    'db',
-                ],
-            ],
-        ];
+        return [static::GROUP_ENVIRONMENT => ['name' => Translate::get_admin_translation('Environment', 'AdminDataCollection'), 'extractors' => ['system', 'phpVersion', 'phpExtensions', 'serverSettings', 'db']]];
     }
-
     /**
      * Instantiates extractor
      *
@@ -73,15 +57,14 @@ abstract class DataExtractorCore
      * @return DataExtractor
      * @throws PrestaShopException
      */
-    public static function getExtractor($id)
+    public static function get_extractor($id)
     {
-        $clazz = '\\Thirtybees\\Core\\Tracking\\Extractor\\' . ucfirst($id) . 'Extractor';
-        if (! class_exists($clazz)) {
-            throw new PrestaShopException("Extractor class for '$id' not found");
+        $clazz = '\Thirtybees\Core\Tracking\Extractor\\' . ucfirst($id) . 'Extractor';
+        if (!class_exists($clazz)) {
+            throw new Presta_Shop_Exception("Extractor class for '{$id}' not found");
         }
         return new $clazz();
     }
-
     /**
      * Translates string
      *
@@ -90,28 +73,24 @@ abstract class DataExtractorCore
      */
     protected function l($str)
     {
-        return Translate::getAdminTranslation($str, 'AdminDataCollection');
+        return Translate::get_admin_translation($str, 'AdminDataCollection');
     }
-
     /**
      * Returns data name
      *
      * @return string
      */
-    abstract public function getName();
-
+    abstract public function get_name();
     /**
      * Returns detailed information about this data
      *
      * @return string
      */
-    abstract public function getDescription();
-
+    abstract public function get_description();
     /**
      * Extracts value
      *
      * @return mixed
      */
-    abstract public function extractValue();
-
+    abstract public function extract_value();
 }

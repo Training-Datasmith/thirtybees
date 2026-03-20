@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -18,15 +18,13 @@ declare(strict_types=1);
  * @copyright 2017-2024 thirty bees
  * @license   Open Software License (OSL 3.0)
  */
-
 namespace Thirtybees\Core\Error\Response;
 
-use Thirtybees\Core\Error\ErrorDescription;
-
+use Thirtybees\Core\Error\Error_Description;
 /**
  * Interface ErrorResponseInterface
  */
-interface ErrorResponseInterface
+interface Error_Response_Interface
 {
     /**
      * Displays Error Page for given exception.
@@ -35,5 +33,5 @@ interface ErrorResponseInterface
      *
      * @return void
      */
-    public function sendResponse(ErrorDescription $errorDescription);
+    public function send_response(Error_Description $error_description);
 }

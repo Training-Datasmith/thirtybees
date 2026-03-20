@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,47 +30,30 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
-class GenderCore extends ObjectModel
+class Gender_Core extends Object_Model
 {
     /**
      * @var array Object model definition
      */
-    public static $definition = [
-        'table'     => 'gender',
-        'primary'   => 'id_gender',
-        'primaryKeyDbType' => 'int(11)',
-        'multilang' => true,
-        'fields'    => [
-            'type' => ['type' => self::TYPE_INT, 'required' => false, 'dbType' => 'tinyint(1)', 'default' => 0],
-
-            /* Lang fields */
-            'name' => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isString', 'required' => true, 'size' => 20],
-        ],
-        'keys' => [
-            'gender_lang' => [
-                'id_gender' => ['type' => ObjectModel::KEY, 'columns' => ['id_gender']],
-            ],
-        ],
-    ];
-
+    public static $definition = ['table' => 'gender', 'primary' => 'id_gender', 'primaryKeyDbType' => 'int(11)', 'multilang' => true, 'fields' => [
+        'type' => ['type' => self::TYPE_INT, 'required' => false, 'dbType' => 'tinyint(1)', 'default' => 0],
+        /* Lang fields */
+        'name' => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isString', 'required' => true, 'size' => 20],
+    ], 'keys' => ['gender_lang' => ['id_gender' => ['type' => Object_Model::KEY, 'columns' => ['id_gender']]]]];
     /**
      * @var int
      */
     public $id_gender;
-
     /**
      * @var string|string[]
      */
     public $name;
-
     /**
      * @var int
      *
      * @deprecated Gender type is not used anymore, exists for BC only
      */
     public $type = 0;
-
     /**
      * GenderCore constructor.
      *
@@ -81,13 +64,11 @@ class GenderCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function __construct($id = null, $idLang = null, $idShop = null)
+    public function __construct($id = null, $id_lang = null, $id_shop = null)
     {
-        parent::__construct($id, $idLang, $idShop);
-
+        parent::__construct($id, $id_lang, $id_shop);
         $this->image_dir = _PS_GENDERS_DIR_;
     }
-
     /**
      * @param int|null $idLang
      *
@@ -95,37 +76,26 @@ class GenderCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function getGenders($idLang = null)
+    public static function get_genders($id_lang = null)
     {
-        if (is_null($idLang)) {
-            $idLang = Context::getContext()->language->id;
+        if (is_null($id_lang)) {
+            $id_lang = Context::get_context()->language->id;
         }
-
-        return new PrestaShopCollection('Gender', $idLang);
+        return new Presta_Shop_Collection('Gender', $id_lang);
     }
-
     /**
      * @return array[]
      * @throws PrestaShopException
      */
-    public static function getIconList(): array
+    public static function get_icon_list(): array
     {
-        $gendersIcon = [
-            'default' => [
-                'src' => static::getGenderImage(null),
-                'alt' => 'Unknown',
-            ],
-        ];
-        foreach (static::getGenders() as $gender) {
+        $genders_icon = ['default' => ['src' => static::get_gender_image(null), 'alt' => 'Unknown']];
+        foreach (static::get_genders() as $gender) {
             /** @var Gender $gender */
-            $gendersIcon[$gender->id] = [
-                'src' => $gender->getImage(),
-                'alt' => $gender->name,
-            ];
+            $genders_icon[$gender->id] = ['src' => $gender->get_image(), 'alt' => $gender->name];
         }
-        return $gendersIcon;
+        return $genders_icon;
     }
-
     /**
      * @param int|null $id
      *
@@ -134,18 +104,14 @@ class GenderCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    protected static function getGenderImage($id)
+    protected static function get_gender_image($id)
     {
-        $id = (int)$id;
-
-        if ($id && ($sourceImage = ImageManager::getSourceImage(_PS_GENDERS_DIR_, $id))) {
-            return str_replace(_PS_GENDERS_DIR_, _THEME_GENDERS_DIR_, $sourceImage);
-
+        $id = (int) $id;
+        if ($id && $source_image = Image_Manager::get_source_image(_PS_GENDERS_DIR_, $id)) {
+            return str_replace(_PS_GENDERS_DIR_, _THEME_GENDERS_DIR_, $source_image);
         }
-
         return _THEME_GENDERS_DIR_ . 'Unknown.jpg';
     }
-
     /**
      * @param bool $useUnknown
      *
@@ -154,8 +120,8 @@ class GenderCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function getImage($useUnknown = false)
+    public function get_image($use_unknown = false)
     {
-        return static::getGenderImage($this->id);
+        return static::get_gender_image($this->id);
     }
 }

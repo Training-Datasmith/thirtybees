@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,10 +30,8 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
-use CoreUpdater\TableSchema;
-use Thirtybees\Core\InitializationCallback;
-
+use Core_Updater\Table_Schema;
+use Thirtybees\Core\Initialization_Callback;
 /**
  * @deprecated 1.5.0.1
  */
@@ -42,11 +40,10 @@ define('_CUSTOMIZE_FILE_', 0);
  * @deprecated 1.5.0.1
  */
 define('_CUSTOMIZE_TEXTFIELD_', 1);
-
 /**
  * Class ProductCore
  */
-class ProductCore extends ObjectModel implements InitializationCallback
+class Product_Core extends Object_Model implements Initialization_Callback
 {
     public const CUSTOMIZE_FILE = 0;
     public const CUSTOMIZE_TEXTFIELD = 1;
@@ -56,663 +53,411 @@ class ProductCore extends ObjectModel implements InitializationCallback
     public const PTYPE_SIMPLE = 0;
     public const PTYPE_PACK = 1;
     public const PTYPE_VIRTUAL = 2;
-
     /**
      * @var int|null
      */
-    public static $_taxCalculationMethod;
-
+    public static $_tax_calculation_method;
     /**
      * @var float
      */
     protected static $_prices = [];
-
     /**
      * @var array
      */
-    protected static $_pricesLevel2 = [];
-
+    protected static $_prices_level2 = [];
     /**
      * @var bool[]
      */
     protected static $_incat = [];
-
     /**
      * @var array
      * @deprecated 1.0.0 Not used anymore
      */
     protected static $_cart_quantity = [];
-
     /**
      * @var array
      * @deprecated 1.5.0 Not used anymore
      */
     protected static $_tax_rules_group = [];
-
     /**
      * @var array
      */
-    protected static $_cacheFeatures = [];
-
+    protected static $_cache_features = [];
     /**
      * @var array
      */
-    protected static $_frontFeaturesCache = [];
-
+    protected static $_front_features_cache = [];
     /**
      * @var array
      */
-    protected static $producPropertiesCache = [];
-
+    protected static $produc_properties_cache = [];
     /**
      * @var array cache stock data in getStock() method
      * @deprecated 1.5.0 Not used anymore
      */
-    protected static $cacheStock = [];
-
+    protected static $cache_stock = [];
     /**
      * @var array
      */
     protected $_cache_available_quantity = [];
-
     /**
      * @var string Tax name
      */
     public $tax_name;
-
     /**
      * @var string Tax rate
      */
     public $tax_rate;
-
     /**
      * @var int Manufacturer id
      */
     public $id_manufacturer;
-
     /**
      * @var int Supplier id
      */
     public $id_supplier;
-
     /**
      * @var int default Category id
      */
     public $id_category_default;
-
     /**
      * @var int default Shop id
      */
     public $id_shop_default;
-
     /**
      * @var string Manufacturer name
      */
     public $manufacturer_name;
-
     /**
      * @var string Supplier name
      */
     public $supplier_name;
-
     /**
      * @var string|string[] Name
      */
     public $name;
-
     /**
      * @var string|string[] Long description
      */
     public $description;
-
     /**
      * @var string|string[] Short description
      */
     public $description_short;
-
     /**
      * @var int Quantity available
      */
     public $quantity = 0;
-
     /**
      * @var int Minimal quantity for add to cart
      */
     public $minimal_quantity = 1;
-
     /**
      * @var string|string[] available_now
      */
     public $available_now;
-
     /**
      * @var string|string[] available_later
      */
     public $available_later;
-
     /**
      * @var float Price in euros
      */
     public $price = 0;
-
     /**
      * @var array
      */
-    public $specificPrice;
-
+    public $specific_price;
     /**
      * @var float Additional shipping cost
      */
     public $additional_shipping_cost = 0;
-
     /**
      * @var float Wholesale Price in euros
      */
     public $wholesale_price = 0;
-
     /**
      * @var bool on_sale
      */
     public $on_sale = false;
-
     /**
      * @var bool online_only
      */
     public $online_only = false;
-
     /**
      * @var string unity
      */
     public $unity;
-
     /**
      * @var float price for product's unity
      */
     public $unit_price;
-
     /**
      * @var float price for product's unity ratio
      */
     public $unit_price_ratio = 0;
-
     /**
      * @var float Ecotax
      */
     public $ecotax = 0;
-
     /**
      * @var string Reference
      */
     public $reference;
-
     /**
      * @var string Supplier Reference
      */
     public $supplier_reference;
-
     /**
      * @var string Location
      */
     public $location;
-
     /**
      * @var float Width in default width unit
      */
     public $width = 0;
-
     /**
      * @var float Height in default height unit
      */
     public $height = 0;
-
     /**
      * @var float Depth in default depth unit
      */
     public $depth = 0;
-
     /**
      * @var float Weight in default weight unit
      */
     public $weight = 0;
-
     /**
      * @var string Ean-13 barcode
      */
     public $ean13;
-
     /**
      * @var string Upc barcode
      */
     public $upc;
-
     /**
      * @var string|string[] Friendly URL
      */
     public $link_rewrite;
-
     /**
      * @var string|string[] Meta tag description
      */
     public $meta_description;
-
     /**
      * @var string|string[] Meta tag keywords
      */
     public $meta_keywords;
-
     /**
      * @var string|string[] Meta tag title
      */
     public $meta_title;
-
     /**
      * @var bool Product statuts
      */
     public $quantity_discount = 0;
-
     /**
      * @var int Product customization
      */
     public $customizable;
-
     /**
      * @var bool Product is new
      */
     public $new;
-
     /**
      * @var int Number of uploadable files (concerning customizable products)
      */
     public $uploadable_files;
-
     /**
      * @var int Number of text fields
      */
     public $text_fields;
-
     /**
      * @var bool Product statuts
      */
     public $active = true;
-
     /**
      * @var string
      */
     public $redirect_type = '';
-
     /**
      * @var int
      */
     public $id_product_redirected = 0;
-
     /**
      * @var bool Product available for order
      */
     public $available_for_order = true;
-
     /**
      * @var string Object available order date
      */
     public $available_date = '0000-00-00';
-
     /**
      * @var string Enumerated (enum) product condition (new, used, refurbished)
      */
     public $condition;
-
     /**
      * @var bool Show price of Product
      */
     public $show_price = true;
-
     /**
      * @var bool is the product indexed in the search index?
      */
     public $indexed = 0;
-
     /**
      * @var string ENUM('both', 'catalog', 'search', 'none') front office visibility
      */
     public $visibility;
-
     /**
      * @var string Object creation date
      */
     public $date_add;
-
     /**
      * @var string Object last modification date
      */
     public $date_upd;
-
     /***
      * @var array Tags
      */
     public $tags;
-
     /**
      * @var float Base price of the product
      * @deprecated 1.6.0.13
      */
     public $base_price;
-
     /**
      * @var int
      */
     public $id_tax_rules_group = 1;
-
     /**
      * @var int
      *
      * @deprecated 1.5.0 for retrocompatibility for themes
      */
-
     public $id_color_default = 0;
-
     /**
      * @var bool Tells if the product uses the advanced stock management
      */
     public $advanced_stock_management = 0;
-
     /**
      * @var int
      */
     public $out_of_stock;
-
     /**
      * @var bool
      */
     public $depends_on_stock;
-
     /**
      * @var bool
      */
-    public $isFullyLoaded = false;
-
+    public $is_fully_loaded = false;
     /**
      * @var bool|null
      */
     public $cache_is_pack;
-
     /**
      * @var bool|null
      */
     public $cache_has_attachments;
-
     /**
      * @var bool
      */
     public $is_virtual;
-
     /**
      * @var int|null
      */
     public $id_pack_product_attribute;
-
     /**
      * @var int
      */
     public $cache_default_attribute;
-
     /**
      * @var string If product is populated, this property contain the rewrite link of the default category
      */
     public $category;
-
     /**
      * @var int tell the type of stock management to apply on the pack
      */
     public $pack_stock_type = Pack::STOCK_TYPE_DECREMENT_GLOBAL_SETTINGS;
-
     /**
      * @var bool
      */
     public $pack_dynamic = 0;
-
     /**
      * @var Product[]|null
      */
-    public $packItems;
-
+    public $pack_items;
     /**
      * @var int|null
      */
     public $pack_quantity;
-
     /**
      * @var array
      */
-    public static $definition = [
-        'table'          => 'product',
-        'primary'        => 'id_product',
-        'multilang'      => true,
-        'multilang_shop' => true,
-        'fields'         => [
-            /* Classic fields */
-            'id_supplier'               => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId'],
-            'id_manufacturer'           => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId'],
-            'id_category_default'       => ['type' => self::TYPE_INT, 'shop' => true, 'validate' => 'isUnsignedId'],
-            'id_shop_default'           => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'dbDefault' => '1'],
-            'id_tax_rules_group'        => ['type' => self::TYPE_INT, 'shop' => true, 'validate' => 'isUnsignedId', 'dbNullable' => false],
-            'on_sale'                   => ['type' => self::TYPE_BOOL, 'shop' => true, 'validate' => 'isBool', 'dbDefault' => '0'],
-            'online_only'               => ['type' => self::TYPE_BOOL, 'shop' => true, 'validate' => 'isBool', 'dbDefault' => '0'],
-            'ean13'                     => ['type' => self::TYPE_STRING, 'validate' => 'isEan13', 'size' => 13],
-            'upc'                       => ['type' => self::TYPE_STRING, 'validate' => 'isUpc', 'size' => 12],
-            'ecotax'                    => ['type' => self::TYPE_PRICE, 'shop' => true, 'validate' => 'isPrice', 'dbDefault' => '0.000000'],
-            'quantity'                  => ['type' => self::TYPE_INT, 'validate' => 'isInt', 'dbDefault' => '0', 'dbType' => 'int(10)'],
-            'minimal_quantity'          => ['type' => self::TYPE_INT, 'shop' => true, 'validate' => 'isUnsignedInt', 'dbDefault' => '1'],
-            'price'                     => ['type' => self::TYPE_PRICE, 'shop' => true, 'validate' => 'isPrice', 'required' => true, 'dbDefault' => '0.000000'],
-            'wholesale_price'           => ['type' => self::TYPE_PRICE, 'shop' => true, 'validate' => 'isPrice', 'dbDefault' => '0.000000'],
-            'unity'                     => ['type' => self::TYPE_STRING, 'shop' => true, 'validate' => 'isString'],
-            'unit_price_ratio'          => ['type' => self::TYPE_FLOAT, 'shop' => true, 'dbDefault' => '0.000000'],
-            'additional_shipping_cost'  => ['type' => self::TYPE_PRICE, 'shop' => true, 'validate' => 'isPrice', 'dbDefault' => '0.000000'],
-            'reference'                 => ['type' => self::TYPE_STRING, 'validate' => 'isReference', 'size' => self::SIZE_REFERENCE],
-            'supplier_reference'        => ['type' => self::TYPE_STRING, 'validate' => 'isReference', 'size' => self::SIZE_REFERENCE],
-            'location'                  => ['type' => self::TYPE_STRING, 'validate' => 'isReference', 'size' => self::SIZE_REFERENCE],
-            'width'                     => ['type' => self::TYPE_FLOAT, 'validate' => 'isUnsignedFloat', 'dbDefault' => '0.000000'],
-            'height'                    => ['type' => self::TYPE_FLOAT, 'validate' => 'isUnsignedFloat', 'dbDefault' => '0.000000'],
-            'depth'                     => ['type' => self::TYPE_FLOAT, 'validate' => 'isUnsignedFloat', 'dbDefault' => '0.000000'],
-            'weight'                    => ['type' => self::TYPE_FLOAT, 'validate' => 'isUnsignedFloat', 'dbDefault' => '0.000000'],
-            'out_of_stock'              => ['type' => self::TYPE_INT,  'validate' => 'isInt', 'dbDefault' => '2'],
-            'quantity_discount'         => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbType' => 'tinyint(1)', 'dbDefault' => '0', 'dbNullable' => true],
-            'customizable'              => ['type' => self::TYPE_INT, 'shop' => true, 'validate' => 'isUnsignedInt', 'dbType' => 'tinyint(2)', 'dbDefault' => '0'],
-            'uploadable_files'          => ['type' => self::TYPE_INT, 'shop' => true, 'validate' => 'isUnsignedInt', 'dbType' => 'tinyint(4)', 'dbDefault' => '0'],
-            'text_fields'               => ['type' => self::TYPE_INT, 'shop' => true, 'validate' => 'isUnsignedInt', 'dbType' => 'tinyint(4)', 'dbDefault' => '0'],
-            'active'                    => ['type' => self::TYPE_BOOL, 'shop' => true, 'validate' => 'isBool', 'dbDefault' => '0'],
-            'redirect_type'             => ['type' => self::TYPE_STRING, 'shop' => true, 'validate' => 'isString', 'values' => ['', '404', '301', '302'], 'dbDefault' => ''],
-            'id_product_redirected'     => ['type' => self::TYPE_INT, 'shop' => true, 'validate' => 'isUnsignedId', 'dbDefault' => '0'],
-            'available_for_order'       => ['type' => self::TYPE_BOOL, 'shop' => true, 'validate' => 'isBool', 'dbType' => 'tinyint(1)', 'dbDefault' => '1'],
-            'available_date'            => ['type' => self::TYPE_DATE, 'shop' => true, 'validate' => 'isDateFormat', 'dbDefault' => '1970-01-01', 'dbType' => 'date'],
-            'condition'                 => ['type' => self::TYPE_STRING, 'shop' => true, 'validate' => 'isGenericName', 'values' => ['new', 'used', 'refurbished'], 'default' => 'new'],
-            'show_price'                => ['type' => self::TYPE_BOOL, 'shop' => true, 'validate' => 'isBool', 'dbType' => 'tinyint(1)', 'dbDefault' => '1'],
-            'indexed'                   => ['type' => self::TYPE_BOOL, 'shop' => true, 'validate' => 'isBool', 'dbType' => 'tinyint(1)', 'dbDefault' => '0'],
-            'visibility'                => ['type' => self::TYPE_STRING, 'shop' => true, 'validate' => 'isProductVisibility', 'values' => ['both', 'catalog', 'search', 'none'], 'default' => 'both'],
-            'cache_is_pack'             => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbType' => 'tinyint(1)', 'dbDefault' => '0'],
-            'cache_has_attachments'     => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbType' => 'tinyint(1)', 'dbDefault' => '0'],
-            'is_virtual'                => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbType' => 'tinyint(1)', 'dbDefault' => '0'],
-            'cache_default_attribute'   => ['type' => self::TYPE_INT, 'shop' => true],
-            'date_add'                  => ['type' => self::TYPE_DATE, 'shop' => true, 'validate' => 'isDate', 'dbNullable' => false],
-            'date_upd'                  => ['type' => self::TYPE_DATE, 'shop' => true, 'validate' => 'isDate', 'dbNullable' => false],
-            'advanced_stock_management' => ['type' => self::TYPE_BOOL, 'shop' => true, 'validate' => 'isBool', 'dbType' => 'tinyint(1)', 'dbDefault' => '0'],
-            'pack_stock_type'           => ['type' => self::TYPE_INT, 'shop' => true, 'validate' => 'isUnsignedInt', 'dbDefault' => '3'],
-            'pack_dynamic'              => ['type' => self::TYPE_BOOL, 'shop' => true, 'validate' => 'isUnsignedInt', 'dbDefault' => '0'],
-
-            /* Lang fields */
-            'description'               => ['type' => self::TYPE_HTML, 'lang' => true, 'validate' => 'isCleanHtml', 'size' => ObjectModel::SIZE_LONG_TEXT],
-            'description_short'         => ['type' => self::TYPE_HTML, 'lang' => true, 'validate' => 'isCleanHtml', 'size' => ObjectModel::SIZE_TEXT],
-            'link_rewrite'              => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isLinkRewrite', 'required' => true, 'size' => 128, 'ws_modifier' => [ 'http_method' => WebserviceRequest::HTTP_POST, 'modifier' => 'modifierWsLinkRewrite']],
-            'meta_description'          => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isGenericName', 'size' => 255],
-            'meta_keywords'             => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isGenericName', 'size' => 255],
-            'meta_title'                => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isGenericName', 'size' => 128],
-            'name'                      => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isCatalogName', 'required' => true, 'size' => 128],
-            'available_now'             => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isGenericName', 'size' => 255],
-            'available_later'           => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'IsGenericName', 'size' => 255],
-        ],
-        'associations'   => [
-            'manufacturer'     => ['type' => self::HAS_ONE],
-            'supplier'         => ['type' => self::HAS_ONE],
-            'default_category' => ['type' => self::HAS_ONE, 'field' => 'id_category_default', 'object' => 'Category'],
-            'tax_rules_group'  => ['type' => self::HAS_ONE],
-            'categories'       => ['type' => self::BELONGS_TO_MANY, 'object' => 'Category', 'joinTable' => 'category_product'],
-            'stock_availables' => ['type' => self::HAS_MANY, 'field' => 'id_product', 'foreignField' => 'id_product', 'object' => 'StockAvailable'],
-            'accessories'      => ['type' => self::BELONGS_TO_MANY, 'object' => 'Product', 'joinTable' => 'accessory', 'joinSourceField' => 'id_product_1', 'joinTargetField' => 'id_product_2'],
-        ],
-        'keys' => [
-            'product' => [
-                'date_add'             => ['type' => ObjectModel::KEY, 'columns' => ['date_add']],
-                'id_category_default'  => ['type' => ObjectModel::KEY, 'columns' => ['id_category_default']],
-                'indexed'              => ['type' => ObjectModel::KEY, 'columns' => ['indexed']],
-                'product_manufacturer' => ['type' => ObjectModel::KEY, 'columns' => ['id_manufacturer', 'id_product']],
-                'product_supplier'     => ['type' => ObjectModel::KEY, 'columns' => ['id_supplier']],
-            ],
-            'product_lang' => [
-                'primary' => ['type' => ObjectModel::PRIMARY_KEY, 'columns' => ['id_product', 'id_shop', 'id_lang']],
-                'id_lang' => ['type' => ObjectModel::KEY, 'columns' => ['id_lang']],
-                'name'    => ['type' => ObjectModel::KEY, 'columns' => ['name']],
-            ],
-            'product_shop' => [
-                'date_add'            => ['type' => ObjectModel::KEY, 'columns' => ['date_add', 'active', 'visibility']],
-                'id_category_default' => ['type' => ObjectModel::KEY, 'columns' => ['id_category_default']],
-                'indexed'             => ['type' => ObjectModel::KEY, 'columns' => ['indexed', 'active', 'id_product']],
-            ],
-        ],
-        'images' => [
-            ImageEntity::ENTITY_TYPE_PRODUCTS => [
-                'path' => _PS_PROD_IMG_DIR_,
-                'imageTypes' => [
-                    ['name' => 'backoffice_product_medium', 'width' => 150, 'height' => 150],
-                ],
-            ],
-        ],
-    ];
-
+    public static $definition = ['table' => 'product', 'primary' => 'id_product', 'multilang' => true, 'multilang_shop' => true, 'fields' => [
+        /* Classic fields */
+        'id_supplier' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId'],
+        'id_manufacturer' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId'],
+        'id_category_default' => ['type' => self::TYPE_INT, 'shop' => true, 'validate' => 'isUnsignedId'],
+        'id_shop_default' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'dbDefault' => '1'],
+        'id_tax_rules_group' => ['type' => self::TYPE_INT, 'shop' => true, 'validate' => 'isUnsignedId', 'dbNullable' => false],
+        'on_sale' => ['type' => self::TYPE_BOOL, 'shop' => true, 'validate' => 'isBool', 'dbDefault' => '0'],
+        'online_only' => ['type' => self::TYPE_BOOL, 'shop' => true, 'validate' => 'isBool', 'dbDefault' => '0'],
+        'ean13' => ['type' => self::TYPE_STRING, 'validate' => 'isEan13', 'size' => 13],
+        'upc' => ['type' => self::TYPE_STRING, 'validate' => 'isUpc', 'size' => 12],
+        'ecotax' => ['type' => self::TYPE_PRICE, 'shop' => true, 'validate' => 'isPrice', 'dbDefault' => '0.000000'],
+        'quantity' => ['type' => self::TYPE_INT, 'validate' => 'isInt', 'dbDefault' => '0', 'dbType' => 'int(10)'],
+        'minimal_quantity' => ['type' => self::TYPE_INT, 'shop' => true, 'validate' => 'isUnsignedInt', 'dbDefault' => '1'],
+        'price' => ['type' => self::TYPE_PRICE, 'shop' => true, 'validate' => 'isPrice', 'required' => true, 'dbDefault' => '0.000000'],
+        'wholesale_price' => ['type' => self::TYPE_PRICE, 'shop' => true, 'validate' => 'isPrice', 'dbDefault' => '0.000000'],
+        'unity' => ['type' => self::TYPE_STRING, 'shop' => true, 'validate' => 'isString'],
+        'unit_price_ratio' => ['type' => self::TYPE_FLOAT, 'shop' => true, 'dbDefault' => '0.000000'],
+        'additional_shipping_cost' => ['type' => self::TYPE_PRICE, 'shop' => true, 'validate' => 'isPrice', 'dbDefault' => '0.000000'],
+        'reference' => ['type' => self::TYPE_STRING, 'validate' => 'isReference', 'size' => self::SIZE_REFERENCE],
+        'supplier_reference' => ['type' => self::TYPE_STRING, 'validate' => 'isReference', 'size' => self::SIZE_REFERENCE],
+        'location' => ['type' => self::TYPE_STRING, 'validate' => 'isReference', 'size' => self::SIZE_REFERENCE],
+        'width' => ['type' => self::TYPE_FLOAT, 'validate' => 'isUnsignedFloat', 'dbDefault' => '0.000000'],
+        'height' => ['type' => self::TYPE_FLOAT, 'validate' => 'isUnsignedFloat', 'dbDefault' => '0.000000'],
+        'depth' => ['type' => self::TYPE_FLOAT, 'validate' => 'isUnsignedFloat', 'dbDefault' => '0.000000'],
+        'weight' => ['type' => self::TYPE_FLOAT, 'validate' => 'isUnsignedFloat', 'dbDefault' => '0.000000'],
+        'out_of_stock' => ['type' => self::TYPE_INT, 'validate' => 'isInt', 'dbDefault' => '2'],
+        'quantity_discount' => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbType' => 'tinyint(1)', 'dbDefault' => '0', 'dbNullable' => true],
+        'customizable' => ['type' => self::TYPE_INT, 'shop' => true, 'validate' => 'isUnsignedInt', 'dbType' => 'tinyint(2)', 'dbDefault' => '0'],
+        'uploadable_files' => ['type' => self::TYPE_INT, 'shop' => true, 'validate' => 'isUnsignedInt', 'dbType' => 'tinyint(4)', 'dbDefault' => '0'],
+        'text_fields' => ['type' => self::TYPE_INT, 'shop' => true, 'validate' => 'isUnsignedInt', 'dbType' => 'tinyint(4)', 'dbDefault' => '0'],
+        'active' => ['type' => self::TYPE_BOOL, 'shop' => true, 'validate' => 'isBool', 'dbDefault' => '0'],
+        'redirect_type' => ['type' => self::TYPE_STRING, 'shop' => true, 'validate' => 'isString', 'values' => ['', '404', '301', '302'], 'dbDefault' => ''],
+        'id_product_redirected' => ['type' => self::TYPE_INT, 'shop' => true, 'validate' => 'isUnsignedId', 'dbDefault' => '0'],
+        'available_for_order' => ['type' => self::TYPE_BOOL, 'shop' => true, 'validate' => 'isBool', 'dbType' => 'tinyint(1)', 'dbDefault' => '1'],
+        'available_date' => ['type' => self::TYPE_DATE, 'shop' => true, 'validate' => 'isDateFormat', 'dbDefault' => '1970-01-01', 'dbType' => 'date'],
+        'condition' => ['type' => self::TYPE_STRING, 'shop' => true, 'validate' => 'isGenericName', 'values' => ['new', 'used', 'refurbished'], 'default' => 'new'],
+        'show_price' => ['type' => self::TYPE_BOOL, 'shop' => true, 'validate' => 'isBool', 'dbType' => 'tinyint(1)', 'dbDefault' => '1'],
+        'indexed' => ['type' => self::TYPE_BOOL, 'shop' => true, 'validate' => 'isBool', 'dbType' => 'tinyint(1)', 'dbDefault' => '0'],
+        'visibility' => ['type' => self::TYPE_STRING, 'shop' => true, 'validate' => 'isProductVisibility', 'values' => ['both', 'catalog', 'search', 'none'], 'default' => 'both'],
+        'cache_is_pack' => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbType' => 'tinyint(1)', 'dbDefault' => '0'],
+        'cache_has_attachments' => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbType' => 'tinyint(1)', 'dbDefault' => '0'],
+        'is_virtual' => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbType' => 'tinyint(1)', 'dbDefault' => '0'],
+        'cache_default_attribute' => ['type' => self::TYPE_INT, 'shop' => true],
+        'date_add' => ['type' => self::TYPE_DATE, 'shop' => true, 'validate' => 'isDate', 'dbNullable' => false],
+        'date_upd' => ['type' => self::TYPE_DATE, 'shop' => true, 'validate' => 'isDate', 'dbNullable' => false],
+        'advanced_stock_management' => ['type' => self::TYPE_BOOL, 'shop' => true, 'validate' => 'isBool', 'dbType' => 'tinyint(1)', 'dbDefault' => '0'],
+        'pack_stock_type' => ['type' => self::TYPE_INT, 'shop' => true, 'validate' => 'isUnsignedInt', 'dbDefault' => '3'],
+        'pack_dynamic' => ['type' => self::TYPE_BOOL, 'shop' => true, 'validate' => 'isUnsignedInt', 'dbDefault' => '0'],
+        /* Lang fields */
+        'description' => ['type' => self::TYPE_HTML, 'lang' => true, 'validate' => 'isCleanHtml', 'size' => Object_Model::SIZE_LONG_TEXT],
+        'description_short' => ['type' => self::TYPE_HTML, 'lang' => true, 'validate' => 'isCleanHtml', 'size' => Object_Model::SIZE_TEXT],
+        'link_rewrite' => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isLinkRewrite', 'required' => true, 'size' => 128, 'ws_modifier' => ['http_method' => Webservice_Request::HTTP_POST, 'modifier' => 'modifierWsLinkRewrite']],
+        'meta_description' => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isGenericName', 'size' => 255],
+        'meta_keywords' => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isGenericName', 'size' => 255],
+        'meta_title' => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isGenericName', 'size' => 128],
+        'name' => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isCatalogName', 'required' => true, 'size' => 128],
+        'available_now' => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isGenericName', 'size' => 255],
+        'available_later' => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'IsGenericName', 'size' => 255],
+    ], 'associations' => ['manufacturer' => ['type' => self::HAS_ONE], 'supplier' => ['type' => self::HAS_ONE], 'default_category' => ['type' => self::HAS_ONE, 'field' => 'id_category_default', 'object' => 'Category'], 'tax_rules_group' => ['type' => self::HAS_ONE], 'categories' => ['type' => self::BELONGS_TO_MANY, 'object' => 'Category', 'joinTable' => 'category_product'], 'stock_availables' => ['type' => self::HAS_MANY, 'field' => 'id_product', 'foreignField' => 'id_product', 'object' => 'StockAvailable'], 'accessories' => ['type' => self::BELONGS_TO_MANY, 'object' => 'Product', 'joinTable' => 'accessory', 'joinSourceField' => 'id_product_1', 'joinTargetField' => 'id_product_2']], 'keys' => ['product' => ['date_add' => ['type' => Object_Model::KEY, 'columns' => ['date_add']], 'id_category_default' => ['type' => Object_Model::KEY, 'columns' => ['id_category_default']], 'indexed' => ['type' => Object_Model::KEY, 'columns' => ['indexed']], 'product_manufacturer' => ['type' => Object_Model::KEY, 'columns' => ['id_manufacturer', 'id_product']], 'product_supplier' => ['type' => Object_Model::KEY, 'columns' => ['id_supplier']]], 'product_lang' => ['primary' => ['type' => Object_Model::PRIMARY_KEY, 'columns' => ['id_product', 'id_shop', 'id_lang']], 'id_lang' => ['type' => Object_Model::KEY, 'columns' => ['id_lang']], 'name' => ['type' => Object_Model::KEY, 'columns' => ['name']]], 'product_shop' => ['date_add' => ['type' => Object_Model::KEY, 'columns' => ['date_add', 'active', 'visibility']], 'id_category_default' => ['type' => Object_Model::KEY, 'columns' => ['id_category_default']], 'indexed' => ['type' => Object_Model::KEY, 'columns' => ['indexed', 'active', 'id_product']]]], 'images' => [Image_Entity::ENTITY_TYPE_PRODUCTS => ['path' => _PS_PROD_IMG_DIR_, 'imageTypes' => [['name' => 'backoffice_product_medium', 'width' => 150, 'height' => 150]]]]];
     /**
      * @var array Webservice parameters
      */
-    protected $webserviceParameters = [
-        'objectMethods'   => [
-            'add'    => 'addWs',
-            'update' => 'updateWs',
-        ],
-        'objectNodeNames' => 'products',
-        'fields'          => [
-            'id_manufacturer'         => [
-                'xlink_resource' => 'manufacturers',
-            ],
-            'id_supplier'             => [
-                'xlink_resource' => 'suppliers',
-            ],
-            'id_category_default'     => [
-                'xlink_resource' => 'categories',
-            ],
-            'new'                     => [],
-            'cache_default_attribute' => [],
-            'id_default_image'        => [
-                'getter'         => 'getCoverWs',
-                'setter'         => 'setCoverWs',
-                'xlink_resource' => [
-                    'resourceName'    => 'images',
-                    'subResourceName' => 'products',
-                ],
-            ],
-            'id_default_combination'  => [
-                'getter'         => 'getWsDefaultCombination',
-                'setter'         => 'setWsDefaultCombination',
-                'xlink_resource' => [
-                    'resourceName' => 'combinations',
-                ],
-            ],
-            'id_tax_rules_group'      => [
-                'xlink_resource' => [
-                    'resourceName' => 'tax_rule_groups',
-                ],
-            ],
-            'position_in_category'    => [
-                'getter' => 'getWsPositionInCategory',
-                'setter' => 'setWsPositionInCategory',
-            ],
-            'manufacturer_name'       => [
-                'getter' => 'getWsManufacturerName',
-                'setter' => false,
-            ],
-            'quantity'                => [
-                'getter' => false,
-                'setter' => false,
-            ],
-            'type'                    => [
-                'getter' => 'getWsType',
-                'setter' => 'setWsType',
-            ],
-        ],
-        'associations'    => [
-            'categories'            => [
-                'resource' => 'category',
-                'fields'   => [
-                    'id' => ['required' => true],
-                ],
-            ],
-            'images'                => [
-                'resource' => 'image',
-                'fields'   => ['id' => []],
-            ],
-            'combinations'          => [
-                'resource' => 'combination',
-                'fields'   => [
-                    'id' => ['required' => true],
-                ],
-            ],
-            'product_option_values' => [
-                'resource' => 'product_option_value',
-                'fields'   => [
-                    'id' => ['required' => true],
-                ],
-            ],
-            'product_features'      => [
-                'resource' => 'product_feature',
-                'fields'   => [
-                    'id'               => ['required' => true],
-                    'id_feature_value' => [
-                        'required'       => true,
-                        'xlink_resource' => 'product_feature_values',
-                    ],
-                ],
-            ],
-            'tags'                  => [
-                'resource' => 'tag',
-                'fields'   => [
-                    'id' => ['required' => true],
-                ],
-            ],
-            'stock_availables'      => [
-                'resource' => 'stock_available',
-                'fields'   => [
-                    'id'                   => ['required' => true],
-                    'id_product_attribute' => ['required' => true],
-                ],
-                'setter'   => false,
-            ],
-            'accessories'           => [
-                'resource' => 'product',
-                'api'      => 'products',
-                'fields'   => [
-                    'id' => [
-                        'required'       => true,
-                        'xlink_resource' => 'product',
-                    ],
-                ],
-            ],
-            'product_bundle'        => [
-                'resource' => 'product',
-                'api'      => 'products',
-                'fields'   => [
-                    'id'       => ['required' => true],
-                    'quantity' => [],
-                    'combination_id' => ['xlink_resource' => 'combinations'],
-                ],
-            ],
-        ],
-    ];
-
+    protected $webservice_parameters = ['objectMethods' => ['add' => 'addWs', 'update' => 'updateWs'], 'objectNodeNames' => 'products', 'fields' => ['id_manufacturer' => ['xlink_resource' => 'manufacturers'], 'id_supplier' => ['xlink_resource' => 'suppliers'], 'id_category_default' => ['xlink_resource' => 'categories'], 'new' => [], 'cache_default_attribute' => [], 'id_default_image' => ['getter' => 'getCoverWs', 'setter' => 'setCoverWs', 'xlink_resource' => ['resourceName' => 'images', 'subResourceName' => 'products']], 'id_default_combination' => ['getter' => 'getWsDefaultCombination', 'setter' => 'setWsDefaultCombination', 'xlink_resource' => ['resourceName' => 'combinations']], 'id_tax_rules_group' => ['xlink_resource' => ['resourceName' => 'tax_rule_groups']], 'position_in_category' => ['getter' => 'getWsPositionInCategory', 'setter' => 'setWsPositionInCategory'], 'manufacturer_name' => ['getter' => 'getWsManufacturerName', 'setter' => false], 'quantity' => ['getter' => false, 'setter' => false], 'type' => ['getter' => 'getWsType', 'setter' => 'setWsType']], 'associations' => ['categories' => ['resource' => 'category', 'fields' => ['id' => ['required' => true]]], 'images' => ['resource' => 'image', 'fields' => ['id' => []]], 'combinations' => ['resource' => 'combination', 'fields' => ['id' => ['required' => true]]], 'product_option_values' => ['resource' => 'product_option_value', 'fields' => ['id' => ['required' => true]]], 'product_features' => ['resource' => 'product_feature', 'fields' => ['id' => ['required' => true], 'id_feature_value' => ['required' => true, 'xlink_resource' => 'product_feature_values']]], 'tags' => ['resource' => 'tag', 'fields' => ['id' => ['required' => true]]], 'stock_availables' => ['resource' => 'stock_available', 'fields' => ['id' => ['required' => true], 'id_product_attribute' => ['required' => true]], 'setter' => false], 'accessories' => ['resource' => 'product', 'api' => 'products', 'fields' => ['id' => ['required' => true, 'xlink_resource' => 'product']]], 'product_bundle' => ['resource' => 'product', 'api' => 'products', 'fields' => ['id' => ['required' => true], 'quantity' => [], 'combination_id' => ['xlink_resource' => 'combinations']]]]];
     /**
      * ProductCore constructor.
      *
@@ -723,63 +468,35 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public function __construct($idProduct = null, $full = false, $idLang = null, $idShop = null, ?Context $context = null)
+    public function __construct($id_product = null, $full = false, $id_lang = null, $id_shop = null, ?Context $context = null)
     {
-        parent::__construct($idProduct, $idLang, $idShop);
+        parent::__construct($id_product, $id_lang, $id_shop);
         if ($full && $this->id) {
             if (!$context) {
-                $context = Context::getContext();
+                $context = Context::get_context();
             }
-
-            $this->isFullyLoaded = $full;
-            $this->tax_name = 'deprecated'; // The applicable tax may be BOTH the product one AND the state one (moreover this variable is some deadcode)
-            $this->manufacturer_name = Manufacturer::getNameById((int) $this->id_manufacturer);
-            $this->supplier_name = Supplier::getNameById((int) $this->id_supplier);
+            $this->is_fully_loaded = $full;
+            $this->tax_name = 'deprecated';
+            // The applicable tax may be BOTH the product one AND the state one (moreover this variable is some deadcode)
+            $this->manufacturer_name = Manufacturer::get_name_by_id((int) $this->id_manufacturer);
+            $this->supplier_name = Supplier::get_name_by_id((int) $this->id_supplier);
             $address = null;
             if (is_object($context->cart) && $context->cart->{Configuration::get('PS_TAX_ADDRESS_TYPE')} != null) {
                 $address = $context->cart->{Configuration::get('PS_TAX_ADDRESS_TYPE')};
             }
-
-            $this->tax_rate = $this->getTaxesRate(new Address($address));
-
-            $this->new = $this->isNew();
-
+            $this->tax_rate = $this->get_taxes_rate(new Address($address));
+            $this->new = $this->is_new();
             // Keep base price
             $this->base_price = $this->price;
-
-            $this->price = static::getPriceStatic(
-                (int) $this->id,
-                false,
-                null,
-                _TB_PRICE_DATABASE_PRECISION_,
-                null,
-                false,
-                true,
-                1,
-                false,
-                null,
-                null,
-                null,
-                $this->specificPrice
-            );
-            $this->unit_price = (
-                $this->unit_price_ratio != 0 ?
-                round(
-                    $this->price / $this->unit_price_ratio,
-                    _TB_PRICE_DATABASE_PRECISION_
-                ) :
-                0
-            );
-            $this->tags = Tag::getProductTags((int) $this->id);
-
-            $this->loadStockData();
+            $this->price = static::get_price_static((int) $this->id, false, null, _TB_PRICE_DATABASE_PRECISION_, null, false, true, 1, false, null, null, null, $this->specific_price);
+            $this->unit_price = $this->unit_price_ratio != 0 ? round($this->price / $this->unit_price_ratio, _TB_PRICE_DATABASE_PRECISION_) : 0;
+            $this->tags = Tag::get_product_tags((int) $this->id);
+            $this->load_stock_data();
         }
-
         if ($this->id_category_default) {
-            $this->category = Category::getLinkRewrite((int) $this->id_category_default, (int) $idLang);
+            $this->category = Category::get_link_rewrite((int) $this->id_category_default, (int) $id_lang);
         }
     }
-
     /**
      * Returns tax rate.
      *
@@ -787,45 +504,38 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @return float The total taxes rate applied to the product
      * @throws PrestaShopException
      */
-    public function getTaxesRate(?Address $address = null)
+    public function get_taxes_rate(?Address $address = null)
     {
         if (!$address || !$address->id_country) {
             $address = Address::initialize();
         }
-
-        $taxManager = TaxManagerFactory::getManager($address, $this->id_tax_rules_group);
-        $taxCalculator = $taxManager->getTaxCalculator();
-
-        return $taxCalculator->getTotalRate();
+        $tax_manager = Tax_Manager_Factory::get_manager($address, $this->id_tax_rules_group);
+        $tax_calculator = $tax_manager->get_tax_calculator();
+        return $tax_calculator->get_total_rate();
     }
-
     /**
      * @return bool
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function isNew()
+    public function is_new()
     {
-        $result = Db::readOnly()->getArray(
-            '
+        $result = Db::read_only()->get_array('
 			SELECT p.id_product
-			FROM `'._DB_PREFIX_.'product` p
-			'.Shop::addSqlAssociation('product', 'p').'
-			WHERE p.id_product = '.(int) $this->id.'
+			FROM `' . _DB_PREFIX_ . 'product` p
+			' . Shop::add_sql_association('product', 'p') . '
+			WHERE p.id_product = ' . (int) $this->id . '
 			AND DATEDIFF(
 				product_shop.`date_add`,
 				DATE_SUB(
-					"'.date('Y-m-d').' 00:00:00",
-					INTERVAL '.(Validate::isUnsignedInt(Configuration::get('PS_NB_DAYS_NEW_PRODUCT')) ? Configuration::get('PS_NB_DAYS_NEW_PRODUCT') : 20).' DAY
+					"' . date('Y-m-d') . ' 00:00:00",
+					INTERVAL ' . (Validate::is_unsigned_int(Configuration::get('PS_NB_DAYS_NEW_PRODUCT')) ? Configuration::get('PS_NB_DAYS_NEW_PRODUCT') : 20) . ' DAY
 				)
 			) > 0
-		'
-        );
-
+		');
         return count($result) > 0;
     }
-
     /**
      * Returns product price
      *
@@ -857,144 +567,89 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getPriceStatic(
-        $idProduct,
-        $usetax = true,
-        $idProductAttribute = null,
-        $decimals = _TB_PRICE_DATABASE_PRECISION_,
-        $divisor = null,
-        $onlyReduc = false,
-        $usereduc = true,
-        $quantity = 1,
-        $forceAssociatedTax = false,
-        $idCustomer = null,
-        $idCart = null,
-        $idAddress = null,
-        &$specificPriceOutput = null,
-        $withEcotax = true,
-        $useGroupReduction = true,
-        ?Context $context = null,
-        $useCustomerPrice = true
-    ) {
+    public static function get_price_static($id_product, $usetax = true, $id_product_attribute = null, $decimals = _TB_PRICE_DATABASE_PRECISION_, $divisor = null, $only_reduc = false, $usereduc = true, $quantity = 1, $force_associated_tax = false, $id_customer = null, $id_cart = null, $id_address = null, &$specific_price_output = null, $with_ecotax = true, $use_group_reduction = true, ?Context $context = null, $use_customer_price = true)
+    {
         if (!$context) {
-            $context = Context::getContext();
+            $context = Context::get_context();
         }
-
-        $curCart = $context->cart;
-
+        $cur_cart = $context->cart;
         if ($divisor !== null) {
-            Tools::displayParameterAsDeprecated('divisor');
+            Tools::display_parameter_as_deprecated('divisor');
         }
-
-        if (!Validate::isBool($usetax)) {
-            throw new PrestaShopException(sprintf(Tools::displayError('Invalid value for parameter [%s]'), 'usetax'));
+        if (!Validate::is_bool($usetax)) {
+            throw new Presta_Shop_Exception(sprintf(Tools::display_error('Invalid value for parameter [%s]'), 'usetax'));
         }
-        if (!Validate::isUnsignedId($idProduct)) {
-            throw new PrestaShopException(sprintf(Tools::displayError('Invalid value for parameter [%s]'), 'idProduct'));
+        if (!Validate::is_unsigned_id($id_product)) {
+            throw new Presta_Shop_Exception(sprintf(Tools::display_error('Invalid value for parameter [%s]'), 'idProduct'));
         }
-
         // Initializations
-        $idGroup = null;
-        if ($idCustomer) {
-            $idGroup = Customer::getDefaultGroupId((int) $idCustomer);
+        $id_group = null;
+        if ($id_customer) {
+            $id_group = Customer::get_default_group_id((int) $id_customer);
         }
-        if (!$idGroup) {
-            $idGroup = (int) Group::getCurrent()->id;
+        if (!$id_group) {
+            $id_group = (int) Group::get_current()->id;
         }
-
         // If there is cart in context or if the specified id_cart is different from the context cart id
-        if (!is_object($curCart) || (Validate::isUnsignedInt($idCart) && $idCart && $curCart->id != $idCart)) {
+        if (!is_object($cur_cart) || Validate::is_unsigned_int($id_cart) && $id_cart && $cur_cart->id != $id_cart) {
             /*
-            * When a user (e.g., guest, customer, Google...) is on PrestaShop, he has already its cart as the global (see /init.php)
-            * When a non-user calls directly this method (e.g., payment module...) is on PrestaShop, he does not have already it BUT knows the cart ID
-            * When called from the back office, cart ID can be inexistant
-            */
-            if (!$idCart && !isset($context->employee)) {
-                throw new PrestaShopException('ID cart not provided in front office context');
+             * When a user (e.g., guest, customer, Google...) is on PrestaShop, he has already its cart as the global (see /init.php)
+             * When a non-user calls directly this method (e.g., payment module...) is on PrestaShop, he does not have already it BUT knows the cart ID
+             * When called from the back office, cart ID can be inexistant
+             */
+            if (!$id_cart && !isset($context->employee)) {
+                throw new Presta_Shop_Exception('ID cart not provided in front office context');
             }
-            $curCart = new Cart($idCart);
+            $cur_cart = new Cart($id_cart);
             // Store cart in context to avoid multiple instantiations in BO
-            if (!Validate::isLoadedObject($context->cart)) {
-                $context->cart = $curCart;
+            if (!Validate::is_loaded_object($context->cart)) {
+                $context->cart = $cur_cart;
             }
         }
-
-        $cartQuantity = 0;
-        if ((int) $idCart) {
-            $cacheId = 'Product::getPriceStatic_'.(int) $idProduct.'-'.(int) $idCart;
-            if (!Cache::isStored($cacheId) || ($cartQuantity = Cache::retrieve($cacheId) != (int) $quantity)) {
+        $cart_quantity = 0;
+        if ((int) $id_cart) {
+            $cache_id = 'Product::getPriceStatic_' . (int) $id_product . '-' . (int) $id_cart;
+            if (!Cache::is_stored($cache_id) || $cart_quantity = Cache::retrieve($cache_id) != (int) $quantity) {
                 $sql = 'SELECT SUM(`quantity`)
-				FROM `'._DB_PREFIX_.'cart_product`
-				WHERE `id_product` = '.(int) $idProduct.'
-				AND `id_cart` = '.(int) $idCart;
-                $cartQuantity = (int) Db::readOnly()->getValue($sql);
-                Cache::store($cacheId, $cartQuantity);
+				FROM `' . _DB_PREFIX_ . 'cart_product`
+				WHERE `id_product` = ' . (int) $id_product . '
+				AND `id_cart` = ' . (int) $id_cart;
+                $cart_quantity = (int) Db::read_only()->get_value($sql);
+                Cache::store($cache_id, $cart_quantity);
             } else {
-                $cartQuantity = Cache::retrieve($cacheId);
+                $cart_quantity = Cache::retrieve($cache_id);
             }
         }
-
-        $idCurrency = Validate::isLoadedObject($context->currency) ? (int) $context->currency->id : (int) Configuration::get('PS_CURRENCY_DEFAULT');
-
+        $id_currency = Validate::is_loaded_object($context->currency) ? (int) $context->currency->id : (int) Configuration::get('PS_CURRENCY_DEFAULT');
         // retrieve address informations
-        $idCountry = (int) $context->country->id;
-        $idState = 0;
+        $id_country = (int) $context->country->id;
+        $id_state = 0;
         $zipcode = 0;
-
-        if (!$idAddress && Validate::isLoadedObject($curCart)) {
-            $idAddress = $curCart->{Configuration::get('PS_TAX_ADDRESS_TYPE')};
+        if (!$id_address && Validate::is_loaded_object($cur_cart)) {
+            $id_address = $cur_cart->{Configuration::get('PS_TAX_ADDRESS_TYPE')};
         }
-
-        if ($idAddress) {
-            $addressInfos = Address::getCountryAndState($idAddress);
-            if ($addressInfos && $addressInfos['id_country']) {
-                $idCountry = (int) $addressInfos['id_country'];
-                $idState = (int) $addressInfos['id_state'];
-                $zipcode = $addressInfos['postcode'];
+        if ($id_address) {
+            $address_infos = Address::get_country_and_state($id_address);
+            if ($address_infos && $address_infos['id_country']) {
+                $id_country = (int) $address_infos['id_country'];
+                $id_state = (int) $address_infos['id_state'];
+                $zipcode = $address_infos['postcode'];
             }
         }
-
-        if (Tax::excludeTaxeOption()) {
+        if (Tax::exclude_taxe_option()) {
             $usetax = false;
         }
-
         // @TODO: Use a hook for this
-        if (Module::isEnabled('vatnumber') && $idAddress) {
-            require_once _PS_MODULE_DIR_.'/vatnumber/VATNumberTaxManager.php';
-
-            $address = new Address($idAddress);
-            $usetax = $usetax
-                      && ! VATNumberTaxManager::isAvailableForThisAddress($address);
+        if (Module::is_enabled('vatnumber') && $id_address) {
+            require_once _PS_MODULE_DIR_ . '/vatnumber/VATNumberTaxManager.php';
+            $address = new Address($id_address);
+            $usetax = $usetax && !Vat_Number_Tax_Manager::is_available_for_this_address($address);
         }
-
-        if (is_null($idCustomer) && Validate::isLoadedObject($context->customer)) {
-            $idCustomer = $context->customer->id;
+        if (is_null($id_customer) && Validate::is_loaded_object($context->customer)) {
+            $id_customer = $context->customer->id;
         }
-
-        return static::priceCalculation(
-            $context->shop->id,
-            $idProduct,
-            $idProductAttribute,
-            $idCountry,
-            $idState,
-            $zipcode,
-            $idCurrency,
-            $idGroup,
-            $quantity,
-            $usetax,
-            $decimals,
-            $onlyReduc,
-            $usereduc,
-            $withEcotax,
-            $specificPriceOutput,
-            $useGroupReduction,
-            $idCustomer,
-            $useCustomerPrice,
-            $idCart,
-            $cartQuantity
-        );
+        return static::price_calculation($context->shop->id, $id_product, $id_product_attribute, $id_country, $id_state, $zipcode, $id_currency, $id_group, $quantity, $usetax, $decimals, $only_reduc, $usereduc, $with_ecotax, $specific_price_output, $use_group_reduction, $id_customer, $use_customer_price, $id_cart, $cart_quantity);
     }
-
     /**
      * Price calculation / Get product price
      *
@@ -1025,262 +680,171 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function priceCalculation(
-        $idShop,
-        $idProduct,
-        $idProductAttribute,
-        $idCountry,
-        $idState,
-        $zipcode,
-        $idCurrency,
-        $idGroup,
-        $quantity,
-        $useTax,
-        $decimals,
-        $onlyReduc,
-        $useReduc,
-        $withEcotax,
-        &$specificPrice,
-        $useGroupReduction,
-        $idCustomer = 0,
-        $useCustomerPrice = true,
-        $idCart = 0,
-        $realQuantity = 0
-    ) {
+    public static function price_calculation($id_shop, $id_product, $id_product_attribute, $id_country, $id_state, $zipcode, $id_currency, $id_group, $quantity, $use_tax, $decimals, $only_reduc, $use_reduc, $with_ecotax, &$specific_price, $use_group_reduction, $id_customer = 0, $use_customer_price = true, $id_cart = 0, $real_quantity = 0)
+    {
         static $address = null;
         static $context = null;
-
         if ($address === null) {
             $address = new Address();
         }
-
         if ($context == null) {
-            $context = Context::getContext()->cloneContext();
+            $context = Context::get_context()->clone_context();
         }
-
-        if ($idShop !== null && $context->shop->id != (int) $idShop) {
-            $context->shop = new Shop((int) $idShop);
+        if ($id_shop !== null && $context->shop->id != (int) $id_shop) {
+            $context->shop = new Shop((int) $id_shop);
         }
-
-        if (!$useCustomerPrice) {
-            $idCustomer = 0;
+        if (!$use_customer_price) {
+            $id_customer = 0;
         }
-
-        if ($idProductAttribute === null) {
-            $idProductAttribute = static::getDefaultAttribute($idProduct);
+        if ($id_product_attribute === null) {
+            $id_product_attribute = static::get_default_attribute($id_product);
         }
-
-        $cacheId = (int) $idProduct.'-'.(int) $idShop.'-'.(int) $idCurrency.'-'.(int) $idCountry.'-'.$idState.'-'.$zipcode.'-'.(int) $idGroup.
-            '-'.(int) $quantity.'-'.(int) $idProductAttribute.
-            '-'.(int) $withEcotax.'-'.(int) $idCustomer.'-'.(int) $useGroupReduction.'-'.(int) $idCart.'-'.(int) $realQuantity.
-            '-'.($onlyReduc ? '1' : '0').'-'.($useReduc ? '1' : '0').'-'.($useTax ? '1' : '0').'-'.(int) $decimals;
-
+        $cache_id = (int) $id_product . '-' . (int) $id_shop . '-' . (int) $id_currency . '-' . (int) $id_country . '-' . $id_state . '-' . $zipcode . '-' . (int) $id_group . '-' . (int) $quantity . '-' . (int) $id_product_attribute . '-' . (int) $with_ecotax . '-' . (int) $id_customer . '-' . (int) $use_group_reduction . '-' . (int) $id_cart . '-' . (int) $real_quantity . '-' . ($only_reduc ? '1' : '0') . '-' . ($use_reduc ? '1' : '0') . '-' . ($use_tax ? '1' : '0') . '-' . (int) $decimals;
         // reference parameter is filled before any returns
-        $specificPrice = SpecificPrice::getSpecificPrice(
-            (int) $idProduct,
-            $idShop,
-            $idCurrency,
-            $idCountry,
-            $idGroup,
-            $quantity,
-            $idProductAttribute,
-            $idCustomer,
-            $idCart,
-            $realQuantity
-        );
-
-        if (isset(static::$_prices[$cacheId])) {
+        $specific_price = Specific_Price::get_specific_price((int) $id_product, $id_shop, $id_currency, $id_country, $id_group, $quantity, $id_product_attribute, $id_customer, $id_cart, $real_quantity);
+        if (isset(static::$_prices[$cache_id])) {
             /* Affect reference before returning cache */
-            if (isset($specificPrice['price']) && $specificPrice['price'] > 0) {
-                $specificPrice['price'] = static::$_prices[$cacheId];
+            if (isset($specific_price['price']) && $specific_price['price'] > 0) {
+                $specific_price['price'] = static::$_prices[$cache_id];
             }
-
-            return static::$_prices[$cacheId];
+            return static::$_prices[$cache_id];
         }
-
         // fetch price & attribute price
-        $cacheId2 = $idProduct.'-'.$idShop;
-        if (!isset(static::$_pricesLevel2[$cacheId2])) {
-            $sql = new DbQuery();
+        $cache_id2 = $id_product . '-' . $id_shop;
+        if (!isset(static::$_prices_level2[$cache_id2])) {
+            $sql = new Db_Query();
             $sql->select('product_shop.`price`');
             $sql->select('product_shop.`ecotax`');
             $sql->from('product', 'p');
-            $sql->innerJoin('product_shop', 'product_shop', '(product_shop.id_product=p.id_product AND product_shop.id_shop = '.(int) $idShop.')');
-            $sql->where('p.`id_product` = '.(int) $idProduct);
-            if (Combination::isFeatureActive()) {
-                $sql
-                    ->select('IFNULL(product_attribute_shop.id_product_attribute,0) AS id_product_attribute')
-                    ->select('product_attribute_shop.`price` AS attribute_price')
-                    ->select('product_attribute_shop.default_on')
-                    ->select('product_attribute_shop.`ecotax` AS attribute_ecotax');
-                $sql->leftJoin('product_attribute_shop', 'product_attribute_shop', '(product_attribute_shop.id_product = p.id_product AND product_attribute_shop.id_shop = '.(int) $idShop.')');
+            $sql->inner_join('product_shop', 'product_shop', '(product_shop.id_product=p.id_product AND product_shop.id_shop = ' . (int) $id_shop . ')');
+            $sql->where('p.`id_product` = ' . (int) $id_product);
+            if (Combination::is_feature_active()) {
+                $sql->select('IFNULL(product_attribute_shop.id_product_attribute,0) AS id_product_attribute')->select('product_attribute_shop.`price` AS attribute_price')->select('product_attribute_shop.default_on')->select('product_attribute_shop.`ecotax` AS attribute_ecotax');
+                $sql->left_join('product_attribute_shop', 'product_attribute_shop', '(product_attribute_shop.id_product = p.id_product AND product_attribute_shop.id_shop = ' . (int) $id_shop . ')');
             } else {
                 $sql->select('0 as id_product_attribute');
             }
-
-            $res = Db::readOnly()->getArray($sql);
+            $res = Db::read_only()->get_array($sql);
             foreach ($res as $row) {
-                $arrayTmp = [
-                    'price' => $row['price'],
-                    'ecotax' => $row['ecotax'],
-                    'attribute_price' => $row['attribute_price'] ?? null,
-                    'attribute_ecotax' => $row['attribute_ecotax'] ?? null,
-                ];
-                static::$_pricesLevel2[$cacheId2][(int) $row['id_product_attribute']] = $arrayTmp;
-
+                $array_tmp = ['price' => $row['price'], 'ecotax' => $row['ecotax'], 'attribute_price' => $row['attribute_price'] ?? null, 'attribute_ecotax' => $row['attribute_ecotax'] ?? null];
+                static::$_prices_level2[$cache_id2][(int) $row['id_product_attribute']] = $array_tmp;
                 if (isset($row['default_on']) && $row['default_on'] == 1) {
-                    static::$_pricesLevel2[$cacheId2][0] = $arrayTmp;
+                    static::$_prices_level2[$cache_id2][0] = $array_tmp;
                 }
             }
         }
-
-        if (!isset(static::$_pricesLevel2[$cacheId2][(int) $idProductAttribute])) {
+        if (!isset(static::$_prices_level2[$cache_id2][(int) $id_product_attribute])) {
             return 0.0;
         }
-
-        $result = static::$_pricesLevel2[$cacheId2][(int) $idProductAttribute];
-
-        if (!$specificPrice || $specificPrice['price'] < 0) {
+        $result = static::$_prices_level2[$cache_id2][(int) $id_product_attribute];
+        if (!$specific_price || $specific_price['price'] < 0) {
             $price = (float) $result['price'];
         } else {
-            $price = (float) $specificPrice['price'];
+            $price = (float) $specific_price['price'];
         }
         // convert only if the specific price is in the default currency (id_currency = 0)
-        if (!$specificPrice || !($specificPrice['price'] >= 0 && $specificPrice['id_currency'])) {
-            $price = Tools::convertPrice($price, $idCurrency);
-            if (isset($specificPrice['price']) && $specificPrice['price'] >= 0) {
-                $specificPrice['price'] = $price;
+        if (!$specific_price || !($specific_price['price'] >= 0 && $specific_price['id_currency'])) {
+            $price = Tools::convert_price($price, $id_currency);
+            if (isset($specific_price['price']) && $specific_price['price'] >= 0) {
+                $specific_price['price'] = $price;
             }
         }
-
         // Attribute price
-        if (is_array($result) && (!$specificPrice || !$specificPrice['id_product_attribute'] || $specificPrice['price'] < 0)) {
-            $attributePrice = Tools::convertPrice($result['attribute_price'] !== null ? (float) $result['attribute_price'] : 0, $idCurrency);
+        if (is_array($result) && (!$specific_price || !$specific_price['id_product_attribute'] || $specific_price['price'] < 0)) {
+            $attribute_price = Tools::convert_price($result['attribute_price'] !== null ? (float) $result['attribute_price'] : 0, $id_currency);
             // If you want the default combination, please use NULL value instead
-            if ($idProductAttribute !== false) {
-                $price += $attributePrice;
+            if ($id_product_attribute !== false) {
+                $price += $attribute_price;
             }
         }
-
         // Tax
-        $address->id_country = $idCountry;
-        $address->id_state = $idState;
+        $address->id_country = $id_country;
+        $address->id_state = $id_state;
         $address->postcode = $zipcode;
-
-        $taxManager = TaxManagerFactory::getManager($address, static::getIdTaxRulesGroupByIdProduct((int) $idProduct, $context));
-        $productTaxCalculator = $taxManager->getTaxCalculator();
-
+        $tax_manager = Tax_Manager_Factory::get_manager($address, static::get_id_tax_rules_group_by_id_product((int) $id_product, $context));
+        $product_tax_calculator = $tax_manager->get_tax_calculator();
         // Add Tax
-        if ($useTax) {
-            $price = $productTaxCalculator->addTaxes($price);
+        if ($use_tax) {
+            $price = $product_tax_calculator->add_taxes($price);
         }
-
         // Reduction
-        $specificPriceReduction = 0;
-        if (($onlyReduc || $useReduc) && $specificPrice) {
-            if ($specificPrice['reduction_type'] == 'amount') {
-                $reductionAmount = $specificPrice['reduction'];
-
-                if (!$specificPrice['id_currency']) {
-                    $reductionAmount = Tools::convertPrice($reductionAmount, $idCurrency);
+        $specific_price_reduction = 0;
+        if (($only_reduc || $use_reduc) && $specific_price) {
+            if ($specific_price['reduction_type'] == 'amount') {
+                $reduction_amount = $specific_price['reduction'];
+                if (!$specific_price['id_currency']) {
+                    $reduction_amount = Tools::convert_price($reduction_amount, $id_currency);
                 }
-
-                $specificPriceReduction = $reductionAmount;
-
+                $specific_price_reduction = $reduction_amount;
                 // Adjust taxes if required
-                if (!$useTax && $specificPrice['reduction_tax']) {
-                    if (!$productTaxCalculator->getTotalRate()) {
+                if (!$use_tax && $specific_price['reduction_tax']) {
+                    if (!$product_tax_calculator->get_total_rate()) {
                         $tax = new Tax(Configuration::get('TB_DEFAULT_SPECIFIC_PRICE_RULE_TAX'));
-                        if (Validate::isLoadedObject($tax)) {
-                            $specificPriceReduction = round(
-                                $specificPriceReduction / (1 + $tax->rate / 100),
-                                _TB_PRICE_DATABASE_PRECISION_
-                            );
+                        if (Validate::is_loaded_object($tax)) {
+                            $specific_price_reduction = round($specific_price_reduction / (1 + $tax->rate / 100), _TB_PRICE_DATABASE_PRECISION_);
                         }
                     } else {
-                        $specificPriceReduction = $productTaxCalculator->removeTaxes($specificPriceReduction);
+                        $specific_price_reduction = $product_tax_calculator->remove_taxes($specific_price_reduction);
                     }
                 }
-                if ($useTax && !$specificPrice['reduction_tax']) {
-                    $specificPriceReduction = $productTaxCalculator->addTaxes($specificPriceReduction);
+                if ($use_tax && !$specific_price['reduction_tax']) {
+                    $specific_price_reduction = $product_tax_calculator->add_taxes($specific_price_reduction);
                 }
             } else {
-                $specificPriceReduction = round(
-                    $price * $specificPrice['reduction'],
-                    _TB_PRICE_DATABASE_PRECISION_
-                );
+                $specific_price_reduction = round($price * $specific_price['reduction'], _TB_PRICE_DATABASE_PRECISION_);
             }
         }
-
-        if ($useReduc) {
-            $price -= $specificPriceReduction;
+        if ($use_reduc) {
+            $price -= $specific_price_reduction;
         }
-
         // Group reduction
-        if ($useGroupReduction) {
-            $reductionFromCategory = GroupReduction::getValueForProduct($idProduct, $idGroup);
-            if ($reductionFromCategory !== false) {
-                $groupReduction = Tools::roundPrice($price * $reductionFromCategory);
+        if ($use_group_reduction) {
+            $reduction_from_category = Group_Reduction::get_value_for_product($id_product, $id_group);
+            if ($reduction_from_category !== false) {
+                $group_reduction = Tools::round_price($price * $reduction_from_category);
             } else {
                 // Apply group reduction if there is no group reduction for
                 // this category.
-                $reduc = Group::getReductionByIdGroup($idGroup);
-                $groupReduction = $reduc
-                    ? Tools::roundPrice($price * $reduc / 100)
-                    : 0.0;
+                $reduc = Group::get_reduction_by_id_group($id_group);
+                $group_reduction = $reduc ? Tools::round_price($price * $reduc / 100) : 0.0;
             }
-
-            $price -= $groupReduction;
+            $price -= $group_reduction;
         }
-
-        if ($onlyReduc) {
+        if ($only_reduc) {
             if ($decimals >= _TB_PRICE_DATABASE_PRECISION_) {
-                return round(
-                    $specificPriceReduction,
-                    _TB_PRICE_DATABASE_PRECISION_
-                );
+                return round($specific_price_reduction, _TB_PRICE_DATABASE_PRECISION_);
             }
-            return Tools::ps_round($specificPriceReduction, $decimals);
+            return Tools::ps_round($specific_price_reduction, $decimals);
         }
-
         // Eco Tax
-        if (($result['ecotax'] || isset($result['attribute_ecotax'])) && $withEcotax) {
+        if (($result['ecotax'] || isset($result['attribute_ecotax'])) && $with_ecotax) {
             $ecotax = $result['ecotax'];
             if (isset($result['attribute_ecotax']) && $result['attribute_ecotax'] > 0) {
                 $ecotax = $result['attribute_ecotax'];
             }
-
-            if ($idCurrency) {
-                $ecotax = Tools::convertPrice($ecotax, $idCurrency);
+            if ($id_currency) {
+                $ecotax = Tools::convert_price($ecotax, $id_currency);
             }
-            if ($useTax) {
+            if ($use_tax) {
                 // reinit the tax manager for ecotax handling
-                $taxManager = TaxManagerFactory::getManager(
-                    $address,
-                    (int) Configuration::get('PS_ECOTAX_TAX_RULES_GROUP_ID')
-                );
-                $ecotaxTaxCalculator = $taxManager->getTaxCalculator();
-                $price += $ecotaxTaxCalculator->addTaxes($ecotax);
+                $tax_manager = Tax_Manager_Factory::get_manager($address, (int) Configuration::get('PS_ECOTAX_TAX_RULES_GROUP_ID'));
+                $ecotax_tax_calculator = $tax_manager->get_tax_calculator();
+                $price += $ecotax_tax_calculator->add_taxes($ecotax);
             } else {
                 $price += $ecotax;
             }
         }
-
         if ($decimals >= _TB_PRICE_DATABASE_PRECISION_) {
             $price = round($price, _TB_PRICE_DATABASE_PRECISION_);
         } else {
             $price = Tools::ps_round($price, $decimals);
         }
-
         if ($price < 0) {
             $price = 0;
         }
-
-        static::$_prices[$cacheId] = $price;
-
-        return static::$_prices[$cacheId];
+        static::$_prices[$cache_id] = $price;
+        return static::$_prices[$cache_id];
     }
-
     /**
      * Get the default attribute for a product
      *
@@ -1292,77 +856,57 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public static function getDefaultAttribute($idProduct, $minimumQuantity = 0, $reset = false)
+    public static function get_default_attribute($id_product, $minimum_quantity = 0, $reset = false)
     {
         static $combinations = [];
-
-        if (!Combination::isFeatureActive()) {
+        if (!Combination::is_feature_active()) {
             return 0;
         }
-
-        if ($reset && isset($combinations[$idProduct])) {
-            unset($combinations[$idProduct]);
+        if ($reset && isset($combinations[$id_product])) {
+            unset($combinations[$id_product]);
         }
-
-        if (!isset($combinations[$idProduct])) {
-            $combinations[$idProduct] = [];
+        if (!isset($combinations[$id_product])) {
+            $combinations[$id_product] = [];
         }
-        if (isset($combinations[$idProduct][$minimumQuantity])) {
-            return $combinations[$idProduct][$minimumQuantity];
+        if (isset($combinations[$id_product][$minimum_quantity])) {
+            return $combinations[$id_product][$minimum_quantity];
         }
-
         $sql = 'SELECT product_attribute_shop.id_product_attribute
-				FROM '._DB_PREFIX_.'product_attribute pa
-				'.Shop::addSqlAssociation('product_attribute', 'pa').'
-				WHERE pa.id_product = '.(int) $idProduct;
-
-        $conn = Db::readOnly();
-        $resultNoFilter = $conn->getValue($sql);
-        if (!$resultNoFilter) {
-            $combinations[$idProduct][$minimumQuantity] = 0;
-
+				FROM ' . _DB_PREFIX_ . 'product_attribute pa
+				' . Shop::add_sql_association('product_attribute', 'pa') . '
+				WHERE pa.id_product = ' . (int) $id_product;
+        $conn = Db::read_only();
+        $result_no_filter = $conn->get_value($sql);
+        if (!$result_no_filter) {
+            $combinations[$id_product][$minimum_quantity] = 0;
             return 0;
         }
-
         $sql = 'SELECT product_attribute_shop.id_product_attribute
-				FROM '._DB_PREFIX_.'product_attribute pa
-				'.Shop::addSqlAssociation('product_attribute', 'pa').'
-				'.($minimumQuantity > 0 ? static::sqlStock('pa', 'pa') : '').
-            ' WHERE product_attribute_shop.default_on = 1 '
-            .($minimumQuantity > 0 ? ' AND IFNULL(stock.quantity, 0) >= '.(int) $minimumQuantity : '').
-            ' AND pa.id_product = '.(int) $idProduct;
-        $result = $conn->getValue($sql);
-
+				FROM ' . _DB_PREFIX_ . 'product_attribute pa
+				' . Shop::add_sql_association('product_attribute', 'pa') . '
+				' . ($minimum_quantity > 0 ? static::sql_stock('pa', 'pa') : '') . ' WHERE product_attribute_shop.default_on = 1 ' . ($minimum_quantity > 0 ? ' AND IFNULL(stock.quantity, 0) >= ' . (int) $minimum_quantity : '') . ' AND pa.id_product = ' . (int) $id_product;
+        $result = $conn->get_value($sql);
         if (!$result) {
             $sql = 'SELECT product_attribute_shop.id_product_attribute
-					FROM '._DB_PREFIX_.'product_attribute pa
-					'.Shop::addSqlAssociation('product_attribute', 'pa').'
-					'.($minimumQuantity > 0 ? static::sqlStock('pa', 'pa') : '').
-                ' WHERE pa.id_product = '.(int) $idProduct
-                .($minimumQuantity > 0 ? ' AND IFNULL(stock.quantity, 0) >= '.(int) $minimumQuantity : '');
-
-            $result = $conn->getValue($sql);
+					FROM ' . _DB_PREFIX_ . 'product_attribute pa
+					' . Shop::add_sql_association('product_attribute', 'pa') . '
+					' . ($minimum_quantity > 0 ? static::sql_stock('pa', 'pa') : '') . ' WHERE pa.id_product = ' . (int) $id_product . ($minimum_quantity > 0 ? ' AND IFNULL(stock.quantity, 0) >= ' . (int) $minimum_quantity : '');
+            $result = $conn->get_value($sql);
         }
-
         if (!$result) {
             $sql = 'SELECT product_attribute_shop.id_product_attribute
-					FROM '._DB_PREFIX_.'product_attribute pa
-					'.Shop::addSqlAssociation('product_attribute', 'pa').'
+					FROM ' . _DB_PREFIX_ . 'product_attribute pa
+					' . Shop::add_sql_association('product_attribute', 'pa') . '
 					WHERE product_attribute_shop.`default_on` = 1
-					AND pa.id_product = '.(int) $idProduct;
-
-            $result = $conn->getValue($sql);
+					AND pa.id_product = ' . (int) $id_product;
+            $result = $conn->get_value($sql);
         }
-
         if (!$result) {
-            $result = $resultNoFilter;
+            $result = $result_no_filter;
         }
-
-        $combinations[$idProduct][$minimumQuantity] = $result;
-
+        $combinations[$id_product][$minimum_quantity] = $result;
         return $result;
     }
-
     /**
      * Create JOIN query with 'stock_available' table
      *
@@ -1375,86 +919,73 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function sqlStock($productAlias, $productAttribute = null, $innerJoin = false, ?Shop $shop = null)
+    public static function sql_stock($product_alias, $product_attribute = null, $inner_join = false, ?Shop $shop = null)
     {
-        $idShop = ($shop !== null ? (int) $shop->id : null);
-        $sql = (($innerJoin) ? ' INNER ' : ' LEFT ')
-            .'JOIN '._DB_PREFIX_.'stock_available stock
-			ON (stock.id_product = '.pSQL($productAlias).'.id_product';
-
-        if (!is_null($productAttribute)) {
-            if (!Combination::isFeatureActive()) {
+        $id_shop = $shop !== null ? (int) $shop->id : null;
+        $sql = ($inner_join ? ' INNER ' : ' LEFT ') . 'JOIN ' . _DB_PREFIX_ . 'stock_available stock
+			ON (stock.id_product = ' . p_sql($product_alias) . '.id_product';
+        if (!is_null($product_attribute)) {
+            if (!Combination::is_feature_active()) {
                 $sql .= ' AND stock.id_product_attribute = 0';
-            } elseif (is_numeric($productAttribute)) {
-                $sql .= ' AND stock.id_product_attribute = '.$productAttribute;
-            } elseif (is_string($productAttribute)) {
-                $sql .= ' AND stock.id_product_attribute = IFNULL(`'.bqSQL($productAttribute).'`.id_product_attribute, 0)';
+            } elseif (is_numeric($product_attribute)) {
+                $sql .= ' AND stock.id_product_attribute = ' . $product_attribute;
+            } elseif (is_string($product_attribute)) {
+                $sql .= ' AND stock.id_product_attribute = IFNULL(`' . bq_sql($product_attribute) . '`.id_product_attribute, 0)';
             }
         }
-
-        return $sql . (StockAvailable::addSqlShopRestriction(null, $idShop, 'stock') . ' )');
+        return $sql . (Stock_Available::add_sql_shop_restriction(null, $id_shop, 'stock') . ' )');
     }
-
     /**
      * @param int $idProduct
      *
      * @return int
      * @throws PrestaShopException
      */
-    public static function getIdTaxRulesGroupByIdProduct($idProduct, ?Context $context = null)
+    public static function get_id_tax_rules_group_by_id_product($id_product, ?Context $context = null)
     {
         if (!$context) {
-            $context = Context::getContext();
+            $context = Context::get_context();
         }
-        $key = 'product_id_tax_rules_group_'.(int) $idProduct.'_'.(int) $context->shop->id;
-        if (!Cache::isStored($key)) {
-            $result = Db::readOnly()->getValue(
-                '
+        $key = 'product_id_tax_rules_group_' . (int) $id_product . '_' . (int) $context->shop->id;
+        if (!Cache::is_stored($key)) {
+            $result = Db::read_only()->get_value('
 							SELECT `id_tax_rules_group`
-							FROM `'._DB_PREFIX_.'product_shop`
-							WHERE `id_product` = '.(int) $idProduct.' AND id_shop='.(int) $context->shop->id
-            );
+							FROM `' . _DB_PREFIX_ . 'product_shop`
+							WHERE `id_product` = ' . (int) $id_product . ' AND id_shop=' . (int) $context->shop->id);
             Cache::store($key, (int) $result);
-
             return (int) $result;
         }
-
         return Cache::retrieve($key);
     }
-
     /**
      * Fill the variables used for stock management
      *
      * @throws PrestaShopException
      */
-    public function loadStockData(): void
+    public function load_stock_data(): void
     {
-        if (Validate::isLoadedObject($this)) {
+        if (Validate::is_loaded_object($this)) {
             // By default, the product quantity correspond to the available quantity to sell in the current shop
-            $this->quantity = StockAvailable::getQuantityAvailableByProduct($this->id, 0);
-            $this->out_of_stock = StockAvailable::outOfStock($this->id);
-            $this->depends_on_stock = StockAvailable::dependsOnStock($this->id);
-            if (Context::getContext()->shop->getContext() == Shop::CONTEXT_GROUP && Context::getContext()->shop->getContextShopGroup()->share_stock == 1) {
-                $this->advanced_stock_management = $this->useAdvancedStockManagement();
+            $this->quantity = Stock_Available::get_quantity_available_by_product($this->id, 0);
+            $this->out_of_stock = Stock_Available::out_of_stock($this->id);
+            $this->depends_on_stock = Stock_Available::depends_on_stock($this->id);
+            if (Context::get_context()->shop->get_context() == Shop::CONTEXT_GROUP && Context::get_context()->shop->get_context_shop_group()->share_stock == 1) {
+                $this->advanced_stock_management = $this->use_advanced_stock_management();
             }
         }
     }
-
     /**
      * @return false|null|string
      *
      * @throws PrestaShopException
      */
-    public function useAdvancedStockManagement()
+    public function use_advanced_stock_management()
     {
-        return Db::readOnly()->getValue(
-            '
+        return Db::read_only()->get_value('
 					SELECT `advanced_stock_management`
-					FROM '._DB_PREFIX_.'product_shop
-					WHERE id_product='.(int) $this->id.Shop::addSqlRestriction()
-        );
+					FROM ' . _DB_PREFIX_ . 'product_shop
+					WHERE id_product=' . (int) $this->id . Shop::add_sql_restriction());
     }
-
     /**
      * @param int|null $idCustomer
      *
@@ -1463,50 +994,44 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getTaxCalculationMethod($idCustomer = null)
+    public static function get_tax_calculation_method($id_customer = null)
     {
-        if (static::$_taxCalculationMethod === null || $idCustomer !== null) {
-            static::initPricesComputation($idCustomer);
+        if (static::$_tax_calculation_method === null || $id_customer !== null) {
+            static::init_prices_computation($id_customer);
         }
-
-        return (int) static::$_taxCalculationMethod;
+        return (int) static::$_tax_calculation_method;
     }
-
     /**
      * @param int|null $idCustomer
      *
      * @throws PrestaShopException
      */
-    public static function initPricesComputation($idCustomer = null): void
+    public static function init_prices_computation($id_customer = null): void
     {
-        if ($idCustomer) {
-            $idCustomer = (int)$idCustomer;
-            $customer = new Customer($idCustomer);
-            if (!Validate::isLoadedObject($customer)) {
-                throw new PrestaShopException(sprintf(Tools::displayError('Customer [%s] not found'), $idCustomer));
+        if ($id_customer) {
+            $id_customer = (int) $id_customer;
+            $customer = new Customer($id_customer);
+            if (!Validate::is_loaded_object($customer)) {
+                throw new Presta_Shop_Exception(sprintf(Tools::display_error('Customer [%s] not found'), $id_customer));
             }
-            static::$_taxCalculationMethod = Group::getPriceDisplayMethod((int) $customer->id_default_group);
-            $curCart = Context::getContext()->cart;
-            $idAddress = 0;
-            if (Validate::isLoadedObject($curCart)) {
-                $idAddress = (int) $curCart->{Configuration::get('PS_TAX_ADDRESS_TYPE')};
+            static::$_tax_calculation_method = Group::get_price_display_method((int) $customer->id_default_group);
+            $cur_cart = Context::get_context()->cart;
+            $id_address = 0;
+            if (Validate::is_loaded_object($cur_cart)) {
+                $id_address = (int) $cur_cart->{Configuration::get('PS_TAX_ADDRESS_TYPE')};
             }
-
             // @TODO: Use a hook for this
-            if (Module::isEnabled('vatnumber')
-                && static::$_taxCalculationMethod != PS_TAX_EXC) {
-                require_once _PS_MODULE_DIR_.'/vatnumber/VATNumberTaxManager.php';
-
-                $address = new Address($idAddress);
-                if (VATNumberTaxManager::isAvailableForThisAddress($address)) {
-                    static::$_taxCalculationMethod = PS_TAX_EXC;
+            if (Module::is_enabled('vatnumber') && static::$_tax_calculation_method != PS_TAX_EXC) {
+                require_once _PS_MODULE_DIR_ . '/vatnumber/VATNumberTaxManager.php';
+                $address = new Address($id_address);
+                if (Vat_Number_Tax_Manager::is_available_for_this_address($address)) {
+                    static::$_tax_calculation_method = PS_TAX_EXC;
                 }
             }
         } else {
-            static::$_taxCalculationMethod = Group::getPriceDisplayMethod(Group::getCurrent()->id);
+            static::$_tax_calculation_method = Group::get_price_display_method(Group::get_current()->id);
         }
     }
-
     /**
      * For a given id_product and id_product_attribute, return available date
      *
@@ -1517,43 +1042,32 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public static function getAvailableDate($idProduct, $idProductAttribute = null)
+    public static function get_available_date($id_product, $id_product_attribute = null)
     {
         $sql = 'SELECT';
-
-        if ($idProductAttribute === null) {
+        if ($id_product_attribute === null) {
             $sql .= ' p.`available_date`';
         } else {
             $sql .= ' IF(pa.`available_date` = "0000-00-00", p.`available_date`, pa.`available_date`) AS available_date';
         }
-
-        $sql .= ' FROM `'._DB_PREFIX_.'product` p';
-
-        if ($idProductAttribute !== null) {
-            $sql .= ' LEFT JOIN `'._DB_PREFIX_.'product_attribute` pa ON (pa.`id_product` = p.`id_product`)';
+        $sql .= ' FROM `' . _DB_PREFIX_ . 'product` p';
+        if ($id_product_attribute !== null) {
+            $sql .= ' LEFT JOIN `' . _DB_PREFIX_ . 'product_attribute` pa ON (pa.`id_product` = p.`id_product`)';
         }
-
-        $sql .= Shop::addSqlAssociation('product', 'p');
-
-        if ($idProductAttribute !== null) {
-            $sql .= Shop::addSqlAssociation('product_attribute', 'pa');
+        $sql .= Shop::add_sql_association('product', 'p');
+        if ($id_product_attribute !== null) {
+            $sql .= Shop::add_sql_association('product_attribute', 'pa');
         }
-
-        $sql .= ' WHERE p.`id_product` = '.(int) $idProduct;
-
-        if ($idProductAttribute !== null) {
-            $sql .= ' AND pa.`id_product` = '.(int) $idProduct.' AND pa.`id_product_attribute` = '.(int) $idProductAttribute;
+        $sql .= ' WHERE p.`id_product` = ' . (int) $id_product;
+        if ($id_product_attribute !== null) {
+            $sql .= ' AND pa.`id_product` = ' . (int) $id_product . ' AND pa.`id_product_attribute` = ' . (int) $id_product_attribute;
         }
-
-        $result = Db::readOnly()->getValue($sql);
-
+        $result = Db::read_only()->get_value($sql);
         if ($result == '0000-00-00') {
             return null;
         }
-
         return $result;
     }
-
     /**
      * @param int $idProduct
      * @param bool $isVirtual
@@ -1561,17 +1075,10 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function updateIsVirtual($idProduct, $isVirtual = true): void
+    public static function update_is_virtual($id_product, $is_virtual = true): void
     {
-        Db::getInstance()->update(
-            'product',
-            [
-                'is_virtual' => (bool) $isVirtual,
-            ],
-            'id_product = '.(int) $idProduct
-        );
+        Db::get_instance()->update('product', ['is_virtual' => (bool) $is_virtual], 'id_product = ' . (int) $id_product);
     }
-
     /**
      * Get all available products
      *
@@ -1589,85 +1096,63 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getProducts(
-        $idLang,
-        $start,
-        $limit,
-        $orderBy,
-        $orderWay,
-        $idCategory = false,
-        $onlyActive = false,
-        ?Context $context = null
-    ) {
-        if (!Validate::isOrderBy($orderBy) || !Validate::isOrderWay($orderWay)) {
-            throw new PrestaShopException(sprintf(Tools::displayError('Invalid ordering parameters: orderBy=[%s] orderWay=[%s]'), $orderBy, $orderWay));
+    public static function get_products($id_lang, $start, $limit, $order_by, $order_way, $id_category = false, $only_active = false, ?Context $context = null)
+    {
+        if (!Validate::is_order_by($order_by) || !Validate::is_order_way($order_way)) {
+            throw new Presta_Shop_Exception(sprintf(Tools::display_error('Invalid ordering parameters: orderBy=[%s] orderWay=[%s]'), $order_by, $order_way));
         }
-        if ($orderBy == 'id_product' || $orderBy == 'price' || $orderBy == 'date_add' || $orderBy == 'date_upd') {
-            $orderByPrefix = 'p';
-        } elseif ($orderBy == 'name') {
-            $orderByPrefix = 'pl';
-        } elseif ($orderBy == 'position') {
-            $orderByPrefix = 'c';
+        if ($order_by == 'id_product' || $order_by == 'price' || $order_by == 'date_add' || $order_by == 'date_upd') {
+            $order_by_prefix = 'p';
+        } elseif ($order_by == 'name') {
+            $order_by_prefix = 'pl';
+        } elseif ($order_by == 'position') {
+            $order_by_prefix = 'c';
         }
-
-        if (strpos($orderBy, '.') > 0) {
-            $orderBy = explode('.', $orderBy);
-            $orderByPrefix = $orderBy[0];
-            $orderBy = $orderBy[1];
+        if (strpos($order_by, '.') > 0) {
+            $order_by = explode('.', $order_by);
+            $order_by_prefix = $order_by[0];
+            $order_by = $order_by[1];
         }
         $sql = 'SELECT p.*, product_shop.*, pl.* , m.`name` AS manufacturer_name, s.`name` AS supplier_name
-				FROM `'._DB_PREFIX_.'product` p
-				'.Shop::addSqlAssociation('product', 'p').'
-				LEFT JOIN `'._DB_PREFIX_.'product_lang` pl ON (p.`id_product` = pl.`id_product` '.Shop::addSqlRestrictionOnLang('pl').')
-				LEFT JOIN `'._DB_PREFIX_.'manufacturer` m ON (m.`id_manufacturer` = p.`id_manufacturer`)
-				LEFT JOIN `'._DB_PREFIX_.'supplier` s ON (s.`id_supplier` = p.`id_supplier`)'.
-            ($idCategory ? 'LEFT JOIN `'._DB_PREFIX_.'category_product` c ON (c.`id_product` = p.`id_product`)' : '').'
-				WHERE pl.`id_lang` = '.(int) $idLang.
-            ($idCategory ? ' AND c.`id_category` = '.(int) $idCategory : '').
-            (static::isFrontOfficeContext($context) ? ' AND product_shop.`visibility` IN ("both", "catalog")' : '').
-            ($onlyActive ? ' AND product_shop.`active` = 1' : '').'
-				ORDER BY '.(isset($orderByPrefix) ? pSQL($orderByPrefix).'.' : '').'`'.pSQL($orderBy).'` '.pSQL($orderWay).
-            ($limit > 0 ? ' LIMIT '.(int) $start.','.(int) $limit : '');
-        $rq = Db::readOnly()->getArray($sql);
-        if ($orderBy == 'price') {
-            Tools::orderbyPrice($rq, $orderWay);
+				FROM `' . _DB_PREFIX_ . 'product` p
+				' . Shop::add_sql_association('product', 'p') . '
+				LEFT JOIN `' . _DB_PREFIX_ . 'product_lang` pl ON (p.`id_product` = pl.`id_product` ' . Shop::add_sql_restriction_on_lang('pl') . ')
+				LEFT JOIN `' . _DB_PREFIX_ . 'manufacturer` m ON (m.`id_manufacturer` = p.`id_manufacturer`)
+				LEFT JOIN `' . _DB_PREFIX_ . 'supplier` s ON (s.`id_supplier` = p.`id_supplier`)' . ($id_category ? 'LEFT JOIN `' . _DB_PREFIX_ . 'category_product` c ON (c.`id_product` = p.`id_product`)' : '') . '
+				WHERE pl.`id_lang` = ' . (int) $id_lang . ($id_category ? ' AND c.`id_category` = ' . (int) $id_category : '') . (static::is_front_office_context($context) ? ' AND product_shop.`visibility` IN ("both", "catalog")' : '') . ($only_active ? ' AND product_shop.`active` = 1' : '') . '
+				ORDER BY ' . (isset($order_by_prefix) ? p_sql($order_by_prefix) . '.' : '') . '`' . p_sql($order_by) . '` ' . p_sql($order_way) . ($limit > 0 ? ' LIMIT ' . (int) $start . ',' . (int) $limit : '');
+        $rq = Db::read_only()->get_array($sql);
+        if ($order_by == 'price') {
+            Tools::orderby_price($rq, $order_way);
         }
-
         foreach ($rq as &$row) {
-            $row = static::getTaxesInformations($row);
+            $row = static::get_taxes_informations($row);
         }
-
-        return ($rq);
+        return $rq;
     }
-
     /**
      * @param array $row
      *
      * @return array
      * @throws PrestaShopException
      */
-    public static function getTaxesInformations($row, ?Context $context = null)
+    public static function get_taxes_informations($row, ?Context $context = null)
     {
         static $address = null;
-
         if ($context === null) {
-            $context = Context::getContext();
+            $context = Context::get_context();
         }
         if ($address === null) {
             $address = new Address();
         }
-
         $address->id_country = (int) $context->country->id;
         $address->id_state = 0;
         $address->postcode = 0;
-
-        $taxManager = TaxManagerFactory::getManager($address, static::getIdTaxRulesGroupByIdProduct((int) $row['id_product'], $context));
-        $row['rate'] = $taxManager->getTaxCalculator()->getTotalRate();
-        $row['tax_name'] = $taxManager->getTaxCalculator()->getTaxesName();
-
+        $tax_manager = Tax_Manager_Factory::get_manager($address, static::get_id_tax_rules_group_by_id_product((int) $row['id_product'], $context));
+        $row['rate'] = $tax_manager->get_tax_calculator()->get_total_rate();
+        $row['tax_name'] = $tax_manager->get_tax_calculator()->get_taxes_name();
         return $row;
     }
-
     /**
      * @param int $idLang
      *
@@ -1676,19 +1161,17 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getSimpleProducts($idLang, ?Context $context = null)
+    public static function get_simple_products($id_lang, ?Context $context = null)
     {
         $sql = 'SELECT p.`id_product`, pl.`name`
-				FROM `'._DB_PREFIX_.'product` p
-				'.Shop::addSqlAssociation('product', 'p').'
-				LEFT JOIN `'._DB_PREFIX_.'product_lang` pl ON (p.`id_product` = pl.`id_product` '.Shop::addSqlRestrictionOnLang('pl').')
-				WHERE pl.`id_lang` = '.(int) $idLang.'
-				'.(static::isFrontOfficeContext($context) ? ' AND product_shop.`visibility` IN ("both", "catalog")' : '').'
+				FROM `' . _DB_PREFIX_ . 'product` p
+				' . Shop::add_sql_association('product', 'p') . '
+				LEFT JOIN `' . _DB_PREFIX_ . 'product_lang` pl ON (p.`id_product` = pl.`id_product` ' . Shop::add_sql_restriction_on_lang('pl') . ')
+				WHERE pl.`id_lang` = ' . (int) $id_lang . '
+				' . (static::is_front_office_context($context) ? ' AND product_shop.`visibility` IN ("both", "catalog")' : '') . '
 				ORDER BY pl.`name`';
-
-        return Db::readOnly()->getArray($sql);
+        return Db::read_only()->get_array($sql);
     }
-
     /**
      * @param int $idProductAttribute
      * @param int $idLang
@@ -1698,22 +1181,18 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getCombinationImageById($idProductAttribute, $idLang)
+    public static function get_combination_image_by_id($id_product_attribute, $id_lang)
     {
-        if (!Combination::isFeatureActive() || !$idProductAttribute) {
+        if (!Combination::is_feature_active() || !$id_product_attribute) {
             return false;
         }
-
-        return Db::readOnly()->getRow(
-            '
+        return Db::read_only()->get_row('
 			SELECT pai.`id_image`, pai.`id_product_attribute`, il.`legend`
-			FROM `'._DB_PREFIX_.'product_attribute_image` pai
-			LEFT JOIN `'._DB_PREFIX_.'image_lang` il ON (il.`id_image` = pai.`id_image`)
-			LEFT JOIN `'._DB_PREFIX_.'image` i ON (i.`id_image` = pai.`id_image`)
-			WHERE pai.`id_product_attribute` = '.(int) $idProductAttribute.' AND il.`id_lang` = '.(int) $idLang.' ORDER BY i.`position`'
-        );
+			FROM `' . _DB_PREFIX_ . 'product_attribute_image` pai
+			LEFT JOIN `' . _DB_PREFIX_ . 'image_lang` il ON (il.`id_image` = pai.`id_image`)
+			LEFT JOIN `' . _DB_PREFIX_ . 'image` i ON (i.`id_image` = pai.`id_image`)
+			WHERE pai.`id_product_attribute` = ' . (int) $id_product_attribute . ' AND il.`id_lang` = ' . (int) $id_lang . ' ORDER BY i.`position`');
     }
-
     /**
      * Get new products
      *
@@ -1729,124 +1208,99 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getNewProducts($idLang, $pageNumber = 0, $nbProducts = 10, $count = false, $orderBy = null, $orderWay = null, ?Context $context = null)
+    public static function get_new_products($id_lang, $page_number = 0, $nb_products = 10, $count = false, $order_by = null, $order_way = null, ?Context $context = null)
     {
         if (!$context) {
-            $context = Context::getContext();
+            $context = Context::get_context();
         }
-
-        $front = static::isFrontOfficeContext($context);
-
-        if ($pageNumber < 0) {
-            $pageNumber = 0;
+        $front = static::is_front_office_context($context);
+        if ($page_number < 0) {
+            $page_number = 0;
         }
-        if ($nbProducts < 1) {
-            $nbProducts = 10;
+        if ($nb_products < 1) {
+            $nb_products = 10;
         }
-        if (empty($orderBy) || $orderBy == 'position') {
-            $orderBy = 'date_add';
+        if (empty($order_by) || $order_by == 'position') {
+            $order_by = 'date_add';
         }
-        if (empty($orderWay)) {
-            $orderWay = 'DESC';
+        if (empty($order_way)) {
+            $order_way = 'DESC';
         }
-        if ($orderBy == 'id_product' || $orderBy == 'price' || $orderBy == 'date_add' || $orderBy == 'date_upd') {
-            $orderByPrefix = 'product_shop';
-        } elseif ($orderBy == 'name') {
-            $orderByPrefix = 'pl';
+        if ($order_by == 'id_product' || $order_by == 'price' || $order_by == 'date_add' || $order_by == 'date_upd') {
+            $order_by_prefix = 'product_shop';
+        } elseif ($order_by == 'name') {
+            $order_by_prefix = 'pl';
         }
-        if (!Validate::isOrderBy($orderBy) || !Validate::isOrderWay($orderWay)) {
-            throw new PrestaShopException(sprintf(Tools::displayError('Invalid ordering parameters: orderBy=[%s] orderWay=[%s]'), $orderBy, $orderWay));
+        if (!Validate::is_order_by($order_by) || !Validate::is_order_way($order_way)) {
+            throw new Presta_Shop_Exception(sprintf(Tools::display_error('Invalid ordering parameters: orderBy=[%s] orderWay=[%s]'), $order_by, $order_way));
         }
-
-        $sqlGroups = '';
-        if (Group::isFeatureActive()) {
-            $groups = FrontController::getCurrentCustomerGroups();
-            $sqlGroups = ' AND EXISTS(SELECT 1 FROM `'._DB_PREFIX_.'category_product` cp
-				JOIN `'._DB_PREFIX_.'category_group` cg ON (cp.id_category = cg.id_category AND cg.`id_group` '.(count($groups) ? 'IN ('.implode(',', $groups).')' : '= 1').')
+        $sql_groups = '';
+        if (Group::is_feature_active()) {
+            $groups = Front_Controller::get_current_customer_groups();
+            $sql_groups = ' AND EXISTS(SELECT 1 FROM `' . _DB_PREFIX_ . 'category_product` cp
+				JOIN `' . _DB_PREFIX_ . 'category_group` cg ON (cp.id_category = cg.id_category AND cg.`id_group` ' . (count($groups) ? 'IN (' . implode(',', $groups) . ')' : '= 1') . ')
 				WHERE cp.`id_product` = p.`id_product`)';
         }
-
-        if (strpos($orderBy, '.') > 0) {
-            $orderBy = explode('.', $orderBy);
-            $orderByPrefix = $orderBy[0];
-            $orderBy = $orderBy[1];
+        if (strpos($order_by, '.') > 0) {
+            $order_by = explode('.', $order_by);
+            $order_by_prefix = $order_by[0];
+            $order_by = $order_by[1];
         }
-
-        $conn = Db::readOnly();
+        $conn = Db::read_only();
         if ($count) {
             $sql = 'SELECT COUNT(p.`id_product`) AS nb
-					FROM `'._DB_PREFIX_.'product` p
-					'.Shop::addSqlAssociation('product', 'p').'
+					FROM `' . _DB_PREFIX_ . 'product` p
+					' . Shop::add_sql_association('product', 'p') . '
 					WHERE product_shop.`active` = 1
-					AND product_shop.`date_add` > "'.date('Y-m-d', strtotime('-'.(Configuration::get('PS_NB_DAYS_NEW_PRODUCT') ? (int) Configuration::get('PS_NB_DAYS_NEW_PRODUCT') : 20).' DAY')).'"
-					'.($front ? ' AND product_shop.`visibility` IN ("both", "catalog")' : '').'
-					'.$sqlGroups;
-
-            return (int) $conn->getValue($sql);
+					AND product_shop.`date_add` > "' . date('Y-m-d', strtotime('-' . (Configuration::get('PS_NB_DAYS_NEW_PRODUCT') ? (int) Configuration::get('PS_NB_DAYS_NEW_PRODUCT') : 20) . ' DAY')) . '"
+					' . ($front ? ' AND product_shop.`visibility` IN ("both", "catalog")' : '') . '
+					' . $sql_groups;
+            return (int) $conn->get_value($sql);
         }
-
-        $sql = new DbQuery();
-        $sql->select(
-            'p.*, product_shop.*, stock.out_of_stock, IFNULL(stock.quantity, 0) as quantity, pl.`description`, pl.`description_short`, pl.`link_rewrite`, pl.`meta_description`,
+        $sql = new Db_Query();
+        $sql->select('p.*, product_shop.*, stock.out_of_stock, IFNULL(stock.quantity, 0) as quantity, pl.`description`, pl.`description_short`, pl.`link_rewrite`, pl.`meta_description`,
 			pl.`meta_keywords`, pl.`meta_title`, pl.`name`, pl.`available_now`, pl.`available_later`, image_shop.`id_image` id_image, il.`legend`, m.`name` AS manufacturer_name,
-			product_shop.`date_add` > "'.date('Y-m-d', strtotime('-'.(Configuration::get('PS_NB_DAYS_NEW_PRODUCT') ? (int) Configuration::get('PS_NB_DAYS_NEW_PRODUCT') : 20).' DAY')).'" as new'
-        );
-
+			product_shop.`date_add` > "' . date('Y-m-d', strtotime('-' . (Configuration::get('PS_NB_DAYS_NEW_PRODUCT') ? (int) Configuration::get('PS_NB_DAYS_NEW_PRODUCT') : 20) . ' DAY')) . '" as new');
         $sql->from('product', 'p');
-        $sql->join(Shop::addSqlAssociation('product', 'p'));
-        $sql->leftJoin(
-            'product_lang',
-            'pl',
-            'p.`id_product` = pl.`id_product`
-			AND pl.`id_lang` = '.(int) $idLang.Shop::addSqlRestrictionOnLang('pl')
-        );
-        $sql->leftJoin('image_shop', 'image_shop', 'image_shop.`id_product` = p.`id_product` AND image_shop.cover=1 AND image_shop.id_shop='.(int) $context->shop->id);
-        $sql->leftJoin('image_lang', 'il', 'image_shop.`id_image` = il.`id_image` AND il.`id_lang` = '.(int) $idLang);
-        $sql->leftJoin('manufacturer', 'm', 'm.`id_manufacturer` = p.`id_manufacturer`');
-
+        $sql->join(Shop::add_sql_association('product', 'p'));
+        $sql->left_join('product_lang', 'pl', 'p.`id_product` = pl.`id_product`
+			AND pl.`id_lang` = ' . (int) $id_lang . Shop::add_sql_restriction_on_lang('pl'));
+        $sql->left_join('image_shop', 'image_shop', 'image_shop.`id_product` = p.`id_product` AND image_shop.cover=1 AND image_shop.id_shop=' . (int) $context->shop->id);
+        $sql->left_join('image_lang', 'il', 'image_shop.`id_image` = il.`id_image` AND il.`id_lang` = ' . (int) $id_lang);
+        $sql->left_join('manufacturer', 'm', 'm.`id_manufacturer` = p.`id_manufacturer`');
         $sql->where('product_shop.`active` = 1');
         if ($front) {
             $sql->where('product_shop.`visibility` IN ("both", "catalog")');
         }
-        $sql->where('product_shop.`date_add` > "'.date('Y-m-d', strtotime('-'.(Configuration::get('PS_NB_DAYS_NEW_PRODUCT') ? (int) Configuration::get('PS_NB_DAYS_NEW_PRODUCT') : 20).' DAY')).'"');
-        if (Group::isFeatureActive()) {
-            $groups = FrontController::getCurrentCustomerGroups();
-            $sql->where(
-                'EXISTS(SELECT 1 FROM `'._DB_PREFIX_.'category_product` cp
-				JOIN `'._DB_PREFIX_.'category_group` cg ON (cp.id_category = cg.id_category AND cg.`id_group` '.(count($groups) ? 'IN ('.implode(',', $groups).')' : '= 1').')
-				WHERE cp.`id_product` = p.`id_product`)'
-            );
+        $sql->where('product_shop.`date_add` > "' . date('Y-m-d', strtotime('-' . (Configuration::get('PS_NB_DAYS_NEW_PRODUCT') ? (int) Configuration::get('PS_NB_DAYS_NEW_PRODUCT') : 20) . ' DAY')) . '"');
+        if (Group::is_feature_active()) {
+            $groups = Front_Controller::get_current_customer_groups();
+            $sql->where('EXISTS(SELECT 1 FROM `' . _DB_PREFIX_ . 'category_product` cp
+				JOIN `' . _DB_PREFIX_ . 'category_group` cg ON (cp.id_category = cg.id_category AND cg.`id_group` ' . (count($groups) ? 'IN (' . implode(',', $groups) . ')' : '= 1') . ')
+				WHERE cp.`id_product` = p.`id_product`)');
         }
-
-        $sql->orderBy((isset($orderByPrefix) ? pSQL($orderByPrefix).'.' : '').'`'.pSQL($orderBy).'` '.pSQL($orderWay));
-        $sql->limit($nbProducts, $pageNumber * $nbProducts);
-
-        if (Combination::isFeatureActive()) {
+        $sql->order_by((isset($order_by_prefix) ? p_sql($order_by_prefix) . '.' : '') . '`' . p_sql($order_by) . '` ' . p_sql($order_way));
+        $sql->limit($nb_products, $page_number * $nb_products);
+        if (Combination::is_feature_active()) {
             $sql->select('product_attribute_shop.minimal_quantity AS product_attribute_minimal_quantity, IFNULL(product_attribute_shop.id_product_attribute,0) id_product_attribute');
-            $sql->leftJoin('product_attribute_shop', 'product_attribute_shop', 'p.`id_product` = product_attribute_shop.`id_product` AND product_attribute_shop.`default_on` = 1 AND product_attribute_shop.id_shop='.(int) $context->shop->id);
+            $sql->left_join('product_attribute_shop', 'product_attribute_shop', 'p.`id_product` = product_attribute_shop.`id_product` AND product_attribute_shop.`default_on` = 1 AND product_attribute_shop.id_shop=' . (int) $context->shop->id);
         }
-        $sql->join(static::sqlStock('p', 0));
-
-        $result = $conn->getArray($sql);
-
+        $sql->join(static::sql_stock('p', 0));
+        $result = $conn->get_array($sql);
         if (!$result) {
             return false;
         }
-
-        if ($orderBy == 'price') {
-            Tools::orderbyPrice($result, $orderWay);
+        if ($order_by == 'price') {
+            Tools::orderby_price($result, $order_way);
         }
-
-        $productsIds = [];
+        $products_ids = [];
         foreach ($result as $row) {
-            $productsIds[] = $row['id_product'];
+            $products_ids[] = $row['id_product'];
         }
         // Thus you can avoid one query per product, because there will be only one query for all the products of the cart
-        static::cacheFrontFeatures($productsIds, $idLang);
-
-        return static::getProductsProperties((int) $idLang, $result);
+        static::cache_front_features($products_ids, $id_lang);
+        return static::get_products_properties((int) $id_lang, $result);
     }
-
     /**
      * @param array $productIds
      * @param int $idLang
@@ -1854,45 +1308,39 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function cacheFrontFeatures($productIds, $idLang): void
+    public static function cache_front_features($product_ids, $id_lang): void
     {
-        if (!Feature::isFeatureActive()) {
+        if (!Feature::is_feature_active()) {
             return;
         }
-
-        $productImplode = [];
-        foreach ($productIds as $idProduct) {
-            if ((int) $idProduct && !array_key_exists($idProduct.'-'.$idLang, static::$_cacheFeatures)) {
-                $productImplode[] = (int) $idProduct;
+        $product_implode = [];
+        foreach ($product_ids as $id_product) {
+            if ((int) $id_product && !array_key_exists($id_product . '-' . $id_lang, static::$_cache_features)) {
+                $product_implode[] = (int) $id_product;
             }
         }
-        if (!count($productImplode)) {
+        if (!count($product_implode)) {
             return;
         }
-
-        $result = Db::readOnly()->getArray(
-            '
+        $result = Db::read_only()->get_array('
 		SELECT id_product, name, value, pf.id_feature
-		FROM '._DB_PREFIX_.'feature_product pf
-		LEFT JOIN '._DB_PREFIX_.'feature_lang fl ON (fl.id_feature = pf.id_feature AND fl.id_lang = '.(int) $idLang.')
-		LEFT JOIN '._DB_PREFIX_.'feature_value fv ON (fv.id_feature_value = pf.id_feature_value)
-		LEFT JOIN '._DB_PREFIX_.'feature_value_lang fvl ON (fvl.id_feature_value = pf.id_feature_value AND fvl.id_lang = '.(int) $idLang.')
-		LEFT JOIN '._DB_PREFIX_.'feature f ON (f.id_feature = pf.id_feature)
-		'.Shop::addSqlAssociation('feature', 'f').'
-		WHERE `id_product` IN ('.implode(',', $productImplode).')
-		ORDER BY f.position ASC, fv.position ASC'
-        );
-
+		FROM ' . _DB_PREFIX_ . 'feature_product pf
+		LEFT JOIN ' . _DB_PREFIX_ . 'feature_lang fl ON (fl.id_feature = pf.id_feature AND fl.id_lang = ' . (int) $id_lang . ')
+		LEFT JOIN ' . _DB_PREFIX_ . 'feature_value fv ON (fv.id_feature_value = pf.id_feature_value)
+		LEFT JOIN ' . _DB_PREFIX_ . 'feature_value_lang fvl ON (fvl.id_feature_value = pf.id_feature_value AND fvl.id_lang = ' . (int) $id_lang . ')
+		LEFT JOIN ' . _DB_PREFIX_ . 'feature f ON (f.id_feature = pf.id_feature)
+		' . Shop::add_sql_association('feature', 'f') . '
+		WHERE `id_product` IN (' . implode(',', $product_implode) . ')
+		ORDER BY f.position ASC, fv.position ASC');
         foreach ($result as $row) {
-            if (!array_key_exists($row['id_product'].'-'.$idLang, static::$_frontFeaturesCache)) {
-                static::$_frontFeaturesCache[$row['id_product'].'-'.$idLang] = [];
+            if (!array_key_exists($row['id_product'] . '-' . $id_lang, static::$_front_features_cache)) {
+                static::$_front_features_cache[$row['id_product'] . '-' . $id_lang] = [];
             }
-            if (!isset(static::$_frontFeaturesCache[$row['id_product'].'-'.$idLang][$row['id_feature']])) {
-                static::$_frontFeaturesCache[$row['id_product'].'-'.$idLang][$row['id_feature']] = $row;
+            if (!isset(static::$_front_features_cache[$row['id_product'] . '-' . $id_lang][$row['id_feature']])) {
+                static::$_front_features_cache[$row['id_product'] . '-' . $id_lang][$row['id_feature']] = $row;
             }
         }
     }
-
     /**
      * @param int $idLang
      * @param array $queryResult
@@ -1901,21 +1349,18 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public static function getProductsProperties($idLang, $queryResult)
+    public static function get_products_properties($id_lang, $query_result)
     {
-        $resultsArray = [];
-
-        if (is_array($queryResult)) {
-            foreach ($queryResult as $row) {
-                if ($row2 = static::getProductProperties($idLang, $row)) {
-                    $resultsArray[] = $row2;
+        $results_array = [];
+        if (is_array($query_result)) {
+            foreach ($query_result as $row) {
+                if ($row2 = static::get_product_properties($id_lang, $row)) {
+                    $results_array[] = $row2;
                 }
             }
         }
-
-        return $resultsArray;
+        return $results_array;
     }
-
     /**
      * @param int $idLang
      * @param array $row
@@ -1923,161 +1368,92 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @return array|false
      * @throws PrestaShopException
      */
-    public static function getProductProperties($idLang, $row, ?Context $context = null)
+    public static function get_product_properties($id_lang, $row, ?Context $context = null)
     {
         if (!$row['id_product']) {
             return false;
         }
-
         if ($context == null) {
-            $context = Context::getContext();
+            $context = Context::get_context();
         }
-
-        $idProductAttribute = $row['id_product_attribute'] = (!empty($row['id_product_attribute']) ? (int) $row['id_product_attribute'] : null);
-
+        $id_product_attribute = $row['id_product_attribute'] = !empty($row['id_product_attribute']) ? (int) $row['id_product_attribute'] : null;
         // Product::getDefaultAttribute is only called if id_product_attribute is missing from the SQL query at the origin of it:
         // consider adding it in order to avoid unnecessary queries
-        $row['allow_oosp'] = static::isAvailableWhenOutOfStock($row['out_of_stock']);
-        if (Combination::isFeatureActive() && $idProductAttribute === null
-            && ((isset($row['cache_default_attribute']) && ($ipaDefault = $row['cache_default_attribute']) !== null)
-                || ($ipaDefault = static::getDefaultAttribute($row['id_product'], !$row['allow_oosp'])))
-        ) {
-            $idProductAttribute = $row['id_product_attribute'] = $ipaDefault;
+        $row['allow_oosp'] = static::is_available_when_out_of_stock($row['out_of_stock']);
+        if (Combination::is_feature_active() && $id_product_attribute === null && (isset($row['cache_default_attribute']) && ($ipa_default = $row['cache_default_attribute']) !== null || $ipa_default = static::get_default_attribute($row['id_product'], !$row['allow_oosp']))) {
+            $id_product_attribute = $row['id_product_attribute'] = $ipa_default;
         }
-        if (!Combination::isFeatureActive() || !isset($row['id_product_attribute'])) {
-            $idProductAttribute = $row['id_product_attribute'] = 0;
+        if (!Combination::is_feature_active() || !isset($row['id_product_attribute'])) {
+            $id_product_attribute = $row['id_product_attribute'] = 0;
         }
-
         // Tax
-        $usetax = Tax::excludeTaxeOption();
-
-        $cacheKey = $row['id_product'].'-'.$idProductAttribute.'-'.$idLang.'-'.(int) $usetax;
+        $usetax = Tax::exclude_taxe_option();
+        $cache_key = $row['id_product'] . '-' . $id_product_attribute . '-' . $id_lang . '-' . (int) $usetax;
         if (isset($row['id_product_pack'])) {
-            $cacheKey .= '-pack'.$row['id_product_pack'];
+            $cache_key .= '-pack' . $row['id_product_pack'];
         }
-
-        if (isset(static::$producPropertiesCache[$cacheKey])) {
-            return array_merge($row, static::$producPropertiesCache[$cacheKey]);
+        if (isset(static::$produc_properties_cache[$cache_key])) {
+            return array_merge($row, static::$produc_properties_cache[$cache_key]);
         }
-
         // Datas
         if (!isset($row['id_category_default']) && $row['id_category_default']) {
-            $row['id_category_default'] = (int) Db::readOnly()->getValue(
-                (new DbQuery())
-                    ->select('product_shop.`id_category_default`')
-                    ->from('product', 'p')
-                    ->join(Shop::addSqlAssociation('product', 'p'))
-                    ->where('p.`id_product` = '.(int) $row['id_product'])
-            );
+            $row['id_category_default'] = (int) Db::read_only()->get_value((new Db_Query())->select('product_shop.`id_category_default`')->from('product', 'p')->join(Shop::add_sql_association('product', 'p'))->where('p.`id_product` = ' . (int) $row['id_product']));
             if (!$row['id_category_default']) {
-                $row['id_category_default'] = Context::getContext()->shop->id_category;
+                $row['id_category_default'] = Context::get_context()->shop->id_category;
             }
         }
-        $row['category'] = Category::getLinkRewrite((int) $row['id_category_default'], (int) $idLang);
-        $row['link'] = $context->link->getProductLink((int) $row['id_product'], $row['link_rewrite'], $row['category'], $row['ean13']);
-
+        $row['category'] = Category::get_link_rewrite((int) $row['id_category_default'], (int) $id_lang);
+        $row['link'] = $context->link->get_product_link((int) $row['id_product'], $row['link_rewrite'], $row['category'], $row['ean13']);
         $row['attribute_price'] = 0;
-        if ($idProductAttribute) {
-            $row['attribute_price'] = Combination::getPrice($idProductAttribute);
+        if ($id_product_attribute) {
+            $row['attribute_price'] = Combination::get_price($id_product_attribute);
         }
-
-        $row['price_tax_exc'] = static::getPriceStatic(
-            (int) $row['id_product'],
-            false,
-            $idProductAttribute
-        );
-        $row['price'] = static::getPriceStatic(
-            (int) $row['id_product'],
-            true,
-            $idProductAttribute
-        );
-        $row['price_without_reduction'] = static::getPriceStatic(
-            (int) $row['id_product'],
-            static::$_taxCalculationMethod != PS_TAX_EXC,
-            $idProductAttribute,
-            _TB_PRICE_DATABASE_PRECISION_,
-            null,
-            false,
-            false
-        );
-        $row['reduction'] = static::getPriceStatic(
-            (int) $row['id_product'],
-            static::$_taxCalculationMethod != PS_TAX_EXC,
-            $idProductAttribute,
-            _TB_PRICE_DATABASE_PRECISION_,
-            null,
-            true,
-            true,
-            1,
-            true,
-            null,
-            null,
-            null,
-            $specificPrices
-        );
-
-        $row['specific_prices'] = $specificPrices;
-
-        $row['quantity'] = (int)static::getQuantity(
-            (int) $row['id_product'],
-            0,
-            $row['cache_is_pack'] ?? null
-        );
-
+        $row['price_tax_exc'] = static::get_price_static((int) $row['id_product'], false, $id_product_attribute);
+        $row['price'] = static::get_price_static((int) $row['id_product'], true, $id_product_attribute);
+        $row['price_without_reduction'] = static::get_price_static((int) $row['id_product'], static::$_tax_calculation_method != PS_TAX_EXC, $id_product_attribute, _TB_PRICE_DATABASE_PRECISION_, null, false, false);
+        $row['reduction'] = static::get_price_static((int) $row['id_product'], static::$_tax_calculation_method != PS_TAX_EXC, $id_product_attribute, _TB_PRICE_DATABASE_PRECISION_, null, true, true, 1, true, null, null, null, $specific_prices);
+        $row['specific_prices'] = $specific_prices;
+        $row['quantity'] = (int) static::get_quantity((int) $row['id_product'], 0, $row['cache_is_pack'] ?? null);
         $row['quantity_all_versions'] = $row['quantity'];
-
-        if ($idProductAttribute) {
-            $row['quantity'] = (int)static::getQuantity(
-                (int) $row['id_product'],
-                $idProductAttribute,
-                $row['cache_is_pack'] ?? null
-            );
-
+        if ($id_product_attribute) {
+            $row['quantity'] = (int) static::get_quantity((int) $row['id_product'], $id_product_attribute, $row['cache_is_pack'] ?? null);
             // $quantity_all_versions is a sum of quantities of all combinations. It is possible that
             // the value is zero or negative even when some combination is in stock.
             // Example: product has 3 combinations with quantities (-12, 10, 1), sum is -1
             if ($row['quantity_all_versions'] <= 0) {
-                $totalPositiveQuantity = 0;
-                $combinationQuantities = StockAvailable::getCombinationQuantities((int)$row['id_product']);
-                foreach ($combinationQuantities as $quantity) {
+                $total_positive_quantity = 0;
+                $combination_quantities = Stock_Available::get_combination_quantities((int) $row['id_product']);
+                foreach ($combination_quantities as $quantity) {
                     if ($quantity > 0) {
-                        $totalPositiveQuantity += $quantity;
+                        $total_positive_quantity += $quantity;
                     }
                 }
-                $row['quantity_all_versions'] = $totalPositiveQuantity;
+                $row['quantity_all_versions'] = $total_positive_quantity;
             }
         }
-
-        $row['features'] = static::getFrontFeaturesStatic((int) $idLang, $row['id_product']);
-
+        $row['features'] = static::get_front_features_static((int) $id_lang, $row['id_product']);
         $row['attachments'] = [];
         if (!isset($row['cache_has_attachments']) || $row['cache_has_attachments']) {
-            $row['attachments'] = static::getAttachmentsStatic((int) $idLang, $row['id_product']);
+            $row['attachments'] = static::get_attachments_static((int) $id_lang, $row['id_product']);
         }
-
-        $row['virtual'] = ((!isset($row['is_virtual']) || $row['is_virtual']) ? 1 : 0);
-
+        $row['virtual'] = !isset($row['is_virtual']) || $row['is_virtual'] ? 1 : 0;
         // Pack management
-        $row['pack'] = (!isset($row['cache_is_pack']) ? Pack::isPack($row['id_product']) : (int) $row['cache_is_pack']);
-        $row['packItems'] = $row['pack'] ? Pack::getItemTable($row['id_product'], $idLang) : [];
-        $row['nopackprice'] = $row['pack'] ? Pack::noPackPrice($row['id_product']) : 0;
-        if ($row['pack'] && !Pack::isInStock($row['id_product'])) {
+        $row['pack'] = !isset($row['cache_is_pack']) ? Pack::is_pack($row['id_product']) : (int) $row['cache_is_pack'];
+        $row['packItems'] = $row['pack'] ? Pack::get_item_table($row['id_product'], $id_lang) : [];
+        $row['nopackprice'] = $row['pack'] ? Pack::no_pack_price($row['id_product']) : 0;
+        if ($row['pack'] && !Pack::is_in_stock($row['id_product'])) {
             $row['quantity'] = 0;
         }
-
         $row['customization_required'] = false;
-        if (isset($row['customizable']) && $row['customizable'] && Customization::isFeatureActive()) {
-            if (count(static::getRequiredCustomizableFieldsStatic((int) $row['id_product']))) {
+        if (isset($row['customizable']) && $row['customizable'] && Customization::is_feature_active()) {
+            if (count(static::get_required_customizable_fields_static((int) $row['id_product']))) {
                 $row['customization_required'] = true;
             }
         }
-
-        $row = static::getTaxesInformations($row, $context);
-        static::$producPropertiesCache[$cacheKey] = $row;
-
-        return static::$producPropertiesCache[$cacheKey];
+        $row = static::get_taxes_informations($row, $context);
+        static::$produc_properties_cache[$cache_key] = $row;
+        return static::$produc_properties_cache[$cache_key];
     }
-
     /**
      * @param int $outOfStock
      *
@@ -2085,24 +1461,22 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public static function isAvailableWhenOutOfStock($outOfStock)
+    public static function is_available_when_out_of_stock($out_of_stock)
     {
         // @TODO 1.5.0 Update of STOCK_MANAGEMENT & ORDER_OUT_OF_STOCK
-        static $psStockManagement = null;
-        if ($psStockManagement === null) {
-            $psStockManagement = Configuration::get('PS_STOCK_MANAGEMENT');
+        static $ps_stock_management = null;
+        if ($ps_stock_management === null) {
+            $ps_stock_management = Configuration::get('PS_STOCK_MANAGEMENT');
         }
-
-        if (!$psStockManagement) {
+        if (!$ps_stock_management) {
             return true;
         }
-        static $psOrderOutOfStock = null;
-        if ($psOrderOutOfStock === null) {
-            $psOrderOutOfStock = Configuration::get('PS_ORDER_OUT_OF_STOCK');
+        static $ps_order_out_of_stock = null;
+        if ($ps_order_out_of_stock === null) {
+            $ps_order_out_of_stock = Configuration::get('PS_ORDER_OUT_OF_STOCK');
         }
-        return (int) $outOfStock == 2 ? (int) $psOrderOutOfStock : (int) $outOfStock;
+        return (int) $out_of_stock == 2 ? (int) $ps_order_out_of_stock : (int) $out_of_stock;
     }
-
     /**
      * @deprecated 1.0.0 Use Combination::getPrice
      *
@@ -2111,11 +1485,10 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @return float
      * @throws PrestaShopException
      */
-    public static function getProductAttributePrice($idProductAttribute)
+    public static function get_product_attribute_price($id_product_attribute)
     {
-        return Combination::getPrice($idProductAttribute);
+        return Combination::get_price($id_product_attribute);
     }
-
     /**
      * Get available product quantities
      *
@@ -2129,29 +1502,26 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getQuantity($idProduct, $idProductAttribute = null, $cacheIsPack = null)
+    public static function get_quantity($id_product, $id_product_attribute = null, $cache_is_pack = null)
     {
-        if (!((int) $cacheIsPack || $cacheIsPack === null && Pack::isPack((int) $idProduct))) {
-            return (StockAvailable::getQuantityAvailableByProduct($idProduct, $idProductAttribute));
+        if (!((int) $cache_is_pack || $cache_is_pack === null && Pack::is_pack((int) $id_product))) {
+            return Stock_Available::get_quantity_available_by_product($id_product, $id_product_attribute);
         }
-        if (!Pack::isInStock((int) $idProduct)) {
+        if (!Pack::is_in_stock((int) $id_product)) {
             return 0;
         }
-
-        return (StockAvailable::getQuantityAvailableByProduct($idProduct, $idProductAttribute));
+        return Stock_Available::get_quantity_available_by_product($id_product, $id_product_attribute);
     }
-
     /**
      * @param array $row
      * @param int $idLang
      *
      * @return int
      */
-    public static function defineProductImage($row, $idLang)
+    public static function define_product_image($row, $id_lang)
     {
-        return (int)($row['id_image'] ?? 0);
+        return (int) ($row['id_image'] ?? 0);
     }
-
     /**
      * @param int $idLang
      * @param int $idProduct
@@ -2161,91 +1531,78 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getFrontFeaturesStatic($idLang, $idProduct)
+    public static function get_front_features_static($id_lang, $id_product)
     {
-        if (!Feature::isFeatureActive()) {
+        if (!Feature::is_feature_active()) {
             return [];
         }
-        if (!array_key_exists($idProduct.'-'.$idLang, static::$_frontFeaturesCache)) {
-            $feature_values = Db::readOnly()->getArray(
-                '
+        if (!array_key_exists($id_product . '-' . $id_lang, static::$_front_features_cache)) {
+            $feature_values = Db::read_only()->get_array('
 				SELECT COALESCE(NULLIF(fl.public_name, \'\'), fl.name) AS name, fvl.value, IFNULL(pfl.displayable, fvl.displayable) AS displayable, fl.multiple_schema, fl.multiple_separator, pf.id_feature, f.allows_multiple_values
-				FROM '._DB_PREFIX_.'feature_product pf
-				LEFT JOIN '._DB_PREFIX_.'feature_product_lang pfl ON (pfl.id_feature_value = pf.id_feature_value AND pfl.id_lang = '.(int) $idLang.' AND pfl.id_product = '.(int)$idProduct.')
-				LEFT JOIN '._DB_PREFIX_.'feature_lang fl ON (fl.id_feature = pf.id_feature AND fl.id_lang = '.(int) $idLang.')
-				LEFT JOIN '._DB_PREFIX_.'feature_value fv ON (fv.id_feature_value = pf.id_feature_value)
-				LEFT JOIN '._DB_PREFIX_.'feature_value_lang fvl ON (fvl.id_feature_value = pf.id_feature_value AND fvl.id_lang = '.(int) $idLang.')
-				LEFT JOIN '._DB_PREFIX_.'feature f ON (f.id_feature = pf.id_feature AND fl.id_lang = '.(int) $idLang.')
-				'.Shop::addSqlAssociation('feature', 'f').'
-				WHERE pf.id_product = '.(int) $idProduct.'
+				FROM ' . _DB_PREFIX_ . 'feature_product pf
+				LEFT JOIN ' . _DB_PREFIX_ . 'feature_product_lang pfl ON (pfl.id_feature_value = pf.id_feature_value AND pfl.id_lang = ' . (int) $id_lang . ' AND pfl.id_product = ' . (int) $id_product . ')
+				LEFT JOIN ' . _DB_PREFIX_ . 'feature_lang fl ON (fl.id_feature = pf.id_feature AND fl.id_lang = ' . (int) $id_lang . ')
+				LEFT JOIN ' . _DB_PREFIX_ . 'feature_value fv ON (fv.id_feature_value = pf.id_feature_value)
+				LEFT JOIN ' . _DB_PREFIX_ . 'feature_value_lang fvl ON (fvl.id_feature_value = pf.id_feature_value AND fvl.id_lang = ' . (int) $id_lang . ')
+				LEFT JOIN ' . _DB_PREFIX_ . 'feature f ON (f.id_feature = pf.id_feature AND fl.id_lang = ' . (int) $id_lang . ')
+				' . Shop::add_sql_association('feature', 'f') . '
+				WHERE pf.id_product = ' . (int) $id_product . '
 				ORDER BY f.position ASC,
-				    (CASE WHEN f.sorting='.Feature::SORT_VALUE_ASC.' THEN fvl.value END) ASC,
-				    (CASE WHEN f.sorting='.Feature::SORT_VALUE_DESC.' THEN fvl.value END) DESC,
-				    (CASE WHEN f.sorting='.Feature::SORT_CUSTOM.' THEN fv.position END) ASC
-				    '
-            );
-
+				    (CASE WHEN f.sorting=' . Feature::SORT_VALUE_ASC . ' THEN fvl.value END) ASC,
+				    (CASE WHEN f.sorting=' . Feature::SORT_VALUE_DESC . ' THEN fvl.value END) DESC,
+				    (CASE WHEN f.sorting=' . Feature::SORT_CUSTOM . ' THEN fv.position END) ASC
+				    ');
             $feature_values_helper = [];
-
             // Get concatenated values, min_value and max_value per id_feature
             foreach ($feature_values as $feature_value) {
-
-                $id_feature = (int)$feature_value['id_feature'];
+                $id_feature = (int) $feature_value['id_feature'];
                 $display_value = $feature_value['displayable'] ?: $feature_value['value'];
-
                 if (!isset($feature_values_helper[$id_feature])) {
-                    $feature_values_helper[$id_feature]['id_feature'] = $id_feature; // Helpful in cases the keys got lost due to sorting
+                    $feature_values_helper[$id_feature]['id_feature'] = $id_feature;
+                    // Helpful in cases the keys got lost due to sorting
                     $feature_values_helper[$id_feature]['name'] = $feature_value['name'];
                     $feature_values_helper[$id_feature]['values'][] = $display_value;
                     $feature_values_helper[$id_feature]['values_string'] = $display_value;
                     $feature_values_helper[$id_feature]['min_value'] = $feature_value;
                     $feature_values_helper[$id_feature]['max_value'] = $feature_value;
                 } else {
-                    $feature_values_helper[$id_feature]['multiple_schema'] = $feature_value['multiple_schema']; // Multiple Schema should only apply, if really multiple values were selected
+                    $feature_values_helper[$id_feature]['multiple_schema'] = $feature_value['multiple_schema'];
+                    // Multiple Schema should only apply, if really multiple values were selected
                     $feature_values_helper[$id_feature]['values'][] = $display_value;
-
                     // Concatenate values
                     $display_separator = $feature_value['multiple_separator'] ?: ', ';
                     $feature_values_helper[$id_feature]['values_string'] .= $display_separator . $display_value;
-
                     // Update min and max value
                     if ($feature_values_helper[$id_feature]['min_value']['value'] > $feature_value['value']) {
                         $feature_values_helper[$id_feature]['min_value'] = $feature_value;
                     }
-
                     if ($feature_values_helper[$id_feature]['max_value']['value'] < $feature_value['value']) {
                         $feature_values_helper[$id_feature]['max_value'] = $feature_value;
                     }
                 }
             }
-
             // Now create the 'value' based on the multiple_schema
             foreach ($feature_values_helper as &$feature_value_helper) {
-                if (isset($feature_value_helper['multiple_schema']) && ($multiple_schema = $feature_value_helper['multiple_schema'])) {
+                if (isset($feature_value_helper['multiple_schema']) && $multiple_schema = $feature_value_helper['multiple_schema']) {
                     $value = str_replace('{values}', $feature_value_helper['values_string'], $multiple_schema);
                     $value = str_replace('{count_values}', count($feature_value_helper['values']), $value);
                     $value = str_replace('{min_value}', $feature_value_helper['min_value']['value'], $value);
                     $value = str_replace('{max_value}', $feature_value_helper['max_value']['value'], $value);
                     $value = str_replace('{first_value}', $feature_value_helper['values'][0], $value);
                     $value = str_replace('{last_value}', $feature_value_helper['values'][array_key_last($feature_value_helper['values'])], $value);
-
                     $display_value_min = $feature_value_helper['min_value']['displayable'] ?: $feature_value_helper['min_value']['value'];
                     $display_value_max = $feature_value_helper['max_value']['displayable'] ?: $feature_value_helper['max_value']['value'];
                     $value = str_replace('{min_displayable}', $display_value_min, $value);
                     $value = str_replace('{max_displayable}', $display_value_max, $value);
-
                     $feature_value_helper['value'] = $value;
                 } else {
                     $feature_value_helper['value'] = $feature_value_helper['values_string'];
                 }
             }
-
-            static::$_frontFeaturesCache[$idProduct.'-'.$idLang] = $feature_values_helper;
+            static::$_front_features_cache[$id_product . '-' . $id_lang] = $feature_values_helper;
         }
-
-        return static::$_frontFeaturesCache[$idProduct.'-'.$idLang];
+        return static::$_front_features_cache[$id_product . '-' . $id_lang];
     }
-
     /**
      * @param int $idLang
      * @param int $idProduct
@@ -2255,18 +1612,15 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getAttachmentsStatic($idLang, $idProduct)
+    public static function get_attachments_static($id_lang, $id_product)
     {
-        return Db::readOnly()->getArray(
-            '
+        return Db::read_only()->get_array('
 		SELECT *
-		FROM '._DB_PREFIX_.'product_attachment pa
-		LEFT JOIN '._DB_PREFIX_.'attachment a ON a.id_attachment = pa.id_attachment
-		LEFT JOIN '._DB_PREFIX_.'attachment_lang al ON (a.id_attachment = al.id_attachment AND al.id_lang = '.(int) $idLang.')
-		WHERE pa.id_product = '.(int) $idProduct
-        );
+		FROM ' . _DB_PREFIX_ . 'product_attachment pa
+		LEFT JOIN ' . _DB_PREFIX_ . 'attachment a ON a.id_attachment = pa.id_attachment
+		LEFT JOIN ' . _DB_PREFIX_ . 'attachment_lang al ON (a.id_attachment = al.id_attachment AND al.id_lang = ' . (int) $id_lang . ')
+		WHERE pa.id_product = ' . (int) $id_product);
     }
-
     /**
      * @param int $id
      *
@@ -2275,21 +1629,17 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getRequiredCustomizableFieldsStatic($id)
+    public static function get_required_customizable_fields_static($id)
     {
-        if (!$id || !Customization::isFeatureActive()) {
+        if (!$id || !Customization::is_feature_active()) {
             return [];
         }
-
-        return Db::readOnly()->getArray(
-            '
+        return Db::read_only()->get_array('
 			SELECT `id_customization_field`, `type`
-			FROM `'._DB_PREFIX_.'customization_field`
-			WHERE `id_product` = '.(int) $id.'
-			AND `required` = 1'
-        );
+			FROM `' . _DB_PREFIX_ . 'customization_field`
+			WHERE `id_product` = ' . (int) $id . '
+			AND `required` = 1');
     }
-
     /**
      * Get a random special
      *
@@ -2302,85 +1652,72 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getRandomSpecial($idLang, $beginning = false, $ending = false, ?Context $context = null)
+    public static function get_random_special($id_lang, $beginning = false, $ending = false, ?Context $context = null)
     {
         if (!$context) {
-            $context = Context::getContext();
+            $context = Context::get_context();
         }
-
-        $currentDate = date('Y-m-d H:i:00');
-        $productReductions = static::_getProductIdByDate((!$beginning ? $currentDate : $beginning), (!$ending ? $currentDate : $ending), $context, true);
-
-        if ($productReductions) {
-            $idsProducts = '';
-            foreach ($productReductions as $productReduction) {
-                $idsProducts .= '('.(int) $productReduction['id_product'].','.($productReduction['id_product_attribute'] ? (int) $productReduction['id_product_attribute'] : '0').'),';
+        $current_date = date('Y-m-d H:i:00');
+        $product_reductions = static::_get_product_id_by_date(!$beginning ? $current_date : $beginning, !$ending ? $current_date : $ending, $context, true);
+        if ($product_reductions) {
+            $ids_products = '';
+            foreach ($product_reductions as $product_reduction) {
+                $ids_products .= '(' . (int) $product_reduction['id_product'] . ',' . ($product_reduction['id_product_attribute'] ? (int) $product_reduction['id_product_attribute'] : '0') . '),';
             }
-
-            $idsProducts = rtrim($idsProducts, ',');
-            $conn = Db::getInstance();
-            $conn->execute('CREATE TEMPORARY TABLE IF NOT EXISTS `'._DB_PREFIX_.'product_reductions` (id_product INT UNSIGNED NOT NULL DEFAULT 0, id_product_attribute INT UNSIGNED NOT NULL DEFAULT 0) ENGINE=MEMORY', false);
-            if ($idsProducts) {
-                $conn->execute('INSERT INTO `'._DB_PREFIX_.'product_reductions` VALUES '.$idsProducts, false);
+            $ids_products = rtrim($ids_products, ',');
+            $conn = Db::get_instance();
+            $conn->execute('CREATE TEMPORARY TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'product_reductions` (id_product INT UNSIGNED NOT NULL DEFAULT 0, id_product_attribute INT UNSIGNED NOT NULL DEFAULT 0) ENGINE=MEMORY', false);
+            if ($ids_products) {
+                $conn->execute('INSERT INTO `' . _DB_PREFIX_ . 'product_reductions` VALUES ' . $ids_products, false);
             }
-
-            $groups = FrontController::getCurrentCustomerGroups();
-            $sqlGroups = ' AND EXISTS(SELECT 1 FROM `'._DB_PREFIX_.'category_product` cp
-				JOIN `'._DB_PREFIX_.'category_group` cg ON (cp.id_category = cg.id_category AND cg.`id_group` '.(count($groups) ? 'IN ('.implode(',', $groups).')' : '= 1').')
+            $groups = Front_Controller::get_current_customer_groups();
+            $sql_groups = ' AND EXISTS(SELECT 1 FROM `' . _DB_PREFIX_ . 'category_product` cp
+				JOIN `' . _DB_PREFIX_ . 'category_group` cg ON (cp.id_category = cg.id_category AND cg.`id_group` ' . (count($groups) ? 'IN (' . implode(',', $groups) . ')' : '= 1') . ')
 				WHERE cp.`id_product` = p.`id_product`)';
-
             // Please keep 2 distinct queries because RAND() is an awful way to achieve this result
             $sql = 'SELECT product_shop.id_product, IFNULL(product_attribute_shop.id_product_attribute,0) id_product_attribute
 					FROM
-					`'._DB_PREFIX_.'product_reductions` pr,
-					`'._DB_PREFIX_.'product` p
-					'.Shop::addSqlAssociation('product', 'p').'
-					LEFT JOIN `'._DB_PREFIX_.'product_attribute_shop` product_attribute_shop
-				   		ON (p.`id_product` = product_attribute_shop.`id_product` AND product_attribute_shop.`default_on` = 1 AND product_attribute_shop.id_shop='.(int) $context->shop->id.')
+					`' . _DB_PREFIX_ . 'product_reductions` pr,
+					`' . _DB_PREFIX_ . 'product` p
+					' . Shop::add_sql_association('product', 'p') . '
+					LEFT JOIN `' . _DB_PREFIX_ . 'product_attribute_shop` product_attribute_shop
+				   		ON (p.`id_product` = product_attribute_shop.`id_product` AND product_attribute_shop.`default_on` = 1 AND product_attribute_shop.id_shop=' . (int) $context->shop->id . ')
 					WHERE p.id_product=pr.id_product AND (pr.id_product_attribute = 0 OR product_attribute_shop.id_product_attribute = pr.id_product_attribute) AND product_shop.`active` = 1
-						'.$sqlGroups.'
-					'.(static::isFrontOfficeContext($context) ? ' AND product_shop.`visibility` IN ("both", "catalog")' : '').'
+						' . $sql_groups . '
+					' . (static::is_front_office_context($context) ? ' AND product_shop.`visibility` IN ("both", "catalog")' : '') . '
 					ORDER BY RAND()';
-
-            $result = $conn->getRow($sql);
-
-            $conn->execute('TRUNCATE TABLE `'._DB_PREFIX_.'product_reductions`', false);
-
-            if (!$idProduct = $result['id_product']) {
+            $result = $conn->get_row($sql);
+            $conn->execute('TRUNCATE TABLE `' . _DB_PREFIX_ . 'product_reductions`', false);
+            if (!$id_product = $result['id_product']) {
                 return false;
             }
-
             // no group by needed : there's only one attribute with cover=1 for a given id_product + shop
             $sql = 'SELECT p.*, product_shop.*, stock.`out_of_stock` out_of_stock, pl.`description`, pl.`description_short`,
 						pl.`link_rewrite`, pl.`meta_description`, pl.`meta_keywords`, pl.`meta_title`, pl.`name`, pl.`available_now`, pl.`available_later`,
 						p.`ean13`, p.`upc`, image_shop.`id_image` id_image, il.`legend`,
-						DATEDIFF(product_shop.`date_add`, DATE_SUB("'.date('Y-m-d').' 00:00:00",
-						INTERVAL '.(Validate::isUnsignedInt(Configuration::get('PS_NB_DAYS_NEW_PRODUCT')) ? Configuration::get('PS_NB_DAYS_NEW_PRODUCT') : 20).'
+						DATEDIFF(product_shop.`date_add`, DATE_SUB("' . date('Y-m-d') . ' 00:00:00",
+						INTERVAL ' . (Validate::is_unsigned_int(Configuration::get('PS_NB_DAYS_NEW_PRODUCT')) ? Configuration::get('PS_NB_DAYS_NEW_PRODUCT') : 20) . '
 							DAY)) > 0 AS new
-					FROM `'._DB_PREFIX_.'product` p
-					LEFT JOIN `'._DB_PREFIX_.'product_lang` pl ON (
+					FROM `' . _DB_PREFIX_ . 'product` p
+					LEFT JOIN `' . _DB_PREFIX_ . 'product_lang` pl ON (
 						p.`id_product` = pl.`id_product`
-						AND pl.`id_lang` = '.(int) $idLang.Shop::addSqlRestrictionOnLang('pl').'
+						AND pl.`id_lang` = ' . (int) $id_lang . Shop::add_sql_restriction_on_lang('pl') . '
 					)
-					'.Shop::addSqlAssociation('product', 'p').'
-					LEFT JOIN `'._DB_PREFIX_.'image_shop` image_shop
-						ON (image_shop.`id_product` = p.`id_product` AND image_shop.cover=1 AND image_shop.id_shop='.(int) $context->shop->id.')
-					LEFT JOIN `'._DB_PREFIX_.'image_lang` il ON (image_shop.`id_image` = il.`id_image` AND il.`id_lang` = '.(int) $idLang.')
-					'.static::sqlStock('p', 0).'
-					WHERE p.id_product = '.(int) $idProduct;
-
-            $row = $conn->getRow($sql);
+					' . Shop::add_sql_association('product', 'p') . '
+					LEFT JOIN `' . _DB_PREFIX_ . 'image_shop` image_shop
+						ON (image_shop.`id_product` = p.`id_product` AND image_shop.cover=1 AND image_shop.id_shop=' . (int) $context->shop->id . ')
+					LEFT JOIN `' . _DB_PREFIX_ . 'image_lang` il ON (image_shop.`id_image` = il.`id_image` AND il.`id_lang` = ' . (int) $id_lang . ')
+					' . static::sql_stock('p', 0) . '
+					WHERE p.id_product = ' . (int) $id_product;
+            $row = $conn->get_row($sql);
             if (!$row) {
                 return false;
             }
-
             $row['id_product_attribute'] = (int) $result['id_product_attribute'];
-
-            return static::getProductProperties($idLang, $row);
+            return static::get_product_properties($id_lang, $row);
         }
         return false;
     }
-
     /**
      * @param string $beginning
      * @param string $ending
@@ -2391,30 +1728,16 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    protected static function _getProductIdByDate($beginning, $ending, ?Context $context = null, $withCombination = false)
+    protected static function _get_product_id_by_date($beginning, $ending, ?Context $context = null, $with_combination = false)
     {
         if (!$context) {
-            $context = Context::getContext();
+            $context = Context::get_context();
         }
-
-        $idAddress = $context->cart->{Configuration::get('PS_TAX_ADDRESS_TYPE')};
-        $ids = Address::getCountryAndState($idAddress);
-        $idCountry = ($ids && $ids['id_country'])
-            ? (int) $ids['id_country']
-            : (int) Configuration::get('PS_COUNTRY_DEFAULT');
-
-        return SpecificPrice::getProductIdByDate(
-            $context->shop->id,
-            $context->currency->id,
-            $idCountry,
-            $context->customer->id_default_group,
-            $beginning,
-            $ending,
-            0,
-            $withCombination
-        );
+        $id_address = $context->cart->{Configuration::get('PS_TAX_ADDRESS_TYPE')};
+        $ids = Address::get_country_and_state($id_address);
+        $id_country = $ids && $ids['id_country'] ? (int) $ids['id_country'] : (int) Configuration::get('PS_COUNTRY_DEFAULT');
+        return Specific_Price::get_product_id_by_date($context->shop->id, $context->currency->id, $id_country, $context->customer->id_default_group, $beginning, $ending, 0, $with_combination);
     }
-
     /**
      * Get prices drop
      *
@@ -2432,86 +1755,68 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getPricesDrop(
-        $idLang,
-        $pageNumber = 0,
-        $nbProducts = 10,
-        $count = false,
-        $orderBy = null,
-        $orderWay = null,
-        $beginning = false,
-        $ending = false,
-        ?Context $context = null
-    ) {
-        if (!Validate::isBool($count)) {
-            throw new PrestaShopException(sprintf(Tools::displayError('Invalid value for parameter [%s]'), 'count'));
+    public static function get_prices_drop($id_lang, $page_number = 0, $nb_products = 10, $count = false, $order_by = null, $order_way = null, $beginning = false, $ending = false, ?Context $context = null)
+    {
+        if (!Validate::is_bool($count)) {
+            throw new Presta_Shop_Exception(sprintf(Tools::display_error('Invalid value for parameter [%s]'), 'count'));
         }
-
         if (!$context) {
-            $context = Context::getContext();
+            $context = Context::get_context();
         }
-        if ($pageNumber < 0) {
-            $pageNumber = 0;
+        if ($page_number < 0) {
+            $page_number = 0;
         }
-        if ($nbProducts < 1) {
-            $nbProducts = 10;
+        if ($nb_products < 1) {
+            $nb_products = 10;
         }
-        if (empty($orderBy) || $orderBy == 'position') {
-            $orderBy = 'price';
+        if (empty($order_by) || $order_by == 'position') {
+            $order_by = 'price';
         }
-        if (empty($orderWay)) {
-            $orderWay = 'DESC';
+        if (empty($order_way)) {
+            $order_way = 'DESC';
         }
-        if ($orderBy == 'id_product' || $orderBy == 'price' || $orderBy == 'date_add' || $orderBy == 'date_upd') {
-            $orderByPrefix = 'product_shop';
-        } elseif ($orderBy == 'name') {
-            $orderByPrefix = 'pl';
+        if ($order_by == 'id_product' || $order_by == 'price' || $order_by == 'date_add' || $order_by == 'date_upd') {
+            $order_by_prefix = 'product_shop';
+        } elseif ($order_by == 'name') {
+            $order_by_prefix = 'pl';
         }
-        if (!Validate::isOrderBy($orderBy) || !Validate::isOrderWay($orderWay)) {
-            throw new PrestaShopException(sprintf(Tools::displayError('Invalid ordering parameters: orderBy=[%s] orderWay=[%s]'), $orderBy, $orderWay));
+        if (!Validate::is_order_by($order_by) || !Validate::is_order_way($order_way)) {
+            throw new Presta_Shop_Exception(sprintf(Tools::display_error('Invalid ordering parameters: orderBy=[%s] orderWay=[%s]'), $order_by, $order_way));
         }
-        $currentDate = date('Y-m-d H:i:00');
-        $idsProduct = static::_getProductIdByDate((!$beginning ? $currentDate : $beginning), (!$ending ? $currentDate : $ending), $context);
-
-        $tabIdProduct = [];
-        foreach ($idsProduct as $product) {
+        $current_date = date('Y-m-d H:i:00');
+        $ids_product = static::_get_product_id_by_date(!$beginning ? $current_date : $beginning, !$ending ? $current_date : $ending, $context);
+        $tab_id_product = [];
+        foreach ($ids_product as $product) {
             if (is_array($product)) {
-                $tabIdProduct[] = (int) $product['id_product'];
+                $tab_id_product[] = (int) $product['id_product'];
             } else {
-                $tabIdProduct[] = (int) $product;
+                $tab_id_product[] = (int) $product;
             }
         }
-
-        $front = static::isFrontOfficeContext($context);
-
-        $sqlGroups = '';
-        if (Group::isFeatureActive()) {
-            $groups = FrontController::getCurrentCustomerGroups();
-            $sqlGroups = ' AND EXISTS(SELECT 1 FROM `'._DB_PREFIX_.'category_product` cp
-				JOIN `'._DB_PREFIX_.'category_group` cg ON (cp.id_category = cg.id_category AND cg.`id_group` '.(count($groups) ? 'IN ('.implode(',', $groups).')' : '= 1').')
+        $front = static::is_front_office_context($context);
+        $sql_groups = '';
+        if (Group::is_feature_active()) {
+            $groups = Front_Controller::get_current_customer_groups();
+            $sql_groups = ' AND EXISTS(SELECT 1 FROM `' . _DB_PREFIX_ . 'category_product` cp
+				JOIN `' . _DB_PREFIX_ . 'category_group` cg ON (cp.id_category = cg.id_category AND cg.`id_group` ' . (count($groups) ? 'IN (' . implode(',', $groups) . ')' : '= 1') . ')
 				WHERE cp.`id_product` = p.`id_product`)';
         }
-
-        $conn = Db::readOnly();
+        $conn = Db::read_only();
         if ($count) {
-            return $conn->getValue(
-                '
+            return $conn->get_value('
 			SELECT COUNT(DISTINCT p.`id_product`)
-			FROM `'._DB_PREFIX_.'product` p
-			'.Shop::addSqlAssociation('product', 'p').'
+			FROM `' . _DB_PREFIX_ . 'product` p
+			' . Shop::add_sql_association('product', 'p') . '
 			WHERE product_shop.`active` = 1
 			AND product_shop.`show_price` = 1
-			'.($front ? ' AND product_shop.`visibility` IN ("both", "catalog")' : '').'
-			'.((!$beginning && !$ending) ? 'AND p.`id_product` IN('.((is_array($tabIdProduct) && count($tabIdProduct)) ? implode(', ', $tabIdProduct) : 0).')' : '').'
-			'.$sqlGroups
-            );
+			' . ($front ? ' AND product_shop.`visibility` IN ("both", "catalog")' : '') . '
+			' . (!$beginning && !$ending ? 'AND p.`id_product` IN(' . (is_array($tab_id_product) && count($tab_id_product) ? implode(', ', $tab_id_product) : 0) . ')' : '') . '
+			' . $sql_groups);
         }
-
-        if (strpos($orderBy, '.') > 0) {
-            $orderBy = explode('.', $orderBy);
-            $orderBy = pSQL($orderBy[0]).'.`'.pSQL($orderBy[1]).'`';
+        if (strpos($order_by, '.') > 0) {
+            $order_by = explode('.', $order_by);
+            $order_by = p_sql($order_by[0]) . '.`' . p_sql($order_by[1]) . '`';
         }
-
         $sql = '
 		SELECT
 			p.*, product_shop.*, stock.out_of_stock, IFNULL(stock.quantity, 0) as quantity, pl.`description`, pl.`description_short`, pl.`available_now`, pl.`available_later`,
@@ -2521,44 +1826,39 @@ class ProductCore extends ObjectModel implements InitializationCallback
 			DATEDIFF(
 				p.`date_add`,
 				DATE_SUB(
-					"'.date('Y-m-d').' 00:00:00",
-					INTERVAL '.(Validate::isUnsignedInt(Configuration::get('PS_NB_DAYS_NEW_PRODUCT')) ? Configuration::get('PS_NB_DAYS_NEW_PRODUCT') : 20).' DAY
+					"' . date('Y-m-d') . ' 00:00:00",
+					INTERVAL ' . (Validate::is_unsigned_int(Configuration::get('PS_NB_DAYS_NEW_PRODUCT')) ? Configuration::get('PS_NB_DAYS_NEW_PRODUCT') : 20) . ' DAY
 				)
 			) > 0 AS new
-		FROM `'._DB_PREFIX_.'product` p
-		'.Shop::addSqlAssociation('product', 'p').'
-		LEFT JOIN `'._DB_PREFIX_.'product_attribute_shop` product_attribute_shop
-			ON (p.`id_product` = product_attribute_shop.`id_product` AND product_attribute_shop.`default_on` = 1 AND product_attribute_shop.id_shop='.(int) $context->shop->id.')
-		'.static::sqlStock('p', 0, false, $context->shop).'
-		LEFT JOIN `'._DB_PREFIX_.'product_lang` pl ON (
+		FROM `' . _DB_PREFIX_ . 'product` p
+		' . Shop::add_sql_association('product', 'p') . '
+		LEFT JOIN `' . _DB_PREFIX_ . 'product_attribute_shop` product_attribute_shop
+			ON (p.`id_product` = product_attribute_shop.`id_product` AND product_attribute_shop.`default_on` = 1 AND product_attribute_shop.id_shop=' . (int) $context->shop->id . ')
+		' . static::sql_stock('p', 0, false, $context->shop) . '
+		LEFT JOIN `' . _DB_PREFIX_ . 'product_lang` pl ON (
 			p.`id_product` = pl.`id_product`
-			AND pl.`id_lang` = '.(int) $idLang.Shop::addSqlRestrictionOnLang('pl').'
+			AND pl.`id_lang` = ' . (int) $id_lang . Shop::add_sql_restriction_on_lang('pl') . '
 		)
-		LEFT JOIN `'._DB_PREFIX_.'image_shop` image_shop
-			ON (image_shop.`id_product` = p.`id_product` AND image_shop.cover=1 AND image_shop.id_shop='.(int) $context->shop->id.')
-		LEFT JOIN `'._DB_PREFIX_.'image_lang` il ON (image_shop.`id_image` = il.`id_image` AND il.`id_lang` = '.(int) $idLang.')
-		LEFT JOIN `'._DB_PREFIX_.'manufacturer` m ON (m.`id_manufacturer` = p.`id_manufacturer`)
+		LEFT JOIN `' . _DB_PREFIX_ . 'image_shop` image_shop
+			ON (image_shop.`id_product` = p.`id_product` AND image_shop.cover=1 AND image_shop.id_shop=' . (int) $context->shop->id . ')
+		LEFT JOIN `' . _DB_PREFIX_ . 'image_lang` il ON (image_shop.`id_image` = il.`id_image` AND il.`id_lang` = ' . (int) $id_lang . ')
+		LEFT JOIN `' . _DB_PREFIX_ . 'manufacturer` m ON (m.`id_manufacturer` = p.`id_manufacturer`)
 		WHERE product_shop.`active` = 1
 		AND product_shop.`show_price` = 1
-		'.($front ? ' AND p.`visibility` IN ("both", "catalog")' : '').'
-		'.((!$beginning && !$ending) ? ' AND p.`id_product` IN ('.((is_array($tabIdProduct) && count($tabIdProduct)) ? implode(', ', $tabIdProduct) : 0).')' : '').'
-		'.$sqlGroups.'
-		ORDER BY '.(isset($orderByPrefix) ? pSQL($orderByPrefix).'.' : '').pSQL($orderBy).' '.pSQL($orderWay).'
-		LIMIT '.(int) ($pageNumber * $nbProducts).', '.(int) $nbProducts;
-
-        $result = $conn->getArray($sql);
-
+		' . ($front ? ' AND p.`visibility` IN ("both", "catalog")' : '') . '
+		' . (!$beginning && !$ending ? ' AND p.`id_product` IN (' . (is_array($tab_id_product) && count($tab_id_product) ? implode(', ', $tab_id_product) : 0) . ')' : '') . '
+		' . $sql_groups . '
+		ORDER BY ' . (isset($order_by_prefix) ? p_sql($order_by_prefix) . '.' : '') . p_sql($order_by) . ' ' . p_sql($order_way) . '
+		LIMIT ' . (int) ($page_number * $nb_products) . ', ' . (int) $nb_products;
+        $result = $conn->get_array($sql);
         if (!$result) {
             return false;
         }
-
-        if ($orderBy == 'price') {
-            Tools::orderbyPrice($result, $orderWay);
+        if ($order_by == 'price') {
+            Tools::orderby_price($result, $order_way);
         }
-
-        return static::getProductsProperties($idLang, $result);
+        return static::get_products_properties($id_lang, $result);
     }
-
     /**
      * @param string $idProduct
      * @param int|null $idLang
@@ -2568,30 +1868,24 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getProductCategoriesFull($idProduct = '', $idLang = null)
+    public static function get_product_categories_full($id_product = '', $id_lang = null)
     {
-        if (!$idLang) {
-            $idLang = Context::getContext()->language->id;
+        if (!$id_lang) {
+            $id_lang = Context::get_context()->language->id;
         }
-
         $ret = [];
-        $row = Db::readOnly()->getArray(
-            '
-			SELECT cp.`id_category`, cl.`name`, cl.`link_rewrite` FROM `'._DB_PREFIX_.'category_product` cp
-			LEFT JOIN `'._DB_PREFIX_.'category` c ON (c.id_category = cp.id_category)
-			LEFT JOIN `'._DB_PREFIX_.'category_lang` cl ON (cp.`id_category` = cl.`id_category`'.Shop::addSqlRestrictionOnLang('cl').')
-			'.Shop::addSqlAssociation('category', 'c').'
-			WHERE cp.`id_product` = '.(int) $idProduct.'
-				AND cl.`id_lang` = '.(int) $idLang
-        );
-
+        $row = Db::read_only()->get_array('
+			SELECT cp.`id_category`, cl.`name`, cl.`link_rewrite` FROM `' . _DB_PREFIX_ . 'category_product` cp
+			LEFT JOIN `' . _DB_PREFIX_ . 'category` c ON (c.id_category = cp.id_category)
+			LEFT JOIN `' . _DB_PREFIX_ . 'category_lang` cl ON (cp.`id_category` = cl.`id_category`' . Shop::add_sql_restriction_on_lang('cl') . ')
+			' . Shop::add_sql_association('category', 'c') . '
+			WHERE cp.`id_product` = ' . (int) $id_product . '
+				AND cl.`id_lang` = ' . (int) $id_lang);
         foreach ($row as $val) {
             $ret[$val['id_category']] = $val;
         }
-
         return $ret;
     }
-
     /**
      * @param float $price
      * @param bool $currency
@@ -2599,18 +1893,16 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @return string
      * @throws PrestaShopException
      */
-    public static function convertAndFormatPrice($price, $currency = false, ?Context $context = null)
+    public static function convert_and_format_price($price, $currency = false, ?Context $context = null)
     {
         if (!$context) {
-            $context = Context::getContext();
+            $context = Context::get_context();
         }
         if (!$currency) {
             $currency = $context->currency;
         }
-
-        return Tools::displayPrice(Tools::convertPrice($price, $currency), $currency);
+        return Tools::display_price(Tools::convert_price($price, $currency), $currency);
     }
-
     /**
      * @param int $idProduct
      * @param int $quantity
@@ -2618,30 +1910,22 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @return bool
      * @throws PrestaShopException
      */
-    public static function isDiscounted($idProduct, $quantity = 1, ?Context $context = null)
+    public static function is_discounted($id_product, $quantity = 1, ?Context $context = null)
     {
         if (!$context) {
-            $context = Context::getContext();
+            $context = Context::get_context();
         }
-
-        $idGroup = $context->customer->id_default_group;
-        $cartQuantity = !$context->cart ? 0 : Db::readOnly()->getValue(
-            '
+        $id_group = $context->customer->id_default_group;
+        $cart_quantity = !$context->cart ? 0 : Db::read_only()->get_value('
 			SELECT SUM(`quantity`)
-			FROM `'._DB_PREFIX_.'cart_product`
-			WHERE `id_product` = '.(int) $idProduct.' AND `id_cart` = '.(int) $context->cart->id
-        );
-        $quantity = $cartQuantity ?: $quantity;
-
-        $idCurrency = (int) $context->currency->id;
-        $ids = Address::getCountryAndState((int) $context->cart->{Configuration::get('PS_TAX_ADDRESS_TYPE')});
-        $idCountry = (isset($ids['id_country']) && $ids['id_country'])
-            ? (int) $ids['id_country']
-            : (int) Configuration::get('PS_COUNTRY_DEFAULT');
-
-        return (bool) SpecificPrice::getSpecificPrice((int) $idProduct, $context->shop->id, $idCurrency, $idCountry, $idGroup, $quantity, null, 0, 0, $quantity);
+			FROM `' . _DB_PREFIX_ . 'cart_product`
+			WHERE `id_product` = ' . (int) $id_product . ' AND `id_cart` = ' . (int) $context->cart->id);
+        $quantity = $cart_quantity ?: $quantity;
+        $id_currency = (int) $context->currency->id;
+        $ids = Address::get_country_and_state((int) $context->cart->{Configuration::get('PS_TAX_ADDRESS_TYPE')});
+        $id_country = isset($ids['id_country']) && $ids['id_country'] ? (int) $ids['id_country'] : (int) Configuration::get('PS_COUNTRY_DEFAULT');
+        return (bool) Specific_Price::get_specific_price((int) $id_product, $context->shop->id, $id_currency, $id_country, $id_group, $quantity, null, 0, 0, $quantity);
     }
-
     /**
      * Display price with right format and currency
      *
@@ -2652,11 +1936,10 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public static function convertPrice($params, $smarty)
+    public static function convert_price($params, $smarty)
     {
-        return Tools::displayPrice($params['price'], Context::getContext()->currency);
+        return Tools::display_price($params['price'], Context::get_context()->currency);
     }
-
     /**
      * Convert price with currency
      *
@@ -2667,11 +1950,10 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public static function convertPriceWithCurrency($params, $smarty)
+    public static function convert_price_with_currency($params, $smarty)
     {
-        return Tools::displayPrice($params['price'], $params['currency'], false);
+        return Tools::display_price($params['price'], $params['currency'], false);
     }
-
     /**
      * @param array $params
      * @param Smarty_Internal_Template $smarty
@@ -2680,11 +1962,10 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public static function displayWtPrice($params, $smarty)
+    public static function display_wt_price($params, $smarty)
     {
-        return Tools::displayPrice($params['p'], Context::getContext()->currency);
+        return Tools::display_price($params['p'], Context::get_context()->currency);
     }
-
     /**
      * Display WT price with currency
      *
@@ -2695,11 +1976,10 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public static function displayWtPriceWithCurrency($params, $smarty)
+    public static function display_wt_price_with_currency($params, $smarty)
     {
-        return Tools::displayPrice($params['price'], $params['currency'], false);
+        return Tools::display_price($params['price'], $params['currency'], false);
     }
-
     /**
      * It's not possible to use this method with new stockManager and stockAvailable features
      * Now this method do nothing
@@ -2710,13 +1990,11 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @deprecated 1.0.0
      * @return false
      */
-    public static function updateQuantity()
+    public static function update_quantity()
     {
-        Tools::displayAsDeprecated();
-
+        Tools::display_as_deprecated();
         return false;
     }
-
     /**
      * It's not possible to use this method with new stockManager and stockAvailable features
      * Now this method do nothing
@@ -2726,13 +2004,11 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @see StockAvailable if you want to manage available quantities for sale on your shop(s)
      * @return false
      */
-    public static function reinjectQuantities()
+    public static function reinject_quantities()
     {
-        Tools::displayAsDeprecated();
-
+        Tools::display_as_deprecated();
         return false;
     }
-
     /**
      * @param bool $haveStock
      *
@@ -2741,57 +2017,41 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getAttributesColorList(array $products, $haveStock = true)
+    public static function get_attributes_color_list(array $products, $have_stock = true)
     {
         if (!count($products)) {
             return [];
         }
-
-        $idLang = Context::getContext()->language->id;
-
-        $checkStock = !Configuration::get('PS_DISP_UNAVAILABLE_ATTR');
-        if (!$res = Db::readOnly()->getArray(
-            '
-			SELECT pa.`id_product`, a.`color`, pac.`id_product_attribute`, '.($checkStock ? 'SUM(IF(stock.`quantity` > 0, 1, 0))' : '0').' qty, a.`id_attribute`, al.`name`, IF(color = "", a.id_attribute, color) group_by
-			FROM `'._DB_PREFIX_.'product_attribute` pa
-			'.Shop::addSqlAssociation('product_attribute', 'pa').($checkStock ? static::sqlStock('pa', 'pa') : '').'
-			JOIN `'._DB_PREFIX_.'product_attribute_combination` pac ON (pac.`id_product_attribute` = product_attribute_shop.`id_product_attribute`)
-			JOIN `'._DB_PREFIX_.'attribute` a ON (a.`id_attribute` = pac.`id_attribute`)
-			JOIN `'._DB_PREFIX_.'attribute_lang` al ON (a.`id_attribute` = al.`id_attribute` AND al.`id_lang` = '.(int) $idLang.')
-			JOIN `'._DB_PREFIX_.'attribute_group` ag ON (a.id_attribute_group = ag.`id_attribute_group`)
-			WHERE pa.`id_product` IN ('.implode(',', array_map(intval(...), $products)).') AND ag.`is_color_group` = 1
+        $id_lang = Context::get_context()->language->id;
+        $check_stock = !Configuration::get('PS_DISP_UNAVAILABLE_ATTR');
+        if (!$res = Db::read_only()->get_array('
+			SELECT pa.`id_product`, a.`color`, pac.`id_product_attribute`, ' . ($check_stock ? 'SUM(IF(stock.`quantity` > 0, 1, 0))' : '0') . ' qty, a.`id_attribute`, al.`name`, IF(color = "", a.id_attribute, color) group_by
+			FROM `' . _DB_PREFIX_ . 'product_attribute` pa
+			' . Shop::add_sql_association('product_attribute', 'pa') . ($check_stock ? static::sql_stock('pa', 'pa') : '') . '
+			JOIN `' . _DB_PREFIX_ . 'product_attribute_combination` pac ON (pac.`id_product_attribute` = product_attribute_shop.`id_product_attribute`)
+			JOIN `' . _DB_PREFIX_ . 'attribute` a ON (a.`id_attribute` = pac.`id_attribute`)
+			JOIN `' . _DB_PREFIX_ . 'attribute_lang` al ON (a.`id_attribute` = al.`id_attribute` AND al.`id_lang` = ' . (int) $id_lang . ')
+			JOIN `' . _DB_PREFIX_ . 'attribute_group` ag ON (a.id_attribute_group = ag.`id_attribute_group`)
+			WHERE pa.`id_product` IN (' . implode(',', array_map(intval(...), $products)) . ') AND ag.`is_color_group` = 1
 			GROUP BY pa.`id_product`, a.`id_attribute`, `group_by`
-			'.($checkStock ? 'HAVING qty > 0' : '').'
-			ORDER BY a.`position` ASC;'
-        )
-        ) {
+			' . ($check_stock ? 'HAVING qty > 0' : '') . '
+			ORDER BY a.`position` ASC;')) {
             return false;
         }
-
         $colors = [];
         foreach ($res as $row) {
-            $imageExtension = ImageManager::getDefaultImageExtension();
-            $color = (string)$row['color'];
-            $attributeId = (int)$row['id_attribute'];
-            $textureFile = _PS_COL_IMG_DIR_ . $attributeId . '.' . $imageExtension;
-
-            if (!$color && !file_exists($textureFile)) {
+            $image_extension = Image_Manager::get_default_image_extension();
+            $color = (string) $row['color'];
+            $attribute_id = (int) $row['id_attribute'];
+            $texture_file = _PS_COL_IMG_DIR_ . $attribute_id . '.' . $image_extension;
+            if (!$color && !file_exists($texture_file)) {
                 continue;
             }
-
-            $productId = (int)$row['id_product'];
-            $colors[$productId][] = [
-                'id_attribute' => $attributeId,
-                'id_product' => $productId,
-                'id_product_attribute' => (int)$row['id_product_attribute'],
-                'color' => $color,
-                'name' => (string)$row['name'],
-            ];
+            $product_id = (int) $row['id_product'];
+            $colors[$product_id][] = ['id_attribute' => $attribute_id, 'id_product' => $product_id, 'id_product_attribute' => (int) $row['id_product_attribute'], 'color' => $color, 'name' => (string) $row['name']];
         }
-
         return $colors;
     }
-
     /**
      * Get product accessories (only names)
      *
@@ -2803,22 +2063,19 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getAccessoriesLight($idLang, $idProduct)
+    public static function get_accessories_light($id_lang, $id_product)
     {
-        return Db::readOnly()->getArray(
-            '
+        return Db::read_only()->get_array('
 			SELECT p.`id_product`, p.`reference`, pl.`name`
-			FROM `'._DB_PREFIX_.'accessory`
-			LEFT JOIN `'._DB_PREFIX_.'product` p ON (p.`id_product`= `id_product_2`)
-			'.Shop::addSqlAssociation('product', 'p').'
-			LEFT JOIN `'._DB_PREFIX_.'product_lang` pl ON (
+			FROM `' . _DB_PREFIX_ . 'accessory`
+			LEFT JOIN `' . _DB_PREFIX_ . 'product` p ON (p.`id_product`= `id_product_2`)
+			' . Shop::add_sql_association('product', 'p') . '
+			LEFT JOIN `' . _DB_PREFIX_ . 'product_lang` pl ON (
 				p.`id_product` = pl.`id_product`
-				AND pl.`id_lang` = '.(int) $idLang.Shop::addSqlRestrictionOnLang('pl').'
+				AND pl.`id_lang` = ' . (int) $id_lang . Shop::add_sql_restriction_on_lang('pl') . '
 			)
-			WHERE `id_product_1` = '.(int) $idProduct
-        );
+			WHERE `id_product_1` = ' . (int) $id_product);
     }
-
     /**
      * @param int $idProduct
      *
@@ -2827,11 +2084,10 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getAccessoryById($idProduct)
+    public static function get_accessory_by_id($id_product)
     {
-        return Db::readOnly()->getRow('SELECT `id_product`, `name` FROM `'._DB_PREFIX_.'product_lang` WHERE `id_product` = '.(int) $idProduct);
+        return Db::read_only()->get_row('SELECT `id_product`, `name` FROM `' . _DB_PREFIX_ . 'product_lang` WHERE `id_product` = ' . (int) $id_product);
     }
-
     /**
      * @param int $idProduct
      * @param int $idFeature
@@ -2841,52 +2097,44 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public static function addFeatureProductImport($idProduct, $idFeature, $idFeatureValue)
+    public static function add_feature_product_import($id_product, $id_feature, $id_feature_value)
     {
-        return Db::getInstance()->execute(
-            '
-			INSERT INTO `'._DB_PREFIX_.'feature_product` (`id_feature`, `id_product`, `id_feature_value`)
-			VALUES ('.(int) $idFeature.', '.(int) $idProduct.', '.(int) $idFeatureValue.')
-			ON DUPLICATE KEY UPDATE `id_feature_value` = '.(int) $idFeatureValue
-        );
+        return Db::get_instance()->execute('
+			INSERT INTO `' . _DB_PREFIX_ . 'feature_product` (`id_feature`, `id_product`, `id_feature_value`)
+			VALUES (' . (int) $id_feature . ', ' . (int) $id_product . ', ' . (int) $id_feature_value . ')
+			ON DUPLICATE KEY UPDATE `id_feature_value` = ' . (int) $id_feature_value);
     }
-
     /**
      * @param array $productIds
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function cacheProductsFeatures($productIds): void
+    public static function cache_products_features($product_ids): void
     {
-        if (!Feature::isFeatureActive()) {
+        if (!Feature::is_feature_active()) {
             return;
         }
-
-        $productImplode = [];
-        foreach ($productIds as $idProduct) {
-            if ((int) $idProduct && !array_key_exists($idProduct, static::$_cacheFeatures)) {
-                $productImplode[] = (int) $idProduct;
+        $product_implode = [];
+        foreach ($product_ids as $id_product) {
+            if ((int) $id_product && !array_key_exists($id_product, static::$_cache_features)) {
+                $product_implode[] = (int) $id_product;
             }
         }
-        if (!count($productImplode)) {
+        if (!count($product_implode)) {
             return;
         }
-
-        $result = Db::readOnly()->getArray(
-            '
+        $result = Db::read_only()->get_array('
 		SELECT id_feature, id_product, id_feature_value
-		FROM `'._DB_PREFIX_.'feature_product`
-		WHERE `id_product` IN ('.implode(',', $productImplode).')'
-        );
+		FROM `' . _DB_PREFIX_ . 'feature_product`
+		WHERE `id_product` IN (' . implode(',', $product_implode) . ')');
         foreach ($result as $row) {
-            if (!array_key_exists($row['id_product'], static::$_cacheFeatures)) {
-                static::$_cacheFeatures[$row['id_product']] = [];
+            if (!array_key_exists($row['id_product'], static::$_cache_features)) {
+                static::$_cache_features[$row['id_product']] = [];
             }
-            static::$_cacheFeatures[$row['id_product']][] = $row;
+            static::$_cache_features[$row['id_product']][] = $row;
         }
     }
-
     /**
      * Admin panel product search
      *
@@ -2898,9 +2146,9 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function searchByName($idLang, $query, ?Context $context = null)
+    public static function search_by_name($id_lang, $query, ?Context $context = null)
     {
-        $sql = new DbQuery();
+        $sql = new Db_Query();
         $sql->select('p.id_product');
         $sql->select('pl.name');
         $sql->select('p.ean13');
@@ -2912,49 +2160,37 @@ class ProductCore extends ObjectModel implements InitializationCallback
         $sql->select('product_shop.advanced_stock_management');
         $sql->select('product_shop.customizable');
         $sql->from('product', 'p');
-        $sql->join(Shop::addSqlAssociation('product', 'p'));
-        $sql->leftJoin(
-            'product_lang',
-            'pl',
-            'p.`id_product` = pl.`id_product`
-			AND pl.`id_lang` = '.(int) $idLang.Shop::addSqlRestrictionOnLang('pl')
-        );
-        $sql->leftJoin('manufacturer', 'm', 'm.`id_manufacturer` = p.`id_manufacturer`');
-
-        $where = 'pl.`name` LIKE \'%'.pSQL($query).'%\'
-		OR p.`ean13` LIKE \'%'.pSQL($query).'%\'
-		OR p.`upc` LIKE \'%'.pSQL($query).'%\'
-		OR p.`reference` LIKE \'%'.pSQL($query).'%\'
-		OR p.`supplier_reference` LIKE \'%'.pSQL($query).'%\'
-		OR EXISTS(SELECT * FROM `'._DB_PREFIX_.'product_supplier` sp WHERE sp.`id_product` = p.`id_product` AND `product_supplier_reference` LIKE \'%'.pSQL($query).'%\')';
-
-        $sql->orderBy('pl.`name` ASC');
-
-        if (Combination::isFeatureActive()) {
-            $where .= ' OR EXISTS(SELECT * FROM `'._DB_PREFIX_.'product_attribute` `pa` WHERE pa.`id_product` = p.`id_product` AND (pa.`reference` LIKE \'%'.pSQL($query).'%\'
-			OR pa.`supplier_reference` LIKE \'%'.pSQL($query).'%\'
-			OR pa.`ean13` LIKE \'%'.pSQL($query).'%\'
-			OR pa.`upc` LIKE \'%'.pSQL($query).'%\'))';
+        $sql->join(Shop::add_sql_association('product', 'p'));
+        $sql->left_join('product_lang', 'pl', 'p.`id_product` = pl.`id_product`
+			AND pl.`id_lang` = ' . (int) $id_lang . Shop::add_sql_restriction_on_lang('pl'));
+        $sql->left_join('manufacturer', 'm', 'm.`id_manufacturer` = p.`id_manufacturer`');
+        $where = 'pl.`name` LIKE \'%' . p_sql($query) . '%\'
+		OR p.`ean13` LIKE \'%' . p_sql($query) . '%\'
+		OR p.`upc` LIKE \'%' . p_sql($query) . '%\'
+		OR p.`reference` LIKE \'%' . p_sql($query) . '%\'
+		OR p.`supplier_reference` LIKE \'%' . p_sql($query) . '%\'
+		OR EXISTS(SELECT * FROM `' . _DB_PREFIX_ . 'product_supplier` sp WHERE sp.`id_product` = p.`id_product` AND `product_supplier_reference` LIKE \'%' . p_sql($query) . '%\')';
+        $sql->order_by('pl.`name` ASC');
+        if (Combination::is_feature_active()) {
+            $where .= ' OR EXISTS(SELECT * FROM `' . _DB_PREFIX_ . 'product_attribute` `pa` WHERE pa.`id_product` = p.`id_product` AND (pa.`reference` LIKE \'%' . p_sql($query) . '%\'
+			OR pa.`supplier_reference` LIKE \'%' . p_sql($query) . '%\'
+			OR pa.`ean13` LIKE \'%' . p_sql($query) . '%\'
+			OR pa.`upc` LIKE \'%' . p_sql($query) . '%\'))';
         }
         $sql->where($where);
-        $sql->join(static::sqlStock('p', 0));
-
-        $result = Db::readOnly()->getArray($sql);
-
+        $sql->join(static::sql_stock('p', 0));
+        $result = Db::read_only()->get_array($sql);
         if (!$result) {
             return [];
         }
-
-        $resultsArray = [];
+        $results_array = [];
         foreach ($result as $row) {
-            $row['price_tax_incl'] = static::getPriceStatic($row['id_product'], true);
-            $row['price_tax_excl'] = static::getPriceStatic($row['id_product'], false);
-            $resultsArray[] = $row;
+            $row['price_tax_incl'] = static::get_price_static($row['id_product'], true);
+            $row['price_tax_excl'] = static::get_price_static($row['id_product'], false);
+            $results_array[] = $row;
         }
-
-        return $resultsArray;
+        return $results_array;
     }
-
     /**
      * Duplicate attributes when duplicating a product
      *
@@ -2965,112 +2201,78 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public static function duplicateAttributes($idProductOld, $idProductNew)
+    public static function duplicate_attributes($id_product_old, $id_product_new)
     {
         $return = true;
-        $combinationImages = [];
-        $conn = Db::getInstance();
-
-        $result = $conn->getArray(
-            '
+        $combination_images = [];
+        $conn = Db::get_instance();
+        $result = $conn->get_array('
 		SELECT pa.*, product_attribute_shop.*
-			FROM `'._DB_PREFIX_.'product_attribute` pa
-			'.Shop::addSqlAssociation('product_attribute', 'pa').'
-			WHERE pa.`id_product` = '.(int) $idProductOld
-        );
+			FROM `' . _DB_PREFIX_ . 'product_attribute` pa
+			' . Shop::add_sql_association('product_attribute', 'pa') . '
+			WHERE pa.`id_product` = ' . (int) $id_product_old);
         $combinations = [];
-
         foreach ($result as $row) {
-            $idProductAttributeOld = (int) $row['id_product_attribute'];
-            $quantityAttributeOld = $conn->getValue(
-                (new DbQuery())
-                    ->select('`quantity`')
-                    ->from('stock_available')
-                    ->where('`id_product` = '.(int) $idProductOld)
-                    ->where('`id_product_attribute` = '.(int) $row['id_product_attribute'])
-            );
-            if (!isset($combinations[$idProductAttributeOld])) {
-                $idCombination = null;
-                $idShop = null;
-                $result2 = $conn->getArray(
-                    '
+            $id_product_attribute_old = (int) $row['id_product_attribute'];
+            $quantity_attribute_old = $conn->get_value((new Db_Query())->select('`quantity`')->from('stock_available')->where('`id_product` = ' . (int) $id_product_old)->where('`id_product_attribute` = ' . (int) $row['id_product_attribute']));
+            if (!isset($combinations[$id_product_attribute_old])) {
+                $id_combination = null;
+                $id_shop = null;
+                $result2 = $conn->get_array('
 				SELECT *
-				FROM `'._DB_PREFIX_.'product_attribute_combination`
-					WHERE `id_product_attribute` = '.$idProductAttributeOld
-                );
+				FROM `' . _DB_PREFIX_ . 'product_attribute_combination`
+					WHERE `id_product_attribute` = ' . $id_product_attribute_old);
             } else {
-                $idCombination = $combinations[$idProductAttributeOld];
-                $idShop = (int) $row['id_shop'];
-                $contextOld = Shop::getContext();
-                $contextShopIdOld = Shop::getContextShopID();
-                Shop::setContext(Shop::CONTEXT_SHOP, $idShop);
+                $id_combination = $combinations[$id_product_attribute_old];
+                $id_shop = (int) $row['id_shop'];
+                $context_old = Shop::get_context();
+                $context_shop_id_old = Shop::get_context_shop_id();
+                Shop::set_context(Shop::CONTEXT_SHOP, $id_shop);
             }
-
-            $row['id_product'] = $idProductNew;
+            $row['id_product'] = $id_product_new;
             unset($row['id_product_attribute']);
-
-            $combination = new Combination($idCombination, null, $idShop);
+            $combination = new Combination($id_combination, null, $id_shop);
             foreach ($row as $k => $v) {
-                $combination->$k = $v;
+                $combination->{$k} = $v;
             }
             $return = $combination->save() && $return;
-
-            $idProductAttributeNew = (int) $combination->id;
-
+            $id_product_attribute_new = (int) $combination->id;
             // Set stock quantity
-            StockAvailable::setQuantity((int) $idProductNew, $idProductAttributeNew, (int) $quantityAttributeOld, $idShop);
-
-            StockAvailable::setProductOutOfStock((int)$idProductNew, StockAvailable::outOfStock($idProductOld), $idShop, $idProductAttributeNew);
-
-            if ($resultImages = static::_getAttributeImageAssociations($idProductAttributeOld)) {
-                $combinationImages['old'][$idProductAttributeOld] = $resultImages;
-                $combinationImages['new'][$idProductAttributeNew] = $resultImages;
+            Stock_Available::set_quantity((int) $id_product_new, $id_product_attribute_new, (int) $quantity_attribute_old, $id_shop);
+            Stock_Available::set_product_out_of_stock((int) $id_product_new, Stock_Available::out_of_stock($id_product_old), $id_shop, $id_product_attribute_new);
+            if ($result_images = static::_get_attribute_image_associations($id_product_attribute_old)) {
+                $combination_images['old'][$id_product_attribute_old] = $result_images;
+                $combination_images['new'][$id_product_attribute_new] = $result_images;
             }
-
-            if (!isset($combinations[$idProductAttributeOld])) {
-                $combinations[$idProductAttributeOld] = $idProductAttributeNew;
+            if (!isset($combinations[$id_product_attribute_old])) {
+                $combinations[$id_product_attribute_old] = $id_product_attribute_new;
                 foreach ($result2 as $row2) {
-                    $row2['id_product_attribute'] = $idProductAttributeNew;
+                    $row2['id_product_attribute'] = $id_product_attribute_new;
                     $return = $conn->insert('product_attribute_combination', $row2) && $return;
                 }
             } else {
-                Shop::setContext($contextOld, $contextShopIdOld);
+                Shop::set_context($context_old, $context_shop_id_old);
             }
-
             //Copy suppliers
-            $result3 = $conn->getArray(
-                '
+            $result3 = $conn->get_array('
 			SELECT *
-			FROM `'._DB_PREFIX_.'product_supplier`
-			WHERE `id_product_attribute` = '.$idProductAttributeOld.'
-			AND `id_product` = '.(int) $idProductOld
-            );
-
+			FROM `' . _DB_PREFIX_ . 'product_supplier`
+			WHERE `id_product_attribute` = ' . $id_product_attribute_old . '
+			AND `id_product` = ' . (int) $id_product_old);
             foreach ($result3 as $row3) {
                 unset($row3['id_product_supplier']);
-                $row3['id_product'] = $idProductNew;
-                $row3['id_product_attribute'] = $idProductAttributeNew;
+                $row3['id_product'] = $id_product_new;
+                $row3['id_product_attribute'] = $id_product_attribute_new;
                 $return = $conn->insert('product_supplier', $row3, false, true, Db::INSERT_IGNORE) && $return;
             }
         }
-
         // duplicate attribute impacts
-        $impacts = static::getAttributesImpacts($idProductOld);
-        foreach ($impacts as $idAttribute => $impact) {
-            $conn->insert('attribute_impact', [
-                'id_product' => (int)$idProductNew,
-                'id_attribute' => (int)$idAttribute,
-                'weight' => (float)$impact['weight'],
-                'price' => (float)$impact['price'],
-                'width' => (float)$impact['width'],
-                'height' => (float)$impact['height'],
-                'depth' => (float)$impact['depth'],
-            ]);
+        $impacts = static::get_attributes_impacts($id_product_old);
+        foreach ($impacts as $id_attribute => $impact) {
+            $conn->insert('attribute_impact', ['id_product' => (int) $id_product_new, 'id_attribute' => (int) $id_attribute, 'weight' => (float) $impact['weight'], 'price' => (float) $impact['price'], 'width' => (float) $impact['width'], 'height' => (float) $impact['height'], 'depth' => (float) $impact['depth']]);
         }
-
-        return !$return ? false : $combinationImages;
+        return !$return ? false : $combination_images;
     }
-
     /**
      * Get product attribute image associations
      *
@@ -3081,22 +2283,18 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function _getAttributeImageAssociations($idProductAttribute)
+    public static function _get_attribute_image_associations($id_product_attribute)
     {
-        $combinationImages = [];
-        $data = Db::readOnly()->getArray(
-            '
+        $combination_images = [];
+        $data = Db::read_only()->get_array('
 			SELECT `id_image`
-			FROM `'._DB_PREFIX_.'product_attribute_image`
-			WHERE `id_product_attribute` = '.(int) $idProductAttribute
-        );
+			FROM `' . _DB_PREFIX_ . 'product_attribute_image`
+			WHERE `id_product_attribute` = ' . (int) $id_product_attribute);
         foreach ($data as $row) {
-            $combinationImages[] = (int) $row['id_image'];
+            $combination_images[] = (int) $row['id_image'];
         }
-
-        return $combinationImages;
+        return $combination_images;
     }
-
     /**
      * @param int $idProduct
      *
@@ -3105,35 +2303,16 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getAttributesImpacts($idProduct)
+    public static function get_attributes_impacts($id_product)
     {
         $return = [];
-        $result = Db::readOnly()->getArray(
-            (new DbQuery())
-            ->select('ai.id_attribute')
-            ->select('ai.price')
-            ->select('ai.weight')
-            ->select('ai.width')
-            ->select('ai.height')
-            ->select('ai.depth')
-            ->from('attribute_impact', 'ai')
-            ->where('ai.id_product = '.(int) $idProduct)
-        );
-
+        $result = Db::read_only()->get_array((new Db_Query())->select('ai.id_attribute')->select('ai.price')->select('ai.weight')->select('ai.width')->select('ai.height')->select('ai.depth')->from('attribute_impact', 'ai')->where('ai.id_product = ' . (int) $id_product));
         foreach ($result as $impact) {
-            $attributeId = (int)$impact['id_attribute'];
-            $return[$attributeId] = [
-                'price' => (float)$impact['price'],
-                'weight' => (float)$impact['weight'],
-                'width' => (float)$impact['width'],
-                'height' => (float)$impact['height'],
-                'depth' => (float)$impact['depth'],
-            ];
+            $attribute_id = (int) $impact['id_attribute'];
+            $return[$attribute_id] = ['price' => (float) $impact['price'], 'weight' => (float) $impact['weight'], 'width' => (float) $impact['width'], 'height' => (float) $impact['height'], 'depth' => (float) $impact['depth']];
         }
-
         return $return;
     }
-
     /**
      * @param int $idProductOld
      * @param int $idProductNew
@@ -3143,27 +2322,19 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function duplicateAccessories($idProductOld, $idProductNew)
+    public static function duplicate_accessories($id_product_old, $id_product_new)
     {
         $return = true;
-
-        $result = Db::readOnly()->getArray(
-            '
+        $result = Db::read_only()->get_array('
 		SELECT *
-		FROM `'._DB_PREFIX_.'accessory`
-		WHERE `id_product_1` = '.(int) $idProductOld
-        );
+		FROM `' . _DB_PREFIX_ . 'accessory`
+		WHERE `id_product_1` = ' . (int) $id_product_old);
         foreach ($result as $row) {
-            $data = [
-                'id_product_1' => (int) $idProductNew,
-                'id_product_2' => (int) $row['id_product_2'],
-            ];
-            $return = Db::getInstance()->insert('accessory', $data) && $return;
+            $data = ['id_product_1' => (int) $id_product_new, 'id_product_2' => (int) $row['id_product_2']];
+            $return = Db::get_instance()->insert('accessory', $data) && $return;
         }
-
         return $return;
     }
-
     /**
      * @param int $idProductOld
      * @param int $idProductNew
@@ -3173,25 +2344,18 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function duplicateTags($idProductOld, $idProductNew)
+    public static function duplicate_tags($id_product_old, $id_product_new)
     {
-        $tags = Db::readOnly()->getArray('SELECT `id_tag`, `id_lang` FROM `'._DB_PREFIX_.'product_tag` WHERE `id_product` = '.(int) $idProductOld);
-        if (! $tags) {
+        $tags = Db::read_only()->get_array('SELECT `id_tag`, `id_lang` FROM `' . _DB_PREFIX_ . 'product_tag` WHERE `id_product` = ' . (int) $id_product_old);
+        if (!$tags) {
             return true;
         }
-
         $data = [];
         foreach ($tags as $tag) {
-            $data[] = [
-                'id_product' => (int) $idProductNew,
-                'id_tag'     => (int) $tag['id_tag'],
-                'id_lang'    => (int) $tag['id_lang'],
-            ];
+            $data[] = ['id_product' => (int) $id_product_new, 'id_tag' => (int) $tag['id_tag'], 'id_lang' => (int) $tag['id_lang']];
         }
-
-        return Db::getInstance()->insert('product_tag', $data);
+        return Db::get_instance()->insert('product_tag', $data);
     }
-
     /**
      * @param int $idProductOld
      * @param int $idProductNew
@@ -3201,37 +2365,23 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function duplicateDownload($idProductOld, $idProductNew)
+    public static function duplicate_download($id_product_old, $id_product_new)
     {
         $sql = 'SELECT `display_filename`, `filename`, `date_add`, `date_expiration`, `nb_days_accessible`, `nb_downloadable`, `active`, `is_shareable`
-				FROM `'._DB_PREFIX_.'product_download`
-				WHERE `id_product` = '.(int) $idProductOld;
-        $results = Db::readOnly()->getArray($sql);
+				FROM `' . _DB_PREFIX_ . 'product_download`
+				WHERE `id_product` = ' . (int) $id_product_old;
+        $results = Db::read_only()->get_array($sql);
         if (!$results) {
             return true;
         }
-
         $data = [];
         foreach ($results as $row) {
-            $newFilename = ProductDownload::getNewFilename();
-            copy(_PS_DOWNLOAD_DIR_.$row['filename'], _PS_DOWNLOAD_DIR_.$newFilename);
-
-            $data[] = [
-                'id_product'         => (int) $idProductNew,
-                'display_filename'   => pSQL($row['display_filename']),
-                'filename'           => pSQL($newFilename),
-                'date_expiration'    => pSQL($row['date_expiration']),
-                'nb_days_accessible' => (int) $row['nb_days_accessible'],
-                'nb_downloadable'    => (int) $row['nb_downloadable'],
-                'active'             => (int) $row['active'],
-                'is_shareable'       => (int) $row['is_shareable'],
-                'date_add'           => date('Y-m-d H:i:s'),
-            ];
+            $new_filename = Product_Download::get_new_filename();
+            copy(_PS_DOWNLOAD_DIR_ . $row['filename'], _PS_DOWNLOAD_DIR_ . $new_filename);
+            $data[] = ['id_product' => (int) $id_product_new, 'display_filename' => p_sql($row['display_filename']), 'filename' => p_sql($new_filename), 'date_expiration' => p_sql($row['date_expiration']), 'nb_days_accessible' => (int) $row['nb_days_accessible'], 'nb_downloadable' => (int) $row['nb_downloadable'], 'active' => (int) $row['active'], 'is_shareable' => (int) $row['is_shareable'], 'date_add' => date('Y-m-d H:i:s')];
         }
-
-        return Db::getInstance()->insert('product_download', $data);
+        return Db::get_instance()->insert('product_download', $data);
     }
-
     /**
      * @param int $idProductOld
      * @param int $idProductNew
@@ -3241,33 +2391,24 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function duplicateAttachments($idProductOld, $idProductNew)
+    public static function duplicate_attachments($id_product_old, $id_product_new)
     {
         // Get all ids attachments of the old product
-        $sql = 'SELECT `id_attachment` FROM `'._DB_PREFIX_.'product_attachment` WHERE `id_product` = '.(int) $idProductOld;
-        $results = Db::readOnly()->getArray($sql);
-
+        $sql = 'SELECT `id_attachment` FROM `' . _DB_PREFIX_ . 'product_attachment` WHERE `id_product` = ' . (int) $id_product_old;
+        $results = Db::read_only()->get_array($sql);
         if (!$results) {
             return true;
         }
-
         $data = [];
-
         // Prepare data of table product_attachment
         foreach ($results as $row) {
-            $data[] = [
-                'id_product'    => (int) $idProductNew,
-                'id_attachment' => (int) $row['id_attachment'],
-            ];
+            $data[] = ['id_product' => (int) $id_product_new, 'id_attachment' => (int) $row['id_attachment']];
         }
-
         // Duplicate product attachement
-        $res = Db::getInstance()->insert('product_attachment', $data);
-        static::updateCacheAttachment((int) $idProductNew);
-
+        $res = Db::get_instance()->insert('product_attachment', $data);
+        static::update_cache_attachment((int) $id_product_new);
         return $res;
     }
-
     /**
      * Duplicate features when duplicating a product
      *
@@ -3278,61 +2419,47 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public static function duplicateFeatures($idProductOld, $idProductNew)
+    public static function duplicate_features($id_product_old, $id_product_new)
     {
         $return = true;
-
-        $conn = Db::getInstance();
-        $result = $conn->getArray(
-            '
+        $conn = Db::get_instance();
+        $result = $conn->get_array('
 		SELECT *
-		FROM `'._DB_PREFIX_.'feature_product`
-		WHERE `id_product` = '.(int) $idProductOld
-        );
+		FROM `' . _DB_PREFIX_ . 'feature_product`
+		WHERE `id_product` = ' . (int) $id_product_old);
         foreach ($result as $row) {
-            $result2 = $conn->getRow(
-                '
+            $result2 = $conn->get_row('
 			SELECT *
-			FROM `'._DB_PREFIX_.'feature_value`
-			WHERE `id_feature_value` = '.(int) $row['id_feature_value']
-            );
+			FROM `' . _DB_PREFIX_ . 'feature_value`
+			WHERE `id_feature_value` = ' . (int) $row['id_feature_value']);
             // Custom feature value, need to duplicate it
             if ($result2['custom']) {
-                $oldIdFeatureValue = $result2['id_feature_value'];
+                $old_id_feature_value = $result2['id_feature_value'];
                 unset($result2['id_feature_value']);
                 $return = $conn->insert('feature_value', $result2) && $return;
-                $maxFv = $conn->getRow(
-                    '
+                $max_fv = $conn->get_row('
 					SELECT MAX(`id_feature_value`) AS nb
-					FROM `'._DB_PREFIX_.'feature_value`'
-                );
-                $newIdFeatureValue = $maxFv['nb'];
-
-                foreach (Language::getIDs(false) as $idLang) {
-                    $result3 = $conn->getRow(
-                        '
+					FROM `' . _DB_PREFIX_ . 'feature_value`');
+                $new_id_feature_value = $max_fv['nb'];
+                foreach (Language::get_i_ds(false) as $id_lang) {
+                    $result3 = $conn->get_row('
 					SELECT *
-					FROM `'._DB_PREFIX_.'feature_value_lang`
-					WHERE `id_feature_value` = '.(int) $oldIdFeatureValue.'
-					AND `id_lang` = '.(int) $idLang
-                    );
-
+					FROM `' . _DB_PREFIX_ . 'feature_value_lang`
+					WHERE `id_feature_value` = ' . (int) $old_id_feature_value . '
+					AND `id_lang` = ' . (int) $id_lang);
                     if ($result3) {
-                        $result3['id_feature_value'] = (int) $newIdFeatureValue;
-                        $result3['value'] = pSQL($result3['value']);
+                        $result3['id_feature_value'] = (int) $new_id_feature_value;
+                        $result3['value'] = p_sql($result3['value']);
                         $return = $conn->insert('feature_value_lang', $result3) && $return;
                     }
                 }
-                $row['id_feature_value'] = $newIdFeatureValue;
+                $row['id_feature_value'] = $new_id_feature_value;
             }
-
-            $row['id_product'] = (int) $idProductNew;
+            $row['id_product'] = (int) $id_product_new;
             $return = $conn->insert('feature_product', $row) && $return;
         }
-
         return $return;
     }
-
     /**
      * @param int $oldProductId
      * @param int $productId
@@ -3342,24 +2469,21 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function duplicateSpecificPrices($oldProductId, $productId)
+    public static function duplicate_specific_prices($old_product_id, $product_id)
     {
         // remove all existing specific prices that might exists for target product
-        if (! SpecificPrice::deleteByProductId($productId)) {
+        if (!Specific_Price::delete_by_product_id($product_id)) {
             return false;
         }
-
         // duplicate specific prices from source product
-        foreach (SpecificPrice::getByProductId((int) $oldProductId) as $data) {
-            $specificPrice = new SpecificPrice((int) $data['id_specific_price']);
-            if (!$specificPrice->duplicate((int) $productId)) {
+        foreach (Specific_Price::get_by_product_id((int) $old_product_id) as $data) {
+            $specific_price = new Specific_Price((int) $data['id_specific_price']);
+            if (!$specific_price->duplicate((int) $product_id)) {
                 return false;
             }
         }
-
         return true;
     }
-
     /**
      * @param int $oldProductId
      * @param int $productId
@@ -3369,51 +2493,38 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function duplicateCustomizationFields($oldProductId, $productId)
+    public static function duplicate_customization_fields($old_product_id, $product_id)
     {
         // If customization is not activated, return success
-        if (!Customization::isFeatureActive()) {
+        if (!Customization::is_feature_active()) {
             return true;
         }
-        if (($customizations = static::_getCustomizationFieldsNLabels($oldProductId)) === false) {
+        if (($customizations = static::_get_customization_fields_n_labels($old_product_id)) === false) {
             return false;
         }
         if (empty($customizations)) {
             return true;
         }
-        $conn = Db::getInstance();
-        foreach ($customizations['fields'] as $customizationField) {
+        $conn = Db::get_instance();
+        foreach ($customizations['fields'] as $customization_field) {
             /* The new datas concern the new product */
-            $customizationField['id_product'] = (int) $productId;
-            $oldCustomizationFieldId = (int) $customizationField['id_customization_field'];
-
-            unset($customizationField['id_customization_field']);
-
-            if (!$conn->insert('customization_field', $customizationField)
-                || !$customizationFieldId = $conn->Insert_ID()
-            ) {
+            $customization_field['id_product'] = (int) $product_id;
+            $old_customization_field_id = (int) $customization_field['id_customization_field'];
+            unset($customization_field['id_customization_field']);
+            if (!$conn->insert('customization_field', $customization_field) || !$customization_field_id = $conn->Insert_ID()) {
                 return false;
             }
-
             if (isset($customizations['labels'])) {
-                foreach ($customizations['labels'][$oldCustomizationFieldId] as $customizationLabel) {
-                    $data = [
-                        'id_customization_field' => (int) $customizationFieldId,
-                        'id_lang'                => (int) $customizationLabel['id_lang'],
-                        'id_shop'                => (int) $customizationLabel['id_shop'],
-                        'name'                   => pSQL($customizationLabel['name']),
-                    ];
-
+                foreach ($customizations['labels'][$old_customization_field_id] as $customization_label) {
+                    $data = ['id_customization_field' => (int) $customization_field_id, 'id_lang' => (int) $customization_label['id_lang'], 'id_shop' => (int) $customization_label['id_shop'], 'name' => p_sql($customization_label['name'])];
                     if (!$conn->insert('customization_field_lang', $data)) {
                         return false;
                     }
                 }
             }
         }
-
         return true;
     }
-
     /**
      * @param int $productId
      * @param int|null $idShop
@@ -3423,50 +2534,38 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    protected static function _getCustomizationFieldsNLabels($productId, $idShop = null)
+    protected static function _get_customization_fields_n_labels($product_id, $id_shop = null)
     {
-        if (!Customization::isFeatureActive()) {
+        if (!Customization::is_feature_active()) {
             return false;
         }
-
-        if (Shop::isFeatureActive() && !$idShop) {
-            $idShop = (int) Context::getContext()->shop->id;
+        if (Shop::is_feature_active() && !$id_shop) {
+            $id_shop = (int) Context::get_context()->shop->id;
         }
-
         $customizations = [];
-        $conn = Db::readOnly();
-        $customizations['fields'] = $conn->getArray(
-            '
+        $conn = Db::read_only();
+        $customizations['fields'] = $conn->get_array('
 			SELECT `id_customization_field`, `type`, `required`
-			FROM `'._DB_PREFIX_.'customization_field`
-			WHERE `id_product` = '.(int) $productId.'
-			ORDER BY `id_customization_field`'
-        );
-
+			FROM `' . _DB_PREFIX_ . 'customization_field`
+			WHERE `id_product` = ' . (int) $product_id . '
+			ORDER BY `id_customization_field`');
         if (empty($customizations['fields'])) {
             return [];
         }
-
-        $customizationFieldIds = [];
-        foreach ($customizations['fields'] as $customizationField) {
-            $customizationFieldIds[] = (int) $customizationField['id_customization_field'];
+        $customization_field_ids = [];
+        foreach ($customizations['fields'] as $customization_field) {
+            $customization_field_ids[] = (int) $customization_field['id_customization_field'];
         }
-
-        $customizationLabels = $conn->getArray(
-            '
+        $customization_labels = $conn->get_array('
 			SELECT `id_customization_field`, `id_lang`, `id_shop`, `name`
-			FROM `'._DB_PREFIX_.'customization_field_lang`
-			WHERE `id_customization_field` IN ('.implode(', ', $customizationFieldIds).')'.($idShop ? ' AND `id_shop` = '.$idShop : '').'
-			ORDER BY `id_customization_field`'
-        );
-
-        foreach ($customizationLabels as $customizationLabel) {
-            $customizations['labels'][$customizationLabel['id_customization_field']][] = $customizationLabel;
+			FROM `' . _DB_PREFIX_ . 'customization_field_lang`
+			WHERE `id_customization_field` IN (' . implode(', ', $customization_field_ids) . ')' . ($id_shop ? ' AND `id_shop` = ' . $id_shop : '') . '
+			ORDER BY `id_customization_field`');
+        foreach ($customization_labels as $customization_label) {
+            $customizations['labels'][$customization_label['id_customization_field']][] = $customization_label;
         }
-
         return $customizations;
     }
-
     /**
      * Adds suppliers from old product onto a newly duplicated product
      *
@@ -3478,26 +2577,21 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function duplicateSuppliers($idProductOld, $idProductNew)
+    public static function duplicate_suppliers($id_product_old, $id_product_new)
     {
-        $result = Db::readOnly()->getArray(
-            '
+        $result = Db::read_only()->get_array('
 		SELECT *
-		FROM `'._DB_PREFIX_.'product_supplier`
-		WHERE `id_product` = '.(int) $idProductOld.' AND `id_product_attribute` = 0'
-        );
-
+		FROM `' . _DB_PREFIX_ . 'product_supplier`
+		WHERE `id_product` = ' . (int) $id_product_old . ' AND `id_product_attribute` = 0');
         foreach ($result as $row) {
             unset($row['id_product_supplier']);
-            $row['id_product'] = $idProductNew;
-            if (!Db::getInstance()->insert('product_supplier', $row)) {
+            $row['id_product'] = $id_product_new;
+            if (!Db::get_instance()->insert('product_supplier', $row)) {
                 return false;
             }
         }
-
         return true;
     }
-
     /**
      * @param int $idCart
      * @param int|null $idLang
@@ -3509,128 +2603,103 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getAllCustomizedDatas($idCart, $idLang = null, $onlyInCart = true, $idShop = null)
+    public static function get_all_customized_datas($id_cart, $id_lang = null, $only_in_cart = true, $id_shop = null)
     {
-        if (!Customization::isFeatureActive()) {
+        if (!Customization::is_feature_active()) {
             return false;
         }
-
         // No need to query if there isn't any real cart!
-        if (!$idCart) {
+        if (!$id_cart) {
             return false;
         }
-        if (!$idLang) {
-            $idLang = Context::getContext()->language->id;
+        if (!$id_lang) {
+            $id_lang = Context::get_context()->language->id;
         }
-        if (Shop::isFeatureActive() && !$idShop) {
-            $idShop = (int) Context::getContext()->shop->id;
+        if (Shop::is_feature_active() && !$id_shop) {
+            $id_shop = (int) Context::get_context()->shop->id;
         }
-
-        $connection = Db::readOnly();
-        if (!$result = $connection->getArray(
-            '
+        $connection = Db::read_only();
+        if (!$result = $connection->get_array('
 			SELECT cd.`id_customization`, c.`id_address_delivery`, c.`id_product`, cfl.`id_customization_field`, c.`id_product_attribute`,
 				cd.`type`, cd.`index`, cd.`value`, cfl.`name`
-			FROM `'._DB_PREFIX_.'customized_data` cd
-			NATURAL JOIN `'._DB_PREFIX_.'customization` c
-			LEFT JOIN `'._DB_PREFIX_.'customization_field_lang` cfl ON (cfl.id_customization_field = cd.`index` AND id_lang = '.(int) $idLang.
-            ($idShop ? ' AND cfl.`id_shop` = '.$idShop : '').')
-			WHERE c.`id_cart` = '.(int) $idCart.
-            ($onlyInCart ? ' AND c.`in_cart` = 1' : '').'
-			ORDER BY `id_product`, `id_product_attribute`, `type`, `index`'
-        )
-        ) {
+			FROM `' . _DB_PREFIX_ . 'customized_data` cd
+			NATURAL JOIN `' . _DB_PREFIX_ . 'customization` c
+			LEFT JOIN `' . _DB_PREFIX_ . 'customization_field_lang` cfl ON (cfl.id_customization_field = cd.`index` AND id_lang = ' . (int) $id_lang . ($id_shop ? ' AND cfl.`id_shop` = ' . $id_shop : '') . ')
+			WHERE c.`id_cart` = ' . (int) $id_cart . ($only_in_cart ? ' AND c.`in_cart` = 1' : '') . '
+			ORDER BY `id_product`, `id_product_attribute`, `type`, `index`')) {
             return false;
         }
-
-        $customizedDatas = [];
-
+        $customized_datas = [];
         foreach ($result as $row) {
-            $customizedDatas[(int) $row['id_product']][(int) $row['id_product_attribute']][(int) $row['id_address_delivery']][(int) $row['id_customization']]['datas'][(int) $row['type']][] = $row;
+            $customized_datas[(int) $row['id_product']][(int) $row['id_product_attribute']][(int) $row['id_address_delivery']][(int) $row['id_customization']]['datas'][(int) $row['type']][] = $row;
         }
-
-        if (!$result = $connection->getArray(
-            'SELECT `id_product`, `id_product_attribute`, `id_customization`, `id_address_delivery`, `quantity`, `quantity_refunded`, `quantity_returned`
-			FROM `'._DB_PREFIX_.'customization`
-			WHERE `id_cart` = '.(int) $idCart.($onlyInCart ? '
-			AND `in_cart` = 1' : '')
-        )
-        ) {
+        if (!$result = $connection->get_array('SELECT `id_product`, `id_product_attribute`, `id_customization`, `id_address_delivery`, `quantity`, `quantity_refunded`, `quantity_returned`
+			FROM `' . _DB_PREFIX_ . 'customization`
+			WHERE `id_cart` = ' . (int) $id_cart . ($only_in_cart ? '
+			AND `in_cart` = 1' : ''))) {
             return false;
         }
-
         foreach ($result as $row) {
-            $customizedDatas[(int) $row['id_product']][(int) $row['id_product_attribute']][(int) $row['id_address_delivery']][(int) $row['id_customization']]['quantity'] = (int) $row['quantity'];
-            $customizedDatas[(int) $row['id_product']][(int) $row['id_product_attribute']][(int) $row['id_address_delivery']][(int) $row['id_customization']]['quantity_refunded'] = (int) $row['quantity_refunded'];
-            $customizedDatas[(int) $row['id_product']][(int) $row['id_product_attribute']][(int) $row['id_address_delivery']][(int) $row['id_customization']]['quantity_returned'] = (int) $row['quantity_returned'];
+            $customized_datas[(int) $row['id_product']][(int) $row['id_product_attribute']][(int) $row['id_address_delivery']][(int) $row['id_customization']]['quantity'] = (int) $row['quantity'];
+            $customized_datas[(int) $row['id_product']][(int) $row['id_product_attribute']][(int) $row['id_address_delivery']][(int) $row['id_customization']]['quantity_refunded'] = (int) $row['quantity_refunded'];
+            $customized_datas[(int) $row['id_product']][(int) $row['id_product_attribute']][(int) $row['id_address_delivery']][(int) $row['id_customization']]['quantity_returned'] = (int) $row['quantity_returned'];
         }
-
-        return $customizedDatas;
+        return $customized_datas;
     }
-
     /**
      * @param array $products
      * @param array $customizedDatas
      *
      * @throws PrestaShopException
      */
-    public static function addCustomizationPrice(&$products, &$customizedDatas): void
+    public static function add_customization_price(&$products, &$customized_datas): void
     {
-        if (!$customizedDatas) {
+        if (!$customized_datas) {
             return;
         }
-
-        foreach ($products as &$productUpdate) {
-            if (!Customization::isFeatureActive()) {
-                $productUpdate['customizationQuantityTotal'] = 0;
-                $productUpdate['customizationQuantityRefunded'] = 0;
-                $productUpdate['customizationQuantityReturned'] = 0;
+        foreach ($products as &$product_update) {
+            if (!Customization::is_feature_active()) {
+                $product_update['customizationQuantityTotal'] = 0;
+                $product_update['customizationQuantityRefunded'] = 0;
+                $product_update['customizationQuantityReturned'] = 0;
             } else {
-                $customizationQuantity = 0;
-                $customizationQuantityRefunded = 0;
-                $customizationQuantityReturned = 0;
-
+                $customization_quantity = 0;
+                $customization_quantity_refunded = 0;
+                $customization_quantity_returned = 0;
                 /* Compatibility */
-                $idProduct = isset($productUpdate['id_product']) ? (int) $productUpdate['id_product'] : (int) $productUpdate['product_id'];
-                $idProductAttribute = isset($productUpdate['id_product_attribute']) ? (int) $productUpdate['id_product_attribute'] : (int) $productUpdate['product_attribute_id'];
-                $idAddressDelivery = (int) $productUpdate['id_address_delivery'];
-                $productQuantity = isset($productUpdate['cart_quantity']) ? (int) $productUpdate['cart_quantity'] : (int) $productUpdate['product_quantity'];
-                $price = $productUpdate['price'] ?? $productUpdate['product_price'];
-                if (isset($productUpdate['price_wt']) && $productUpdate['price_wt']) {
-                    $priceWt = $productUpdate['price_wt'];
+                $id_product = isset($product_update['id_product']) ? (int) $product_update['id_product'] : (int) $product_update['product_id'];
+                $id_product_attribute = isset($product_update['id_product_attribute']) ? (int) $product_update['id_product_attribute'] : (int) $product_update['product_attribute_id'];
+                $id_address_delivery = (int) $product_update['id_address_delivery'];
+                $product_quantity = isset($product_update['cart_quantity']) ? (int) $product_update['cart_quantity'] : (int) $product_update['product_quantity'];
+                $price = $product_update['price'] ?? $product_update['product_price'];
+                if (isset($product_update['price_wt']) && $product_update['price_wt']) {
+                    $price_wt = $product_update['price_wt'];
                 } else {
-                    $taxRate = $productUpdate['tax_rate'] ?? $productUpdate['rate'];
-                    $priceWt = round(
-                        $price * (1 + $taxRate / 100),
-                        _TB_PRICE_DATABASE_PRECISION_
-                    );
+                    $tax_rate = $product_update['tax_rate'] ?? $product_update['rate'];
+                    $price_wt = round($price * (1 + $tax_rate / 100), _TB_PRICE_DATABASE_PRECISION_);
                 }
-
-                if (!isset($customizedDatas[$idProduct][$idProductAttribute][$idAddressDelivery])) {
-                    $idAddressDelivery = 0;
+                if (!isset($customized_datas[$id_product][$id_product_attribute][$id_address_delivery])) {
+                    $id_address_delivery = 0;
                 }
-                if (isset($customizedDatas[$idProduct][$idProductAttribute][$idAddressDelivery])) {
-                    foreach ($customizedDatas[$idProduct][$idProductAttribute][$idAddressDelivery] as $customization) {
-                        $customizationQuantity += (int) $customization['quantity'];
-                        $customizationQuantityRefunded += (int) $customization['quantity_refunded'];
-                        $customizationQuantityReturned += (int) $customization['quantity_returned'];
+                if (isset($customized_datas[$id_product][$id_product_attribute][$id_address_delivery])) {
+                    foreach ($customized_datas[$id_product][$id_product_attribute][$id_address_delivery] as $customization) {
+                        $customization_quantity += (int) $customization['quantity'];
+                        $customization_quantity_refunded += (int) $customization['quantity_refunded'];
+                        $customization_quantity_returned += (int) $customization['quantity_returned'];
                     }
                 }
-
-                $productUpdate['customizationQuantityTotal'] = $customizationQuantity;
-                $productUpdate['customizationQuantityRefunded'] = $customizationQuantityRefunded;
-                $productUpdate['customizationQuantityReturned'] = $customizationQuantityReturned;
-
-                if ($customizationQuantity) {
-                    $productUpdate['total_wt'] = $priceWt * ($productQuantity - $customizationQuantity);
-                    $productUpdate['total_customization_wt'] = $priceWt * $customizationQuantity;
-                    $productUpdate['total'] = $price * ($productQuantity - $customizationQuantity);
-                    $productUpdate['total_customization'] = $price * $customizationQuantity;
+                $product_update['customizationQuantityTotal'] = $customization_quantity;
+                $product_update['customizationQuantityRefunded'] = $customization_quantity_refunded;
+                $product_update['customizationQuantityReturned'] = $customization_quantity_returned;
+                if ($customization_quantity) {
+                    $product_update['total_wt'] = $price_wt * ($product_quantity - $customization_quantity);
+                    $product_update['total_customization_wt'] = $price_wt * $customization_quantity;
+                    $product_update['total'] = $price * ($product_quantity - $customization_quantity);
+                    $product_update['total_customization'] = $price * $customization_quantity;
                 }
             }
         }
     }
-
     /**
      * Checks if the product is in at least one of the submited categories
      *
@@ -3641,25 +2710,22 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public static function idIsOnCategoryId($idProduct, $categories)
+    public static function id_is_on_category_id($id_product, $categories)
     {
-        if (!((int) $idProduct > 0) || !is_array($categories) || empty($categories)) {
+        if (!((int) $id_product > 0) || !is_array($categories) || empty($categories)) {
             return false;
         }
-        $sql = 'SELECT id_product FROM `'._DB_PREFIX_.'category_product` WHERE `id_product` = '.(int) $idProduct.' AND `id_category` IN (';
+        $sql = 'SELECT id_product FROM `' . _DB_PREFIX_ . 'category_product` WHERE `id_product` = ' . (int) $id_product . ' AND `id_category` IN (';
         foreach ($categories as $category) {
-            $sql .= (int) $category['id_category'].',';
+            $sql .= (int) $category['id_category'] . ',';
         }
-        $sql = rtrim($sql, ',').')';
-
+        $sql = rtrim($sql, ',') . ')';
         $hash = md5($sql);
         if (!isset(static::$_incat[$hash])) {
-            static::$_incat[$hash] = (bool)Db::readOnly()->getValue($sql);
+            static::$_incat[$hash] = (bool) Db::read_only()->get_value($sql);
         }
-
         return static::$_incat[$hash];
     }
-
     /**
      * @param int $idProduct
      *
@@ -3668,37 +2734,28 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getUrlRewriteInformations($idProduct)
+    public static function get_url_rewrite_informations($id_product)
     {
-        return Db::readOnly()->getArray(
-            '
+        return Db::read_only()->get_array('
 			SELECT pl.`id_lang`, pl.`link_rewrite`, p.`ean13`, cl.`link_rewrite` AS category_rewrite
-			FROM `'._DB_PREFIX_.'product` p
-			LEFT JOIN `'._DB_PREFIX_.'product_lang` pl ON (p.`id_product` = pl.`id_product`'.Shop::addSqlRestrictionOnLang('pl').')
-			'.Shop::addSqlAssociation('product', 'p').'
-			LEFT JOIN `'._DB_PREFIX_.'lang` l ON (pl.`id_lang` = l.`id_lang`)
-			LEFT JOIN `'._DB_PREFIX_.'category_lang` cl ON (cl.`id_category` = product_shop.`id_category_default`  AND cl.`id_lang` = pl.`id_lang`'.Shop::addSqlRestrictionOnLang('cl').')
-			WHERE p.`id_product` = '.(int) $idProduct.'
+			FROM `' . _DB_PREFIX_ . 'product` p
+			LEFT JOIN `' . _DB_PREFIX_ . 'product_lang` pl ON (p.`id_product` = pl.`id_product`' . Shop::add_sql_restriction_on_lang('pl') . ')
+			' . Shop::add_sql_association('product', 'p') . '
+			LEFT JOIN `' . _DB_PREFIX_ . 'lang` l ON (pl.`id_lang` = l.`id_lang`)
+			LEFT JOIN `' . _DB_PREFIX_ . 'category_lang` cl ON (cl.`id_category` = product_shop.`id_category_default`  AND cl.`id_lang` = pl.`id_lang`' . Shop::add_sql_restriction_on_lang('cl') . ')
+			WHERE p.`id_product` = ' . (int) $id_product . '
 			AND l.`active` = 1
-		'
-        );
+		');
     }
-
     /**
      * @return bool
      *
      * @throws PrestaShopException
      */
-    public static function resetEcoTax()
+    public static function reset_eco_tax()
     {
-        return ObjectModel::updateMultishopTable(
-            'product',
-            [
-                'ecotax' => 0,
-            ]
-        );
+        return Object_Model::update_multishop_table('product', ['ecotax' => 0]);
     }
-
     /**
      * Get all product attributes ids
      *
@@ -3711,17 +2768,13 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getProductAttributesIds($idProduct, $shopOnly = false)
+    public static function get_product_attributes_ids($id_product, $shop_only = false)
     {
-        return Db::readOnly()->getArray(
-            '
+        return Db::read_only()->get_array('
 		SELECT pa.id_product_attribute
-		FROM `'._DB_PREFIX_.'product_attribute` pa'.
-            ($shopOnly ? Shop::addSqlAssociation('product_attribute', 'pa') : '').'
-		WHERE pa.`id_product` = '.(int) $idProduct
-        );
+		FROM `' . _DB_PREFIX_ . 'product_attribute` pa' . ($shop_only ? Shop::add_sql_association('product_attribute', 'pa') : '') . '
+		WHERE pa.`id_product` = ' . (int) $id_product);
     }
-
     /**
      * @param int $idProduct
      *
@@ -3730,113 +2783,97 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopException
      * @todo    Remove existing module condition
      */
-    public static function getAttributesInformationsByProduct($idProduct)
+    public static function get_attributes_informations_by_product($id_product)
     {
         // if blocklayered module is installed we check if user has set custom attribute name
-        $conn = Db::readOnly();
-        if (Module::isInstalled('blocklayered') && Module::isEnabled('blocklayered')) {
-            $nbCustomValues = $conn->getArray(
-                '
+        $conn = Db::read_only();
+        if (Module::is_installed('blocklayered') && Module::is_enabled('blocklayered')) {
+            $nb_custom_values = $conn->get_array('
 			SELECT DISTINCT la.`id_attribute`, la.`url_name` AS `attribute`
-			FROM `'._DB_PREFIX_.'attribute` a
-			LEFT JOIN `'._DB_PREFIX_.'product_attribute_combination` pac
+			FROM `' . _DB_PREFIX_ . 'attribute` a
+			LEFT JOIN `' . _DB_PREFIX_ . 'product_attribute_combination` pac
 				ON (a.`id_attribute` = pac.`id_attribute`)
-			LEFT JOIN `'._DB_PREFIX_.'product_attribute` pa
+			LEFT JOIN `' . _DB_PREFIX_ . 'product_attribute` pa
 				ON (pac.`id_product_attribute` = pa.`id_product_attribute`)
-			'.Shop::addSqlAssociation('product_attribute', 'pa').'
-			LEFT JOIN `'._DB_PREFIX_.'layered_indexable_attribute_lang_value` la
-				ON (la.`id_attribute` = a.`id_attribute` AND la.`id_lang` = '.(int) Context::getContext()->language->id.')
+			' . Shop::add_sql_association('product_attribute', 'pa') . '
+			LEFT JOIN `' . _DB_PREFIX_ . 'layered_indexable_attribute_lang_value` la
+				ON (la.`id_attribute` = a.`id_attribute` AND la.`id_lang` = ' . (int) Context::get_context()->language->id . ')
 			WHERE la.`url_name` IS NOT NULL AND la.`url_name` != \'\'
-			AND pa.`id_product` = '.(int) $idProduct
-            );
-
-            if (!empty($nbCustomValues)) {
-                $tabIdAttribute = [];
-                foreach ($nbCustomValues as $attribute) {
-                    $tabIdAttribute[] = $attribute['id_attribute'];
-
-                    $group = $conn->getArray(
-                        '
+			AND pa.`id_product` = ' . (int) $id_product);
+            if (!empty($nb_custom_values)) {
+                $tab_id_attribute = [];
+                foreach ($nb_custom_values as $attribute) {
+                    $tab_id_attribute[] = $attribute['id_attribute'];
+                    $group = $conn->get_array('
 					SELECT g.`id_attribute_group`, g.`url_name` AS `group`
-					FROM `'._DB_PREFIX_.'layered_indexable_attribute_group_lang_value` g
-					LEFT JOIN `'._DB_PREFIX_.'attribute` a
+					FROM `' . _DB_PREFIX_ . 'layered_indexable_attribute_group_lang_value` g
+					LEFT JOIN `' . _DB_PREFIX_ . 'attribute` a
 						ON (a.`id_attribute_group` = g.`id_attribute_group`)
-					WHERE a.`id_attribute` = '.(int) $attribute['id_attribute'].'
-					AND g.`id_lang` = '.(int) Context::getContext()->language->id.'
-					AND g.`url_name` IS NOT NULL AND g.`url_name` != \'\''
-                    );
+					WHERE a.`id_attribute` = ' . (int) $attribute['id_attribute'] . '
+					AND g.`id_lang` = ' . (int) Context::get_context()->language->id . '
+					AND g.`url_name` IS NOT NULL AND g.`url_name` != \'\'');
                     if (empty($group)) {
-                        $group = $conn->getArray(
-                            '
+                        $group = $conn->get_array('
 						SELECT g.`id_attribute_group`, g.`name` AS `group`
-						FROM `'._DB_PREFIX_.'attribute_group_lang` g
-						LEFT JOIN `'._DB_PREFIX_.'attribute` a
+						FROM `' . _DB_PREFIX_ . 'attribute_group_lang` g
+						LEFT JOIN `' . _DB_PREFIX_ . 'attribute` a
 							ON (a.`id_attribute_group` = g.`id_attribute_group`)
-						WHERE a.`id_attribute` = '.(int) $attribute['id_attribute'].'
-						AND g.`id_lang` = '.(int) Context::getContext()->language->id.'
-						AND g.`name` IS NOT NULL'
-                        );
+						WHERE a.`id_attribute` = ' . (int) $attribute['id_attribute'] . '
+						AND g.`id_lang` = ' . (int) Context::get_context()->language->id . '
+						AND g.`name` IS NOT NULL');
                     }
                     $result[] = array_merge($attribute, $group[0]);
                 }
-                $valuesNotCustom = $conn->getArray(
-                    '
+                $values_not_custom = $conn->get_array('
 				SELECT DISTINCT a.`id_attribute`, a.`id_attribute_group`, al.`name` AS `attribute`, agl.`name` AS `group`
-				FROM `'._DB_PREFIX_.'attribute` a
-				LEFT JOIN `'._DB_PREFIX_.'attribute_lang` al
-					ON (a.`id_attribute` = al.`id_attribute` AND al.`id_lang` = '.(int) Context::getContext()->language->id.')
-				LEFT JOIN `'._DB_PREFIX_.'attribute_group_lang` agl
-					ON (a.`id_attribute_group` = agl.`id_attribute_group` AND agl.`id_lang` = '.(int) Context::getContext()->language->id.')
-				LEFT JOIN `'._DB_PREFIX_.'product_attribute_combination` pac
+				FROM `' . _DB_PREFIX_ . 'attribute` a
+				LEFT JOIN `' . _DB_PREFIX_ . 'attribute_lang` al
+					ON (a.`id_attribute` = al.`id_attribute` AND al.`id_lang` = ' . (int) Context::get_context()->language->id . ')
+				LEFT JOIN `' . _DB_PREFIX_ . 'attribute_group_lang` agl
+					ON (a.`id_attribute_group` = agl.`id_attribute_group` AND agl.`id_lang` = ' . (int) Context::get_context()->language->id . ')
+				LEFT JOIN `' . _DB_PREFIX_ . 'product_attribute_combination` pac
 					ON (a.`id_attribute` = pac.`id_attribute`)
-				LEFT JOIN `'._DB_PREFIX_.'product_attribute` pa
+				LEFT JOIN `' . _DB_PREFIX_ . 'product_attribute` pa
 					ON (pac.`id_product_attribute` = pa.`id_product_attribute`)
-				'.Shop::addSqlAssociation('product_attribute', 'pa').'
-				'.Shop::addSqlAssociation('attribute', 'pac').'
-				WHERE pa.`id_product` = '.(int) $idProduct.'
-				AND a.`id_attribute` NOT IN('.implode(', ', $tabIdAttribute).')'
-                );
-                $result = array_merge($valuesNotCustom, $result);
+				' . Shop::add_sql_association('product_attribute', 'pa') . '
+				' . Shop::add_sql_association('attribute', 'pac') . '
+				WHERE pa.`id_product` = ' . (int) $id_product . '
+				AND a.`id_attribute` NOT IN(' . implode(', ', $tab_id_attribute) . ')');
+                $result = array_merge($values_not_custom, $result);
             } else {
-                $result = $conn->getArray(
-                    '
+                $result = $conn->get_array('
 				SELECT DISTINCT a.`id_attribute`, a.`id_attribute_group`, al.`name` AS `attribute`, agl.`name` AS `group`
-				FROM `'._DB_PREFIX_.'attribute` a
-				LEFT JOIN `'._DB_PREFIX_.'attribute_lang` al
-					ON (a.`id_attribute` = al.`id_attribute` AND al.`id_lang` = '.(int) Context::getContext()->language->id.')
-				LEFT JOIN `'._DB_PREFIX_.'attribute_group_lang` agl
-					ON (a.`id_attribute_group` = agl.`id_attribute_group` AND agl.`id_lang` = '.(int) Context::getContext()->language->id.')
-				LEFT JOIN `'._DB_PREFIX_.'product_attribute_combination` pac
+				FROM `' . _DB_PREFIX_ . 'attribute` a
+				LEFT JOIN `' . _DB_PREFIX_ . 'attribute_lang` al
+					ON (a.`id_attribute` = al.`id_attribute` AND al.`id_lang` = ' . (int) Context::get_context()->language->id . ')
+				LEFT JOIN `' . _DB_PREFIX_ . 'attribute_group_lang` agl
+					ON (a.`id_attribute_group` = agl.`id_attribute_group` AND agl.`id_lang` = ' . (int) Context::get_context()->language->id . ')
+				LEFT JOIN `' . _DB_PREFIX_ . 'product_attribute_combination` pac
 					ON (a.`id_attribute` = pac.`id_attribute`)
-				LEFT JOIN `'._DB_PREFIX_.'product_attribute` pa
+				LEFT JOIN `' . _DB_PREFIX_ . 'product_attribute` pa
 					ON (pac.`id_product_attribute` = pa.`id_product_attribute`)
-				'.Shop::addSqlAssociation('product_attribute', 'pa').'
-				'.Shop::addSqlAssociation('attribute', 'pac').'
-				WHERE pa.`id_product` = '.(int) $idProduct
-                );
+				' . Shop::add_sql_association('product_attribute', 'pa') . '
+				' . Shop::add_sql_association('attribute', 'pac') . '
+				WHERE pa.`id_product` = ' . (int) $id_product);
             }
         } else {
-            $result = $conn->getArray(
-                '
+            $result = $conn->get_array('
 			SELECT DISTINCT a.`id_attribute`, a.`id_attribute_group`, al.`name` AS `attribute`, agl.`name` AS `group`
-			FROM `'._DB_PREFIX_.'attribute` a
-			LEFT JOIN `'._DB_PREFIX_.'attribute_lang` al
-				ON (a.`id_attribute` = al.`id_attribute` AND al.`id_lang` = '.(int) Context::getContext()->language->id.')
-			LEFT JOIN `'._DB_PREFIX_.'attribute_group_lang` agl
-				ON (a.`id_attribute_group` = agl.`id_attribute_group` AND agl.`id_lang` = '.(int) Context::getContext()->language->id.')
-			LEFT JOIN `'._DB_PREFIX_.'product_attribute_combination` pac
+			FROM `' . _DB_PREFIX_ . 'attribute` a
+			LEFT JOIN `' . _DB_PREFIX_ . 'attribute_lang` al
+				ON (a.`id_attribute` = al.`id_attribute` AND al.`id_lang` = ' . (int) Context::get_context()->language->id . ')
+			LEFT JOIN `' . _DB_PREFIX_ . 'attribute_group_lang` agl
+				ON (a.`id_attribute_group` = agl.`id_attribute_group` AND agl.`id_lang` = ' . (int) Context::get_context()->language->id . ')
+			LEFT JOIN `' . _DB_PREFIX_ . 'product_attribute_combination` pac
 				ON (a.`id_attribute` = pac.`id_attribute`)
-			LEFT JOIN `'._DB_PREFIX_.'product_attribute` pa
+			LEFT JOIN `' . _DB_PREFIX_ . 'product_attribute` pa
 				ON (pac.`id_product_attribute` = pa.`id_product_attribute`)
-			'.Shop::addSqlAssociation('product_attribute', 'pa').'
-			'.Shop::addSqlAssociation('attribute', 'pac').'
-			WHERE pa.`id_product` = '.(int) $idProduct
-            );
+			' . Shop::add_sql_association('product_attribute', 'pa') . '
+			' . Shop::add_sql_association('attribute', 'pac') . '
+			WHERE pa.`id_product` = ' . (int) $id_product);
         }
-
         return $result;
     }
-
     /**
      * Gets the name of a given product, in the given lang
      *
@@ -3848,44 +2885,38 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public static function getProductName($idProduct, $idProductAttribute = null, $idLang = null)
+    public static function get_product_name($id_product, $id_product_attribute = null, $id_lang = null)
     {
         // use the lang in the context if $id_lang is not defined
-        if (!$idLang) {
-            $idLang = (int) Context::getContext()->language->id;
+        if (!$id_lang) {
+            $id_lang = (int) Context::get_context()->language->id;
         }
-
         // creates the query object
-        $query = new DbQuery();
-
+        $query = new Db_Query();
         // selects different names, if it is a combination
-        if ($idProductAttribute) {
+        if ($id_product_attribute) {
             $query->select('IFNULL(CONCAT(pl.name, \' : \', GROUP_CONCAT(DISTINCT agl.`name`, \' - \', al.name SEPARATOR \', \')),pl.name) as name');
         } else {
             $query->select('DISTINCT pl.name as name');
         }
-
         // adds joins & where clauses for combinations
-        if ($idProductAttribute) {
+        if ($id_product_attribute) {
             $query->from('product_attribute', 'pa');
-            $query->join(Shop::addSqlAssociation('product_attribute', 'pa'));
-            $query->innerJoin('product_lang', 'pl', 'pl.id_product = pa.id_product AND pl.id_lang = '.(int) $idLang.Shop::addSqlRestrictionOnLang('pl'));
-            $query->leftJoin('product_attribute_combination', 'pac', 'pac.id_product_attribute = pa.id_product_attribute');
-            $query->leftJoin('attribute', 'atr', 'atr.id_attribute = pac.id_attribute');
-            $query->leftJoin('attribute_lang', 'al', 'al.id_attribute = atr.id_attribute AND al.id_lang = '.(int) $idLang);
-            $query->leftJoin('attribute_group_lang', 'agl', 'agl.id_attribute_group = atr.id_attribute_group AND agl.id_lang = '.(int) $idLang);
-            $query->where('pa.id_product = '.(int) $idProduct.' AND pa.id_product_attribute = '.(int) $idProductAttribute);
+            $query->join(Shop::add_sql_association('product_attribute', 'pa'));
+            $query->inner_join('product_lang', 'pl', 'pl.id_product = pa.id_product AND pl.id_lang = ' . (int) $id_lang . Shop::add_sql_restriction_on_lang('pl'));
+            $query->left_join('product_attribute_combination', 'pac', 'pac.id_product_attribute = pa.id_product_attribute');
+            $query->left_join('attribute', 'atr', 'atr.id_attribute = pac.id_attribute');
+            $query->left_join('attribute_lang', 'al', 'al.id_attribute = atr.id_attribute AND al.id_lang = ' . (int) $id_lang);
+            $query->left_join('attribute_group_lang', 'agl', 'agl.id_attribute_group = atr.id_attribute_group AND agl.id_lang = ' . (int) $id_lang);
+            $query->where('pa.id_product = ' . (int) $id_product . ' AND pa.id_product_attribute = ' . (int) $id_product_attribute);
         } else {
             // or just adds a 'where' clause for a simple product
-
             $query->from('product_lang', 'pl');
-            $query->where('pl.id_product = '.(int) $idProduct);
-            $query->where('pl.id_lang = '.(int) $idLang.Shop::addSqlRestrictionOnLang('pl'));
+            $query->where('pl.id_product = ' . (int) $id_product);
+            $query->where('pl.id_lang = ' . (int) $id_lang . Shop::add_sql_restriction_on_lang('pl'));
         }
-
-        return Db::readOnly()->getValue($query);
+        return Db::read_only()->get_value($query);
     }
-
     /**
      * For a given product, returns its real quantity
      *
@@ -3898,22 +2929,17 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public static function getRealQuantity($idProduct, $idProductAttribute = 0, $idWarehouse = 0, $idShop = null)
+    public static function get_real_quantity($id_product, $id_product_attribute = 0, $id_warehouse = 0, $id_shop = null)
     {
         static $manager = null;
-
         if (Configuration::get('PS_ADVANCED_STOCK_MANAGEMENT') && is_null($manager)) {
-            $manager = StockManagerFactory::getManager();
+            $manager = Stock_Manager_Factory::get_manager();
         }
-
-        if (Configuration::get('PS_ADVANCED_STOCK_MANAGEMENT') && static::usesAdvancedStockManagement($idProduct) &&
-            StockAvailable::dependsOnStock($idProduct, $idShop)
-        ) {
-            return $manager->getProductRealQuantities($idProduct, $idProductAttribute, $idWarehouse, true);
+        if (Configuration::get('PS_ADVANCED_STOCK_MANAGEMENT') && static::uses_advanced_stock_management($id_product) && Stock_Available::depends_on_stock($id_product, $id_shop)) {
+            return $manager->get_product_real_quantities($id_product, $id_product_attribute, $id_warehouse, true);
         }
-        return StockAvailable::getQuantityAvailableByProduct($idProduct, $idProductAttribute, $idShop);
+        return Stock_Available::get_quantity_available_by_product($id_product, $id_product_attribute, $id_shop);
     }
-
     /**
      * For a given product, tells if it uses the advanced stock management
      *
@@ -3923,49 +2949,43 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public static function usesAdvancedStockManagement($idProduct)
+    public static function uses_advanced_stock_management($id_product)
     {
-        $query = new DbQuery();
+        $query = new Db_Query();
         $query->select('product_shop.advanced_stock_management');
         $query->from('product', 'p');
-        $query->join(Shop::addSqlAssociation('product', 'p'));
-        $query->where('p.id_product = '.(int) $idProduct);
-
-        return (bool) Db::readOnly()->getValue($query);
+        $query->join(Shop::add_sql_association('product', 'p'));
+        $query->where('p.id_product = ' . (int) $id_product);
+        return (bool) Db::read_only()->get_value($query);
     }
-
     /**
      * This method allows to flush price cache
      */
-    public static function flushPriceCache(): void
+    public static function flush_price_cache(): void
     {
         static::$_prices = [];
-        static::$_pricesLevel2 = [];
+        static::$_prices_level2 = [];
     }
-
     /**
      * @return false|null|string
      *
      * @throws PrestaShopException
      */
-    public static function getIdTaxRulesGroupMostUsed()
+    public static function get_id_tax_rules_group_most_used()
     {
-        return Db::readOnly()->getValue(
-            '
+        return Db::read_only()->get_value('
 					SELECT id_tax_rules_group
 					FROM (
 						SELECT COUNT(*) n, product_shop.id_tax_rules_group
-						FROM '._DB_PREFIX_.'product p
-						'.Shop::addSqlAssociation('product', 'p').'
-						JOIN '._DB_PREFIX_.'tax_rules_group trg ON (product_shop.id_tax_rules_group = trg.id_tax_rules_group)
+						FROM ' . _DB_PREFIX_ . 'product p
+						' . Shop::add_sql_association('product', 'p') . '
+						JOIN ' . _DB_PREFIX_ . 'tax_rules_group trg ON (product_shop.id_tax_rules_group = trg.id_tax_rules_group)
 						WHERE trg.active = 1 AND trg.deleted = 0
 						GROUP BY product_shop.id_tax_rules_group
 						ORDER BY n DESC
 						LIMIT 1
-					) most_used'
-        );
+					) most_used');
     }
-
     /**
      * For a given ean13 reference, returns the corresponding id
      *
@@ -3975,44 +2995,37 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public static function getIdByEan13($ean13)
+    public static function get_id_by_ean13($ean13)
     {
         if (empty($ean13)) {
             return 0;
         }
-
-        if (!Validate::isEan13($ean13)) {
+        if (!Validate::is_ean13($ean13)) {
             return 0;
         }
-
-        $query = new DbQuery();
+        $query = new Db_Query();
         $query->select('p.id_product');
         $query->from('product', 'p');
-        $query->where('p.ean13 = \''.pSQL($ean13).'\'');
-
-        return Db::readOnly()->getValue($query);
+        $query->where('p.ean13 = \'' . p_sql($ean13) . '\'');
+        return Db::read_only()->get_value($query);
     }
-
     /**
      * @param int $idProduct
      * @param bool $full
      *
      * @return string
      */
-    public static function getColorsListCacheId($idProduct, $full = true)
+    public static function get_colors_list_cache_id($id_product, $full = true)
     {
-        $cacheId = 'productlist_colors';
-        if ($idProduct) {
-            $cacheId .= '|'.(int) $idProduct;
+        $cache_id = 'productlist_colors';
+        if ($id_product) {
+            $cache_id .= '|' . (int) $id_product;
         }
-
         if ($full) {
-            $cacheId .= '|'.(int) Context::getContext()->shop->id.'|'.(int) Context::getContext()->cookie->id_lang;
+            $cache_id .= '|' . (int) Context::get_context()->shop->id . '|' . (int) Context::get_context()->cookie->id_lang;
         }
-
-        return $cacheId;
+        return $cache_id;
     }
-
     /**
      * @param int $idProduct
      * @param int $packStockType
@@ -4021,14 +3034,11 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public static function setPackStockType($idProduct, $packStockType)
+    public static function set_pack_stock_type($id_product, $pack_stock_type)
     {
-        return Db::getInstance()->execute(
-            'UPDATE '._DB_PREFIX_.'product p
-		'.Shop::addSqlAssociation('product', 'p').' SET product_shop.pack_stock_type = '.(int) $packStockType.' WHERE p.`id_product` = '.(int) $idProduct
-        );
+        return Db::get_instance()->execute('UPDATE ' . _DB_PREFIX_ . 'product p
+		' . Shop::add_sql_association('product', 'p') . ' SET product_shop.pack_stock_type = ' . (int) $pack_stock_type . ' WHERE p.`id_product` = ' . (int) $id_product);
     }
-
     /**
      * @param int $idProduct
      * @param bool $isDynamic
@@ -4037,42 +3047,32 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public static function setDynamicPack($idProduct, $isDynamic)
+    public static function set_dynamic_pack($id_product, $is_dynamic)
     {
-        $isDynamic = (int)$isDynamic;
-        $idProduct = (int)$idProduct;
-        $sql = (
-            'UPDATE '. _DB_PREFIX_.'product p '.
-            Shop::addSqlAssociation('product', 'p').
-            " SET product_shop.pack_dynamic = $isDynamic,".
-            "     p.pack_dynamic = $isDynamic".
-            " WHERE p.id_product = $idProduct"
-        );
-        $ret = Db::getInstance()->execute($sql);
-
-        if ($ret && $isDynamic) {
-            StockAvailable::synchronizeDynamicPack($idProduct);
+        $is_dynamic = (int) $is_dynamic;
+        $id_product = (int) $id_product;
+        $sql = 'UPDATE ' . _DB_PREFIX_ . 'product p ' . Shop::add_sql_association('product', 'p') . " SET product_shop.pack_dynamic = {$is_dynamic}," . "     p.pack_dynamic = {$is_dynamic}" . " WHERE p.id_product = {$id_product}";
+        $ret = Db::get_instance()->execute($sql);
+        if ($ret && $is_dynamic) {
+            Stock_Available::synchronize_dynamic_pack($id_product);
         }
         return $ret;
     }
-
     /**
      * @see ObjectModel::getFieldsShop()
      * @return array
      *
      * @throws PrestaShopException
      */
-    public function getFieldsShop()
+    public function get_fields_shop()
     {
-        $fields = parent::getFieldsShop();
-        if (is_null($this->update_fields) || (!empty($this->update_fields['price']) && !empty($this->update_fields['unit_price']))) {
+        $fields = parent::get_fields_shop();
+        if (is_null($this->update_fields) || !empty($this->update_fields['price']) && !empty($this->update_fields['unit_price'])) {
             $fields['unit_price_ratio'] = (float) $this->unit_price > 0 ? $this->price / $this->unit_price : 0;
         }
-        $fields['unity'] = pSQL($this->unity);
-
+        $fields['unity'] = p_sql($this->unity);
         return $fields;
     }
-
     /**
      * Move a product inside its category
      *
@@ -4083,56 +3083,37 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public function updatePosition($way, $position)
+    public function update_position($way, $position)
     {
-        if (! isset($position)) {
+        if (!isset($position)) {
             return false;
         }
-
-        $conn = Db::getInstance();
-
-        $categoryId = Tools::getIntValue('id_category', 1);
-        $productId = (int)$this->id;
-
-        $newPosition = (int)$position;
-        $currentPosition = (int)$conn->getValue(
-            (new DbQuery())
-            ->select('position')
-            ->from('category_product')
-            ->where('id_category = ' . $categoryId)
-            ->where('id_product = ' . $productId)
-        );
-
-        $result = $conn->execute(
-            '
-            UPDATE `'._DB_PREFIX_.'category_product`
-            SET `position`= `position` '.($way ? '-1' : '+1').'
-            WHERE `position` '.($way ? '>' : '<').$currentPosition.'
-              AND `position` '.($way ? '<=' : '>=').$newPosition.'
-              AND `id_category` ='.$categoryId
-        );
-
-        $result = $conn->execute(
-            '
-            UPDATE `'._DB_PREFIX_.'category_product`
-            SET `position` = '.$newPosition.'
-            WHERE `id_product` = '.$productId.'
-              AND `id_category` ='.$categoryId
-        ) && $result;
-
-        static::cleanPositions($categoryId);
-
-        Hook::triggerEvent('actionProductUpdate', ['id_product' => (int) $this->id, 'product' => $this]);
-
+        $conn = Db::get_instance();
+        $category_id = Tools::get_int_value('id_category', 1);
+        $product_id = (int) $this->id;
+        $new_position = (int) $position;
+        $current_position = (int) $conn->get_value((new Db_Query())->select('position')->from('category_product')->where('id_category = ' . $category_id)->where('id_product = ' . $product_id));
+        $result = $conn->execute('
+            UPDATE `' . _DB_PREFIX_ . 'category_product`
+            SET `position`= `position` ' . ($way ? '-1' : '+1') . '
+            WHERE `position` ' . ($way ? '>' : '<') . $current_position . '
+              AND `position` ' . ($way ? '<=' : '>=') . $new_position . '
+              AND `id_category` =' . $category_id);
+        $result = $conn->execute('
+            UPDATE `' . _DB_PREFIX_ . 'category_product`
+            SET `position` = ' . $new_position . '
+            WHERE `id_product` = ' . $product_id . '
+              AND `id_category` =' . $category_id) && $result;
+        static::clean_positions($category_id);
+        Hook::trigger_event('actionProductUpdate', ['id_product' => (int) $this->id, 'product' => $this]);
         return $result;
     }
-
     /**
      * @return bool
      *
      * @throws PrestaShopException
      */
-    public function toggleStatus()
+    public function toggle_status()
     {
         //test if the product is active and if redirect_type is empty string and set default value to id_product_redirected & redirect_type
         //  /!\ after parent::toggleStatus() active will be false, that why we set 404 by default :p
@@ -4145,10 +3126,8 @@ class ProductCore extends ObjectModel implements InitializationCallback
             $this->id_product_redirected = 0;
             $this->redirect_type = '';
         }
-
-        return parent::toggleStatus();
+        return parent::toggle_status();
     }
-
     /**
      * @param array $products
      *
@@ -4157,23 +3136,21 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function deleteSelection($products)
+    public function delete_selection($products)
     {
         $return = true;
-        if (is_array($products) && ($count = count($products))) {
+        if (is_array($products) && $count = count($products)) {
             // Deleting products can be quite long on a cheap server. Let's say 1.5 seconds by product (I've seen it!).
             if (intval(ini_get('max_execution_time')) < round($count * 1.5)) {
                 ini_set('max_execution_time', round($count * 1.5));
             }
-
-            foreach ($products as $idProduct) {
-                $product = new Product((int) $idProduct);
+            foreach ($products as $id_product) {
+                $product = new Product((int) $id_product);
                 $return = $product->delete() && $return;
             }
         }
         return $return;
     }
-
     /**
      * @return bool
      *
@@ -4187,72 +3164,42 @@ class ProductCore extends ObjectModel implements InitializationCallback
          * - physical stock for this product
          * - supply order(s) for this product
          */
-        if (PageCache::isEnabled()) {
-            PageCache::invalidateEntity('product', $this->id);
+        if (Page_Cache::is_enabled()) {
+            Page_Cache::invalidate_entity('product', $this->id);
         }
-
         if (Configuration::get('PS_ADVANCED_STOCK_MANAGEMENT') && $this->advanced_stock_management) {
-            $stockManager = StockManagerFactory::getManager();
-            $physicalQuantity = $stockManager->getProductPhysicalQuantities($this->id, 0);
-            $realQuantity = $stockManager->getProductRealQuantities($this->id, 0);
-            if ($physicalQuantity > 0) {
+            $stock_manager = Stock_Manager_Factory::get_manager();
+            $physical_quantity = $stock_manager->get_product_physical_quantities($this->id, 0);
+            $real_quantity = $stock_manager->get_product_real_quantities($this->id, 0);
+            if ($physical_quantity > 0) {
                 return false;
             }
-            if ($realQuantity > $physicalQuantity) {
+            if ($real_quantity > $physical_quantity) {
                 return false;
             }
-
-            $warehouseProductLocations = Adapter_ServiceLocator::get('Core_Foundation_Database_EntityManager')->getRepository('WarehouseProductLocation')->findByIdProduct($this->id);
-            foreach ($warehouseProductLocations as $warehouseProductLocation) {
-                $warehouseProductLocation->delete();
+            $warehouse_product_locations = Adapter_service_Locator::get('Core_Foundation_Database_EntityManager')->get_repository('WarehouseProductLocation')->find_by_id_product($this->id);
+            foreach ($warehouse_product_locations as $warehouse_product_location) {
+                $warehouse_product_location->delete();
             }
-
-            $stocks = Adapter_ServiceLocator::get('Core_Foundation_Database_EntityManager')->getRepository('Stock')->findByIdProduct($this->id);
+            $stocks = Adapter_service_Locator::get('Core_Foundation_Database_EntityManager')->get_repository('Stock')->find_by_id_product($this->id);
             foreach ($stocks as $stock) {
                 $stock->delete();
             }
         }
         $result = parent::delete();
-
         // Removes the product from StockAvailable, for the current shop
-        StockAvailable::removeProductFromStockAvailable($this->id);
-        $result = (
-            $this->deleteProductAttributes() &&
-            $this->deleteImages() &&
-            $this->deleteSceneProducts() &&
-            $result
-        );
+        Stock_Available::remove_product_from_stock_available($this->id);
+        $result = $this->delete_product_attributes() && $this->delete_images() && $this->delete_scene_products() && $result;
         // If there are still entries in product_shop, don't remove completely the product
-        if ($this->hasMultishopEntries()) {
+        if ($this->has_multishop_entries()) {
             return true;
         }
-
-        Hook::triggerEvent('actionProductDelete', ['id_product' => (int) $this->id, 'product' => $this]);
-        if (!$result ||
-            !GroupReduction::deleteProductReduction($this->id) ||
-            !$this->deleteCategories(true) ||
-            !$this->deleteProductFeatures() ||
-            !$this->deleteTags() ||
-            !$this->deleteCartProducts() ||
-            !$this->deleteAttributesImpacts() ||
-            !$this->deleteAttachments(false) ||
-            !$this->deleteCustomization() ||
-            !SpecificPrice::deleteByProductId((int) $this->id) ||
-            !$this->deletePack() ||
-            !$this->deleteProductSale() ||
-            !$this->deleteSearchIndexes() ||
-            !$this->deleteAccessories() ||
-            !$this->deleteFromAccessories() ||
-            !$this->deleteFromSupplier() ||
-            !$this->deleteDownload() ||
-            !$this->deleteFromCartRules()
-        ) {
+        Hook::trigger_event('actionProductDelete', ['id_product' => (int) $this->id, 'product' => $this]);
+        if (!$result || !Group_Reduction::delete_product_reduction($this->id) || !$this->delete_categories(true) || !$this->delete_product_features() || !$this->delete_tags() || !$this->delete_cart_products() || !$this->delete_attributes_impacts() || !$this->delete_attachments(false) || !$this->delete_customization() || !Specific_Price::delete_by_product_id((int) $this->id) || !$this->delete_pack() || !$this->delete_product_sale() || !$this->delete_search_indexes() || !$this->delete_accessories() || !$this->delete_from_accessories() || !$this->delete_from_supplier() || !$this->delete_download() || !$this->delete_from_cart_rules()) {
             return false;
         }
-
         return true;
     }
-
     /**
      * Delete product attributes
      *
@@ -4260,22 +3207,19 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public function deleteProductAttributes()
+    public function delete_product_attributes()
     {
-        Hook::triggerEvent('actionProductAttributeDelete', ['id_product_attribute' => 0, 'id_product' => (int) $this->id, 'deleteAllAttributes' => true]);
-
+        Hook::trigger_event('actionProductAttributeDelete', ['id_product_attribute' => 0, 'id_product' => (int) $this->id, 'deleteAllAttributes' => true]);
         $result = true;
-        $combinations = new PrestaShopCollection('Combination');
+        $combinations = new Presta_Shop_Collection('Combination');
         $combinations->where('id_product', '=', $this->id);
         foreach ($combinations as $combination) {
             $result = $combination->delete() && $result;
         }
-        SpecificPriceRule::applyAllRules([(int) $this->id]);
-        Tools::clearColorListCache($this->id);
-
+        Specific_Price_Rule::apply_all_rules([(int) $this->id]);
+        Tools::clear_color_list_cache($this->id);
         return $result;
     }
-
     /**
      * Delete product images from database
      *
@@ -4284,15 +3228,12 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function deleteImages()
+    public function delete_images()
     {
-        $result = Db::readOnly()->getArray(
-            '
+        $result = Db::read_only()->get_array('
 			SELECT `id_image`
-			FROM `'._DB_PREFIX_.'image`
-			WHERE `id_product` = '.(int) $this->id
-        );
-
+			FROM `' . _DB_PREFIX_ . 'image`
+			WHERE `id_product` = ' . (int) $this->id);
         $status = true;
         if ($result) {
             foreach ($result as $row) {
@@ -4300,10 +3241,8 @@ class ProductCore extends ObjectModel implements InitializationCallback
                 $status = $image->delete() && $status;
             }
         }
-
         return $status;
     }
-
     /**
      * Delete product in its scenes
      *
@@ -4311,14 +3250,11 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public function deleteSceneProducts()
+    public function delete_scene_products()
     {
-        return Db::getInstance()->execute(
-            'DELETE FROM `'._DB_PREFIX_.'scene_products`
-			WHERE `id_product` = '.(int) $this->id
-        );
+        return Db::get_instance()->execute('DELETE FROM `' . _DB_PREFIX_ . 'scene_products`
+			WHERE `id_product` = ' . (int) $this->id);
     }
-
     /**
      * Delete all association to category where product is indexed
      *
@@ -4329,31 +3265,21 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function deleteCategories($cleanPositions = false)
+    public function delete_categories($clean_positions = false)
     {
-        $productId = (int) $this->id;
-
+        $product_id = (int) $this->id;
         $categories = [];
-        if ($cleanPositions) {
-            $categories = Db::readOnly()->getArray(
-                (new DbQuery())
-                ->select('id_category')
-                ->from('category_product')
-                ->where('id_product = ' . $productId)
-            );
+        if ($clean_positions) {
+            $categories = Db::read_only()->get_array((new Db_Query())->select('id_category')->from('category_product')->where('id_product = ' . $product_id));
         }
-
-        $return = Db::getInstance()->delete('category_product', 'id_product = ' . $productId);
-
-        if ($cleanPositions && $categories) {
+        $return = Db::get_instance()->delete('category_product', 'id_product = ' . $product_id);
+        if ($clean_positions && $categories) {
             foreach ($categories as $row) {
-                $return = static::cleanPositions((int) $row['id_category']) && $return;
+                $return = static::clean_positions((int) $row['id_category']) && $return;
             }
         }
-
         return $return;
     }
-
     /**
      * Reorder product position in category $id_category.
      * Call it after deleting a product from a category.
@@ -4364,31 +3290,27 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @return bool
      * @throws PrestaShopException
      */
-    public static function cleanPositions($idCategory, $position = 0)
+    public static function clean_positions($id_category, $position = 0)
     {
-        $idCategory = (int) $idCategory;
+        $id_category = (int) $id_category;
         $now = date('Y-m-d H:i:s');
-
         // reset positions of all products within category
-        $conn = Db::getInstance();
+        $conn = Db::get_instance();
         $return = $conn->execute('SET @rank:=-1');
         $return = $conn->execute('
-            UPDATE `'._DB_PREFIX_.'category_product`
+            UPDATE `' . _DB_PREFIX_ . 'category_product`
             SET position = @rank:=@rank+1
-            WHERE `id_category` = '.$idCategory.'
+            WHERE `id_category` = ' . $id_category . '
             ORDER BY `position`, `id_product`
         ') && $return;
-
         // mark all products whose position within category (might) have changed as modified
         $return = $conn->execute('
-            UPDATE `'._DB_PREFIX_.'product` p'.Shop::addSqlAssociation('product', 'p').'
-            INNER JOIN `'._DB_PREFIX_.'category_product` cp ON (cp.`id_category` = '.$idCategory.' AND cp.`id_product` = p.`id_product` AND cp.`position` >= '.$position.')
-            SET p.`date_upd` = "'.$now.'", product_shop.`date_upd` = "'.$now.'"
+            UPDATE `' . _DB_PREFIX_ . 'product` p' . Shop::add_sql_association('product', 'p') . '
+            INNER JOIN `' . _DB_PREFIX_ . 'category_product` cp ON (cp.`id_category` = ' . $id_category . ' AND cp.`id_product` = p.`id_product` AND cp.`position` >= ' . $position . ')
+            SET p.`date_upd` = "' . $now . '", product_shop.`date_upd` = "' . $now . '"
         ') && $return;
-
         return $return;
     }
-
     /**
      * Delete product features
      *
@@ -4396,63 +3318,47 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public function deleteProductFeatures()
+    public function delete_product_features()
     {
-        SpecificPriceRule::applyAllRules([(int) $this->id]);
-
-        return $this->deleteFeatures();
+        Specific_Price_Rule::apply_all_rules([(int) $this->id]);
+        return $this->delete_features();
     }
-
     /**
      * Delete features
      *
      * @throws PrestaShopException
      */
-    public function deleteFeatures()
+    public function delete_features()
     {
         // List products features
-        $features = Db::readOnly()->getArray(
-            '
+        $features = Db::read_only()->get_array('
 		SELECT p.*, f.*
-		FROM `'._DB_PREFIX_.'feature_product` AS p
-		LEFT JOIN `'._DB_PREFIX_.'feature_value` AS f ON (f.`id_feature_value` = p.`id_feature_value`)
-		WHERE `id_product` = '.(int) $this->id
-        );
-        $conn = Db::getInstance();
+		FROM `' . _DB_PREFIX_ . 'feature_product` AS p
+		LEFT JOIN `' . _DB_PREFIX_ . 'feature_value` AS f ON (f.`id_feature_value` = p.`id_feature_value`)
+		WHERE `id_product` = ' . (int) $this->id);
+        $conn = Db::get_instance();
         foreach ($features as $tab) {
             // Delete product custom features
             if ($tab['custom']) {
-                $conn->execute(
-                    '
-				DELETE FROM `'._DB_PREFIX_.'feature_value`
-				WHERE `id_feature_value` = '.(int) $tab['id_feature_value']
-                );
-                $conn->execute(
-                    '
-				DELETE FROM `'._DB_PREFIX_.'feature_value_lang`
-				WHERE `id_feature_value` = '.(int) $tab['id_feature_value']
-                );
+                $conn->execute('
+				DELETE FROM `' . _DB_PREFIX_ . 'feature_value`
+				WHERE `id_feature_value` = ' . (int) $tab['id_feature_value']);
+                $conn->execute('
+				DELETE FROM `' . _DB_PREFIX_ . 'feature_value_lang`
+				WHERE `id_feature_value` = ' . (int) $tab['id_feature_value']);
             }
         }
         // Delete product features
-        $result = $conn->execute(
-            '
-		DELETE FROM `'._DB_PREFIX_.'feature_product`
-		WHERE `id_product` = '.(int) $this->id
-        );
-
+        $result = $conn->execute('
+		DELETE FROM `' . _DB_PREFIX_ . 'feature_product`
+		WHERE `id_product` = ' . (int) $this->id);
         // Delete product features lang
-        $result_lang = $conn->execute(
-            '
-		DELETE FROM `'._DB_PREFIX_.'feature_product_lang`
-		WHERE `id_product` = '.(int) $this->id
-        );
-
-        SpecificPriceRule::applyAllRules([(int) $this->id]);
-
-        return ($result && $result_lang);
+        $result_lang = $conn->execute('
+		DELETE FROM `' . _DB_PREFIX_ . 'feature_product_lang`
+		WHERE `id_product` = ' . (int) $this->id);
+        Specific_Price_Rule::apply_all_rules([(int) $this->id]);
+        return $result && $result_lang;
     }
-
     /**
      * Deletes all feature value of feature with id $featureId
      *
@@ -4462,20 +3368,17 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function deleteFeatureValues($featureId)
+    public function delete_feature_values($feature_id)
     {
-        $productId = (int)$this->id;
-        if ($productId) {
-            $featureId = (int)$featureId;
-
-            $conn = Db::getInstance();
-            $result = $conn->delete('feature_product', "id_product = $productId AND id_feature = $featureId");
-
-            return $conn->delete('feature_product_lang', "id_product = $productId AND id_feature = $featureId") && $result;
+        $product_id = (int) $this->id;
+        if ($product_id) {
+            $feature_id = (int) $feature_id;
+            $conn = Db::get_instance();
+            $result = $conn->delete('feature_product', "id_product = {$product_id} AND id_feature = {$feature_id}");
+            return $conn->delete('feature_product_lang', "id_product = {$product_id} AND id_feature = {$feature_id}") && $result;
         }
         return false;
     }
-
     /**
      * Delete products tags entries
      *
@@ -4483,11 +3386,10 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public function deleteTags()
+    public function delete_tags()
     {
-        return Tag::deleteTagsForProduct((int) $this->id);
+        return Tag::delete_tags_for_product((int) $this->id);
     }
-
     /**
      * Delete product from cart
      *
@@ -4495,11 +3397,10 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public function deleteCartProducts()
+    public function delete_cart_products()
     {
-        return Db::getInstance()->delete('cart_product', 'id_product = '.(int) $this->id);
+        return Db::get_instance()->delete('cart_product', 'id_product = ' . (int) $this->id);
     }
-
     /**
      * Delete product attributes impacts
      *
@@ -4507,14 +3408,11 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public function deleteAttributesImpacts()
+    public function delete_attributes_impacts()
     {
-        return Db::getInstance()->execute(
-            'DELETE FROM `'._DB_PREFIX_.'attribute_impact`
-			WHERE `id_product` = '.(int) $this->id
-        );
+        return Db::get_instance()->execute('DELETE FROM `' . _DB_PREFIX_ . 'attribute_impact`
+			WHERE `id_product` = ' . (int) $this->id);
     }
-
     /**
      * Delete product attachments
      *
@@ -4524,21 +3422,16 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public function deleteAttachments($updateAttachmentCache = true)
+    public function delete_attachments($update_attachment_cache = true)
     {
-        $res = Db::getInstance()->execute(
-            '
-			DELETE FROM `'._DB_PREFIX_.'product_attachment`
-			WHERE `id_product` = '.(int) $this->id
-        );
-
-        if (isset($updateAttachmentCache) && (bool) $updateAttachmentCache === true) {
-            static::updateCacheAttachment((int) $this->id);
+        $res = Db::get_instance()->execute('
+			DELETE FROM `' . _DB_PREFIX_ . 'product_attachment`
+			WHERE `id_product` = ' . (int) $this->id);
+        if (isset($update_attachment_cache) && (bool) $update_attachment_cache === true) {
+            static::update_cache_attachment((int) $this->id);
         }
-
         return $res;
     }
-
     /**
      * @param int $idProduct
      *
@@ -4546,22 +3439,14 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public static function updateCacheAttachment($idProduct)
+    public static function update_cache_attachment($id_product)
     {
-        $value = (bool) Db::readOnly()->getValue(
-            '
+        $value = (bool) Db::read_only()->get_value('
 								SELECT id_attachment
-								FROM '._DB_PREFIX_.'product_attachment
-								WHERE id_product='.(int) $idProduct
-        );
-
-        return Db::getInstance()->update(
-            'product',
-            ['cache_has_attachments' => (int) $value],
-            'id_product = '.(int) $idProduct
-        );
+								FROM ' . _DB_PREFIX_ . 'product_attachment
+								WHERE id_product=' . (int) $id_product);
+        return Db::get_instance()->update('product', ['cache_has_attachments' => (int) $value], 'id_product = ' . (int) $id_product);
     }
-
     /**
      * Delete product customizations
      *
@@ -4569,23 +3454,14 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public function deleteCustomization()
+    public function delete_customization()
     {
-        $conn = Db::getInstance();
-        return (
-            $conn->execute(
-                'DELETE FROM `'._DB_PREFIX_.'customization_field`
-				WHERE `id_product` = '.(int) $this->id
-            )
-            &&
-            $conn->execute(
-                'DELETE `'._DB_PREFIX_.'customization_field_lang` FROM `'._DB_PREFIX_.'customization_field_lang` LEFT JOIN `'._DB_PREFIX_.'customization_field`
-				ON ('._DB_PREFIX_.'customization_field.id_customization_field = '._DB_PREFIX_.'customization_field_lang.id_customization_field)
-				WHERE '._DB_PREFIX_.'customization_field.id_customization_field IS NULL'
-            )
-        );
+        $conn = Db::get_instance();
+        return $conn->execute('DELETE FROM `' . _DB_PREFIX_ . 'customization_field`
+				WHERE `id_product` = ' . (int) $this->id) && $conn->execute('DELETE `' . _DB_PREFIX_ . 'customization_field_lang` FROM `' . _DB_PREFIX_ . 'customization_field_lang` LEFT JOIN `' . _DB_PREFIX_ . 'customization_field`
+				ON (' . _DB_PREFIX_ . 'customization_field.id_customization_field = ' . _DB_PREFIX_ . 'customization_field_lang.id_customization_field)
+				WHERE ' . _DB_PREFIX_ . 'customization_field.id_customization_field IS NULL');
     }
-
     /**
      * Delete product pack details
      *
@@ -4593,15 +3469,12 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public function deletePack()
+    public function delete_pack()
     {
-        return Db::getInstance()->execute(
-            'DELETE FROM `'._DB_PREFIX_.'pack`
-			WHERE `id_product_pack` = '.(int) $this->id.'
-			OR `id_product_item` = '.(int) $this->id
-        );
+        return Db::get_instance()->execute('DELETE FROM `' . _DB_PREFIX_ . 'pack`
+			WHERE `id_product_pack` = ' . (int) $this->id . '
+			OR `id_product_item` = ' . (int) $this->id);
     }
-
     /**
      * Delete product sales
      *
@@ -4609,14 +3482,11 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public function deleteProductSale()
+    public function delete_product_sale()
     {
-        return Db::getInstance()->execute(
-            'DELETE FROM `'._DB_PREFIX_.'product_sale`
-			WHERE `id_product` = '.(int) $this->id
-        );
+        return Db::get_instance()->execute('DELETE FROM `' . _DB_PREFIX_ . 'product_sale`
+			WHERE `id_product` = ' . (int) $this->id);
     }
-
     /**
      * Delete product indexed words
      *
@@ -4624,25 +3494,16 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public function deleteSearchIndexes()
+    public function delete_search_indexes()
     {
-        $conn = Db::getInstance();
-        return (
-            $conn->execute(
-                'DELETE FROM `'._DB_PREFIX_.'search_index`
-                    WHERE `id_product` = '.(int)$this->id
-            )
-            &&
-            $conn->execute(
-                'DELETE FROM `'._DB_PREFIX_.'search_word`
+        $conn = Db::get_instance();
+        return $conn->execute('DELETE FROM `' . _DB_PREFIX_ . 'search_index`
+                    WHERE `id_product` = ' . (int) $this->id) && $conn->execute('DELETE FROM `' . _DB_PREFIX_ . 'search_word`
                     WHERE `id_word` NOT IN (
                         SELECT id_word
-                        FROM `'._DB_PREFIX_.'search_index`
-                    )'
-            )
-        );
+                        FROM `' . _DB_PREFIX_ . 'search_index`
+                    )');
     }
-
     /**
      * Delete product accessories
      *
@@ -4651,11 +3512,10 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function deleteAccessories()
+    public function delete_accessories()
     {
-        return Db::getInstance()->delete('accessory', 'id_product_1 = '.(int) $this->id);
+        return Db::get_instance()->delete('accessory', 'id_product_1 = ' . (int) $this->id);
     }
-
     /**
      * Delete product from other products accessories
      *
@@ -4664,22 +3524,20 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function deleteFromAccessories()
+    public function delete_from_accessories()
     {
-        return Db::getInstance()->delete('accessory', 'id_product_2 = '.(int) $this->id);
+        return Db::get_instance()->delete('accessory', 'id_product_2 = ' . (int) $this->id);
     }
-
     /**
      * @return bool
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function deleteFromSupplier()
+    public function delete_from_supplier()
     {
-        return Db::getInstance()->delete('product_supplier', 'id_product = '.(int) $this->id);
+        return Db::get_instance()->delete('product_supplier', 'id_product = ' . (int) $this->id);
     }
-
     /**
      * Remove all downloadable files for product and its attributes
      *
@@ -4687,32 +3545,28 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public function deleteDownload()
+    public function delete_download()
     {
         $result = true;
-        $collectionDownload = new PrestaShopCollection('ProductDownload');
-        $collectionDownload->where('id_product', '=', $this->id);
-        foreach ($collectionDownload as $productDownload) {
+        $collection_download = new Presta_Shop_Collection('ProductDownload');
+        $collection_download->where('id_product', '=', $this->id);
+        foreach ($collection_download as $product_download) {
             /** @var ProductDownload $productDownload */
-            $result = $productDownload->delete() && $result;
+            $result = $product_download->delete() && $result;
         }
-
         return $result;
     }
-
     /**
      * @return bool
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function deleteFromCartRules()
+    public function delete_from_cart_rules()
     {
-        CartRule::cleanProductRuleIntegrity('products', $this->id);
-
+        Cart_Rule::clean_product_rule_integrity('products', $this->id);
         return true;
     }
-
     /**
      * Update the categories this product belongs to
      *
@@ -4729,34 +3583,28 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function updateCategories($categories, $keepCurrentPosition = false)
+    public function update_categories($categories, $keep_current_position = false)
     {
         if (empty($categories)) {
             return false;
         }
-
-        $sql = new DbQuery();
+        $sql = new Db_Query();
         $sql->select('c.`id_category`');
         $sql->from('category_product', 'cp');
-        $sql->leftJoin('category', 'c', 'c.`id_category` = cp.`id_category`');
-        $sql->join(Shop::addSqlAssociation('category', 'c', true));
-        $sql->where('cp.`id_category` NOT IN ('.implode(',', array_map(intval(...), $categories)).')');
-        $sql->where('cp.`id_product` = '.(int) $this->id);
-        $result = Db::readOnly()->getArray($sql);
-
-        foreach ($result as $categoryToDelete) {
-            $this->deleteCategory($categoryToDelete['id_category']);
+        $sql->left_join('category', 'c', 'c.`id_category` = cp.`id_category`');
+        $sql->join(Shop::add_sql_association('category', 'c', true));
+        $sql->where('cp.`id_category` NOT IN (' . implode(',', array_map(intval(...), $categories)) . ')');
+        $sql->where('cp.`id_product` = ' . (int) $this->id);
+        $result = Db::read_only()->get_array($sql);
+        foreach ($result as $category_to_delete) {
+            $this->delete_category($category_to_delete['id_category']);
         }
-
-        if (!$this->addToCategories($categories)) {
+        if (!$this->add_to_categories($categories)) {
             return false;
         }
-
-        SpecificPriceRule::applyAllRules([(int) $this->id]);
-
+        Specific_Price_Rule::apply_all_rules([(int) $this->id]);
         return true;
     }
-
     /**
      * deleteCategory delete this product from the category $id_category
      *
@@ -4768,18 +3616,16 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function deleteCategory($idCategory, $cleanPositions = true)
+    public function delete_category($id_category, $clean_positions = true)
     {
-        $idCategory = (int) $idCategory;
-        $return = Db::getInstance()->delete('category_product', 'id_product = '.(int) $this->id.' AND id_category = '.$idCategory);
-        if ($cleanPositions) {
-            static::cleanPositions($idCategory);
+        $id_category = (int) $id_category;
+        $return = Db::get_instance()->delete('category_product', 'id_product = ' . (int) $this->id . ' AND id_category = ' . $id_category);
+        if ($clean_positions) {
+            static::clean_positions($id_category);
         }
-        SpecificPriceRule::applyAllRules([(int) $this->id]);
-
+        Specific_Price_Rule::apply_all_rules([(int) $this->id]);
         return $return;
     }
-
     /**
      * addToCategories add this product to the category/ies if not exists.
      *
@@ -4789,61 +3635,40 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function addToCategories($categories = [])
+    public function add_to_categories($categories = [])
     {
         if (empty($categories)) {
             return false;
         }
-
         if (!is_array($categories)) {
             $categories = [$categories];
         }
-
         if (!count($categories)) {
             return false;
         }
-
         $categories = array_map(intval(...), $categories);
-
-        $currentCategories = $this->getCategories();
-        $currentCategories = array_map(intval(...), $currentCategories);
-
+        $current_categories = $this->get_categories();
+        $current_categories = array_map(intval(...), $current_categories);
         // for new categ, put product at last position
-        $resCategNewPos = Db::readOnly()->getArray(
-            '
+        $res_categ_new_pos = Db::read_only()->get_array('
 			SELECT id_category, MAX(position)+1 newPos
-			FROM `'._DB_PREFIX_.'category_product`
-			WHERE `id_category` IN('.implode(',', $categories).')
-			GROUP BY id_category'
-        );
-        foreach ($resCategNewPos as $array) {
-            $newCategories[(int) $array['id_category']] = (int) $array['newPos'];
+			FROM `' . _DB_PREFIX_ . 'category_product`
+			WHERE `id_category` IN(' . implode(',', $categories) . ')
+			GROUP BY id_category');
+        foreach ($res_categ_new_pos as $array) {
+            $new_categories[(int) $array['id_category']] = (int) $array['newPos'];
         }
-
-        $newCategoryPos = [];
-        foreach ($categories as $idCategory) {
-            $newCategoryPos[$idCategory] = $newCategories[$idCategory] ?? 0;
+        $new_category_pos = [];
+        foreach ($categories as $id_category) {
+            $new_category_pos[$id_category] = $new_categories[$id_category] ?? 0;
         }
-
-        foreach ($categories as $newIdCateg) {
-            if (!in_array($newIdCateg, $currentCategories)) {
-                Db::getInstance()->insert(
-                    'category_product',
-                    [
-                        'id_category' => (int) $newIdCateg,
-                        'id_product'  => (int) $this->id,
-                        'position'    => $newCategoryPos[$newIdCateg],
-                    ],
-                    false,
-                    true,
-                    Db::INSERT_IGNORE
-                );
+        foreach ($categories as $new_id_categ) {
+            if (!in_array($new_id_categ, $current_categories)) {
+                Db::get_instance()->insert('category_product', ['id_category' => (int) $new_id_categ, 'id_product' => (int) $this->id, 'position' => $new_category_pos[$new_id_categ]], false, true, Db::INSERT_IGNORE);
             }
         }
-
         return true;
     }
-
     /**
      * getCategories return an array of categories which this product belongs to
      *
@@ -4852,11 +3677,10 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function getCategories()
+    public function get_categories()
     {
-        return static::getProductCategories($this->id);
+        return static::get_product_categories($this->id);
     }
-
     /**
      * getProductCategories return an array of categories which this product belongs to
      *
@@ -4867,31 +3691,24 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getProductCategories($idProduct = '')
+    public static function get_product_categories($id_product = '')
     {
-        $cacheId = 'Product::getProductCategories_'.(int) $idProduct;
-        if (!Cache::isStored($cacheId)) {
+        $cache_id = 'Product::getProductCategories_' . (int) $id_product;
+        if (!Cache::is_stored($cache_id)) {
             $ret = [];
-
-            $row = Db::readOnly()->getArray(
-                '
-				SELECT `id_category` FROM `'._DB_PREFIX_.'category_product`
-				WHERE `id_product` = '.(int) $idProduct
-            );
-
+            $row = Db::read_only()->get_array('
+				SELECT `id_category` FROM `' . _DB_PREFIX_ . 'category_product`
+				WHERE `id_product` = ' . (int) $id_product);
             if ($row) {
                 foreach ($row as $val) {
-                    $ret[] = (int)$val['id_category'];
+                    $ret[] = (int) $val['id_category'];
                 }
             }
-            Cache::store($cacheId, $ret);
-
+            Cache::store($cache_id, $ret);
             return $ret;
         }
-
-        return Cache::retrieve($cacheId);
+        return Cache::retrieve($cache_id);
     }
-
     /**
      * addProductAttribute is deprecated
      *
@@ -4916,36 +3733,18 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopException
      * @deprecated since 1.5.0
      */
-    public function addProductAttribute(
-        $price,
-        $weight,
-        $unitImpact,
-        $ecotax,
-        $quantity,
-        $idImages,
-        $reference,
-        $idSupplier,
-        $ean13,
-        $default,
-        $location = null,
-        $upc = null,
-        $minimalQuantity = 1
-    ) {
-        Tools::displayAsDeprecated();
-
-        $idProductAttribute = $this->addAttribute($price, $weight, $unitImpact, $ecotax, $idImages, $reference, $ean13, $default, $location, $upc, $minimalQuantity);
-
-        if (!$idProductAttribute) {
+    public function add_product_attribute($price, $weight, $unit_impact, $ecotax, $quantity, $id_images, $reference, $id_supplier, $ean13, $default, $location = null, $upc = null, $minimal_quantity = 1)
+    {
+        Tools::display_as_deprecated();
+        $id_product_attribute = $this->add_attribute($price, $weight, $unit_impact, $ecotax, $id_images, $reference, $ean13, $default, $location, $upc, $minimal_quantity);
+        if (!$id_product_attribute) {
             return false;
         }
-
-        StockAvailable::setQuantity($this->id, $idProductAttribute, $quantity);
+        Stock_Available::set_quantity($this->id, $id_product_attribute, $quantity);
         //Try to set the default supplier reference
-        $this->addSupplierReference($idSupplier, $idProductAttribute);
-
-        return $idProductAttribute;
+        $this->add_supplier_reference($id_supplier, $id_product_attribute);
+        return $id_product_attribute;
     }
-
     /**
      * Add a product attribute
      *
@@ -4965,89 +3764,61 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @return false|int $id_product_attribute or false
      * @throws PrestaShopException
      */
-    public function addAttribute(
-        $price,
-        $weight,
-        $unitImpact,
-        $ecotax,
-        $idImages,
-        $reference,
-        $ean13,
-        $default,
-        $location = null,
-        $upc = null,
-        $minimalQuantity = 1,
-        array $idShopList = [],
-        $availableDate = null
-    ) {
+    public function add_attribute($price, $weight, $unit_impact, $ecotax, $id_images, $reference, $ean13, $default, $location = null, $upc = null, $minimal_quantity = 1, array $id_shop_list = [], $available_date = null)
+    {
         if (!$this->id) {
             return false;
         }
-
         $combination = new Combination();
         $combination->id_product = (int) $this->id;
-        $combination->price = Tools::parseNumber($price);
-        $combination->ecotax = Tools::parseNumber($ecotax);
+        $combination->price = Tools::parse_number($price);
+        $combination->ecotax = Tools::parse_number($ecotax);
         $combination->quantity = 0;
-        $combination->weight = Tools::parseNumber($weight);
-        $combination->unit_price_impact = Tools::parseNumber($unitImpact);
-        $combination->reference = pSQL($reference);
-        $combination->location = pSQL($location);
-        $combination->ean13 = pSQL($ean13);
-        $combination->upc = pSQL($upc);
+        $combination->weight = Tools::parse_number($weight);
+        $combination->unit_price_impact = Tools::parse_number($unit_impact);
+        $combination->reference = p_sql($reference);
+        $combination->location = p_sql($location);
+        $combination->ean13 = p_sql($ean13);
+        $combination->upc = p_sql($upc);
         $combination->default_on = (int) $default;
-        $combination->minimal_quantity = (int) $minimalQuantity;
-        $combination->available_date = $availableDate;
-
-        if (count($idShopList)) {
-            $combination->id_shop_list = array_unique($idShopList);
+        $combination->minimal_quantity = (int) $minimal_quantity;
+        $combination->available_date = $available_date;
+        if (count($id_shop_list)) {
+            $combination->id_shop_list = array_unique($id_shop_list);
         }
-
         $combination->add();
-
         if (!$combination->id) {
             return false;
         }
-
-        $totalQuantity = (int) Db::readOnly()->getValue(
-            '
+        $total_quantity = (int) Db::read_only()->get_value('
 			SELECT SUM(quantity) AS quantity
-			FROM '._DB_PREFIX_.'stock_available
-			WHERE id_product = '.(int) $this->id.'
-			AND id_product_attribute <> 0 '
-        );
-
-        if (!$totalQuantity) {
-            Db::getInstance()->update('stock_available', ['quantity' => 0], '`id_product` = '.$this->id);
+			FROM ' . _DB_PREFIX_ . 'stock_available
+			WHERE id_product = ' . (int) $this->id . '
+			AND id_product_attribute <> 0 ');
+        if (!$total_quantity) {
+            Db::get_instance()->update('stock_available', ['quantity' => 0], '`id_product` = ' . $this->id);
         }
-
-        $idDefaultAttribute = static::updateDefaultAttribute($this->id);
-
-        if ($idDefaultAttribute) {
-            $this->cache_default_attribute = $idDefaultAttribute;
+        $id_default_attribute = static::update_default_attribute($this->id);
+        if ($id_default_attribute) {
+            $this->cache_default_attribute = $id_default_attribute;
             if (!$combination->available_date) {
-                $this->setAvailableDate();
+                $this->set_available_date();
             }
         }
-
-        if (!empty($idImages)) {
-            $combination->setImages($idImages);
+        if (!empty($id_images)) {
+            $combination->set_images($id_images);
         }
-
-        Tools::clearColorListCache($this->id);
-
+        Tools::clear_color_list_cache($this->id);
         if (Configuration::get('PS_DEFAULT_WAREHOUSE_NEW_PRODUCT') != 0 && Configuration::get('PS_ADVANCED_STOCK_MANAGEMENT')) {
-            $warehouseLocationEntity = new WarehouseProductLocation();
-            $warehouseLocationEntity->id_product = $this->id;
-            $warehouseLocationEntity->id_product_attribute = (int) $combination->id;
-            $warehouseLocationEntity->id_warehouse = Configuration::get('PS_DEFAULT_WAREHOUSE_NEW_PRODUCT');
-            $warehouseLocationEntity->location = pSQL('');
-            $warehouseLocationEntity->save();
+            $warehouse_location_entity = new Warehouse_Product_Location();
+            $warehouse_location_entity->id_product = $this->id;
+            $warehouse_location_entity->id_product_attribute = (int) $combination->id;
+            $warehouse_location_entity->id_warehouse = Configuration::get('PS_DEFAULT_WAREHOUSE_NEW_PRODUCT');
+            $warehouse_location_entity->location = p_sql('');
+            $warehouse_location_entity->save();
         }
-
         return (int) $combination->id;
     }
-
     /**
      * @param int $idProduct
      *
@@ -5056,33 +3827,17 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function updateDefaultAttribute($idProduct)
+    public static function update_default_attribute($id_product)
     {
-        $idDefaultAttribute = (int) static::getDefaultAttribute($idProduct, 0, true);
-
-        $conn = Db::getInstance();
-        $result = $conn->update(
-            'product_shop',
-            [
-                'cache_default_attribute' => $idDefaultAttribute,
-            ],
-            'id_product = '.(int) $idProduct.Shop::addSqlRestriction()
-        );
-
-        $result = $conn->update(
-            'product',
-            [
-                'cache_default_attribute' => $idDefaultAttribute,
-            ],
-            'id_product = '.(int) $idProduct
-        ) && $result;
-
-        if ($result && $idDefaultAttribute) {
-            return $idDefaultAttribute;
+        $id_default_attribute = (int) static::get_default_attribute($id_product, 0, true);
+        $conn = Db::get_instance();
+        $result = $conn->update('product_shop', ['cache_default_attribute' => $id_default_attribute], 'id_product = ' . (int) $id_product . Shop::add_sql_restriction());
+        $result = $conn->update('product', ['cache_default_attribute' => $id_default_attribute], 'id_product = ' . (int) $id_product) && $result;
+        if ($result && $id_default_attribute) {
+            return $id_default_attribute;
         }
         return $result;
     }
-
     /**
      * @param int $idProduct
      *
@@ -5091,16 +3846,13 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getShopsByProduct($idProduct)
+    public static function get_shops_by_product($id_product)
     {
-        return Db::readOnly()->getArray(
-            '
+        return Db::read_only()->get_array('
 			SELECT `id_shop`
-			FROM `'._DB_PREFIX_.'product_shop`
-			WHERE `id_product` = '.(int) $idProduct
-        );
+			FROM `' . _DB_PREFIX_ . 'product_shop`
+			WHERE `id_product` = ' . (int) $id_product);
     }
-
     /**
      * @param array $combinations
      * @param array $attributes
@@ -5109,41 +3861,31 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public function generateMultipleCombinations($combinations, $attributes)
+    public function generate_multiple_combinations($combinations, $attributes)
     {
         $res = true;
         foreach ($combinations as $key => $combination) {
-            $idCombination = (int) $this->productAttributeExists($attributes[$key], false, null, true, true);
-            $obj = new Combination($idCombination);
-
-            if ($idCombination) {
+            $id_combination = (int) $this->product_attribute_exists($attributes[$key], false, null, true, true);
+            $obj = new Combination($id_combination);
+            if ($id_combination) {
                 $obj->minimal_quantity = 1;
                 $obj->available_date = '0000-00-00';
             }
-
             foreach ($combination as $field => $value) {
-                $obj->$field = $value;
+                $obj->{$field} = $value;
             }
-
-            $this->setAvailableDate();
-
+            $this->set_available_date();
             $obj->save();
-
-            if (!$idCombination) {
-                $attributeList = [];
-                foreach ($attributes[$key] as $idAttribute) {
-                    $attributeList[] = [
-                        'id_product_attribute' => (int) $obj->id,
-                        'id_attribute'         => (int) $idAttribute,
-                    ];
+            if (!$id_combination) {
+                $attribute_list = [];
+                foreach ($attributes[$key] as $id_attribute) {
+                    $attribute_list[] = ['id_product_attribute' => (int) $obj->id, 'id_attribute' => (int) $id_attribute];
                 }
-                $res = Db::getInstance()->insert('product_attribute_combination', $attributeList) && $res;
+                $res = Db::get_instance()->insert('product_attribute_combination', $attribute_list) && $res;
             }
         }
-
-        return $this->checkDefaultAttributes() && $res;
+        return $this->check_default_attributes() && $res;
     }
-
     /**
      * @param array $attributesList
      * @param bool $currentProductAttribute
@@ -5155,54 +3897,47 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function productAttributeExists($attributesList, $currentProductAttribute = false, ?Context $context = null, $allShops = false, $returnId = false)
+    public function product_attribute_exists($attributes_list, $current_product_attribute = false, ?Context $context = null, $all_shops = false, $return_id = false)
     {
-        if (!Combination::isFeatureActive()) {
+        if (!Combination::is_feature_active()) {
             return false;
         }
         if ($context === null) {
-            $context = Context::getContext();
+            $context = Context::get_context();
         }
-        $result = Db::readOnly()->getArray(
-            'SELECT pac.`id_attribute`, pac.`id_product_attribute`
-			FROM `'._DB_PREFIX_.'product_attribute` pa
-			JOIN `'._DB_PREFIX_.'product_attribute_shop` pas ON (pas.id_product_attribute = pa.id_product_attribute)
-			LEFT JOIN `'._DB_PREFIX_.'product_attribute_combination` pac ON (pac.`id_product_attribute` = pa.`id_product_attribute`)
-			WHERE 1 '.(!$allShops ? ' AND pas.id_shop ='.(int) $context->shop->id : '').' AND pa.`id_product` = '.(int) $this->id.
-            ($allShops ? ' GROUP BY pac.id_attribute, pac.id_product_attribute ' : '')
-        );
-
+        $result = Db::read_only()->get_array('SELECT pac.`id_attribute`, pac.`id_product_attribute`
+			FROM `' . _DB_PREFIX_ . 'product_attribute` pa
+			JOIN `' . _DB_PREFIX_ . 'product_attribute_shop` pas ON (pas.id_product_attribute = pa.id_product_attribute)
+			LEFT JOIN `' . _DB_PREFIX_ . 'product_attribute_combination` pac ON (pac.`id_product_attribute` = pa.`id_product_attribute`)
+			WHERE 1 ' . (!$all_shops ? ' AND pas.id_shop =' . (int) $context->shop->id : '') . ' AND pa.`id_product` = ' . (int) $this->id . ($all_shops ? ' GROUP BY pac.id_attribute, pac.id_product_attribute ' : ''));
         /* If something's wrong */
         if (empty($result)) {
             return false;
         }
         /* Product attributes simulation */
-        $productAttributes = [];
-        foreach ($result as $productAttribute) {
-            $productAttributes[$productAttribute['id_product_attribute']][] = $productAttribute['id_attribute'];
+        $product_attributes = [];
+        foreach ($result as $product_attribute) {
+            $product_attributes[$product_attribute['id_product_attribute']][] = $product_attribute['id_attribute'];
         }
         /* Checking product's attribute existence */
-        foreach ($productAttributes as $key => $productAttribute) {
-            if (count($productAttribute) == count($attributesList)) {
+        foreach ($product_attributes as $key => $product_attribute) {
+            if (count($product_attribute) == count($attributes_list)) {
                 $diff = false;
-                for ($i = 0; $diff == false && isset($productAttribute[$i]); $i++) {
-                    if (!in_array($productAttribute[$i], $attributesList) || $key == $currentProductAttribute) {
+                for ($i = 0; $diff == false && isset($product_attribute[$i]); $i++) {
+                    if (!in_array($product_attribute[$i], $attributes_list) || $key == $current_product_attribute) {
                         $diff = true;
                     }
                 }
                 if (!$diff) {
-                    if ($returnId) {
+                    if ($return_id) {
                         return $key;
                     }
-
                     return true;
                 }
             }
         }
-
         return false;
     }
-
     /**
      * @param string $availableDate
      *
@@ -5211,28 +3946,26 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function setAvailableDate($availableDate = '0000-00-00')
+    public function set_available_date($available_date = '0000-00-00')
     {
-        if (Validate::isDateFormat($availableDate) && $this->available_date != $availableDate) {
-            $this->available_date = $availableDate;
+        if (Validate::is_date_format($available_date) && $this->available_date != $available_date) {
+            $this->available_date = $available_date;
             if ($this->id) {
-                $fieldsToUpdate = $this->update_fields;
+                $fields_to_update = $this->update_fields;
                 try {
-                    $this->setFieldsToUpdate(['available_date' => true]);
+                    $this->set_fields_to_update(['available_date' => true]);
                     return $this->update();
                 } finally {
-                    if (!is_null($fieldsToUpdate)) {
-                        $this->setFieldsToUpdate($fieldsToUpdate);
+                    if (!is_null($fields_to_update)) {
+                        $this->set_fields_to_update($fields_to_update);
                     }
                 }
             } else {
                 return true;
             }
         }
-
         return false;
     }
-
     /**
      * @param bool $nullValues
      *
@@ -5241,48 +3974,33 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function update($nullValues = false)
+    public function update($null_values = false)
     {
-        if (PageCache::isEnabled()) {
-            PageCache::invalidateEntity('product', $this->id);
+        if (Page_Cache::is_enabled()) {
+            Page_Cache::invalidate_entity('product', $this->id);
         }
-
-        $return = parent::update($nullValues);
-
-        $this->setGroupReduction();
-
+        $return = parent::update($null_values);
+        $this->set_group_reduction();
         // Sync stock Reference, EAN13 and UPC
-        if (Configuration::get('PS_ADVANCED_STOCK_MANAGEMENT') && StockAvailable::dependsOnStock($this->id, Context::getContext()->shop->id)) {
-            Db::getInstance()->update(
-                'stock',
-                [
-                    'reference' => pSQL($this->reference),
-                    'ean13'     => pSQL($this->ean13),
-                    'upc'       => pSQL($this->upc),
-                ],
-                'id_product = '.(int) $this->id.' AND id_product_attribute = 0'
-            );
+        if (Configuration::get('PS_ADVANCED_STOCK_MANAGEMENT') && Stock_Available::depends_on_stock($this->id, Context::get_context()->shop->id)) {
+            Db::get_instance()->update('stock', ['reference' => p_sql($this->reference), 'ean13' => p_sql($this->ean13), 'upc' => p_sql($this->upc)], 'id_product = ' . (int) $this->id . ' AND id_product_attribute = 0');
         }
-
-        Hook::triggerEvent('actionProductSave', ['id_product' => (int) $this->id, 'product' => $this]);
-        Hook::triggerEvent('actionProductUpdate', ['id_product' => (int) $this->id, 'product' => $this]);
-        if ($this->getType() == static::PTYPE_VIRTUAL && $this->active && !Configuration::get('PS_VIRTUAL_PROD_FEATURE_ACTIVE')) {
-            Configuration::updateGlobalValue('PS_VIRTUAL_PROD_FEATURE_ACTIVE', '1');
+        Hook::trigger_event('actionProductSave', ['id_product' => (int) $this->id, 'product' => $this]);
+        Hook::trigger_event('actionProductUpdate', ['id_product' => (int) $this->id, 'product' => $this]);
+        if ($this->get_type() == static::PTYPE_VIRTUAL && $this->active && !Configuration::get('PS_VIRTUAL_PROD_FEATURE_ACTIVE')) {
+            Configuration::update_global_value('PS_VIRTUAL_PROD_FEATURE_ACTIVE', '1');
         }
-
         return $return;
     }
-
     /**
      * Set Group reduction if needed
      *
      * @throws PrestaShopException
      */
-    public function setGroupReduction()
+    public function set_group_reduction()
     {
-        return GroupReduction::setProductReduction($this->id);
+        return Group_Reduction::set_product_reduction($this->id);
     }
-
     /**
      * Get the product type (simple, virtual, pack)
      *
@@ -5290,21 +4008,19 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public function getType()
+    public function get_type()
     {
         if (!$this->id) {
             return static::PTYPE_SIMPLE;
         }
-        if (Pack::isPack($this->id)) {
+        if (Pack::is_pack($this->id)) {
             return static::PTYPE_PACK;
         }
         if ($this->is_virtual) {
             return static::PTYPE_VIRTUAL;
         }
-
         return static::PTYPE_SIMPLE;
     }
-
     /**
      * @param float $wholesalePrice
      * @param float $price
@@ -5325,44 +4041,16 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @return false|int
      * @throws PrestaShopException
      */
-    public function addCombinationEntity(
-        $wholesalePrice,
-        $price,
-        $weight,
-        $unitImpact,
-        $ecotax,
-        $quantity,
-        $idImages,
-        $reference,
-        $idSupplier,
-        $ean13,
-        $default,
-        $location = null,
-        $upc = null,
-        $minimalQuantity = 1,
-        array $idShopList = [],
-        $availableDate = null
-    ) {
-        $idProductAttribute = $this->addAttribute($price, $weight, $unitImpact, $ecotax, $idImages, $reference, $ean13, $default, $location, $upc, $minimalQuantity, $idShopList, $availableDate);
-        $this->addSupplierReference($idSupplier, $idProductAttribute);
-        $result = ObjectModel::updateMultishopTable(
-            'Combination',
-            [
-                'wholesale_price' => round(
-                    $wholesalePrice,
-                    _TB_PRICE_DATABASE_PRECISION_
-                ),
-            ],
-            'a.id_product_attribute = '.(int) $idProductAttribute
-        );
-
-        if (!$idProductAttribute || !$result) {
+    public function add_combination_entity($wholesale_price, $price, $weight, $unit_impact, $ecotax, $quantity, $id_images, $reference, $id_supplier, $ean13, $default, $location = null, $upc = null, $minimal_quantity = 1, array $id_shop_list = [], $available_date = null)
+    {
+        $id_product_attribute = $this->add_attribute($price, $weight, $unit_impact, $ecotax, $id_images, $reference, $ean13, $default, $location, $upc, $minimal_quantity, $id_shop_list, $available_date);
+        $this->add_supplier_reference($id_supplier, $id_product_attribute);
+        $result = Object_Model::update_multishop_table('Combination', ['wholesale_price' => round($wholesale_price, _TB_PRICE_DATABASE_PRECISION_)], 'a.id_product_attribute = ' . (int) $id_product_attribute);
+        if (!$id_product_attribute || !$result) {
             return false;
         }
-
-        return $idProductAttribute;
+        return $id_product_attribute;
     }
-
     /**
      * Sets or updates Supplier Reference
      *
@@ -5377,45 +4065,35 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function addSupplierReference(
-        $idSupplier,
-        $idProductAttribute,
-        $supplierReference = null,
-        $price = null,
-        $idCurrency = null,
-        $supplierProductName = null,
-        $comment = null
-    ): void {
+    public function add_supplier_reference($id_supplier, $id_product_attribute, $supplier_reference = null, $price = null, $id_currency = null, $supplier_product_name = null, $comment = null): void
+    {
         //Try to set the default supplier reference
-        if (($idSupplier > 0) && ($this->id > 0)) {
-            $idProductSupplier = (int) ProductSupplier::getIdByProductAndSupplier($this->id, $idProductAttribute, $idSupplier);
-
-            $productSupplier = new ProductSupplier($idProductSupplier);
-            if (!$idProductSupplier) {
-                $productSupplier->id_product = (int) $this->id;
-                $productSupplier->id_product_attribute = (int) $idProductAttribute;
-                $productSupplier->id_supplier = (int) $idSupplier;
+        if ($id_supplier > 0 && $this->id > 0) {
+            $id_product_supplier = (int) Product_Supplier::get_id_by_product_and_supplier($this->id, $id_product_attribute, $id_supplier);
+            $product_supplier = new Product_Supplier($id_product_supplier);
+            if (!$id_product_supplier) {
+                $product_supplier->id_product = (int) $this->id;
+                $product_supplier->id_product_attribute = (int) $id_product_attribute;
+                $product_supplier->id_supplier = (int) $id_supplier;
             }
-
-            if (! is_null($supplierReference)) {
-                $productSupplier->product_supplier_reference = (string)$supplierReference;
+            if (!is_null($supplier_reference)) {
+                $product_supplier->product_supplier_reference = (string) $supplier_reference;
             }
-            if (! is_null($supplierProductName)) {
-                $productSupplier->product_supplier_name = (string)$supplierProductName;
+            if (!is_null($supplier_product_name)) {
+                $product_supplier->product_supplier_name = (string) $supplier_product_name;
             }
-            if (! is_null($comment)) {
-                $productSupplier->product_supplier_comment = (string)$comment;
+            if (!is_null($comment)) {
+                $product_supplier->product_supplier_comment = (string) $comment;
             }
-            if (! is_null($price)) {
-                $productSupplier->product_supplier_price_te = (float)$price;
+            if (!is_null($price)) {
+                $product_supplier->product_supplier_price_te = (float) $price;
             }
-            if (! is_null($idCurrency)) {
-                $productSupplier->id_currency = (int)$idCurrency;
+            if (!is_null($id_currency)) {
+                $product_supplier->id_currency = (int) $id_currency;
             }
-            $productSupplier->save();
+            $product_supplier->save();
         }
     }
-
     /**
      * @param array $attributes
      * @param bool $setDefault
@@ -5425,54 +4103,48 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function addProductAttributeMultiple($attributes, $setDefault = true)
+    public function add_product_attribute_multiple($attributes, $set_default = true)
     {
-        Tools::displayAsDeprecated();
+        Tools::display_as_deprecated();
         $return = [];
-        $defaultValue = 1;
+        $default_value = 1;
         foreach ($attributes as &$attribute) {
             $obj = new Combination();
             foreach ($attribute as $key => $value) {
-                $obj->$key = $value;
+                $obj->{$key} = $value;
             }
-
-            if ($setDefault) {
-                $obj->default_on = $defaultValue;
-                $defaultValue = 0;
+            if ($set_default) {
+                $obj->default_on = $default_value;
+                $default_value = 0;
                 // if we add a combination for this shop and this product does not use the combination feature in other shop,
                 // we clone the default combination in every shop linked to this product
-                if (!$this->hasAttributesInOtherShops()) {
-                    $idShopListArray = static::getShopsByProduct($this->id);
-                    $idShopList = [];
-                    foreach ($idShopListArray as $arrayShop) {
-                        $idShopList[] = $arrayShop['id_shop'];
+                if (!$this->has_attributes_in_other_shops()) {
+                    $id_shop_list_array = static::get_shops_by_product($this->id);
+                    $id_shop_list = [];
+                    foreach ($id_shop_list_array as $array_shop) {
+                        $id_shop_list[] = $array_shop['id_shop'];
                     }
-                    $obj->id_shop_list = $idShopList;
+                    $obj->id_shop_list = $id_shop_list;
                 }
             }
             $obj->add();
             $return[] = $obj->id;
         }
-
         return $return;
     }
-
     /**
      * @return bool
      *
      * @throws PrestaShopException
      */
-    public function hasAttributesInOtherShops()
+    public function has_attributes_in_other_shops()
     {
-        return (bool) Db::readOnly()->getValue(
-            '
+        return (bool) Db::read_only()->get_value('
 			SELECT pa.id_product_attribute
-			FROM `'._DB_PREFIX_.'product_attribute` pa
-			LEFT JOIN `'._DB_PREFIX_.'product_attribute_shop` pas ON (pa.`id_product_attribute` = pas.`id_product_attribute`)
-			WHERE pa.`id_product` = '.(int) $this->id
-        );
+			FROM `' . _DB_PREFIX_ . 'product_attribute` pa
+			LEFT JOIN `' . _DB_PREFIX_ . 'product_attribute_shop` pas ON (pa.`id_product_attribute` = pas.`id_product_attribute`)
+			WHERE pa.`id_product` = ' . (int) $this->id);
     }
-
     /**
      * Update a product attribute
      *
@@ -5498,31 +4170,13 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @see ProductSupplier for manage supplier reference(s)
      * @deprecated 1.0.0
      */
-    public function updateProductAttribute(
-        $idProductAttribute,
-        $wholesalePrice,
-        $price,
-        $weight,
-        $unit,
-        $ecotax,
-        $idImages,
-        $reference,
-        $idSupplier,
-        $ean13,
-        $default,
-        $location,
-        $upc,
-        $minimalQuantity,
-        $availableDate
-    ) {
-        Tools::displayAsDeprecated();
-
-        $return = $this->updateAttribute($idProductAttribute, $wholesalePrice, $price, $weight, $unit, $ecotax, $idImages, $reference, $ean13, $default, null, null, $minimalQuantity, $availableDate);
-        $this->addSupplierReference($idSupplier, $idProductAttribute);
-
+    public function update_product_attribute($id_product_attribute, $wholesale_price, $price, $weight, $unit, $ecotax, $id_images, $reference, $id_supplier, $ean13, $default, $location, $upc, $minimal_quantity, $available_date)
+    {
+        Tools::display_as_deprecated();
+        $return = $this->update_attribute($id_product_attribute, $wholesale_price, $price, $weight, $unit, $ecotax, $id_images, $reference, $ean13, $default, null, null, $minimal_quantity, $available_date);
+        $this->add_supplier_reference($id_supplier, $id_product_attribute);
         return $return;
     }
-
     /**
      * Update a product attribute
      *
@@ -5548,120 +4202,65 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @return bool Update result
      * @throws PrestaShopException
      */
-    public function updateAttribute(
-        $idProductAttribute,
-        $wholesalePrice,
-        $price,
-        $weight,
-        $unit,
-        $ecotax,
-        $idImages,
-        $reference,
-        $ean13,
-        $default,
-        $location = null,
-        $upc = null,
-        $minimalQuantity = null,
-        $availableDate = null,
-        $updateAllFields = true,
-        array $idShopList = [],
-        $widthImpact = null,
-        $heightImpact = null,
-        $depthImpact = null
-    ) {
-        $combination = new Combination($idProductAttribute);
-
-        if (!$updateAllFields) {
-            $combination->setFieldsToUpdate(
-                [
-                    'price'             => !is_null($price),
-                    'wholesale_price'   => !is_null($wholesalePrice),
-                    'ecotax'            => !is_null($ecotax),
-                    'weight'            => !is_null($weight),
-                    'width'             => !is_null($widthImpact),
-                    'height'            => !is_null($heightImpact),
-                    'depth'             => !is_null($depthImpact),
-                    'unit_price_impact' => !is_null($unit),
-                    'default_on'        => !is_null($default),
-                    'minimal_quantity'  => !is_null($minimalQuantity),
-                    'available_date'    => !is_null($availableDate),
-                ]
-            );
+    public function update_attribute($id_product_attribute, $wholesale_price, $price, $weight, $unit, $ecotax, $id_images, $reference, $ean13, $default, $location = null, $upc = null, $minimal_quantity = null, $available_date = null, $update_all_fields = true, array $id_shop_list = [], $width_impact = null, $height_impact = null, $depth_impact = null)
+    {
+        $combination = new Combination($id_product_attribute);
+        if (!$update_all_fields) {
+            $combination->set_fields_to_update(['price' => !is_null($price), 'wholesale_price' => !is_null($wholesale_price), 'ecotax' => !is_null($ecotax), 'weight' => !is_null($weight), 'width' => !is_null($width_impact), 'height' => !is_null($height_impact), 'depth' => !is_null($depth_impact), 'unit_price_impact' => !is_null($unit), 'default_on' => !is_null($default), 'minimal_quantity' => !is_null($minimal_quantity), 'available_date' => !is_null($available_date)]);
         }
-
-        $combination->price = Tools::parseNumber($price);
-        $combination->wholesale_price = Tools::parseNumber($wholesalePrice);
-        $combination->ecotax = Tools::parseNumber($ecotax);
-        $combination->weight = Tools::parseNumber($weight);
-        $combination->width = Tools::parseNumber($widthImpact);
-        $combination->height = Tools::parseNumber($heightImpact);
-        $combination->depth = Tools::parseNumber($depthImpact);
-        $combination->unit_price_impact = Tools::parseNumber($unit);
-        $combination->reference = pSQL($reference);
-        $combination->location = pSQL($location);
-        $combination->ean13 = pSQL($ean13);
-        $combination->upc = pSQL($upc);
+        $combination->price = Tools::parse_number($price);
+        $combination->wholesale_price = Tools::parse_number($wholesale_price);
+        $combination->ecotax = Tools::parse_number($ecotax);
+        $combination->weight = Tools::parse_number($weight);
+        $combination->width = Tools::parse_number($width_impact);
+        $combination->height = Tools::parse_number($height_impact);
+        $combination->depth = Tools::parse_number($depth_impact);
+        $combination->unit_price_impact = Tools::parse_number($unit);
+        $combination->reference = p_sql($reference);
+        $combination->location = p_sql($location);
+        $combination->ean13 = p_sql($ean13);
+        $combination->upc = p_sql($upc);
         $combination->default_on = (int) $default;
-        $combination->minimal_quantity = (int) $minimalQuantity;
-        $combination->available_date = $availableDate ? pSQL($availableDate) : '0000-00-00';
-
-        if (count($idShopList)) {
-            $combination->id_shop_list = $idShopList;
+        $combination->minimal_quantity = (int) $minimal_quantity;
+        $combination->available_date = $available_date ? p_sql($available_date) : '0000-00-00';
+        if (count($id_shop_list)) {
+            $combination->id_shop_list = $id_shop_list;
         }
-
         $combination->save();
-
-        if (is_array($idImages) && count($idImages)) {
-            $combination->setImages($idImages);
+        if (is_array($id_images) && count($id_images)) {
+            $combination->set_images($id_images);
         }
-
-        $idDefaultAttribute = (int) static::updateDefaultAttribute($this->id);
-        if ($idDefaultAttribute) {
-            $this->cache_default_attribute = $idDefaultAttribute;
+        $id_default_attribute = (int) static::update_default_attribute($this->id);
+        if ($id_default_attribute) {
+            $this->cache_default_attribute = $id_default_attribute;
         }
-
         // Sync stock Reference, EAN13 and UPC for this attribute
-        if (Configuration::get('PS_ADVANCED_STOCK_MANAGEMENT') && StockAvailable::dependsOnStock($this->id, Context::getContext()->shop->id)) {
-            Db::getInstance()->update(
-                'stock',
-                [
-                    'reference' => pSQL($reference),
-                    'ean13'     => pSQL($ean13),
-                    'upc'       => pSQL($upc),
-                ],
-                'id_product = '.$this->id.' AND id_product_attribute = '.(int) $idProductAttribute
-            );
+        if (Configuration::get('PS_ADVANCED_STOCK_MANAGEMENT') && Stock_Available::depends_on_stock($this->id, Context::get_context()->shop->id)) {
+            Db::get_instance()->update('stock', ['reference' => p_sql($reference), 'ean13' => p_sql($ean13), 'upc' => p_sql($upc)], 'id_product = ' . $this->id . ' AND id_product_attribute = ' . (int) $id_product_attribute);
         }
-
-        Hook::triggerEvent('actionProductAttributeUpdate', ['id_product_attribute' => (int) $idProductAttribute]);
-        Tools::clearColorListCache($this->id);
-
+        Hook::trigger_event('actionProductAttributeUpdate', ['id_product_attribute' => (int) $id_product_attribute]);
+        Tools::clear_color_list_cache($this->id);
         return true;
     }
-
     /**
      * @return bool
      *
      * @deprecated 1.0.0
      * @throws PrestaShopException
      */
-    public function updateQuantityProductWithAttributeQuantity()
+    public function update_quantity_product_with_attribute_quantity()
     {
-        Tools::displayAsDeprecated();
-
-        return Db::getInstance()->execute(
-            '
-		UPDATE `'._DB_PREFIX_.'product`
+        Tools::display_as_deprecated();
+        return Db::get_instance()->execute('
+		UPDATE `' . _DB_PREFIX_ . 'product`
 		SET `quantity` = IFNULL(
 		(
 			SELECT SUM(`quantity`)
-			FROM `'._DB_PREFIX_.'product_attribute`
-			WHERE `id_product` = '.(int) $this->id.'
+			FROM `' . _DB_PREFIX_ . 'product_attribute`
+			WHERE `id_product` = ' . (int) $this->id . '
 		), \'0\')
-		WHERE `id_product` = '.(int) $this->id
-        );
+		WHERE `id_product` = ' . (int) $this->id);
     }
-
     /**
      * Add a product attributes combinaison
      *
@@ -5674,21 +4273,18 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopException
      * @deprecated 1.0.0
      */
-    public function addAttributeCombinaison($idProductAttribute, $attributes)
+    public function add_attribute_combinaison($id_product_attribute, $attributes)
     {
-        Tools::displayAsDeprecated();
+        Tools::display_as_deprecated();
         if (!is_array($attributes)) {
             return false;
         }
         if (!count($attributes)) {
             return false;
         }
-
-        $combination = new Combination((int) $idProductAttribute);
-
-        return $combination->setAttributes($attributes);
+        $combination = new Combination((int) $id_product_attribute);
+        return $combination->set_attributes($attributes);
     }
-
     /**
      * @deprecated 1.0.0
      *
@@ -5699,24 +4295,19 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function addAttributeCombinationMultiple($idAttributes, $combinations)
+    public function add_attribute_combination_multiple($id_attributes, $combinations)
     {
-        Tools::displayAsDeprecated();
-        $attributesList = [];
-        foreach ($idAttributes as $nb => $idProductAttribute) {
+        Tools::display_as_deprecated();
+        $attributes_list = [];
+        foreach ($id_attributes as $nb => $id_product_attribute) {
             if (isset($combinations[$nb])) {
-                foreach ($combinations[$nb] as $idAttribute) {
-                    $attributesList[] = [
-                        'id_product_attribute' => (int) $idProductAttribute,
-                        'id_attribute'         => (int) $idAttribute,
-                    ];
+                foreach ($combinations[$nb] as $id_attribute) {
+                    $attributes_list[] = ['id_product_attribute' => (int) $id_product_attribute, 'id_attribute' => (int) $id_attribute];
                 }
             }
         }
-
-        return Db::getInstance()->insert('product_attribute_combination', $attributesList);
+        return Db::get_instance()->insert('product_attribute_combination', $attributes_list);
     }
-
     /**
      * Get all available product attributes resume
      *
@@ -5728,46 +4319,39 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function getAttributesResume($idLang, $attributeValueSeparator = ' - ', $attributeSeparator = ', ')
+    public function get_attributes_resume($id_lang, $attribute_value_separator = ' - ', $attribute_separator = ', ')
     {
-        if (!Combination::isFeatureActive()) {
+        if (!Combination::is_feature_active()) {
             return [];
         }
-
-        $combinations = Db::readOnly()->getArray(
-            'SELECT
+        $combinations = Db::read_only()->get_array('SELECT
                     pa.*,
                     product_attribute_shop.*,
                     COALESCE((
-                        SELECT GROUP_CONCAT(agl.`name`, \''.pSQL($attributeValueSeparator).'\',al.`name` ORDER BY agl.`id_attribute_group` SEPARATOR \''.pSQL($attributeSeparator).'\')
-                         FROM `'._DB_PREFIX_.'product_attribute_combination` pac
-                         LEFT JOIN `'._DB_PREFIX_.'attribute` a ON a.`id_attribute` = pac.`id_attribute`
-                         LEFT JOIN `'._DB_PREFIX_.'attribute_group` ag ON ag.`id_attribute_group` = a.`id_attribute_group`
-                         LEFT JOIN `'._DB_PREFIX_.'attribute_lang` al ON (a.`id_attribute` = al.`id_attribute` AND al.`id_lang` = '.(int) $idLang.')
-                         LEFT JOIN `'._DB_PREFIX_.'attribute_group_lang` agl ON (ag.`id_attribute_group` = agl.`id_attribute_group` AND agl.`id_lang` = '.(int) $idLang.')
+                        SELECT GROUP_CONCAT(agl.`name`, \'' . p_sql($attribute_value_separator) . '\',al.`name` ORDER BY agl.`id_attribute_group` SEPARATOR \'' . p_sql($attribute_separator) . '\')
+                         FROM `' . _DB_PREFIX_ . 'product_attribute_combination` pac
+                         LEFT JOIN `' . _DB_PREFIX_ . 'attribute` a ON a.`id_attribute` = pac.`id_attribute`
+                         LEFT JOIN `' . _DB_PREFIX_ . 'attribute_group` ag ON ag.`id_attribute_group` = a.`id_attribute_group`
+                         LEFT JOIN `' . _DB_PREFIX_ . 'attribute_lang` al ON (a.`id_attribute` = al.`id_attribute` AND al.`id_lang` = ' . (int) $id_lang . ')
+                         LEFT JOIN `' . _DB_PREFIX_ . 'attribute_group_lang` agl ON (ag.`id_attribute_group` = agl.`id_attribute_group` AND agl.`id_lang` = ' . (int) $id_lang . ')
                          WHERE pac.id_product_attribute  = pa.id_product_attribute
                          GROUP BY pac.id_product_attribute
                    ), \'-\') as attribute_designation
-				FROM `'._DB_PREFIX_.'product_attribute` pa
-				'.Shop::addSqlAssociation('product_attribute', 'pa').'
-				WHERE pa.`id_product` = '.(int) $this->id.'
+				FROM `' . _DB_PREFIX_ . 'product_attribute` pa
+				' . Shop::add_sql_association('product_attribute', 'pa') . '
+				WHERE pa.`id_product` = ' . (int) $this->id . '
 				GROUP BY pa.`id_product_attribute`
-				ORDER BY pa.`id_product_attribute`'
-        );
-
-        if (! $combinations) {
+				ORDER BY pa.`id_product_attribute`');
+        if (!$combinations) {
             return [];
         }
-
-        $quantities = StockAvailable::getCombinationQuantities((int)$this->id);
+        $quantities = Stock_Available::get_combination_quantities((int) $this->id);
         foreach ($combinations as &$combination) {
-            $productAttributeId = (int)$combination['id_product_attribute'];
-            $combination['quantity'] = $quantities[$productAttributeId] ?? 0;
+            $product_attribute_id = (int) $combination['id_product_attribute'];
+            $combination['quantity'] = $quantities[$product_attribute_id] ?? 0;
         }
-
         return $combinations;
     }
-
     /**
      * Get product attribute combination by id_product_attribute
      *
@@ -5778,46 +4362,38 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function getAttributeCombinationsById($idProductAttribute, $idLang)
+    public function get_attribute_combinations_by_id($id_product_attribute, $id_lang)
     {
-        if (!Combination::isFeatureActive()) {
+        if (!Combination::is_feature_active()) {
             return [];
         }
         $sql = 'SELECT pa.*, product_attribute_shop.*, ag.`id_attribute_group`, ag.`is_color_group`, agl.`name` AS group_name, al.`name` AS attribute_name,
 					a.`id_attribute`
-				FROM `'._DB_PREFIX_.'product_attribute` pa
-				'.Shop::addSqlAssociation('product_attribute', 'pa').'
-				LEFT JOIN `'._DB_PREFIX_.'product_attribute_combination` pac ON pac.`id_product_attribute` = pa.`id_product_attribute`
-				LEFT JOIN `'._DB_PREFIX_.'attribute` a ON a.`id_attribute` = pac.`id_attribute`
-				LEFT JOIN `'._DB_PREFIX_.'attribute_group` ag ON ag.`id_attribute_group` = a.`id_attribute_group`
-				LEFT JOIN `'._DB_PREFIX_.'attribute_lang` al ON (a.`id_attribute` = al.`id_attribute` AND al.`id_lang` = '.(int) $idLang.')
-				LEFT JOIN `'._DB_PREFIX_.'attribute_group_lang` agl ON (ag.`id_attribute_group` = agl.`id_attribute_group` AND agl.`id_lang` = '.(int) $idLang.')
-				WHERE pa.`id_product` = '.(int) $this->id.'
-				AND pa.`id_product_attribute` = '.(int) $idProductAttribute.'
+				FROM `' . _DB_PREFIX_ . 'product_attribute` pa
+				' . Shop::add_sql_association('product_attribute', 'pa') . '
+				LEFT JOIN `' . _DB_PREFIX_ . 'product_attribute_combination` pac ON pac.`id_product_attribute` = pa.`id_product_attribute`
+				LEFT JOIN `' . _DB_PREFIX_ . 'attribute` a ON a.`id_attribute` = pac.`id_attribute`
+				LEFT JOIN `' . _DB_PREFIX_ . 'attribute_group` ag ON ag.`id_attribute_group` = a.`id_attribute_group`
+				LEFT JOIN `' . _DB_PREFIX_ . 'attribute_lang` al ON (a.`id_attribute` = al.`id_attribute` AND al.`id_lang` = ' . (int) $id_lang . ')
+				LEFT JOIN `' . _DB_PREFIX_ . 'attribute_group_lang` agl ON (ag.`id_attribute_group` = agl.`id_attribute_group` AND agl.`id_lang` = ' . (int) $id_lang . ')
+				WHERE pa.`id_product` = ' . (int) $this->id . '
+				AND pa.`id_product_attribute` = ' . (int) $id_product_attribute . '
 				GROUP BY pa.`id_product_attribute`, ag.`id_attribute_group`
 				ORDER BY pa.`id_product_attribute`';
-
-        $res = Db::readOnly()->getArray($sql);
-
+        $res = Db::read_only()->get_array($sql);
         //Get quantity of each variations
         foreach ($res as $key => $row) {
-            $cacheKey = $row['id_product'].'_'.$row['id_product_attribute'].'_quantity';
-
-            if (!Cache::isStored($cacheKey)) {
-                $result = StockAvailable::getQuantityAvailableByProduct($row['id_product'], $row['id_product_attribute']);
-                Cache::store(
-                    $cacheKey,
-                    $result
-                );
+            $cache_key = $row['id_product'] . '_' . $row['id_product_attribute'] . '_quantity';
+            if (!Cache::is_stored($cache_key)) {
+                $result = Stock_Available::get_quantity_available_by_product($row['id_product'], $row['id_product_attribute']);
+                Cache::store($cache_key, $result);
                 $res[$key]['quantity'] = $result;
             } else {
-                $res[$key]['quantity'] = Cache::retrieve($cacheKey);
+                $res[$key]['quantity'] = Cache::retrieve($cache_key);
             }
         }
-
         return $res;
     }
-
     /**
      * @param int $idLang
      *
@@ -5826,51 +4402,37 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function getCombinationImages($idLang)
+    public function get_combination_images($id_lang)
     {
-        if (!Combination::isFeatureActive()) {
+        if (!Combination::is_feature_active()) {
             return false;
         }
-
-        $conn = Db::readOnly();
-        $productAttributes = $conn->getArray(
-            'SELECT `id_product_attribute`
-			FROM `'._DB_PREFIX_.'product_attribute`
-			WHERE `id_product` = '.(int) $this->id
-        );
-
-        if (!$productAttributes) {
+        $conn = Db::read_only();
+        $product_attributes = $conn->get_array('SELECT `id_product_attribute`
+			FROM `' . _DB_PREFIX_ . 'product_attribute`
+			WHERE `id_product` = ' . (int) $this->id);
+        if (!$product_attributes) {
             return false;
         }
-
         $ids = [];
-
-        foreach ($productAttributes as $productAttribute) {
-            $ids[] = (int) $productAttribute['id_product_attribute'];
+        foreach ($product_attributes as $product_attribute) {
+            $ids[] = (int) $product_attribute['id_product_attribute'];
         }
-
-        $result = $conn->getArray(
-            '
+        $result = $conn->get_array('
 			SELECT pai.`id_image`, pai.`id_product_attribute`, il.`legend`
-			FROM `'._DB_PREFIX_.'product_attribute_image` pai
-			LEFT JOIN `'._DB_PREFIX_.'image_lang` il ON (il.`id_image` = pai.`id_image`)
-			LEFT JOIN `'._DB_PREFIX_.'image` i ON (i.`id_image` = pai.`id_image`)
-			WHERE pai.`id_product_attribute` IN ('.implode(', ', $ids).') AND il.`id_lang` = '.(int) $idLang.' ORDER BY i.`position`'
-        );
-
+			FROM `' . _DB_PREFIX_ . 'product_attribute_image` pai
+			LEFT JOIN `' . _DB_PREFIX_ . 'image_lang` il ON (il.`id_image` = pai.`id_image`)
+			LEFT JOIN `' . _DB_PREFIX_ . 'image` i ON (i.`id_image` = pai.`id_image`)
+			WHERE pai.`id_product_attribute` IN (' . implode(', ', $ids) . ') AND il.`id_lang` = ' . (int) $id_lang . ' ORDER BY i.`position`');
         if (!$result) {
             return false;
         }
-
         $images = [];
-
         foreach ($result as $row) {
             $images[$row['id_product_attribute']][] = $row;
         }
-
         return $images;
     }
-
     /**
      * Check if product has attributes combinations
      *
@@ -5878,26 +4440,18 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public function hasAttributes()
+    public function has_attributes()
     {
-        if (!Combination::isFeatureActive()) {
+        if (!Combination::is_feature_active()) {
             return 0;
         }
-
-        $cacheId = 'Product::hasAttributes_'.(int)$this->id;
-        if (! Cache::isStored($cacheId)) {
-            $result = (int)Db::readOnly()->getValue(
-                (new DbQuery())
-                    ->select('COUNT(*)')
-                    ->from('product_attribute', 'pa')
-                    ->join(Shop::addSqlAssociation('product_attribute', 'pa'))
-                    ->where('pa.`id_product` = ' . (int)$this->id)
-            );
-            Cache::store($cacheId, $result);
+        $cache_id = 'Product::hasAttributes_' . (int) $this->id;
+        if (!Cache::is_stored($cache_id)) {
+            $result = (int) Db::read_only()->get_value((new Db_Query())->select('COUNT(*)')->from('product_attribute', 'pa')->join(Shop::add_sql_association('product_attribute', 'pa'))->where('pa.`id_product` = ' . (int) $this->id));
+            Cache::store($cache_id, $result);
         }
-        return (int)Cache::retrieve($cacheId);
+        return (int) Cache::retrieve($cache_id);
     }
-
     /**
      * Gets carriers assigned to the product
      *
@@ -5905,19 +4459,16 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function getCarriers()
+    public function get_carriers()
     {
-        return Db::readOnly()->getArray(
-            '
+        return Db::read_only()->get_array('
 			SELECT c.*
-			FROM `'._DB_PREFIX_.'product_carrier` pc
-			INNER JOIN `'._DB_PREFIX_.'carrier` c
+			FROM `' . _DB_PREFIX_ . 'product_carrier` pc
+			INNER JOIN `' . _DB_PREFIX_ . 'carrier` c
 				ON (c.`id_reference` = pc.`id_carrier_reference` AND c.`deleted` = 0)
-			WHERE pc.`id_product` = '.(int) $this->id.'
-				AND pc.`id_shop` = '.(int) $this->id_shop
-        );
+			WHERE pc.`id_product` = ' . (int) $this->id . '
+				AND pc.`id_shop` = ' . (int) $this->id_shop);
     }
-
     /**
      * Sets carriers assigned to the product
      *
@@ -5925,11 +4476,10 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public function setCarriers($carrierList): void
+    public function set_carriers($carrier_list): void
     {
-        static::associateProductWithCarriers($this->id, $carrierList, [$this->id_shop]);
+        static::associate_product_with_carriers($this->id, $carrier_list, [$this->id_shop]);
     }
-
     /**
      * Associate product with list of carriers
      *
@@ -5939,34 +4489,25 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public static function associateProductWithCarriers($productId, array $carrierIds, array $shopIds): void
+    public static function associate_product_with_carriers($product_id, array $carrier_ids, array $shop_ids): void
     {
-        $productId = (int)$productId;
-        $conn = Db::getInstance();
-
+        $product_id = (int) $product_id;
+        $conn = Db::get_instance();
         /** @var int[] $carrierIds */
-        $carrierIds = array_unique(array_filter(array_map(intval(...), $carrierIds)));
-
+        $carrier_ids = array_unique(array_filter(array_map(intval(...), $carrier_ids)));
         /** @var int[] $shopIds */
-        $shopIds = array_unique(array_filter(array_map(intval(...), $shopIds)));
-
+        $shop_ids = array_unique(array_filter(array_map(intval(...), $shop_ids)));
         $data = [];
-        foreach ($shopIds as $shopId) {
-            foreach ($carrierIds as $carrierId) {
-                $data[] = [
-                    'id_product' => $productId,
-                    'id_carrier_reference' => $carrierId,
-                    'id_shop' => $shopId,
-                ];
+        foreach ($shop_ids as $shop_id) {
+            foreach ($carrier_ids as $carrier_id) {
+                $data[] = ['id_product' => $product_id, 'id_carrier_reference' => $carrier_id, 'id_shop' => $shop_id];
             }
-            $conn->delete('product_carrier', "id_product = $productId AND id_shop = $shopId");
+            $conn->delete('product_carrier', "id_product = {$product_id} AND id_shop = {$shop_id}");
         }
-
         if ($data) {
             $conn->insert('product_carrier', $data, false, true, Db::INSERT_IGNORE);
         }
     }
-
     /**
      * Get product images and legends
      *
@@ -5977,19 +4518,16 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function getImages($idLang, ?Context $context = null)
+    public function get_images($id_lang, ?Context $context = null)
     {
-        return Db::readOnly()->getArray(
-            '
+        return Db::read_only()->get_array('
 			SELECT image_shop.`cover`, i.`id_image`, il.`legend`, i.`position`
-			FROM `'._DB_PREFIX_.'image` i
-			'.Shop::addSqlAssociation('image', 'i').'
-			LEFT JOIN `'._DB_PREFIX_.'image_lang` il ON (i.`id_image` = il.`id_image` AND il.`id_lang` = '.(int) $idLang.')
-			WHERE i.`id_product` = '.(int) $this->id.'
-			ORDER BY `position`'
-        );
+			FROM `' . _DB_PREFIX_ . 'image` i
+			' . Shop::add_sql_association('image', 'i') . '
+			LEFT JOIN `' . _DB_PREFIX_ . 'image_lang` il ON (i.`id_image` = il.`id_image` AND il.`id_lang` = ' . (int) $id_lang . ')
+			WHERE i.`id_product` = ' . (int) $this->id . '
+			ORDER BY `position`');
     }
-
     /**
      * Get product price
      * Same as static function getPriceStatic, no need to specify product id
@@ -6003,22 +4541,13 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public function getPrice(
-        $tax = true,
-        $idProductAttribute = null,
-        $decimals = _TB_PRICE_DATABASE_PRECISION_,
-        $divisor = null,
-        $onlyReduc = false,
-        $usereduc = true,
-        $quantity = 1
-    ) {
-        return static::getPriceStatic((int) $this->id, $tax, $idProductAttribute, $decimals, $divisor, $onlyReduc, $usereduc, $quantity);
+    public function get_price($tax = true, $id_product_attribute = null, $decimals = _TB_PRICE_DATABASE_PRECISION_, $divisor = null, $only_reduc = false, $usereduc = true, $quantity = 1)
+    {
+        return static::get_price_static((int) $this->id, $tax, $id_product_attribute, $decimals, $divisor, $only_reduc, $usereduc, $quantity);
     }
-
     /*
-    ** Customization fields' label management
-    */
-
+     ** Customization fields' label management
+     */
     /**
      * @param bool $tax
      * @param int|null $idProductAttribute
@@ -6032,77 +4561,54 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public function getPublicPrice(
-        $tax = true,
-        $idProductAttribute = null,
-        $decimals = _TB_PRICE_DATABASE_PRECISION_,
-        $divisor = null,
-        $onlyReduc = false,
-        $usereduc = true,
-        $quantity = 1
-    ) {
-        $specificPriceOutput = null;
-
-        return static::getPriceStatic((int) $this->id, $tax, $idProductAttribute, $decimals, $divisor, $onlyReduc, $usereduc, $quantity, false, null, null, null, $specificPriceOutput, true, true, null, false);
+    public function get_public_price($tax = true, $id_product_attribute = null, $decimals = _TB_PRICE_DATABASE_PRECISION_, $divisor = null, $only_reduc = false, $usereduc = true, $quantity = 1)
+    {
+        $specific_price_output = null;
+        return static::get_price_static((int) $this->id, $tax, $id_product_attribute, $decimals, $divisor, $only_reduc, $usereduc, $quantity, false, null, null, null, $specific_price_output, true, true, null, false);
     }
-
     /**
      * @return int
      *
      * @throws PrestaShopException
      */
-    public function getIdProductAttributeMostExpensive()
+    public function get_id_product_attribute_most_expensive()
     {
-        if (!Combination::isFeatureActive()) {
+        if (!Combination::is_feature_active()) {
             return 0;
         }
-
-        return (int) Db::readOnly()->getValue(
-            '
+        return (int) Db::read_only()->get_value('
 		SELECT pa.`id_product_attribute`
-		FROM `'._DB_PREFIX_.'product_attribute` pa
-		'.Shop::addSqlAssociation('product_attribute', 'pa').'
-		WHERE pa.`id_product` = '.(int) $this->id.'
-		ORDER BY product_attribute_shop.`price` DESC'
-        );
+		FROM `' . _DB_PREFIX_ . 'product_attribute` pa
+		' . Shop::add_sql_association('product_attribute', 'pa') . '
+		WHERE pa.`id_product` = ' . (int) $this->id . '
+		ORDER BY product_attribute_shop.`price` DESC');
     }
-
     /**
      * @return int
      *
      * @throws PrestaShopException
      */
-    public function getDefaultIdProductAttribute()
+    public function get_default_id_product_attribute()
     {
-        return static::getProductDefaultCombinationId((int)$this->id);
+        return static::get_product_default_combination_id((int) $this->id);
     }
-
     /**
      *
      *
      * @throws PrestaShopException
      */
-    public static function getProductDefaultCombinationId(int $productId): int
+    public static function get_product_default_combination_id(int $product_id): int
     {
-        if (!Combination::isFeatureActive()) {
+        if (!Combination::is_feature_active()) {
             return 0;
         }
-
-        $cacheId = 'Product::getProductDefaultCombinationId_' . $productId;
-        if (! Cache::isStored($cacheId)) {
-            $result = (int)Db::readOnly()->getValue(
-                (new DbQuery())
-                    ->select('pa.`id_product_attribute`')
-                    ->from('product_attribute', 'pa')
-                    ->join(Shop::addSqlAssociation('product_attribute', 'pa'))
-                    ->where('pa.`id_product` = ' . $productId)
-                    ->where('product_attribute_shop.default_on = 1')
-            );
-            Cache::store($cacheId, $result);
+        $cache_id = 'Product::getProductDefaultCombinationId_' . $product_id;
+        if (!Cache::is_stored($cache_id)) {
+            $result = (int) Db::read_only()->get_value((new Db_Query())->select('pa.`id_product_attribute`')->from('product_attribute', 'pa')->join(Shop::add_sql_association('product_attribute', 'pa'))->where('pa.`id_product` = ' . $product_id)->where('product_attribute_shop.default_on = 1'));
+            Cache::store($cache_id, $result);
         }
-        return Cache::retrieve($cacheId);
+        return Cache::retrieve($cache_id);
     }
-
     /**
      * @param bool $notax
      * @param bool $idProductAttribute
@@ -6112,11 +4618,10 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public function getPriceWithoutReduct($notax = false, $idProductAttribute = false, $decimals = _TB_PRICE_DATABASE_PRECISION_)
+    public function get_price_without_reduct($notax = false, $id_product_attribute = false, $decimals = _TB_PRICE_DATABASE_PRECISION_)
     {
-        return static::getPriceStatic((int) $this->id, !$notax, $idProductAttribute, $decimals, null, false, false);
+        return static::get_price_static((int) $this->id, !$notax, $id_product_attribute, $decimals, null, false, false);
     }
-
     /**
      * Check product availability
      *
@@ -6127,25 +4632,21 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function checkQty($qty)
+    public function check_qty($qty)
     {
-        if (Pack::isPack((int) $this->id) && !Pack::isInStock((int) $this->id)) {
+        if (Pack::is_pack((int) $this->id) && !Pack::is_in_stock((int) $this->id)) {
             return false;
         }
-
-        if (static::isAvailableWhenOutOfStock(StockAvailable::outOfStock($this->id))) {
+        if (static::is_available_when_out_of_stock(Stock_Available::out_of_stock($this->id))) {
             return true;
         }
-
         if (isset($this->id_product_attribute)) {
-            $idProductAttribute = $this->id_product_attribute;
+            $id_product_attribute = $this->id_product_attribute;
         } else {
-            $idProductAttribute = 0;
+            $id_product_attribute = 0;
         }
-
-        return ($qty <= StockAvailable::getQuantityAvailableByProduct($this->id, $idProductAttribute));
+        return $qty <= Stock_Available::get_quantity_available_by_product($this->id, $id_product_attribute);
     }
-
     /**
      * Check if there is no default attribute and create it if not
      *
@@ -6153,54 +4654,35 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public function checkDefaultAttributes()
+    public function check_default_attributes()
     {
         if (!$this->id) {
             return false;
         }
-        $productId = (int)$this->id;
-        $conn = Db::getInstance();
+        $product_id = (int) $this->id;
+        $conn = Db::get_instance();
         $result = true;
-
         // update shop data
-        $data = $conn->getArray(
-            (new DbQuery())
-            ->select('pas.id_shop')
-            ->select('SUM(CASE WHEN pas.default_on THEN 1 ELSE 0 END) AS has_default_on')
-            ->select('MIN(pas.id_product_attribute) AS min_id_product_attribute')
-            ->from('product_attribute_shop', 'pas')
-            ->where('pas.id_product = ' . $productId)
-            ->groupBy('pas.id_shop')
-        );
+        $data = $conn->get_array((new Db_Query())->select('pas.id_shop')->select('SUM(CASE WHEN pas.default_on THEN 1 ELSE 0 END) AS has_default_on')->select('MIN(pas.id_product_attribute) AS min_id_product_attribute')->from('product_attribute_shop', 'pas')->where('pas.id_product = ' . $product_id)->group_by('pas.id_shop'));
         foreach ($data as $row) {
-            if (! $row['has_default_on']) {
-                $shopId = (int)$row['id_shop'];
-                $min = (int)$row['min_id_product_attribute'];
+            if (!$row['has_default_on']) {
+                $shop_id = (int) $row['id_shop'];
+                $min = (int) $row['min_id_product_attribute'];
                 if ($min) {
-                    $result = $conn->update('product_attribute_shop', ['default_on' => 1], 'id_shop = '.$shopId.' AND id_product_attribute = ' . $min) && $result;
+                    $result = $conn->update('product_attribute_shop', ['default_on' => 1], 'id_shop = ' . $shop_id . ' AND id_product_attribute = ' . $min) && $result;
                 }
             }
         }
-
         // update base table entry
-        $row = $conn->getRow(
-            (new DbQuery())
-            ->select('SUM(CASE WHEN pa.default_on THEN 1 ELSE 0 END) AS has_default_on')
-            ->select('MIN(pa.id_product_attribute) AS min_id_product_attribute')
-            ->from('product_attribute', 'pa')
-            ->where('pa.id_product = ' . $productId)
-        );
-
+        $row = $conn->get_row((new Db_Query())->select('SUM(CASE WHEN pa.default_on THEN 1 ELSE 0 END) AS has_default_on')->select('MIN(pa.id_product_attribute) AS min_id_product_attribute')->from('product_attribute', 'pa')->where('pa.id_product = ' . $product_id));
         if ($row && !$row['has_default_on']) {
-            $min = (int)$row['min_id_product_attribute'];
+            $min = (int) $row['min_id_product_attribute'];
             if ($min) {
                 $result = $conn->update('product_attribute', ['default_on' => 1], 'id_product_attribute = ' . $min) && $result;
             }
         }
-
         return $result;
     }
-
     /**
      * Get all available attribute groups
      *
@@ -6211,9 +4693,9 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function getAttributesGroups($idLang)
+    public function get_attributes_groups($id_lang)
     {
-        if (!Combination::isFeatureActive()) {
+        if (!Combination::is_feature_active()) {
             return [];
         }
         $sql = 'SELECT ag.`id_attribute_group`, ag.`is_color_group`, agl.`name` AS group_name, agl.`public_name` AS public_group_name,
@@ -6222,24 +4704,22 @@ class ProductCore extends ObjectModel implements InitializationCallback
 					product_attribute_shop.`default_on`, pa.`reference`, product_attribute_shop.`unit_price_impact`,
 					product_attribute_shop.`minimal_quantity`, product_attribute_shop.`available_date`, ag.`group_type`,
 					product_attribute_shop.`width`, product_attribute_shop.`height`, product_attribute_shop.`depth`
-				FROM `'._DB_PREFIX_.'product_attribute` pa
-				'.Shop::addSqlAssociation('product_attribute', 'pa').'
-				'.static::sqlStock('pa', 'pa').'
-				LEFT JOIN `'._DB_PREFIX_.'product_attribute_combination` pac ON (pac.`id_product_attribute` = pa.`id_product_attribute`)
-				LEFT JOIN `'._DB_PREFIX_.'attribute` a ON (a.`id_attribute` = pac.`id_attribute`)
-				LEFT JOIN `'._DB_PREFIX_.'attribute_group` ag ON (ag.`id_attribute_group` = a.`id_attribute_group`)
-				LEFT JOIN `'._DB_PREFIX_.'attribute_lang` al ON (a.`id_attribute` = al.`id_attribute`)
-				LEFT JOIN `'._DB_PREFIX_.'attribute_group_lang` agl ON (ag.`id_attribute_group` = agl.`id_attribute_group`)
-				'.Shop::addSqlAssociation('attribute', 'a').'
-				WHERE pa.`id_product` = '.(int) $this->id.'
-					AND al.`id_lang` = '.(int) $idLang.'
-					AND agl.`id_lang` = '.(int) $idLang.'
+				FROM `' . _DB_PREFIX_ . 'product_attribute` pa
+				' . Shop::add_sql_association('product_attribute', 'pa') . '
+				' . static::sql_stock('pa', 'pa') . '
+				LEFT JOIN `' . _DB_PREFIX_ . 'product_attribute_combination` pac ON (pac.`id_product_attribute` = pa.`id_product_attribute`)
+				LEFT JOIN `' . _DB_PREFIX_ . 'attribute` a ON (a.`id_attribute` = pac.`id_attribute`)
+				LEFT JOIN `' . _DB_PREFIX_ . 'attribute_group` ag ON (ag.`id_attribute_group` = a.`id_attribute_group`)
+				LEFT JOIN `' . _DB_PREFIX_ . 'attribute_lang` al ON (a.`id_attribute` = al.`id_attribute`)
+				LEFT JOIN `' . _DB_PREFIX_ . 'attribute_group_lang` agl ON (ag.`id_attribute_group` = agl.`id_attribute_group`)
+				' . Shop::add_sql_association('attribute', 'a') . '
+				WHERE pa.`id_product` = ' . (int) $this->id . '
+					AND al.`id_lang` = ' . (int) $id_lang . '
+					AND agl.`id_lang` = ' . (int) $id_lang . '
 				GROUP BY id_attribute_group, id_product_attribute
 				ORDER BY ag.`position` ASC, a.`position` ASC, agl.`name` ASC';
-
-        return Db::readOnly()->getArray($sql);
+        return Db::read_only()->get_array($sql);
     }
-
     /**
      * Get product accessories
      *
@@ -6251,7 +4731,7 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function getAccessories($idLang, $active = true)
+    public function get_accessories($id_lang, $active = true)
     {
         $sql = 'SELECT p.*, product_shop.*, stock.out_of_stock, IFNULL(stock.quantity, 0) as quantity, pl.`description`, pl.`description_short`, pl.`link_rewrite`,
 					pl.`meta_description`, pl.`meta_keywords`, pl.`meta_title`, pl.`name`, pl.`available_now`, pl.`available_later`,
@@ -6259,43 +4739,38 @@ class ProductCore extends ObjectModel implements InitializationCallback
 					DATEDIFF(
 						p.`date_add`,
 						DATE_SUB(
-							"'.date('Y-m-d').' 00:00:00",
-							INTERVAL '.(Validate::isUnsignedInt(Configuration::get('PS_NB_DAYS_NEW_PRODUCT')) ? Configuration::get('PS_NB_DAYS_NEW_PRODUCT') : 20).' DAY
+							"' . date('Y-m-d') . ' 00:00:00",
+							INTERVAL ' . (Validate::is_unsigned_int(Configuration::get('PS_NB_DAYS_NEW_PRODUCT')) ? Configuration::get('PS_NB_DAYS_NEW_PRODUCT') : 20) . ' DAY
 						)
 					) > 0 AS new
-				FROM `'._DB_PREFIX_.'accessory`
-				LEFT JOIN `'._DB_PREFIX_.'product` p ON p.`id_product` = `id_product_2`
-				'.Shop::addSqlAssociation('product', 'p').'
-				LEFT JOIN `'._DB_PREFIX_.'product_attribute_shop` product_attribute_shop
-					ON (p.`id_product` = product_attribute_shop.`id_product` AND product_attribute_shop.`default_on` = 1 AND product_attribute_shop.id_shop='.(int) $this->id_shop.')
-				LEFT JOIN `'._DB_PREFIX_.'product_lang` pl ON (
+				FROM `' . _DB_PREFIX_ . 'accessory`
+				LEFT JOIN `' . _DB_PREFIX_ . 'product` p ON p.`id_product` = `id_product_2`
+				' . Shop::add_sql_association('product', 'p') . '
+				LEFT JOIN `' . _DB_PREFIX_ . 'product_attribute_shop` product_attribute_shop
+					ON (p.`id_product` = product_attribute_shop.`id_product` AND product_attribute_shop.`default_on` = 1 AND product_attribute_shop.id_shop=' . (int) $this->id_shop . ')
+				LEFT JOIN `' . _DB_PREFIX_ . 'product_lang` pl ON (
 					p.`id_product` = pl.`id_product`
-					AND pl.`id_lang` = '.(int) $idLang.Shop::addSqlRestrictionOnLang('pl').'
+					AND pl.`id_lang` = ' . (int) $id_lang . Shop::add_sql_restriction_on_lang('pl') . '
 				)
-				LEFT JOIN `'._DB_PREFIX_.'category_lang` cl ON (
+				LEFT JOIN `' . _DB_PREFIX_ . 'category_lang` cl ON (
 					product_shop.`id_category_default` = cl.`id_category`
-					AND cl.`id_lang` = '.(int) $idLang.Shop::addSqlRestrictionOnLang('cl').'
+					AND cl.`id_lang` = ' . (int) $id_lang . Shop::add_sql_restriction_on_lang('cl') . '
 				)
-				LEFT JOIN `'._DB_PREFIX_.'image_shop` image_shop
-					ON (image_shop.`id_product` = p.`id_product` AND image_shop.cover=1 AND image_shop.id_shop='.(int) $this->id_shop.')
-				LEFT JOIN `'._DB_PREFIX_.'image_lang` il ON (image_shop.`id_image` = il.`id_image` AND il.`id_lang` = '.(int) $idLang.')
-				LEFT JOIN `'._DB_PREFIX_.'manufacturer` m ON (p.`id_manufacturer`= m.`id_manufacturer`)
-				'.static::sqlStock('p', 0).'
-				WHERE `id_product_1` = '.(int) $this->id.
-            ($active ? ' AND product_shop.`active` = 1 AND product_shop.`visibility` != \'none\'' : '').'
+				LEFT JOIN `' . _DB_PREFIX_ . 'image_shop` image_shop
+					ON (image_shop.`id_product` = p.`id_product` AND image_shop.cover=1 AND image_shop.id_shop=' . (int) $this->id_shop . ')
+				LEFT JOIN `' . _DB_PREFIX_ . 'image_lang` il ON (image_shop.`id_image` = il.`id_image` AND il.`id_lang` = ' . (int) $id_lang . ')
+				LEFT JOIN `' . _DB_PREFIX_ . 'manufacturer` m ON (p.`id_manufacturer`= m.`id_manufacturer`)
+				' . static::sql_stock('p', 0) . '
+				WHERE `id_product_1` = ' . (int) $this->id . ($active ? ' AND product_shop.`active` = 1 AND product_shop.`visibility` != \'none\'' : '') . '
 				GROUP BY product_shop.id_product';
-
-        if (!$result = Db::readOnly()->getArray($sql)) {
+        if (!$result = Db::read_only()->get_array($sql)) {
             return false;
         }
-
         foreach ($result as &$row) {
-            $row['id_product_attribute'] = static::getDefaultAttribute((int) $row['id_product']);
+            $row['id_product_attribute'] = static::get_default_attribute((int) $row['id_product']);
         }
-
-        return static::getProductsProperties($idLang, $result);
+        return static::get_products_properties($id_lang, $result);
     }
-
     /**
      * Link accessories with product
      *
@@ -6304,19 +4779,12 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function changeAccessories($accessoriesId): void
+    public function change_accessories($accessories_id): void
     {
-        foreach ($accessoriesId as $idProduct2) {
-            Db::getInstance()->insert(
-                'accessory',
-                [
-                    'id_product_1' => (int) $this->id,
-                    'id_product_2' => (int) $idProduct2,
-                ]
-            );
+        foreach ($accessories_id as $id_product2) {
+            Db::get_instance()->insert('accessory', ['id_product_1' => (int) $this->id, 'id_product_2' => (int) $id_product2]);
         }
     }
-
     /**
      * Add new feature to product
      *
@@ -6328,13 +4796,11 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function addFeaturesCustomToDB($idValue, $idLang, $cust)
+    public function add_features_custom_to_db($id_value, $id_lang, $cust)
     {
-        $row = ['id_feature_value' => (int) $idValue, 'id_lang' => (int) $idLang, 'value' => pSQL($cust)];
-
-        return Db::getInstance()->insert('feature_value_lang', $row);
+        $row = ['id_feature_value' => (int) $id_value, 'id_lang' => (int) $id_lang, 'value' => p_sql($cust)];
+        return Db::get_instance()->insert('feature_value_lang', $row);
     }
-
     /**
      * @param int $featureValueId
      * @param int $langId
@@ -6343,21 +4809,13 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function addFeaturesDisplayableToDb($featureValueId, $langId, $displayable)
+    public function add_features_displayable_to_db($feature_value_id, $lang_id, $displayable)
     {
-
-        if (!$displayable = pSQL($displayable)) {
+        if (!$displayable = p_sql($displayable)) {
             return false;
         }
-
-        return Db::getInstance()->insert('feature_product_lang', [
-            'id_product' => (int)$this->id,
-            'id_feature_value' => (int)$featureValueId,
-            'id_lang' => (int)$langId,
-            'displayable' => $displayable,
-        ]);
+        return Db::get_instance()->insert('feature_product_lang', ['id_product' => (int) $this->id, 'id_feature_value' => (int) $feature_value_id, 'id_lang' => (int) $lang_id, 'displayable' => $displayable]);
     }
-
     /**
      * Get the link of the product page of this product
      *
@@ -6365,15 +4823,13 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @return string
      * @throws PrestaShopException
      */
-    public function getLink(?Context $context = null)
+    public function get_link(?Context $context = null)
     {
         if (!$context) {
-            $context = Context::getContext();
+            $context = Context::get_context();
         }
-
-        return $context->link->getProductLink($this);
+        return $context->link->get_product_link($this);
     }
-
     /**
      * @param int $idLang
      *
@@ -6382,24 +4838,20 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function getTags($idLang)
+    public function get_tags($id_lang)
     {
-        if (!$this->isFullyLoaded && is_null($this->tags)) {
-            $this->tags = Tag::getProductTags($this->id);
+        if (!$this->is_fully_loaded && is_null($this->tags)) {
+            $this->tags = Tag::get_product_tags($this->id);
         }
-
-        if (!($this->tags && array_key_exists($idLang, $this->tags))) {
+        if (!($this->tags && array_key_exists($id_lang, $this->tags))) {
             return '';
         }
-
         $result = '';
-        foreach ($this->tags[$idLang] as $tagName) {
-            $result .= $tagName.', ';
+        foreach ($this->tags[$id_lang] as $tag_name) {
+            $result .= $tag_name . ', ';
         }
-
         return rtrim($result, ', ');
     }
-
     /**
      * @param int $idLang
      *
@@ -6408,11 +4860,10 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function getFrontFeatures($idLang)
+    public function get_front_features($id_lang)
     {
-        return static::getFrontFeaturesStatic($idLang, $this->id);
+        return static::get_front_features_static($id_lang, $this->id);
     }
-
     /**
      * @param int $idLang
      *
@@ -6421,11 +4872,10 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function getAttachments($idLang)
+    public function get_attachments($id_lang)
     {
-        return static::getAttachmentsStatic($idLang, $this->id);
+        return static::get_attachments_static($id_lang, $this->id);
     }
-
     /**
      * @param int $uploadableFiles
      * @param int $textFields
@@ -6434,28 +4884,25 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public function createLabels($uploadableFiles, $textFields)
+    public function create_labels($uploadable_files, $text_fields)
     {
-        $languages = Language::getLanguages();
-        if ((int) $uploadableFiles > 0) {
-            for ($i = 0; $i < (int) $uploadableFiles; $i++) {
-                if (!$this->_createLabel($languages, static::CUSTOMIZE_FILE)) {
+        $languages = Language::get_languages();
+        if ((int) $uploadable_files > 0) {
+            for ($i = 0; $i < (int) $uploadable_files; $i++) {
+                if (!$this->_create_label($languages, static::CUSTOMIZE_FILE)) {
                     return false;
                 }
             }
         }
-
-        if ((int) $textFields > 0) {
-            for ($i = 0; $i < (int) $textFields; $i++) {
-                if (!$this->_createLabel($languages, static::CUSTOMIZE_TEXTFIELD)) {
+        if ((int) $text_fields > 0) {
+            for ($i = 0; $i < (int) $text_fields; $i++) {
+                if (!$this->_create_label($languages, static::CUSTOMIZE_TEXTFIELD)) {
                     return false;
                 }
             }
         }
-
         return true;
     }
-
     /**
      * @param array $languages
      * @param int $type
@@ -6464,186 +4911,134 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    protected function _createLabel($languages, $type)
+    protected function _create_label($languages, $type)
     {
         // Label insertion
-        $conn = Db::getInstance();
-        if (!$conn->execute(
-            '
-			INSERT INTO `'._DB_PREFIX_.'customization_field` (`id_product`, `type`, `required`)
-			VALUES ('.(int) $this->id.', '.(int) $type.', 0)'
-        ) ||
-            !$idCustomizationField = (int) $conn->Insert_ID()
-        ) {
+        $conn = Db::get_instance();
+        if (!$conn->execute('
+			INSERT INTO `' . _DB_PREFIX_ . 'customization_field` (`id_product`, `type`, `required`)
+			VALUES (' . (int) $this->id . ', ' . (int) $type . ', 0)') || !$id_customization_field = (int) $conn->Insert_ID()) {
             return false;
         }
-
         // Multilingual label name creation
         $values = '';
-
         foreach ($languages as $language) {
-            foreach (Shop::getContextListShopID() as $idShop) {
-                $values .= '('.(int) $idCustomizationField.', '.(int) $language['id_lang'].', '.$idShop.',\'\'), ';
+            foreach (Shop::get_context_list_shop_id() as $id_shop) {
+                $values .= '(' . (int) $id_customization_field . ', ' . (int) $language['id_lang'] . ', ' . $id_shop . ',\'\'), ';
             }
         }
-
         $values = rtrim($values, ', ');
-        if (!$conn->execute(
-            '
-			INSERT INTO `'._DB_PREFIX_.'customization_field_lang` (`id_customization_field`, `id_lang`, `id_shop`, `name`)
-			VALUES '.$values
-        )
-        ) {
+        if (!$conn->execute('
+			INSERT INTO `' . _DB_PREFIX_ . 'customization_field_lang` (`id_customization_field`, `id_lang`, `id_shop`, `name`)
+			VALUES ' . $values)) {
             return false;
         }
-
         // Set cache of feature detachable to true
-        Configuration::updateGlobalValue('PS_CUSTOMIZATION_FEATURE_ACTIVE', '1');
-
+        Configuration::update_global_value('PS_CUSTOMIZATION_FEATURE_ACTIVE', '1');
         return true;
     }
-
     /**
      * @return bool
      *
      * @throws PrestaShopException
      */
-    public function updateLabels()
+    public function update_labels()
     {
-        $hasRequiredFields = 0;
-        $conn = Db::getInstance();
+        $has_required_fields = 0;
+        $conn = Db::get_instance();
         foreach ($_POST as $field => $value) {
             /* Label update */
             if (str_starts_with((string) $field, 'label_')) {
-                if (!$tmp = $this->_checkLabelField($field, $value)) {
+                if (!$tmp = $this->_check_label_field($field, $value)) {
                     return false;
                 }
                 /* Multilingual label name update */
-                foreach (Shop::getContextListShopID() as $idShop) {
-                    if (!$conn->execute(
-                        'INSERT INTO `'._DB_PREFIX_.'customization_field_lang`
-                    (`id_customization_field`, `id_lang`, `id_shop`, `name`) VALUES ('.(int) $tmp[2].', '.(int) $tmp[3].', '.$idShop.', \''.pSQL($value).'\')
-                    ON DUPLICATE KEY UPDATE `name` = \''.pSQL($value).'\''
-                    )
-                    ) {
+                foreach (Shop::get_context_list_shop_id() as $id_shop) {
+                    if (!$conn->execute('INSERT INTO `' . _DB_PREFIX_ . 'customization_field_lang`
+                    (`id_customization_field`, `id_lang`, `id_shop`, `name`) VALUES (' . (int) $tmp[2] . ', ' . (int) $tmp[3] . ', ' . $id_shop . ', \'' . p_sql($value) . '\')
+                    ON DUPLICATE KEY UPDATE `name` = \'' . p_sql($value) . '\'')) {
                         return false;
                     }
                 }
-
-                $isRequired = isset($_POST['require_'.(int) $tmp[1].'_'.(int) $tmp[2]]) ? 1 : 0;
-                $hasRequiredFields |= $isRequired;
+                $is_required = isset($_POST['require_' . (int) $tmp[1] . '_' . (int) $tmp[2]]) ? 1 : 0;
+                $has_required_fields |= $is_required;
                 /* Require option update */
-                if (!$conn->execute(
-                    'UPDATE `'._DB_PREFIX_.'customization_field`
-					SET `required` = '.(int) $isRequired.'
-					WHERE `id_customization_field` = '.(int) $tmp[2]
-                )
-                ) {
+                if (!$conn->execute('UPDATE `' . _DB_PREFIX_ . 'customization_field`
+					SET `required` = ' . (int) $is_required . '
+					WHERE `id_customization_field` = ' . (int) $tmp[2])) {
                     return false;
                 }
             }
         }
-
-        if ($hasRequiredFields && !ObjectModel::updateMultishopTable('product', ['customizable' => 2], 'a.id_product = '.(int) $this->id)) {
+        if ($has_required_fields && !Object_Model::update_multishop_table('product', ['customizable' => 2], 'a.id_product = ' . (int) $this->id)) {
             return false;
         }
-
-        if (!$this->_deleteOldLabels()) {
+        if (!$this->_delete_old_labels()) {
             return false;
         }
-
         return true;
     }
-
     /**
      * @param string $field
      * @param string $value
      *
      * @return array|false
      */
-    protected function _checkLabelField($field, $value)
+    protected function _check_label_field($field, $value)
     {
-        if (!Validate::isLabel($value)) {
+        if (!Validate::is_label($value)) {
             return false;
         }
         $tmp = explode('_', $field);
         if (count($tmp) < 4) {
             return false;
         }
-
         return $tmp;
     }
-
     /**
      * @return bool
      *
      * @throws PrestaShopException
      */
-    protected function _deleteOldLabels()
+    protected function _delete_old_labels()
     {
-        $max = [
-            static::CUSTOMIZE_FILE      => (int) $this->uploadable_files,
-            static::CUSTOMIZE_TEXTFIELD => (int) $this->text_fields,
-        ];
-
+        $max = [static::CUSTOMIZE_FILE => (int) $this->uploadable_files, static::CUSTOMIZE_TEXTFIELD => (int) $this->text_fields];
         /* Get customization field ids */
-        $result = Db::readOnly()->getArray(
-            'SELECT `id_customization_field`, `type`
-			FROM `'._DB_PREFIX_.'customization_field`
-			WHERE `id_product` = '.(int) $this->id.'
-			ORDER BY `id_customization_field`'
-        );
-
+        $result = Db::read_only()->get_array('SELECT `id_customization_field`, `type`
+			FROM `' . _DB_PREFIX_ . 'customization_field`
+			WHERE `id_product` = ' . (int) $this->id . '
+			ORDER BY `id_customization_field`');
         if (empty($result)) {
             return true;
         }
-
-        $customizationFields = [
-            static::CUSTOMIZE_FILE      => [],
-            static::CUSTOMIZE_TEXTFIELD => [],
-        ];
-
+        $customization_fields = [static::CUSTOMIZE_FILE => [], static::CUSTOMIZE_TEXTFIELD => []];
         foreach ($result as $row) {
-            $customizationFields[(int) $row['type']][] = (int) $row['id_customization_field'];
+            $customization_fields[(int) $row['type']][] = (int) $row['id_customization_field'];
         }
-
-        $extraFile = count($customizationFields[static::CUSTOMIZE_FILE]) - $max[static::CUSTOMIZE_FILE];
-        $extraText = count($customizationFields[static::CUSTOMIZE_TEXTFIELD]) - $max[static::CUSTOMIZE_TEXTFIELD];
-
+        $extra_file = count($customization_fields[static::CUSTOMIZE_FILE]) - $max[static::CUSTOMIZE_FILE];
+        $extra_text = count($customization_fields[static::CUSTOMIZE_TEXTFIELD]) - $max[static::CUSTOMIZE_TEXTFIELD];
         /* If too much inside the database, deletion */
-        $conn = Db::getInstance();
-        if ($extraFile > 0 && count($customizationFields[static::CUSTOMIZE_FILE]) - $extraFile >= 0 &&
-            (!$conn->execute(
-                'DELETE `'._DB_PREFIX_.'customization_field`,`'._DB_PREFIX_.'customization_field_lang`
-			FROM `'._DB_PREFIX_.'customization_field` JOIN `'._DB_PREFIX_.'customization_field_lang`
-			WHERE `'._DB_PREFIX_.'customization_field`.`id_product` = '.(int) $this->id.'
-			AND `'._DB_PREFIX_.'customization_field`.`type` = '.static::CUSTOMIZE_FILE.'
-			AND `'._DB_PREFIX_.'customization_field_lang`.`id_customization_field` = `'._DB_PREFIX_.'customization_field`.`id_customization_field`
-			AND `'._DB_PREFIX_.'customization_field`.`id_customization_field` >= '.$customizationFields[static::CUSTOMIZE_FILE][count($customizationFields[static::CUSTOMIZE_FILE]) - $extraFile]
-            ))
-        ) {
+        $conn = Db::get_instance();
+        if ($extra_file > 0 && count($customization_fields[static::CUSTOMIZE_FILE]) - $extra_file >= 0 && !$conn->execute('DELETE `' . _DB_PREFIX_ . 'customization_field`,`' . _DB_PREFIX_ . 'customization_field_lang`
+			FROM `' . _DB_PREFIX_ . 'customization_field` JOIN `' . _DB_PREFIX_ . 'customization_field_lang`
+			WHERE `' . _DB_PREFIX_ . 'customization_field`.`id_product` = ' . (int) $this->id . '
+			AND `' . _DB_PREFIX_ . 'customization_field`.`type` = ' . static::CUSTOMIZE_FILE . '
+			AND `' . _DB_PREFIX_ . 'customization_field_lang`.`id_customization_field` = `' . _DB_PREFIX_ . 'customization_field`.`id_customization_field`
+			AND `' . _DB_PREFIX_ . 'customization_field`.`id_customization_field` >= ' . $customization_fields[static::CUSTOMIZE_FILE][count($customization_fields[static::CUSTOMIZE_FILE]) - $extra_file])) {
             return false;
         }
-
-        if ($extraText > 0 && count($customizationFields[static::CUSTOMIZE_TEXTFIELD]) - $extraText >= 0 &&
-            (!$conn->execute(
-                'DELETE `'._DB_PREFIX_.'customization_field`,`'._DB_PREFIX_.'customization_field_lang`
-			FROM `'._DB_PREFIX_.'customization_field` JOIN `'._DB_PREFIX_.'customization_field_lang`
-			WHERE `'._DB_PREFIX_.'customization_field`.`id_product` = '.(int) $this->id.'
-			AND `'._DB_PREFIX_.'customization_field`.`type` = '.static::CUSTOMIZE_TEXTFIELD.'
-			AND `'._DB_PREFIX_.'customization_field_lang`.`id_customization_field` = `'._DB_PREFIX_.'customization_field`.`id_customization_field`
-			AND `'._DB_PREFIX_.'customization_field`.`id_customization_field` >= '.$customizationFields[static::CUSTOMIZE_TEXTFIELD][count($customizationFields[static::CUSTOMIZE_TEXTFIELD]) - $extraText]
-            ))
-        ) {
+        if ($extra_text > 0 && count($customization_fields[static::CUSTOMIZE_TEXTFIELD]) - $extra_text >= 0 && !$conn->execute('DELETE `' . _DB_PREFIX_ . 'customization_field`,`' . _DB_PREFIX_ . 'customization_field_lang`
+			FROM `' . _DB_PREFIX_ . 'customization_field` JOIN `' . _DB_PREFIX_ . 'customization_field_lang`
+			WHERE `' . _DB_PREFIX_ . 'customization_field`.`id_product` = ' . (int) $this->id . '
+			AND `' . _DB_PREFIX_ . 'customization_field`.`type` = ' . static::CUSTOMIZE_TEXTFIELD . '
+			AND `' . _DB_PREFIX_ . 'customization_field_lang`.`id_customization_field` = `' . _DB_PREFIX_ . 'customization_field`.`id_customization_field`
+			AND `' . _DB_PREFIX_ . 'customization_field`.`id_customization_field` >= ' . $customization_fields[static::CUSTOMIZE_TEXTFIELD][count($customization_fields[static::CUSTOMIZE_TEXTFIELD]) - $extra_text])) {
             return false;
         }
-
         // Refresh cache of feature detachable
-        Configuration::updateGlobalValue('PS_CUSTOMIZATION_FEATURE_ACTIVE', Customization::isCurrentlyUsed());
-
+        Configuration::update_global_value('PS_CUSTOMIZATION_FEATURE_ACTIVE', Customization::is_currently_used());
         return true;
     }
-
     /**
      * @param int|bool $idLang
      * @param int|null $idShop
@@ -6653,61 +5048,47 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function getCustomizationFields($idLang = false, $idShop = null)
+    public function get_customization_fields($id_lang = false, $id_shop = null)
     {
-        if (!Customization::isFeatureActive()) {
+        if (!Customization::is_feature_active()) {
             return false;
         }
-
-        if (Shop::isFeatureActive() && !$idShop) {
-            $idShop = (int) Context::getContext()->shop->id;
+        if (Shop::is_feature_active() && !$id_shop) {
+            $id_shop = (int) Context::get_context()->shop->id;
         }
-
-        if (!$result = Db::readOnly()->getArray(
-            '
+        if (!$result = Db::read_only()->get_array('
 			SELECT cf.`id_customization_field`, cf.`type`, cf.`required`, cfl.`name`, cfl.`id_lang`
-			FROM `'._DB_PREFIX_.'customization_field` cf
-			NATURAL JOIN `'._DB_PREFIX_.'customization_field_lang` cfl
-			WHERE cf.`id_product` = '.(int) $this->id.($idLang ? ' AND cfl.`id_lang` = '.(int) $idLang : '').
-            ($idShop ? ' AND cfl.`id_shop` = '.$idShop : '').'
-			ORDER BY cf.`id_customization_field`'
-        )
-        ) {
+			FROM `' . _DB_PREFIX_ . 'customization_field` cf
+			NATURAL JOIN `' . _DB_PREFIX_ . 'customization_field_lang` cfl
+			WHERE cf.`id_product` = ' . (int) $this->id . ($id_lang ? ' AND cfl.`id_lang` = ' . (int) $id_lang : '') . ($id_shop ? ' AND cfl.`id_shop` = ' . $id_shop : '') . '
+			ORDER BY cf.`id_customization_field`')) {
             return false;
         }
-
-        if ($idLang) {
+        if ($id_lang) {
             return $result;
         }
-
-        $customizationFields = [];
+        $customization_fields = [];
         foreach ($result as $row) {
-            $customizationFields[(int) $row['type']][(int) $row['id_customization_field']][(int) $row['id_lang']] = $row;
+            $customization_fields[(int) $row['type']][(int) $row['id_customization_field']][(int) $row['id_lang']] = $row;
         }
-
-        return $customizationFields;
+        return $customization_fields;
     }
-
     /**
      * @return array
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function getCustomizationFieldIds()
+    public function get_customization_field_ids()
     {
-        if (!Customization::isFeatureActive()) {
+        if (!Customization::is_feature_active()) {
             return [];
         }
-
-        return Db::readOnly()->getArray(
-            '
+        return Db::read_only()->get_array('
 			SELECT `id_customization_field`, `type`, `required`
-			FROM `'._DB_PREFIX_.'customization_field`
-			WHERE `id_product` = '.(int) $this->id
-        );
+			FROM `' . _DB_PREFIX_ . 'customization_field`
+			WHERE `id_product` = ' . (int) $this->id);
     }
-
     /**
      *
      * @return bool
@@ -6715,58 +5096,50 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function hasAllRequiredCustomizableFields(?Context $context = null)
+    public function has_all_required_customizable_fields(?Context $context = null)
     {
-        if (!Customization::isFeatureActive()) {
+        if (!Customization::is_feature_active()) {
             return true;
         }
         if (!$context) {
-            $context = Context::getContext();
+            $context = Context::get_context();
         }
-
-        $fields = $context->cart->getProductCustomization($this->id, null, true);
-        $requiredFields = $this->getRequiredCustomizableFields();
-
-        $fieldsPresent = [];
+        $fields = $context->cart->get_product_customization($this->id, null, true);
+        $required_fields = $this->get_required_customizable_fields();
+        $fields_present = [];
         foreach ($fields as $field) {
-            $fieldsPresent[] = ['id_customization_field' => $field['index'], 'type' => $field['type']];
+            $fields_present[] = ['id_customization_field' => $field['index'], 'type' => $field['type']];
         }
-
-        foreach ($requiredFields as $requiredField) {
-            if (!in_array($requiredField, $fieldsPresent)) {
+        foreach ($required_fields as $required_field) {
+            if (!in_array($required_field, $fields_present)) {
                 return false;
             }
         }
-
         return true;
     }
-
     /**
      * @return array
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function getRequiredCustomizableFields()
+    public function get_required_customizable_fields()
     {
-        if (!Customization::isFeatureActive()) {
+        if (!Customization::is_feature_active()) {
             return [];
         }
-
-        return static::getRequiredCustomizableFieldsStatic($this->id);
+        return static::get_required_customizable_fields_static($this->id);
     }
-
     /**
      * @return int
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function getNoPackPrice()
+    public function get_no_pack_price()
     {
-        return Pack::noPackPrice((int) $this->id);
+        return Pack::no_pack_price((int) $this->id);
     }
-
     /**
      * @param int $idCustomer
      *
@@ -6774,11 +5147,10 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public function checkAccess($idCustomer)
+    public function check_access($id_customer)
     {
-        return static::checkAccessStatic((int) $this->id, (int) $idCustomer);
+        return static::check_access_static((int) $this->id, (int) $id_customer);
     }
-
     /**
      * @param int $idProduct
      * @param int $idCustomer
@@ -6787,42 +5159,33 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public static function checkAccessStatic($idProduct, $idCustomer)
+    public static function check_access_static($id_product, $id_customer)
     {
-        if (!Group::isFeatureActive()) {
+        if (!Group::is_feature_active()) {
             return true;
         }
-
-        $cacheId = 'Product::checkAccess_'.(int) $idProduct.'-'.(int) $idCustomer.(!$idCustomer ? '-'.(int) Group::getCurrent()->id : '');
-        if (!Cache::isStored($cacheId)) {
-            $connection = Db::readOnly();
-            if (!$idCustomer) {
-                $result = (bool) $connection->getValue(
-                    '
+        $cache_id = 'Product::checkAccess_' . (int) $id_product . '-' . (int) $id_customer . (!$id_customer ? '-' . (int) Group::get_current()->id : '');
+        if (!Cache::is_stored($cache_id)) {
+            $connection = Db::read_only();
+            if (!$id_customer) {
+                $result = (bool) $connection->get_value('
 				SELECT ctg.`id_group`
-				FROM `'._DB_PREFIX_.'category_product` cp
-				INNER JOIN `'._DB_PREFIX_.'category_group` ctg ON (ctg.`id_category` = cp.`id_category`)
-				WHERE cp.`id_product` = '.(int) $idProduct.' AND ctg.`id_group` = '.(int) Group::getCurrent()->id
-                );
+				FROM `' . _DB_PREFIX_ . 'category_product` cp
+				INNER JOIN `' . _DB_PREFIX_ . 'category_group` ctg ON (ctg.`id_category` = cp.`id_category`)
+				WHERE cp.`id_product` = ' . (int) $id_product . ' AND ctg.`id_group` = ' . (int) Group::get_current()->id);
             } else {
-                $result = (bool) $connection->getValue(
-                    '
+                $result = (bool) $connection->get_value('
 				SELECT cg.`id_group`
-				FROM `'._DB_PREFIX_.'category_product` cp
-				INNER JOIN `'._DB_PREFIX_.'category_group` ctg ON (ctg.`id_category` = cp.`id_category`)
-				INNER JOIN `'._DB_PREFIX_.'customer_group` cg ON (cg.`id_group` = ctg.`id_group`)
-				WHERE cp.`id_product` = '.(int) $idProduct.' AND cg.`id_customer` = '.(int) $idCustomer
-                );
+				FROM `' . _DB_PREFIX_ . 'category_product` cp
+				INNER JOIN `' . _DB_PREFIX_ . 'category_group` ctg ON (ctg.`id_category` = cp.`id_category`)
+				INNER JOIN `' . _DB_PREFIX_ . 'customer_group` cg ON (cg.`id_group` = ctg.`id_group`)
+				WHERE cp.`id_product` = ' . (int) $id_product . ' AND cg.`id_customer` = ' . (int) $id_customer);
             }
-
-            Cache::store($cacheId, $result);
-
+            Cache::store($cache_id, $result);
             return $result;
         }
-
-        return Cache::retrieve($cacheId);
+        return Cache::retrieve($cache_id);
     }
-
     /**
      * Add a stock movement for current product
      *
@@ -6842,26 +5205,21 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @deprecated since 1.5.0
      */
-    public function addStockMvt($quantity, $idReason, $idProductAttribute = null, $idOrder = null, $idEmployee = null)
+    public function add_stock_mvt($quantity, $id_reason, $id_product_attribute = null, $id_order = null, $id_employee = null)
     {
-        if (!$this->id || !$idReason) {
+        if (!$this->id || !$id_reason) {
             return false;
         }
-
-        if ($idProductAttribute == null) {
-            $idProductAttribute = 0;
+        if ($id_product_attribute == null) {
+            $id_product_attribute = 0;
         }
-
-        $reason = new StockMvtReason((int) $idReason);
-        if (!Validate::isLoadedObject($reason)) {
+        $reason = new Stock_Mvt_Reason((int) $id_reason);
+        if (!Validate::is_loaded_object($reason)) {
             return false;
         }
-
         $quantity = abs((int) $quantity) * $reason->sign;
-
-        return StockAvailable::updateQuantity($this->id, $idProductAttribute, $quantity);
+        return Stock_Available::update_quantity($this->id, $id_product_attribute, $quantity);
     }
-
     /**
      * @param int $idLang
      *
@@ -6870,47 +5228,42 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopException
      * @deprecated 1.0.0
      */
-    public function getStockMvts($idLang)
+    public function get_stock_mvts($id_lang)
     {
-        Tools::displayAsDeprecated();
-
-        return Db::readOnly()->getArray(
-            '
+        Tools::display_as_deprecated();
+        return Db::read_only()->get_array('
 			SELECT sm.id_stock_mvt, sm.date_add, sm.quantity, sm.id_order,
 			CONCAT(pl.name, \' \', GROUP_CONCAT(IFNULL(al.name, \'\'), \'\')) product_name, CONCAT(e.lastname, \' \', e.firstname) employee, mrl.name reason
-			FROM `'._DB_PREFIX_.'stock_mvt` sm
-			LEFT JOIN `'._DB_PREFIX_.'product_lang` pl ON (
+			FROM `' . _DB_PREFIX_ . 'stock_mvt` sm
+			LEFT JOIN `' . _DB_PREFIX_ . 'product_lang` pl ON (
 				sm.id_product = pl.id_product
-				AND pl.id_lang = '.(int) $idLang.Shop::addSqlRestrictionOnLang('pl').'
+				AND pl.id_lang = ' . (int) $id_lang . Shop::add_sql_restriction_on_lang('pl') . '
 			)
-			LEFT JOIN `'._DB_PREFIX_.'stock_mvt_reason_lang` mrl ON (
+			LEFT JOIN `' . _DB_PREFIX_ . 'stock_mvt_reason_lang` mrl ON (
 				sm.id_stock_mvt_reason = mrl.id_stock_mvt_reason
-				AND mrl.id_lang = '.(int) $idLang.'
+				AND mrl.id_lang = ' . (int) $id_lang . '
 			)
-			LEFT JOIN `'._DB_PREFIX_.'employee` e ON (
+			LEFT JOIN `' . _DB_PREFIX_ . 'employee` e ON (
 				e.id_employee = sm.id_employee
 			)
-			LEFT JOIN `'._DB_PREFIX_.'product_attribute_combination` pac ON (
+			LEFT JOIN `' . _DB_PREFIX_ . 'product_attribute_combination` pac ON (
 				pac.id_product_attribute = sm.id_product_attribute
 			)
-			LEFT JOIN `'._DB_PREFIX_.'attribute_lang` al ON (
+			LEFT JOIN `' . _DB_PREFIX_ . 'attribute_lang` al ON (
 				al.id_attribute = pac.id_attribute
-				AND al.id_lang = '.(int) $idLang.'
+				AND al.id_lang = ' . (int) $id_lang . '
 			)
-			WHERE sm.id_product='.(int) $this->id.'
+			WHERE sm.id_product=' . (int) $this->id . '
 			GROUP BY sm.id_stock_mvt
-		'
-        );
+		');
     }
-
     /**
      * @return int
      */
-    public function getIdTaxRulesGroup()
+    public function get_id_tax_rules_group()
     {
         return $this->id_tax_rules_group;
     }
-
     /**
      * Webservice getter : get product features association
      *
@@ -6919,9 +5272,9 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function getWsProductFeatures()
+    public function get_ws_product_features()
     {
-        $rows = $this->getFeatures();
+        $rows = $this->get_features();
         foreach ($rows as $keyrow => $row) {
             foreach ($row as $keyfeature => $feature) {
                 if ($keyfeature == 'id_feature') {
@@ -6933,10 +5286,8 @@ class ProductCore extends ObjectModel implements InitializationCallback
             }
             asort($rows[$keyrow]);
         }
-
         return $rows;
     }
-
     /**
      * Select all features for the object
      *
@@ -6945,11 +5296,10 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function getFeatures()
+    public function get_features()
     {
-        return static::getFeaturesStatic((int) $this->id);
+        return static::get_features_static((int) $this->id);
     }
-
     /**
      * @param int $idProduct
      *
@@ -6958,24 +5308,20 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getFeaturesStatic($idProduct)
+    public static function get_features_static($id_product)
     {
-        if (!Feature::isFeatureActive()) {
+        if (!Feature::is_feature_active()) {
             return [];
         }
-        if (!array_key_exists($idProduct, static::$_cacheFeatures)) {
-            static::$_cacheFeatures[$idProduct] = Db::readOnly()->getArray(
-                '
+        if (!array_key_exists($id_product, static::$_cache_features)) {
+            static::$_cache_features[$id_product] = Db::read_only()->get_array('
 				SELECT fp.id_feature, fp.id_product, fp.id_feature_value, custom
-				FROM `'._DB_PREFIX_.'feature_product` fp
-				LEFT JOIN `'._DB_PREFIX_.'feature_value` fv ON (fp.id_feature_value = fv.id_feature_value)
-				WHERE `id_product` = '.(int) $idProduct
-            );
+				FROM `' . _DB_PREFIX_ . 'feature_product` fp
+				LEFT JOIN `' . _DB_PREFIX_ . 'feature_value` fv ON (fp.id_feature_value = fv.id_feature_value)
+				WHERE `id_product` = ' . (int) $id_product);
         }
-
-        return static::$_cacheFeatures[$idProduct];
+        return static::$_cache_features[$id_product];
     }
-
     /**
      * Webservice setter : set product features association
      *
@@ -6985,24 +5331,16 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public function setWsProductFeatures($productFeatures)
+    public function set_ws_product_features($product_features)
     {
-        Db::getInstance()->delete('feature_product', 'id_product = '.(int) $this->id);
-
-        foreach ($productFeatures as $productFeature) {
-            if (isset($productFeature['id']) && (int)$productFeature['id'] &&
-                isset($productFeature['id_feature_value']) && (int)$productFeature['id_feature_value']
-            ) {
-                $this->addFeaturesToDB(
-                    (int)$productFeature['id'],
-                    (int)$productFeature['id_feature_value']
-                );
+        Db::get_instance()->delete('feature_product', 'id_product = ' . (int) $this->id);
+        foreach ($product_features as $product_feature) {
+            if (isset($product_feature['id']) && (int) $product_feature['id'] && isset($product_feature['id_feature_value']) && (int) $product_feature['id_feature_value']) {
+                $this->add_features_to_db((int) $product_feature['id'], (int) $product_feature['id_feature_value']);
             }
         }
-
         return true;
     }
-
     /**
      * @param int $id_feature
      * @param int $id_feature_value
@@ -7013,37 +5351,27 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function addFeaturesToDB($id_feature, $id_feature_value, $createCustomValue = null)
+    public function add_features_to_db($id_feature, $id_feature_value, $create_custom_value = null)
     {
-        $id_feature = (int)$id_feature;
-        if (! is_null($createCustomValue)) {
-            Tools::displayParameterAsDeprecated('createCustomValue');
+        $id_feature = (int) $id_feature;
+        if (!is_null($create_custom_value)) {
+            Tools::display_parameter_as_deprecated('createCustomValue');
         }
-        $id_feature_value = $createCustomValue ? 0 : (int)$id_feature_value; // Just to be 100% backward compatible
-
-        $conn = Db::getInstance();
+        $id_feature_value = $create_custom_value ? 0 : (int) $id_feature_value;
+        // Just to be 100% backward compatible
+        $conn = Db::get_instance();
         if (!$id_feature_value) {
-            $row = [
-                'id_feature' => $id_feature,
-                'custom' => 0,
-                'position' => (int)FeatureValue::getHighestPosition($id_feature) + 1,
-            ];
+            $row = ['id_feature' => $id_feature, 'custom' => 0, 'position' => (int) Feature_Value::get_highest_position($id_feature) + 1];
             $conn->insert('feature_value', $row);
-            $id_feature_value = (int)$conn->Insert_ID();
+            $id_feature_value = (int) $conn->Insert_ID();
         }
-
         if ($id_feature && $id_feature_value) {
-            $row = [
-                'id_feature' => $id_feature,
-                'id_product' => (int)$this->id,
-                'id_feature_value' => $id_feature_value,
-            ];
+            $row = ['id_feature' => $id_feature, 'id_product' => (int) $this->id, 'id_feature_value' => $id_feature_value];
             $conn->insert('feature_product', $row);
-            SpecificPriceRule::applyAllRules([(int)$this->id]);
+            Specific_Price_Rule::apply_all_rules([(int) $this->id]);
         }
         return $id_feature_value;
     }
-
     /**
      * Webservice getter : get virtual field default combination
      *
@@ -7051,11 +5379,10 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public function getWsDefaultCombination()
+    public function get_ws_default_combination()
     {
-        return static::getDefaultAttribute($this->id);
+        return static::get_default_attribute($this->id);
     }
-
     /**
      * Webservice setter : set virtual field default combination
      *
@@ -7065,13 +5392,11 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public function setWsDefaultCombination($idCombination)
+    public function set_ws_default_combination($id_combination)
     {
-        $this->deleteDefaultAttributes();
-
-        return $this->setDefaultAttribute((int) $idCombination);
+        $this->delete_default_attributes();
+        return $this->set_default_attribute((int) $id_combination);
     }
-
     /**
      * Del all default attributes for product
      *
@@ -7079,23 +5404,16 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public function deleteDefaultAttributes()
+    public function delete_default_attributes()
     {
-        $id = (int)$this->id;
+        $id = (int) $this->id;
         if ($id) {
-            $conn = Db::getInstance();
-            $res = ObjectModel::updateMultishopTable(
-                'Combination',
-                [
-                    'default_on' => null,
-                ],
-                'a.`id_product` = '.$id
-            );
-            return $conn->update('product_attribute', ['default_on' => null], "id_product = $id", 0, true) && $res;
+            $conn = Db::get_instance();
+            $res = Object_Model::update_multishop_table('Combination', ['default_on' => null], 'a.`id_product` = ' . $id);
+            return $conn->update('product_attribute', ['default_on' => null], "id_product = {$id}", 0, true) && $res;
         }
         return false;
     }
-
     /**
      * @param int $idProductAttribute
      *
@@ -7103,28 +5421,13 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public function setDefaultAttribute($idProductAttribute)
+    public function set_default_attribute($id_product_attribute)
     {
-        $result = ObjectModel::updateMultishopTable(
-            'Combination',
-            [
-                'default_on' => 1,
-            ],
-            'a.`id_product` = '.(int) $this->id.' AND a.`id_product_attribute` = '.(int) $idProductAttribute
-        );
-
-        $result = ObjectModel::updateMultishopTable(
-            'product',
-            [
-                'cache_default_attribute' => (int) $idProductAttribute,
-            ],
-            'a.`id_product` = '.(int) $this->id
-        ) && $result;
-        $this->cache_default_attribute = (int) $idProductAttribute;
-
+        $result = Object_Model::update_multishop_table('Combination', ['default_on' => 1], 'a.`id_product` = ' . (int) $this->id . ' AND a.`id_product_attribute` = ' . (int) $id_product_attribute);
+        $result = Object_Model::update_multishop_table('product', ['cache_default_attribute' => (int) $id_product_attribute], 'a.`id_product` = ' . (int) $this->id) && $result;
+        $this->cache_default_attribute = (int) $id_product_attribute;
         return $result;
     }
-
     /**
      * Webservice getter : get category ids of current product for association
      *
@@ -7133,18 +5436,10 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function getWsCategories()
+    public function get_ws_categories()
     {
-        return Db::readOnly()->getArray(
-            (new DbQuery())
-                ->select('cp.`id_category` AS `id`')
-                ->from('category_product', 'cp')
-                ->leftJoin('category', 'c', 'c.`id_category` = cp.`id_category`')
-                ->join(Shop::addSqlAssociation('category', 'c'))
-                ->where('cp.`id_product` = '.(int) $this->id)
-        );
+        return Db::read_only()->get_array((new Db_Query())->select('cp.`id_category` AS `id`')->from('category_product', 'cp')->left_join('category', 'c', 'c.`id_category` = cp.`id_category`')->join(Shop::add_sql_association('category', 'c'))->where('cp.`id_product` = ' . (int) $this->id));
     }
-
     /**
      * Webservice setter : set category ids of current product for association
      *
@@ -7154,18 +5449,17 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public function setWsCategories($categories)
+    public function set_ws_categories($categories)
     {
         $ids = array_filter(array_map(intval(...), array_column($categories, 'id')));
         if ($ids) {
-            $result = $this->updateCategories($ids);
+            $result = $this->update_categories($ids);
         } else {
-            $result = $this->deleteCategories(true);
+            $result = $this->delete_categories(true);
         }
-        Hook::triggerEvent('updateProduct', ['id_product' => (int) $this->id]);
+        Hook::trigger_event('updateProduct', ['id_product' => (int) $this->id]);
         return $result;
     }
-
     /**
      * Webservice getter : get product accessories ids of current product for association
      *
@@ -7174,18 +5468,10 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function getWsAccessories()
+    public function get_ws_accessories()
     {
-        return Db::readOnly()->getArray(
-            (new DbQuery())
-                ->select('p.`id_product` AS `id`')
-                ->from('accessory', 'a')
-                ->leftJoin('product', 'p', 'p.`id_product` = a.`id_product_2`')
-                ->join(Shop::addSqlAssociation('product', 'p'))
-                ->where('a.`id_product_1` = '.(int) $this->id)
-        );
+        return Db::read_only()->get_array((new Db_Query())->select('p.`id_product` AS `id`')->from('accessory', 'a')->left_join('product', 'p', 'p.`id_product` = a.`id_product_2`')->join(Shop::add_sql_association('product', 'p'))->where('a.`id_product_1` = ' . (int) $this->id));
     }
-
     /**
      * Webservice setter : set product accessories ids of current product for association
      *
@@ -7194,23 +5480,18 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @return bool
      * @throws PrestaShopException
      */
-    public function setWsAccessories($accessories)
+    public function set_ws_accessories($accessories)
     {
-        $this->deleteAccessories();
-        $id = (int)$this->id;
+        $this->delete_accessories();
+        $id = (int) $this->id;
         foreach ($accessories as $accessory) {
-            if (isset($accessory['id']) && (int)$accessory['id']) {
-                $accessoryId = (int)$accessory['id'];
-                Db::getInstance()->insert('accessory', [
-                    'id_product_1' => $id,
-                    'id_product_2' => $accessoryId,
-                ]);
+            if (isset($accessory['id']) && (int) $accessory['id']) {
+                $accessory_id = (int) $accessory['id'];
+                Db::get_instance()->insert('accessory', ['id_product_1' => $id, 'id_product_2' => $accessory_id]);
             }
         }
-
         return true;
     }
-
     /**
      * Webservice getter : get combination ids of current product for association
      *
@@ -7219,16 +5500,13 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function getWsCombinations()
+    public function get_ws_combinations()
     {
-        return Db::readOnly()->getArray(
-            'SELECT pa.`id_product_attribute` AS id
-			FROM `'._DB_PREFIX_.'product_attribute` pa
-			'.Shop::addSqlAssociation('product_attribute', 'pa').'
-			WHERE pa.`id_product` = '.(int) $this->id
-        );
+        return Db::read_only()->get_array('SELECT pa.`id_product_attribute` AS id
+			FROM `' . _DB_PREFIX_ . 'product_attribute` pa
+			' . Shop::add_sql_association('product_attribute', 'pa') . '
+			WHERE pa.`id_product` = ' . (int) $this->id);
     }
-
     /**
      * Webservice setter : set combination ids of current product for association
      *
@@ -7237,67 +5515,56 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @return bool
      * @throws PrestaShopException
      */
-    public function setWsCombinations($combinations)
+    public function set_ws_combinations($combinations)
     {
         // No hook exec
-        $idsNew = [];
+        $ids_new = [];
         foreach ($combinations as $combination) {
-            if (isset($combination['id']) && (int)$combination['id']) {
-                $idsNew[] = (int) $combination['id'];
+            if (isset($combination['id']) && (int) $combination['id']) {
+                $ids_new[] = (int) $combination['id'];
             }
         }
-
-        $conn = Db::getInstance();
-        $idsOrig = [];
-        $original = $conn->getArray(
-            'SELECT pa.`id_product_attribute` AS id
-			FROM `'._DB_PREFIX_.'product_attribute` pa
-			'.Shop::addSqlAssociation('product_attribute', 'pa').'
-			WHERE pa.`id_product` = '.(int) $this->id
-        );
-
+        $conn = Db::get_instance();
+        $ids_orig = [];
+        $original = $conn->get_array('SELECT pa.`id_product_attribute` AS id
+			FROM `' . _DB_PREFIX_ . 'product_attribute` pa
+			' . Shop::add_sql_association('product_attribute', 'pa') . '
+			WHERE pa.`id_product` = ' . (int) $this->id);
         foreach ($original as $id) {
-            $idsOrig[] = $id['id'];
+            $ids_orig[] = $id['id'];
         }
-
-        $allIds = [];
-        $all = $conn->getArray('SELECT pa.`id_product_attribute` AS id FROM `'._DB_PREFIX_.'product_attribute` pa '.Shop::addSqlAssociation('product_attribute', 'pa'));
+        $all_ids = [];
+        $all = $conn->get_array('SELECT pa.`id_product_attribute` AS id FROM `' . _DB_PREFIX_ . 'product_attribute` pa ' . Shop::add_sql_association('product_attribute', 'pa'));
         foreach ($all as $id) {
-            $allIds[] = $id['id'];
+            $all_ids[] = $id['id'];
         }
-
-        $toAdd = [];
-        foreach ($idsNew as $id) {
-            if (!in_array($id, $idsOrig)) {
-                $toAdd[] = $id;
+        $to_add = [];
+        foreach ($ids_new as $id) {
+            if (!in_array($id, $ids_orig)) {
+                $to_add[] = $id;
             }
         }
-
-        $toDelete = [];
-        foreach ($idsOrig as $id) {
-            if (!in_array($id, $idsNew)) {
-                $toDelete[] = $id;
+        $to_delete = [];
+        foreach ($ids_orig as $id) {
+            if (!in_array($id, $ids_new)) {
+                $to_delete[] = $id;
             }
         }
-
         // Delete rows
-        foreach ($toDelete as $id) {
+        foreach ($to_delete as $id) {
             $combination = new Combination($id);
             $combination->delete();
         }
-
-        foreach ($toAdd as $id) {
+        foreach ($to_add as $id) {
             // Update id_product if exists else create
-            if (in_array($id, $allIds)) {
-                $conn->execute('UPDATE `'._DB_PREFIX_.'product_attribute` SET id_product = '.(int) $this->id.' WHERE id_product_attribute='.$id);
+            if (in_array($id, $all_ids)) {
+                $conn->execute('UPDATE `' . _DB_PREFIX_ . 'product_attribute` SET id_product = ' . (int) $this->id . ' WHERE id_product_attribute=' . $id);
             } else {
-                $conn->execute('INSERT INTO `'._DB_PREFIX_.'product_attribute` (`id_product`) VALUES ('.$this->id.')');
+                $conn->execute('INSERT INTO `' . _DB_PREFIX_ . 'product_attribute` (`id_product`) VALUES (' . $this->id . ')');
             }
         }
-
         return true;
     }
-
     /**
      * Webservice getter : get product option ids of current product for association
      *
@@ -7306,17 +5573,14 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function getWsProductOptionValues()
+    public function get_ws_product_option_values()
     {
-        return Db::readOnly()->getArray(
-            'SELECT DISTINCT pac.id_attribute AS id
-			FROM `'._DB_PREFIX_.'product_attribute` pa
-			'.Shop::addSqlAssociation('product_attribute', 'pa').'
-			LEFT JOIN `'._DB_PREFIX_.'product_attribute_combination` pac ON (pac.id_product_attribute = pa.id_product_attribute)
-			WHERE pa.id_product = '.(int) $this->id
-        );
+        return Db::read_only()->get_array('SELECT DISTINCT pac.id_attribute AS id
+			FROM `' . _DB_PREFIX_ . 'product_attribute` pa
+			' . Shop::add_sql_association('product_attribute', 'pa') . '
+			LEFT JOIN `' . _DB_PREFIX_ . 'product_attribute_combination` pac ON (pac.id_product_attribute = pa.id_product_attribute)
+			WHERE pa.id_product = ' . (int) $this->id);
     }
-
     /**
      * Webservice setter : set virtual field position in category
      *
@@ -7327,50 +5591,36 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function setWsPositionInCategory($position)
+    public function set_ws_position_in_category($position)
     {
-        $position = (int)$position;
-
+        $position = (int) $position;
         if ($position < 0) {
-            WebserviceRequest::getInstance()->setError(500, 'You cannot set a negative position, the minimum for a position is 0.', 134);
+            Webservice_Request::get_instance()->set_error(500, 'You cannot set a negative position, the minimum for a position is 0.', 134);
         }
-        $conn = Db::getInstance();
-        $result = $conn->getArray(
-            '
+        $conn = Db::get_instance();
+        $result = $conn->get_array('
 			SELECT `id_product`
-			FROM `'._DB_PREFIX_.'category_product`
-			WHERE `id_category` = '.(int) $this->id_category_default.'
+			FROM `' . _DB_PREFIX_ . 'category_product`
+			WHERE `id_category` = ' . (int) $this->id_category_default . '
 			ORDER BY `position`
-		'
-        );
-        if (($position > 0) && ($position + 1 > count($result))) {
-            WebserviceRequest::getInstance()->setError(500, 'You cannot set a position greater than the total number of products in the category, minus 1 (position numbering starts at 0).', 135);
+		');
+        if ($position > 0 && $position + 1 > count($result)) {
+            Webservice_Request::get_instance()->set_error(500, 'You cannot set a position greater than the total number of products in the category, minus 1 (position numbering starts at 0).', 135);
         }
-
         foreach ($result as &$value) {
             $value = $value['id_product'];
         }
-        $currentPosition = $this->getWsPositionInCategory();
-
-        if ($currentPosition && isset($result[$currentPosition])) {
-            $save = $result[$currentPosition];
-            unset($result[$currentPosition]);
+        $current_position = $this->get_ws_position_in_category();
+        if ($current_position && isset($result[$current_position])) {
+            $save = $result[$current_position];
+            unset($result[$current_position]);
             array_splice($result, $position, 0, $save);
         }
-
-        foreach ($result as $position => $idProduct) {
-            $conn->update(
-                'category_product',
-                [
-                    'position' => $position,
-                ],
-                '`id_category` = '.(int) $this->id_category_default.' AND `id_product` = '.(int) $idProduct
-            );
+        foreach ($result as $position => $id_product) {
+            $conn->update('category_product', ['position' => $position], '`id_category` = ' . (int) $this->id_category_default . ' AND `id_product` = ' . (int) $id_product);
         }
-
         return true;
     }
-
     /**
      * Webservice getter : get virtual field position in category
      *
@@ -7379,21 +5629,17 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function getWsPositionInCategory()
+    public function get_ws_position_in_category()
     {
-        $result = Db::readOnly()->getArray(
-            'SELECT position
-			FROM `'._DB_PREFIX_.'category_product`
-			WHERE id_category = '.(int) $this->id_category_default.'
-			AND id_product = '.(int) $this->id
-        );
+        $result = Db::read_only()->get_array('SELECT position
+			FROM `' . _DB_PREFIX_ . 'category_product`
+			WHERE id_category = ' . (int) $this->id_category_default . '
+			AND id_product = ' . (int) $this->id);
         if (count($result) > 0) {
-            return (int)$result[0]['position'];
+            return (int) $result[0]['position'];
         }
-
         return 0;
     }
-
     /**
      * Webservice getter : get virtual field id_default_image in category
      *
@@ -7402,13 +5648,11 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function getCoverWs()
+    public function get_cover_ws()
     {
-        $result = static::getCover($this->id);
-
+        $result = static::get_cover($this->id);
         return $result['id_image'] ?? null;
     }
-
     /**
      * Get product cover image
      *
@@ -7419,27 +5663,24 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getCover($idProduct, ?Context $context = null)
+    public static function get_cover($id_product, ?Context $context = null)
     {
         if (!$context) {
-            $context = Context::getContext();
+            $context = Context::get_context();
         }
-        $cacheId = 'Product::getCover_'.(int) $idProduct.'-'.(int) $context->shop->id;
-        if (!Cache::isStored($cacheId)) {
+        $cache_id = 'Product::getCover_' . (int) $id_product . '-' . (int) $context->shop->id;
+        if (!Cache::is_stored($cache_id)) {
             $sql = 'SELECT image_shop.`id_image`
-					FROM `'._DB_PREFIX_.'image` i
-					'.Shop::addSqlAssociation('image', 'i').'
-					WHERE i.`id_product` = '.(int) $idProduct.'
+					FROM `' . _DB_PREFIX_ . 'image` i
+					' . Shop::add_sql_association('image', 'i') . '
+					WHERE i.`id_product` = ' . (int) $id_product . '
 					AND image_shop.`cover` = 1';
-            $result = Db::readOnly()->getRow($sql);
-            Cache::store($cacheId, $result);
-
+            $result = Db::read_only()->get_row($sql);
+            Cache::store($cache_id, $result);
             return $result;
         }
-
-        return Cache::retrieve($cacheId);
+        return Cache::retrieve($cache_id);
     }
-
     /**
      * Webservice setter : set virtual field id_default_image in category
      *
@@ -7449,25 +5690,18 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public function setCoverWs($idImage)
+    public function set_cover_ws($id_image)
     {
-        $idImage = (int)$idImage;
-
-        $conn = Db::getInstance();
-        $conn->execute(
-            'UPDATE `'._DB_PREFIX_.'image_shop` image_shop, `'._DB_PREFIX_.'image` i
+        $id_image = (int) $id_image;
+        $conn = Db::get_instance();
+        $conn->execute('UPDATE `' . _DB_PREFIX_ . 'image_shop` image_shop, `' . _DB_PREFIX_ . 'image` i
 			SET image_shop.`cover` = NULL
-			WHERE i.`id_product` = '.(int) $this->id.' AND i.id_image = image_shop.id_image
-			AND image_shop.id_shop='.(int) Context::getContext()->shop->id
-        );
-        $conn->execute(
-            'UPDATE `'._DB_PREFIX_.'image_shop`
-			SET `cover` = 1 WHERE `id_image` = '.$idImage
-        );
-
+			WHERE i.`id_product` = ' . (int) $this->id . ' AND i.id_image = image_shop.id_image
+			AND image_shop.id_shop=' . (int) Context::get_context()->shop->id);
+        $conn->execute('UPDATE `' . _DB_PREFIX_ . 'image_shop`
+			SET `cover` = 1 WHERE `id_image` = ' . $id_image);
         return true;
     }
-
     /**
      * Webservice getter : get image ids of current product for association
      *
@@ -7476,49 +5710,40 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function getWsImages()
+    public function get_ws_images()
     {
-        return Db::readOnly()->getArray(
-            '
+        return Db::read_only()->get_array('
 		SELECT i.`id_image` AS id
-		FROM `'._DB_PREFIX_.'image` i
-		'.Shop::addSqlAssociation('image', 'i').'
-		WHERE i.`id_product` = '.(int) $this->id.'
-		ORDER BY i.`position`'
-        );
+		FROM `' . _DB_PREFIX_ . 'image` i
+		' . Shop::add_sql_association('image', 'i') . '
+		WHERE i.`id_product` = ' . (int) $this->id . '
+		ORDER BY i.`position`');
     }
-
     /**
      * @return array
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function getWsStockAvailables()
+    public function get_ws_stock_availables()
     {
-        return Db::readOnly()->getArray(
-            'SELECT `id_stock_available` id, `id_product_attribute`
-														FROM `'._DB_PREFIX_.'stock_available`
-														WHERE `id_product`='.($this->id).StockAvailable::addSqlShopRestriction()
-        );
+        return Db::read_only()->get_array('SELECT `id_stock_available` id, `id_product_attribute`
+														FROM `' . _DB_PREFIX_ . 'stock_available`
+														WHERE `id_product`=' . $this->id . Stock_Available::add_sql_shop_restriction());
     }
-
     /**
      * @return array
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function getWsTags()
+    public function get_ws_tags()
     {
-        return Db::readOnly()->getArray(
-            '
+        return Db::read_only()->get_array('
 		SELECT `id_tag` AS id
-		FROM `'._DB_PREFIX_.'product_tag`
-		WHERE `id_product` = '.(int) $this->id
-        );
+		FROM `' . _DB_PREFIX_ . 'product_tag`
+		WHERE `id_product` = ' . (int) $this->id);
     }
-
     /**
      * Webservice setter : set tag ids of current product for association
      *
@@ -7527,38 +5752,33 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @return bool
      * @throws PrestaShopException
      */
-    public function setWsTags($tagIds)
+    public function set_ws_tags($tag_ids)
     {
         $ids = [];
-        foreach ($tagIds as $value) {
-            if (isset($value['id']) && (int)$value['id']) {
-                $ids[] = (int)$value['id'];
+        foreach ($tag_ids as $value) {
+            if (isset($value['id']) && (int) $value['id']) {
+                $ids[] = (int) $value['id'];
             }
         }
-
-        if ($this->deleteWsTags()) {
+        if ($this->delete_ws_tags()) {
             if ($ids) {
-                $conn = Db::getInstance();
-                $sqlValues = [];
+                $conn = Db::get_instance();
+                $sql_values = [];
                 foreach ($ids as $id) {
-                    $idLang = (int)$conn->getValue('SELECT `id_lang` FROM `'._DB_PREFIX_.'tag` WHERE `id_tag`='.$id);
-                    if ($idLang) {
-                        $sqlValues[] = '('.(int) $this->id.', '.$id.', '.(int) $idLang.')';
+                    $id_lang = (int) $conn->get_value('SELECT `id_lang` FROM `' . _DB_PREFIX_ . 'tag` WHERE `id_tag`=' . $id);
+                    if ($id_lang) {
+                        $sql_values[] = '(' . (int) $this->id . ', ' . $id . ', ' . (int) $id_lang . ')';
                     }
                 }
-                if ($sqlValues) {
-                    return $conn->execute(
-                        '
+                if ($sql_values) {
+                    return $conn->execute('
                         INSERT INTO `' . _DB_PREFIX_ . 'product_tag` (`id_product`, `id_tag`, `id_lang`)
-                        VALUES ' . implode(',', $sqlValues)
-                    );
+                        VALUES ' . implode(',', $sql_values));
                 }
             }
         }
-
         return true;
     }
-
     /**
      * Delete products tags entries without delete tags for webservice usage
      *
@@ -7567,21 +5787,19 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function deleteWsTags()
+    public function delete_ws_tags()
     {
-        return Db::getInstance()->delete('product_tag', 'id_product = '.(int) $this->id);
+        return Db::get_instance()->delete('product_tag', 'id_product = ' . (int) $this->id);
     }
-
     /**
      * @return string
      *
      * @throws PrestaShopException
      */
-    public function getWsManufacturerName()
+    public function get_ws_manufacturer_name()
     {
-        return Manufacturer::getNameById((int) $this->id_manufacturer);
+        return Manufacturer::get_name_by_id((int) $this->id_manufacturer);
     }
-
     /**
      * Checks if reference exists
      *
@@ -7591,18 +5809,14 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function existsRefInDatabase($reference)
+    public function exists_ref_in_database($reference)
     {
-        $row = Db::readOnly()->getRow(
-            '
+        $row = Db::read_only()->get_row('
 		SELECT `reference`
-		FROM `'._DB_PREFIX_.'product` p
-		WHERE p.reference = "'.pSQL($reference).'"'
-        );
-
+		FROM `' . _DB_PREFIX_ . 'product` p
+		WHERE p.reference = "' . p_sql($reference) . '"');
         return isset($row['reference']);
     }
-
     /**
      * Get the combination url anchor of the product
      *
@@ -7614,11 +5828,10 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function getAnchor($idProductAttribute, $withId = false)
+    public function get_anchor($id_product_attribute, $with_id = false)
     {
-        return Context::getContext()->link->getCombinationHashUrl($this->id, $idProductAttribute);
+        return Context::get_context()->link->get_combination_hash_url($this->id, $id_product_attribute);
     }
-
     /**
      * Get label by lang and value by lang too
      *
@@ -7632,108 +5845,91 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getAttributesParams($idProduct, $idProductAttribute)
+    public static function get_attributes_params($id_product, $id_product_attribute)
     {
-        $idLang = (int) Context::getContext()->language->id;
-        $idShop = (int) Context::getContext()->shop->id;
-        $cacheId = 'Product::getAttributesParams_'.(int) $idProduct.'-'.(int) $idProductAttribute.'-'.$idLang.'-'.$idShop;
-
+        $id_lang = (int) Context::get_context()->language->id;
+        $id_shop = (int) Context::get_context()->shop->id;
+        $cache_id = 'Product::getAttributesParams_' . (int) $id_product . '-' . (int) $id_product_attribute . '-' . $id_lang . '-' . $id_shop;
         // if blocklayered module is installed we check if user has set custom attribute name
-        $conn = Db::readOnly();
-        if (Module::isInstalled('blocklayered') && Module::isEnabled('blocklayered')) {
-            $nbCustomValues = $conn->getArray(
-                '
+        $conn = Db::read_only();
+        if (Module::is_installed('blocklayered') && Module::is_enabled('blocklayered')) {
+            $nb_custom_values = $conn->get_array('
 			SELECT DISTINCT la.`id_attribute`, la.`url_name` AS `name`
-			FROM `'._DB_PREFIX_.'attribute` a
-			LEFT JOIN `'._DB_PREFIX_.'product_attribute_combination` pac
+			FROM `' . _DB_PREFIX_ . 'attribute` a
+			LEFT JOIN `' . _DB_PREFIX_ . 'product_attribute_combination` pac
 				ON (a.`id_attribute` = pac.`id_attribute`)
-			LEFT JOIN `'._DB_PREFIX_.'product_attribute` pa
+			LEFT JOIN `' . _DB_PREFIX_ . 'product_attribute` pa
 				ON (pac.`id_product_attribute` = pa.`id_product_attribute`)
-			'.Shop::addSqlAssociation('product_attribute', 'pa').'
-			LEFT JOIN `'._DB_PREFIX_.'layered_indexable_attribute_lang_value` la
-				ON (la.`id_attribute` = a.`id_attribute` AND la.`id_lang` = '.$idLang.')
+			' . Shop::add_sql_association('product_attribute', 'pa') . '
+			LEFT JOIN `' . _DB_PREFIX_ . 'layered_indexable_attribute_lang_value` la
+				ON (la.`id_attribute` = a.`id_attribute` AND la.`id_lang` = ' . $id_lang . ')
 			WHERE la.`url_name` IS NOT NULL AND la.`url_name` != \'\'
-			AND pa.`id_product` = '.(int) $idProduct.'
-			AND pac.`id_product_attribute` = '.(int) $idProductAttribute
-            );
-
-            if (!empty($nbCustomValues)) {
-                $tabIdAttribute = [];
-                foreach ($nbCustomValues as $attribute) {
-                    $tabIdAttribute[] = $attribute['id_attribute'];
-
-                    $group = $conn->getArray(
-                        '
+			AND pa.`id_product` = ' . (int) $id_product . '
+			AND pac.`id_product_attribute` = ' . (int) $id_product_attribute);
+            if (!empty($nb_custom_values)) {
+                $tab_id_attribute = [];
+                foreach ($nb_custom_values as $attribute) {
+                    $tab_id_attribute[] = $attribute['id_attribute'];
+                    $group = $conn->get_array('
 					SELECT a.`id_attribute`, g.`id_attribute_group`, g.`url_name` AS `group`
-					FROM `'._DB_PREFIX_.'layered_indexable_attribute_group_lang_value` g
-					LEFT JOIN `'._DB_PREFIX_.'attribute` a
+					FROM `' . _DB_PREFIX_ . 'layered_indexable_attribute_group_lang_value` g
+					LEFT JOIN `' . _DB_PREFIX_ . 'attribute` a
 						ON (a.`id_attribute_group` = g.`id_attribute_group`)
-					WHERE a.`id_attribute` = '.(int) $attribute['id_attribute'].'
-					AND g.`id_lang` = '.$idLang.'
-					AND g.`url_name` IS NOT NULL AND g.`url_name` != \'\''
-                    );
+					WHERE a.`id_attribute` = ' . (int) $attribute['id_attribute'] . '
+					AND g.`id_lang` = ' . $id_lang . '
+					AND g.`url_name` IS NOT NULL AND g.`url_name` != \'\'');
                     if (empty($group)) {
-                        $group = $conn->getArray(
-                            '
+                        $group = $conn->get_array('
 						SELECT g.`id_attribute_group`, g.`name` AS `group`
-						FROM `'._DB_PREFIX_.'attribute_group_lang` g
-						LEFT JOIN `'._DB_PREFIX_.'attribute` a
+						FROM `' . _DB_PREFIX_ . 'attribute_group_lang` g
+						LEFT JOIN `' . _DB_PREFIX_ . 'attribute` a
 							ON (a.`id_attribute_group` = g.`id_attribute_group`)
-						WHERE a.`id_attribute` = '.(int) $attribute['id_attribute'].'
-						AND g.`id_lang` = '.$idLang.'
-						AND g.`name` IS NOT NULL'
-                        );
+						WHERE a.`id_attribute` = ' . (int) $attribute['id_attribute'] . '
+						AND g.`id_lang` = ' . $id_lang . '
+						AND g.`name` IS NOT NULL');
                     }
                     $result[] = array_merge($attribute, $group[0]);
                 }
-                $valuesNotCustom = $conn->getArray(
-                    '
+                $values_not_custom = $conn->get_array('
 				SELECT DISTINCT a.`id_attribute`, a.`id_attribute_group`, al.`name`, agl.`name` AS `group`
-				FROM `'._DB_PREFIX_.'attribute` a
-				LEFT JOIN `'._DB_PREFIX_.'attribute_lang` al
-					ON (a.`id_attribute` = al.`id_attribute` AND al.`id_lang` = '.$idLang.')
-				LEFT JOIN `'._DB_PREFIX_.'attribute_group_lang` agl
-					ON (a.`id_attribute_group` = agl.`id_attribute_group` AND agl.`id_lang` = '.$idLang.')
-				LEFT JOIN `'._DB_PREFIX_.'product_attribute_combination` pac
+				FROM `' . _DB_PREFIX_ . 'attribute` a
+				LEFT JOIN `' . _DB_PREFIX_ . 'attribute_lang` al
+					ON (a.`id_attribute` = al.`id_attribute` AND al.`id_lang` = ' . $id_lang . ')
+				LEFT JOIN `' . _DB_PREFIX_ . 'attribute_group_lang` agl
+					ON (a.`id_attribute_group` = agl.`id_attribute_group` AND agl.`id_lang` = ' . $id_lang . ')
+				LEFT JOIN `' . _DB_PREFIX_ . 'product_attribute_combination` pac
 					ON (a.`id_attribute` = pac.`id_attribute`)
-				LEFT JOIN `'._DB_PREFIX_.'product_attribute` pa
+				LEFT JOIN `' . _DB_PREFIX_ . 'product_attribute` pa
 					ON (pac.`id_product_attribute` = pa.`id_product_attribute`)
-				'.Shop::addSqlAssociation('product_attribute', 'pa').'
-				WHERE pa.`id_product` = '.(int) $idProduct.'
-				AND pac.id_product_attribute = '.(int) $idProductAttribute.'
-				AND a.`id_attribute` NOT IN('.implode(', ', $tabIdAttribute).')'
-                );
-
-                return array_merge($valuesNotCustom, $result);
+				' . Shop::add_sql_association('product_attribute', 'pa') . '
+				WHERE pa.`id_product` = ' . (int) $id_product . '
+				AND pac.id_product_attribute = ' . (int) $id_product_attribute . '
+				AND a.`id_attribute` NOT IN(' . implode(', ', $tab_id_attribute) . ')');
+                return array_merge($values_not_custom, $result);
             }
         }
-
-        if (!Cache::isStored($cacheId)) {
-            $result = $conn->getArray(
-                '
+        if (!Cache::is_stored($cache_id)) {
+            $result = $conn->get_array('
 			SELECT a.`id_attribute`, a.`id_attribute_group`, al.`name`, agl.`name` AS `group`
-			FROM `'._DB_PREFIX_.'attribute` a
-			LEFT JOIN `'._DB_PREFIX_.'attribute_lang` al
-				ON (al.`id_attribute` = a.`id_attribute` AND al.`id_lang` = '.$idLang.')
-			LEFT JOIN `'._DB_PREFIX_.'product_attribute_combination` pac
+			FROM `' . _DB_PREFIX_ . 'attribute` a
+			LEFT JOIN `' . _DB_PREFIX_ . 'attribute_lang` al
+				ON (al.`id_attribute` = a.`id_attribute` AND al.`id_lang` = ' . $id_lang . ')
+			LEFT JOIN `' . _DB_PREFIX_ . 'product_attribute_combination` pac
 				ON (pac.`id_attribute` = a.`id_attribute`)
-			LEFT JOIN `'._DB_PREFIX_.'product_attribute` pa
+			LEFT JOIN `' . _DB_PREFIX_ . 'product_attribute` pa
 				ON (pa.`id_product_attribute` = pac.`id_product_attribute`)
-			'.Shop::addSqlAssociation('product_attribute', 'pa').'
-			LEFT JOIN `'._DB_PREFIX_.'attribute_group_lang` agl
-				ON (a.`id_attribute_group` = agl.`id_attribute_group` AND agl.`id_lang` = '.$idLang.')
-			WHERE pa.`id_product` = '.(int) $idProduct.'
-				AND pac.`id_product_attribute` = '.(int) $idProductAttribute.'
-				AND agl.`id_lang` = '.$idLang
-            );
-            Cache::store($cacheId, $result);
+			' . Shop::add_sql_association('product_attribute', 'pa') . '
+			LEFT JOIN `' . _DB_PREFIX_ . 'attribute_group_lang` agl
+				ON (a.`id_attribute_group` = agl.`id_attribute_group` AND agl.`id_lang` = ' . $id_lang . ')
+			WHERE pa.`id_product` = ' . (int) $id_product . '
+				AND pac.`id_product_attribute` = ' . (int) $id_product_attribute . '
+				AND agl.`id_lang` = ' . $id_lang);
+            Cache::store($cache_id, $result);
         } else {
-            $result = Cache::retrieve($cacheId);
+            $result = Cache::retrieve($cache_id);
         }
-
         return $result;
     }
-
     /**
      * @param bool $autodate
      * @param bool $nullValues
@@ -7742,16 +5938,14 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public function addWs($autodate = true, $nullValues = false)
+    public function add_ws($autodate = true, $null_values = false)
     {
-        $success = $this->add($autodate, $nullValues);
+        $success = $this->add($autodate, $null_values);
         if ($success && Configuration::get('PS_SEARCH_INDEXATION')) {
             Search::indexation(false, $this->id);
         }
-
         return $success;
     }
-
     /**
      * @param bool $autoDate
      * @param bool $nullValues
@@ -7761,33 +5955,28 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function add($autoDate = true, $nullValues = false)
+    public function add($auto_date = true, $null_values = false)
     {
-        if (!parent::add($autoDate, $nullValues)) {
+        if (!parent::add($auto_date, $null_values)) {
             return false;
         }
-
-        $idShopList = Shop::getContextListShopID();
-        if ($this->getType() == static::PTYPE_VIRTUAL) {
-            foreach ($idShopList as $value) {
-                StockAvailable::setProductOutOfStock((int) $this->id, StockAvailable::OUT_OF_STOCK_ALLOW, $value);
+        $id_shop_list = Shop::get_context_list_shop_id();
+        if ($this->get_type() == static::PTYPE_VIRTUAL) {
+            foreach ($id_shop_list as $value) {
+                Stock_Available::set_product_out_of_stock((int) $this->id, Stock_Available::OUT_OF_STOCK_ALLOW, $value);
             }
-
             if ($this->active && !Configuration::get('PS_VIRTUAL_PROD_FEATURE_ACTIVE')) {
-                Configuration::updateGlobalValue('PS_VIRTUAL_PROD_FEATURE_ACTIVE', '1');
+                Configuration::update_global_value('PS_VIRTUAL_PROD_FEATURE_ACTIVE', '1');
             }
         } else {
-            foreach ($idShopList as $value) {
-                StockAvailable::setProductOutOfStock((int) $this->id, StockAvailable::OUT_OF_STOCK_SYSTEM_DEFAULT, $value);
+            foreach ($id_shop_list as $value) {
+                Stock_Available::set_product_out_of_stock((int) $this->id, Stock_Available::OUT_OF_STOCK_SYSTEM_DEFAULT, $value);
             }
         }
-
-        $this->setGroupReduction();
-        Hook::triggerEvent('actionProductSave', ['id_product' => (int) $this->id, 'product' => $this]);
-
+        $this->set_group_reduction();
+        Hook::trigger_event('actionProductSave', ['id_product' => (int) $this->id, 'product' => $this]);
         return true;
     }
-
     /**
      * @param bool $nullValues
      *
@@ -7795,17 +5984,15 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public function updateWs($nullValues = false)
+    public function update_ws($null_values = false)
     {
-        $success = parent::update($nullValues);
+        $success = parent::update($null_values);
         if ($success && Configuration::get('PS_SEARCH_INDEXATION')) {
             Search::indexation(false, $this->id);
         }
-        Hook::triggerEvent('updateProduct', ['id_product' => (int) $this->id]);
-
+        Hook::trigger_event('updateProduct', ['id_product' => (int) $this->id]);
         return $success;
     }
-
     /**
      * Get list of parent categories
      *
@@ -7815,69 +6002,58 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public function getParentCategories($idLang = null)
+    public function get_parent_categories($id_lang = null)
     {
-        if (!$idLang) {
-            $idLang = Context::getContext()->language->id;
+        if (!$id_lang) {
+            $id_lang = Context::get_context()->language->id;
         }
-
-        $interval = Category::getInterval($this->id_category_default);
+        $interval = Category::get_interval($this->id_category_default);
         if (is_array($interval)) {
-            $sql = new DbQuery();
+            $sql = new Db_Query();
             $sql->from('category', 'c');
-            $sql->leftJoin('category_lang', 'cl', 'c.id_category = cl.id_category AND id_lang = ' . (int)$idLang . Shop::addSqlRestrictionOnLang('cl'));
-            $sql->where('c.nleft <= ' . (int)$interval['nleft'] . ' AND c.nright >= ' . (int)$interval['nright']);
-            $sql->orderBy('c.nleft');
-
-            return Db::readOnly()->getArray($sql);
+            $sql->left_join('category_lang', 'cl', 'c.id_category = cl.id_category AND id_lang = ' . (int) $id_lang . Shop::add_sql_restriction_on_lang('cl'));
+            $sql->where('c.nleft <= ' . (int) $interval['nleft'] . ' AND c.nright >= ' . (int) $interval['nright']);
+            $sql->order_by('c.nleft');
+            return Db::read_only()->get_array($sql);
         }
-
         return [];
     }
-
     /**
      * @param bool $value
      *
      * @throws PrestaShopException
      */
-    public function setAdvancedStockManagement($value): void
+    public function set_advanced_stock_management($value): void
     {
-        $value = (bool)$value;
+        $value = (bool) $value;
         $this->advanced_stock_management = $value;
-        if (Context::getContext()->shop->getContext() == Shop::CONTEXT_GROUP && Context::getContext()->shop->getContextShopGroup()->share_stock == 1) {
-            Db::getInstance()->execute(
-                '
-				UPDATE `'._DB_PREFIX_.'product_shop`
-				SET `advanced_stock_management`='.(int) $value.'
-				WHERE id_product='.(int) $this->id.Shop::addSqlRestriction()
-            );
+        if (Context::get_context()->shop->get_context() == Shop::CONTEXT_GROUP && Context::get_context()->shop->get_context_shop_group()->share_stock == 1) {
+            Db::get_instance()->execute('
+				UPDATE `' . _DB_PREFIX_ . 'product_shop`
+				SET `advanced_stock_management`=' . (int) $value . '
+				WHERE id_product=' . (int) $this->id . Shop::add_sql_restriction());
         } else {
-            $this->setFieldsToUpdate(['advanced_stock_management' => true]);
+            $this->set_fields_to_update(['advanced_stock_management' => true]);
             $this->save();
         }
     }
-
     /**
      * get the default category according to the shop
      *
      * @throws PrestaShopException
      */
-    public function getDefaultCategory()
+    public function get_default_category()
     {
-        $defaultCategory = Db::readOnly()->getValue(
-            '
+        $default_category = Db::read_only()->get_value('
 			SELECT product_shop.`id_category_default`
-			FROM `'._DB_PREFIX_.'product` p
-			'.Shop::addSqlAssociation('product', 'p').'
-			WHERE p.`id_product` = '.(int) $this->id
-        );
-
-        if (!$defaultCategory) {
-            return ['id_category_default' => Context::getContext()->shop->id_category];
+			FROM `' . _DB_PREFIX_ . 'product` p
+			' . Shop::add_sql_association('product', 'p') . '
+			WHERE p.`id_product` = ' . (int) $this->id);
+        if (!$default_category) {
+            return ['id_category_default' => Context::get_context()->shop->id_category];
         }
-        return $defaultCategory;
+        return $default_category;
     }
-
     /**
      * @deprecated 1.0.0
      * @see Product::getAttributeCombinations()
@@ -7888,13 +6064,11 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function getAttributeCombinaisons($idLang)
+    public function get_attribute_combinaisons($id_lang)
     {
-        Tools::displayAsDeprecated('Use Product::getAttributeCombinations($id_lang)');
-
-        return $this->getAttributeCombinations($idLang);
+        Tools::display_as_deprecated('Use Product::getAttributeCombinations($id_lang)');
+        return $this->get_attribute_combinations($id_lang);
     }
-
     /**
      * Get all available product attributes combinations
      *
@@ -7905,44 +6079,34 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function getAttributeCombinations($idLang)
+    public function get_attribute_combinations($id_lang)
     {
-        if (!Combination::isFeatureActive()) {
+        if (!Combination::is_feature_active()) {
             return [];
         }
-
         $sql = 'SELECT pa.*, product_attribute_shop.*, ag.`id_attribute_group`, ag.`is_color_group`, agl.`name` AS group_name, al.`name` AS attribute_name,
 					a.`id_attribute`
-				FROM `'._DB_PREFIX_.'product_attribute` pa
-				'.Shop::addSqlAssociation('product_attribute', 'pa').'
-				LEFT JOIN `'._DB_PREFIX_.'product_attribute_combination` pac ON pac.`id_product_attribute` = pa.`id_product_attribute`
-				LEFT JOIN `'._DB_PREFIX_.'attribute` a ON a.`id_attribute` = pac.`id_attribute`
-				LEFT JOIN `'._DB_PREFIX_.'attribute_group` ag ON ag.`id_attribute_group` = a.`id_attribute_group`
-				LEFT JOIN `'._DB_PREFIX_.'attribute_lang` al ON (a.`id_attribute` = al.`id_attribute` AND al.`id_lang` = '.(int) $idLang.')
-				LEFT JOIN `'._DB_PREFIX_.'attribute_group_lang` agl ON (ag.`id_attribute_group` = agl.`id_attribute_group` AND agl.`id_lang` = '.(int) $idLang.')
-				WHERE pa.`id_product` = '.(int) $this->id.'
+				FROM `' . _DB_PREFIX_ . 'product_attribute` pa
+				' . Shop::add_sql_association('product_attribute', 'pa') . '
+				LEFT JOIN `' . _DB_PREFIX_ . 'product_attribute_combination` pac ON pac.`id_product_attribute` = pa.`id_product_attribute`
+				LEFT JOIN `' . _DB_PREFIX_ . 'attribute` a ON a.`id_attribute` = pac.`id_attribute`
+				LEFT JOIN `' . _DB_PREFIX_ . 'attribute_group` ag ON ag.`id_attribute_group` = a.`id_attribute_group`
+				LEFT JOIN `' . _DB_PREFIX_ . 'attribute_lang` al ON (a.`id_attribute` = al.`id_attribute` AND al.`id_lang` = ' . (int) $id_lang . ')
+				LEFT JOIN `' . _DB_PREFIX_ . 'attribute_group_lang` agl ON (ag.`id_attribute_group` = agl.`id_attribute_group` AND agl.`id_lang` = ' . (int) $id_lang . ')
+				WHERE pa.`id_product` = ' . (int) $this->id . '
 				GROUP BY pa.`id_product_attribute`, ag.`id_attribute_group`
 				ORDER BY pa.`id_product_attribute`';
-
-        $res = Db::readOnly()->getArray($sql);
-
+        $res = Db::read_only()->get_array($sql);
         //Get quantity of each variations
         foreach ($res as $key => $row) {
-            $cacheKey = $row['id_product'].'_'.$row['id_product_attribute'].'_quantity';
-
-            if (!Cache::isStored($cacheKey)) {
-                Cache::store(
-                    $cacheKey,
-                    StockAvailable::getQuantityAvailableByProduct($row['id_product'], $row['id_product_attribute'])
-                );
+            $cache_key = $row['id_product'] . '_' . $row['id_product_attribute'] . '_quantity';
+            if (!Cache::is_stored($cache_key)) {
+                Cache::store($cache_key, Stock_Available::get_quantity_available_by_product($row['id_product'], $row['id_product_attribute']));
             }
-
-            $res[$key]['quantity'] = Cache::retrieve($cacheKey);
+            $res[$key]['quantity'] = Cache::retrieve($cache_key);
         }
-
         return $res;
     }
-
     /**
      * @param int $idProductAttribute
      *
@@ -7952,17 +6116,14 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @deprecated 1.0.0
      * @see Product::deleteAttributeCombination()
      */
-    public function deleteAttributeCombinaison($idProductAttribute)
+    public function delete_attribute_combinaison($id_product_attribute)
     {
-        Tools::displayAsDeprecated('Use Product::deleteAttributeCombination($id_product_attribute)');
-
-        return $this->deleteAttributeCombination($idProductAttribute);
+        Tools::display_as_deprecated('Use Product::deleteAttributeCombination($id_product_attribute)');
+        return $this->delete_attribute_combination($id_product_attribute);
     }
-
     /*
         Create the link rewrite if not exists or invalid on product creation
     */
-
     /**
      * Delete a product attributes combination
      *
@@ -7973,80 +6134,57 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function deleteAttributeCombination($idProductAttribute)
+    public function delete_attribute_combination($id_product_attribute)
     {
-        if (!$this->id || !$idProductAttribute || !is_numeric($idProductAttribute)) {
+        if (!$this->id || !$id_product_attribute || !is_numeric($id_product_attribute)) {
             return false;
         }
-
-        Hook::triggerEvent(
-            'deleteProductAttribute',
-            [
-                'id_product_attribute' => $idProductAttribute,
-                'id_product'           => $this->id,
-                'deleteAllAttributes'  => false,
-            ]
-        );
-
-        $combination = new Combination($idProductAttribute);
+        Hook::trigger_event('deleteProductAttribute', ['id_product_attribute' => $id_product_attribute, 'id_product' => $this->id, 'deleteAllAttributes' => false]);
+        $combination = new Combination($id_product_attribute);
         $res = $combination->delete();
-        SpecificPriceRule::applyAllRules([(int) $this->id]);
-
+        Specific_Price_Rule::apply_all_rules([(int) $this->id]);
         return $res;
     }
-
     /**
      * @return string
      *
      * @throws PrestaShopException
      */
-    public function getWsType()
+    public function get_ws_type()
     {
-        $typeInformation = [
-            static::PTYPE_SIMPLE  => 'simple',
-            static::PTYPE_PACK    => 'pack',
-            static::PTYPE_VIRTUAL => 'virtual',
-        ];
-
-        return $typeInformation[$this->getType()];
+        $type_information = [static::PTYPE_SIMPLE => 'simple', static::PTYPE_PACK => 'pack', static::PTYPE_VIRTUAL => 'virtual'];
+        return $type_information[$this->get_type()];
     }
-
     /**
      * @return bool
      *
      * @throws PrestaShopException
      */
-    public function modifierWsLinkRewrite()
+    public function modifier_ws_link_rewrite()
     {
-        if (! $this->link_rewrite) {
+        if (!$this->link_rewrite) {
             $this->link_rewrite = [];
         }
-        foreach ($this->name as $idLang => $name) {
-            if (empty($this->link_rewrite[$idLang])) {
-                $this->link_rewrite[$idLang] = Tools::link_rewrite($name);
-            } elseif (!Validate::isLinkRewrite($this->link_rewrite[$idLang])) {
-                $this->link_rewrite[$idLang] = Tools::link_rewrite($this->link_rewrite[$idLang]);
+        foreach ($this->name as $id_lang => $name) {
+            if (empty($this->link_rewrite[$id_lang])) {
+                $this->link_rewrite[$id_lang] = Tools::link_rewrite($name);
+            } elseif (!Validate::is_link_rewrite($this->link_rewrite[$id_lang])) {
+                $this->link_rewrite[$id_lang] = Tools::link_rewrite($this->link_rewrite[$id_lang]);
             }
         }
-
         return true;
     }
-
     /**
      * @return array
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function getWsProductBundle()
+    public function get_ws_product_bundle()
     {
-        $sql = (new DbQuery())
-            ->select('id_product_item AS id, quantity, NULLIF(id_product_attribute_item, 0) AS combination_id')
-            ->from('pack')
-            ->where('id_product_pack = ' . (int) $this->id);
-        return Db::readOnly()->getArray($sql);
+        $sql = (new Db_Query())->select('id_product_item AS id, quantity, NULLIF(id_product_attribute_item, 0) AS combination_id')->from('pack')->where('id_product_pack = ' . (int) $this->id);
+        return Db::read_only()->get_array($sql);
     }
-
     /**
      * @param string $typeStr
      *
@@ -8054,30 +6192,20 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public function setWsType($typeStr)
+    public function set_ws_type($type_str)
     {
-        $reverseTypeInformation = [
-            'simple'  => static::PTYPE_SIMPLE,
-            'pack'    => static::PTYPE_PACK,
-            'virtual' => static::PTYPE_VIRTUAL,
-        ];
-
-        if (!isset($reverseTypeInformation[$typeStr])) {
+        $reverse_type_information = ['simple' => static::PTYPE_SIMPLE, 'pack' => static::PTYPE_PACK, 'virtual' => static::PTYPE_VIRTUAL];
+        if (!isset($reverse_type_information[$type_str])) {
             return false;
         }
-
-        $type = $reverseTypeInformation[$typeStr];
-
-        if (Pack::isPack((int) $this->id) && $type != static::PTYPE_PACK) {
-            Pack::deleteItems($this->id);
+        $type = $reverse_type_information[$type_str];
+        if (Pack::is_pack((int) $this->id) && $type != static::PTYPE_PACK) {
+            Pack::delete_items($this->id);
         }
-
-        $this->cache_is_pack = ($type == static::PTYPE_PACK);
-        $this->is_virtual = ($type == static::PTYPE_VIRTUAL);
-
+        $this->cache_is_pack = $type == static::PTYPE_PACK;
+        $this->is_virtual = $type == static::PTYPE_VIRTUAL;
         return true;
     }
-
     /**
      * @param array $items
      *
@@ -8086,28 +6214,19 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function setWsProductBundle($items)
+    public function set_ws_product_bundle($items)
     {
         if ($this->is_virtual) {
             return false;
         }
-
-        Pack::deleteItems($this->id);
-
+        Pack::delete_items($this->id);
         foreach ($items as $item) {
-            if (isset($item['id']) && (int)$item['id']) {
-                Pack::addItem(
-                    (int)$this->id,
-                    (int)$item['id'],
-                    isset($item['quantity']) ? (int)$item['quantity'] : 1,
-                    isset($item['combination_id']) ? (int)$item['combination_id'] : 0
-                );
+            if (isset($item['id']) && (int) $item['id']) {
+                Pack::add_item((int) $this->id, (int) $item['id'], isset($item['quantity']) ? (int) $item['quantity'] : 1, isset($item['combination_id']) ? (int) $item['combination_id'] : 0);
             }
         }
-
         return true;
     }
-
     /**
      * @param int $idAttribute
      * @param int $idShop
@@ -8116,45 +6235,35 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public function isColorUnavailable($idAttribute, $idShop)
+    public function is_color_unavailable($id_attribute, $id_shop)
     {
-        return Db::readOnly()->getValue(
-            '
+        return Db::read_only()->get_value('
 			SELECT sa.id_product_attribute
-			FROM '._DB_PREFIX_.'stock_available sa
-			WHERE id_product='.(int) $this->id.' AND quantity <= 0
-			'.StockAvailable::addSqlShopRestriction(null, $idShop, 'sa').'
+			FROM ' . _DB_PREFIX_ . 'stock_available sa
+			WHERE id_product=' . (int) $this->id . ' AND quantity <= 0
+			' . Stock_Available::add_sql_shop_restriction(null, $id_shop, 'sa') . '
 			AND EXISTS (
 				SELECT 1
-				FROM '._DB_PREFIX_.'product_attribute pa
-				JOIN '._DB_PREFIX_.'product_attribute_shop product_attribute_shop
-					ON (product_attribute_shop.id_product_attribute = pa.id_product_attribute AND product_attribute_shop.id_shop='.(int) $idShop.')
-				JOIN '._DB_PREFIX_.'product_attribute_combination pac
+				FROM ' . _DB_PREFIX_ . 'product_attribute pa
+				JOIN ' . _DB_PREFIX_ . 'product_attribute_shop product_attribute_shop
+					ON (product_attribute_shop.id_product_attribute = pa.id_product_attribute AND product_attribute_shop.id_shop=' . (int) $id_shop . ')
+				JOIN ' . _DB_PREFIX_ . 'product_attribute_combination pac
 					ON (pac.id_product_attribute AND product_attribute_shop.id_product_attribute)
-				WHERE sa.id_product_attribute = pa.id_product_attribute AND pa.id_product='.(int) $this->id.' AND pac.id_attribute='.(int) $idAttribute.'
-			)'
-        );
+				WHERE sa.id_product_attribute = pa.id_product_attribute AND pa.id_product=' . (int) $this->id . ' AND pac.id_attribute=' . (int) $id_attribute . '
+			)');
     }
-
     /**
      * @param TableSchema $table
      */
-    public static function processTableSchema($table): void
+    public static function process_table_schema($table): void
     {
-        if ($table->getNameWithoutPrefix() === 'product_lang') {
-            $table->reorderColumns(['id_product', 'id_shop', 'id_lang']);
+        if ($table->get_name_without_prefix() === 'product_lang') {
+            $table->reorder_columns(['id_product', 'id_shop', 'id_lang']);
         }
-        if ($table->getNameWithoutPrefix() === 'product_shop') {
-            $table->reorderColumns([
-                'id_product', 'id_shop', 'id_category_default', 'id_tax_rules_group', 'on_sale', 'online_only', 'ecotax',
-                'minimal_quantity', 'price', 'wholesale_price', 'unity', 'unit_price_ratio', 'additional_shipping_cost',
-                'customizable', 'uploadable_files', 'text_fields', 'active', 'redirect_type', 'id_product_redirected',
-                'available_for_order', 'available_date', 'condition', 'show_price', 'indexed', 'visibility',
-                'cache_default_attribute', 'advanced_stock_management', 'date_add', 'date_upd', 'pack_stock_type',
-            ]);
+        if ($table->get_name_without_prefix() === 'product_shop') {
+            $table->reorder_columns(['id_product', 'id_shop', 'id_category_default', 'id_tax_rules_group', 'on_sale', 'online_only', 'ecotax', 'minimal_quantity', 'price', 'wholesale_price', 'unity', 'unit_price_ratio', 'additional_shipping_cost', 'customizable', 'uploadable_files', 'text_fields', 'active', 'redirect_type', 'id_product_redirected', 'available_for_order', 'available_date', 'condition', 'show_price', 'indexed', 'visibility', 'cache_default_attribute', 'advanced_stock_management', 'date_add', 'date_upd', 'pack_stock_type']);
         }
     }
-
     /**
      * Returns pack stock type management type, one of
      *   - Pack::STOCK_TYPE_DECREMENT_PACK,
@@ -8163,74 +6272,65 @@ class ProductCore extends ObjectModel implements InitializationCallback
      *
      * @return int
      */
-    public function getPackStockType()
+    public function get_pack_stock_type()
     {
-        $stockType = (int)$this->pack_stock_type;
-        if (Pack::isValidStockType($stockType)) {
-            return $stockType;
+        $stock_type = (int) $this->pack_stock_type;
+        if (Pack::is_valid_stock_type($stock_type)) {
+            return $stock_type;
         }
-        if ($stockType === Pack::STOCK_TYPE_DECREMENT_GLOBAL_SETTINGS) {
-            return Pack::getGlobalStockTypeSettings();
+        if ($stock_type === Pack::STOCK_TYPE_DECREMENT_GLOBAL_SETTINGS) {
+            return Pack::get_global_stock_type_settings();
         }
         // should never happen
         return Pack::STOCK_TYPE_DECREMENT_PACK;
     }
-
     /**
      * Returns true, if quantities of pack items should be adjusted with sale of pack
      *
      * @return bool
      */
-    public function shouldAdjustPackItemsQuantities()
+    public function should_adjust_pack_items_quantities()
     {
-        return match ($this->getPackStockType()) {
+        return match ($this->get_pack_stock_type()) {
             Pack::STOCK_TYPE_DECREMENT_PACK => false,
             Pack::STOCK_TYPE_DECREMENT_PRODUCTS => true,
             Pack::STOCK_TYPE_DECREMENT_PACK_AND_PRODUCTS => true,
             default => throw new RuntimeException('Invariant: getPackStockType returned invalid value'),
         };
     }
-
     /**
      * Returns true, if quantity of pack itself should be adjusted with sale of pack
      *
      * @return bool
      */
-    public function shouldAdjustPackQuantity()
+    public function should_adjust_pack_quantity()
     {
-        return match ($this->getPackStockType()) {
+        return match ($this->get_pack_stock_type()) {
             Pack::STOCK_TYPE_DECREMENT_PACK => true,
             Pack::STOCK_TYPE_DECREMENT_PRODUCTS => false,
             Pack::STOCK_TYPE_DECREMENT_PACK_AND_PRODUCTS => true,
             default => throw new RuntimeException('Invariant: getPackStockType returned invalid value'),
         };
     }
-
     /**
      * Returns default shop ID associated with product.
      *
      * @return int
      * @throws PrestaShopException
      */
-    public function getDefaultShopId()
+    public function get_default_shop_id()
     {
-        $shopId = (int)$this->id_shop_default;
-        if (! $this->isAssociatedToShop($shopId)) {
-            $conn = Db::getInstance();
-            $cond = 'id_product = ' . (int)$this->id;
-            $shopId = (int)$conn->getValue(
-                (new DbQuery())
-                ->select('MIN(id_shop)')
-                ->from('product_shop')
-                ->where($cond)
-            );
-            if ($shopId) {
-                $conn->update('product', ['id_shop_default' => $shopId], $cond);
+        $shop_id = (int) $this->id_shop_default;
+        if (!$this->is_associated_to_shop($shop_id)) {
+            $conn = Db::get_instance();
+            $cond = 'id_product = ' . (int) $this->id;
+            $shop_id = (int) $conn->get_value((new Db_Query())->select('MIN(id_shop)')->from('product_shop')->where($cond));
+            if ($shop_id) {
+                $conn->update('product', ['id_shop_default' => $shop_id], $cond);
             }
         }
-        return $shopId;
+        return $shop_id;
     }
-
     /**
      * Returns true, if customization is required for a product
      *
@@ -8239,134 +6339,119 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function isCustomizationRequired()
+    public function is_customization_required()
     {
         if ($this->customizable) {
-            return (bool)Db::readOnly()->getValue(
-                (new DbQuery())
-                ->select('1')
-                ->from('customization_field', 'cf')
-                ->where('cf.id_product = '.(int)$this->id)
-                ->where('cf.`required`')
-            );
+            return (bool) Db::read_only()->get_value((new Db_Query())->select('1')->from('customization_field', 'cf')->where('cf.id_product = ' . (int) $this->id)->where('cf.`required`'));
         }
         return false;
     }
-
     /**
      * Returns true, if Context represents front office context
      *
      * @param Context|null $context
      */
-    protected static function isFrontOfficeContext($context): bool
+    protected static function is_front_office_context($context): bool
     {
         if (!$context) {
-            $context = Context::getContext();
+            $context = Context::get_context();
         }
-
         // this is not front office context if if controller is not set
-        if (! isset($context->controller)) {
+        if (!isset($context->controller)) {
             return false;
         }
-
         // check controller type
         return in_array($context->controller->controller_type, ['front', 'modulefront']);
     }
-
     /**
      * Database initialization callback
      *
      * @throws PrestaShopException
      */
-    public static function initializationCallback(Db $conn): void
+    public static function initialization_callback(Db $conn): void
     {
-        ImageEntity::rebuildImageEntities('Product', self::$definition['images']);
+        Image_Entity::rebuild_image_entities('Product', self::$definition['images']);
     }
-
     /**
      * Returns weight of product, including combination impact
      *
      *
      * @throws PrestaShopException
      */
-    public function getWeight(int $combinationId = 0): float
+    public function get_weight(int $combination_id = 0): float
     {
-        $weight = (float)$this->weight;
-        if ($this->hasAttributes()) {
-            if (! $combinationId) {
-                $combinationId = $this->getDefaultIdProductAttribute();
+        $weight = (float) $this->weight;
+        if ($this->has_attributes()) {
+            if (!$combination_id) {
+                $combination_id = $this->get_default_id_product_attribute();
             }
-            $combination = new Combination($combinationId);
-            if (Validate::isLoadedObject($combination)) {
-                $weight += (float)$combination->weight;
+            $combination = new Combination($combination_id);
+            if (Validate::is_loaded_object($combination)) {
+                $weight += (float) $combination->weight;
             }
         }
         return $weight;
     }
-
     /**
      * Returns width of product, including combination impact
      *
      *
      * @throws PrestaShopException
      */
-    public function getWidth(int $combinationId = 0): float
+    public function get_width(int $combination_id = 0): float
     {
-        $width = (float)$this->width;
-        if ($this->hasAttributes()) {
-            if (! $combinationId) {
-                $combinationId = $this->getDefaultIdProductAttribute();
+        $width = (float) $this->width;
+        if ($this->has_attributes()) {
+            if (!$combination_id) {
+                $combination_id = $this->get_default_id_product_attribute();
             }
-            $combination = new Combination($combinationId);
-            if (Validate::isLoadedObject($combination)) {
-                $width += (float)$combination->width;
+            $combination = new Combination($combination_id);
+            if (Validate::is_loaded_object($combination)) {
+                $width += (float) $combination->width;
             }
         }
         return $width;
     }
-
     /**
      * Returns height of product, including combination impact
      *
      *
      * @throws PrestaShopException
      */
-    public function getHeight(int $combinationId = 0): float
+    public function get_height(int $combination_id = 0): float
     {
-        $height = (float)$this->height;
-        if ($this->hasAttributes()) {
-            if (! $combinationId) {
-                $combinationId = $this->getDefaultIdProductAttribute();
+        $height = (float) $this->height;
+        if ($this->has_attributes()) {
+            if (!$combination_id) {
+                $combination_id = $this->get_default_id_product_attribute();
             }
-            $combination = new Combination($combinationId);
-            if (Validate::isLoadedObject($combination)) {
-                $height += (float)$combination->height;
+            $combination = new Combination($combination_id);
+            if (Validate::is_loaded_object($combination)) {
+                $height += (float) $combination->height;
             }
         }
         return $height;
     }
-
     /**
      * Returns depth of product, including combination impact
      *
      *
      * @throws PrestaShopException
      */
-    public function getDepth(int $combinationId = 0): float
+    public function get_depth(int $combination_id = 0): float
     {
-        $depth = (float)$this->depth;
-        if ($this->hasAttributes()) {
-            if (! $combinationId) {
-                $combinationId = $this->getDefaultIdProductAttribute();
+        $depth = (float) $this->depth;
+        if ($this->has_attributes()) {
+            if (!$combination_id) {
+                $combination_id = $this->get_default_id_product_attribute();
             }
-            $combination = new Combination($combinationId);
-            if (Validate::isLoadedObject($combination)) {
-                $depth += (float)$combination->depth;
+            $combination = new Combination($combination_id);
+            if (Validate::is_loaded_object($combination)) {
+                $depth += (float) $combination->depth;
             }
         }
         return $depth;
     }
-
     /**
      * Returns the available product quantity.
      * If combinations exist, sums only positive stocks (if $ignoreNegativeStocks is true).
@@ -8381,43 +6466,37 @@ class ProductCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopException
      * @since thirty bees 1.7.0
      */
-    public function getAvailableQuantity(bool $ignoreNegativeStocks = true, bool $fresh = false, ?int $idShop = null): int
+    public function get_available_quantity(bool $ignore_negative_stocks = true, bool $fresh = false, ?int $id_shop = null): int
     {
-        $productId = (int)$this->id;
-        if (! $productId) {
+        $product_id = (int) $this->id;
+        if (!$product_id) {
             return 0;
         }
-
-        $cacheKey = ($ignoreNegativeStocks ? 'p' : 'n') . '_' . $idShop;
+        $cache_key = ($ignore_negative_stocks ? 'p' : 'n') . '_' . $id_shop;
         if ($fresh) {
-            unset($this->_cache_available_quantity[$cacheKey]);
+            unset($this->_cache_available_quantity[$cache_key]);
         }
-
-        if (isset($this->_cache_available_quantity[$cacheKey])) {
-            return $this->_cache_available_quantity[$cacheKey];
+        if (isset($this->_cache_available_quantity[$cache_key])) {
+            return $this->_cache_available_quantity[$cache_key];
         }
-
-        $this->_cache_available_quantity[$cacheKey] = 0;
-
-        if (Combination::isFeatureActive()) {
-            $combinations = static::getProductAttributesIds($productId);
+        $this->_cache_available_quantity[$cache_key] = 0;
+        if (Combination::is_feature_active()) {
+            $combinations = static::get_product_attributes_ids($product_id);
             if ($combinations) {
                 foreach ($combinations as $row) {
-                    $combinationId = (int)$row['id_product_attribute'];
-                    $stock = StockAvailableCore::getQuantityAvailableByProduct($productId, $combinationId, $idShop);
-                    if ($stock > 0 || !$ignoreNegativeStocks) {
-                        $this->_cache_available_quantity[$cacheKey] += $stock;
+                    $combination_id = (int) $row['id_product_attribute'];
+                    $stock = Stock_Available_Core::get_quantity_available_by_product($product_id, $combination_id, $id_shop);
+                    if ($stock > 0 || !$ignore_negative_stocks) {
+                        $this->_cache_available_quantity[$cache_key] += $stock;
                     }
                 }
-                return $this->_cache_available_quantity[$cacheKey];
+                return $this->_cache_available_quantity[$cache_key];
             }
         }
-
-        $stock = StockAvailableCore::getQuantityAvailableByProduct($productId, null, $idShop);
-        if ($stock > 0 || !$ignoreNegativeStocks) {
-            $this->_cache_available_quantity[$cacheKey] = $stock;
+        $stock = Stock_Available_Core::get_quantity_available_by_product($product_id, null, $id_shop);
+        if ($stock > 0 || !$ignore_negative_stocks) {
+            $this->_cache_available_quantity[$cache_key] = $stock;
         }
-
-        return $this->_cache_available_quantity[$cacheKey];
+        return $this->_cache_available_quantity[$cache_key];
     }
 }

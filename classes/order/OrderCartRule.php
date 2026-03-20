@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,65 +30,33 @@ declare(strict_types=1);
  *  @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class OrderCartRuleCore
  */
-class OrderCartRuleCore extends ObjectModel
+class Order_Cart_Rule_Core extends Object_Model
 {
     /** @var int */
     public $id_order_cart_rule;
-
     /** @var int */
     public $id_order;
-
     /** @var int */
     public $id_cart_rule;
-
     /** @var int */
     public $id_order_invoice;
-
     /** @var string */
     public $name;
-
     /** @var float value (tax incl.) of voucher */
     public $value;
-
     /** @var float value (tax excl.) of voucher */
     public $value_tax_excl;
-
     /** @var bool value : voucher gives free shipping or not */
     public $free_shipping;
-
     /**
      * @var array Object model definition
      */
-    public static $definition = [
-        'table'   => 'order_cart_rule',
-        'primary' => 'id_order_cart_rule',
-        'fields'  => [
-            'id_order'         => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true],
-            'id_cart_rule'     => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true],
-            'id_order_invoice' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'dbDefault' => '0', 'dbNullable' => true],
-            'name'             => ['type' => self::TYPE_STRING, 'validate' => 'isCleanHtml', 'required' => true, 'size' => 254],
-            'value'            => ['type' => self::TYPE_PRICE, 'validate' => 'isPrice', 'required' => true, 'dbDefault' => '0.000000'],
-            'value_tax_excl'   => ['type' => self::TYPE_PRICE, 'validate' => 'isPrice', 'required' => true, 'dbDefault' => '0.000000'],
-            'free_shipping'    => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbType' => 'tinyint(1)', 'dbDefault' => '0'],
-        ],
-        'keys' => [
-            'order_cart_rule' => [
-                'id_cart_rule' => ['type' => ObjectModel::KEY, 'columns' => ['id_cart_rule']],
-                'id_order'     => ['type' => ObjectModel::KEY, 'columns' => ['id_order']],
-            ],
-        ],
-    ];
-
+    public static $definition = ['table' => 'order_cart_rule', 'primary' => 'id_order_cart_rule', 'fields' => ['id_order' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true], 'id_cart_rule' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true], 'id_order_invoice' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'dbDefault' => '0', 'dbNullable' => true], 'name' => ['type' => self::TYPE_STRING, 'validate' => 'isCleanHtml', 'required' => true, 'size' => 254], 'value' => ['type' => self::TYPE_PRICE, 'validate' => 'isPrice', 'required' => true, 'dbDefault' => '0.000000'], 'value_tax_excl' => ['type' => self::TYPE_PRICE, 'validate' => 'isPrice', 'required' => true, 'dbDefault' => '0.000000'], 'free_shipping' => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbType' => 'tinyint(1)', 'dbDefault' => '0']], 'keys' => ['order_cart_rule' => ['id_cart_rule' => ['type' => Object_Model::KEY, 'columns' => ['id_cart_rule']], 'id_order' => ['type' => Object_Model::KEY, 'columns' => ['id_order']]]]];
     /**
      * @var array Webservice parameters
      */
-    protected $webserviceParameters = [
-        'fields' => [
-            'id_order' => ['xlink_resource' => 'orders'],
-        ],
-    ];
+    protected $webservice_parameters = ['fields' => ['id_order' => ['xlink_resource' => 'orders']]];
 }

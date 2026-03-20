@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,11 +30,10 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class CustomerThreadCore
  */
-class CustomerThreadCore extends ObjectModel
+class Customer_Thread_Core extends Object_Model
 {
     /** @var int $id_contact */
     public $id_contact;
@@ -54,67 +53,14 @@ class CustomerThreadCore extends ObjectModel
     public $date_add;
     /** @var string $date_upd */
     public $date_upd;
-
     /**
      * @var array Object model definition
      */
-    public static $definition = [
-        'table'   => 'customer_thread',
-        'primary' => 'id_customer_thread',
-        'fields'  => [
-            'id_shop'     => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'dbDefault' => '1'],
-            'id_lang'     => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true],
-            'id_contact'  => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true],
-            'id_customer' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId'],
-            'id_order'    => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId'],
-            'id_product'  => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId'],
-            'status'      => ['type' => self::TYPE_STRING, 'values' => ['open', 'closed', 'pending1', 'pending2'], 'dbDefault' => 'open'],
-            'email'       => ['type' => self::TYPE_STRING, 'validate' => 'isEmail', 'size' => 128, 'dbNullable' => false],
-            'token'       => ['type' => self::TYPE_STRING, 'validate' => 'isGenericName', 'required' => true, 'size' => 12, 'dbNullable' => true],
-            'date_add'    => ['type' => self::TYPE_DATE, 'validate' => 'isDate', 'dbNullable' => false],
-            'date_upd'    => ['type' => self::TYPE_DATE, 'validate' => 'isDate', 'dbNullable' => false],
-        ],
-        'keys' => [
-            'customer_thread' => [
-                'id_contact'  => ['type' => ObjectModel::KEY, 'columns' => ['id_contact']],
-                'id_customer' => ['type' => ObjectModel::KEY, 'columns' => ['id_customer']],
-                'id_lang'     => ['type' => ObjectModel::KEY, 'columns' => ['id_lang']],
-                'id_order'    => ['type' => ObjectModel::KEY, 'columns' => ['id_order']],
-                'id_product'  => ['type' => ObjectModel::KEY, 'columns' => ['id_product']],
-                'id_shop'     => ['type' => ObjectModel::KEY, 'columns' => ['id_shop']],
-            ],
-        ],
-    ];
-
+    public static $definition = ['table' => 'customer_thread', 'primary' => 'id_customer_thread', 'fields' => ['id_shop' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'dbDefault' => '1'], 'id_lang' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true], 'id_contact' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true], 'id_customer' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId'], 'id_order' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId'], 'id_product' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId'], 'status' => ['type' => self::TYPE_STRING, 'values' => ['open', 'closed', 'pending1', 'pending2'], 'dbDefault' => 'open'], 'email' => ['type' => self::TYPE_STRING, 'validate' => 'isEmail', 'size' => 128, 'dbNullable' => false], 'token' => ['type' => self::TYPE_STRING, 'validate' => 'isGenericName', 'required' => true, 'size' => 12, 'dbNullable' => true], 'date_add' => ['type' => self::TYPE_DATE, 'validate' => 'isDate', 'dbNullable' => false], 'date_upd' => ['type' => self::TYPE_DATE, 'validate' => 'isDate', 'dbNullable' => false]], 'keys' => ['customer_thread' => ['id_contact' => ['type' => Object_Model::KEY, 'columns' => ['id_contact']], 'id_customer' => ['type' => Object_Model::KEY, 'columns' => ['id_customer']], 'id_lang' => ['type' => Object_Model::KEY, 'columns' => ['id_lang']], 'id_order' => ['type' => Object_Model::KEY, 'columns' => ['id_order']], 'id_product' => ['type' => Object_Model::KEY, 'columns' => ['id_product']], 'id_shop' => ['type' => Object_Model::KEY, 'columns' => ['id_shop']]]]];
     /**
      * @var array Webservice parameters
      */
-    protected $webserviceParameters = [
-        'fields'       => [
-            'id_lang'     => [
-                'xlink_resource' => 'languages',
-            ],
-            'id_shop'     => [
-                'xlink_resource' => 'shops',
-            ],
-            'id_customer' => [
-                'xlink_resource' => 'customers',
-            ],
-            'id_order'    => [
-                'xlink_resource' => 'orders',
-            ],
-            'id_product'  => [
-                'xlink_resource' => 'products',
-            ],
-        ],
-        'associations' => [
-            'customer_messages' => [
-                'resource' => 'customer_message',
-                'id'       => ['required' => true],
-            ],
-        ],
-    ];
-
+    protected $webservice_parameters = ['fields' => ['id_lang' => ['xlink_resource' => 'languages'], 'id_shop' => ['xlink_resource' => 'shops'], 'id_customer' => ['xlink_resource' => 'customers'], 'id_order' => ['xlink_resource' => 'orders'], 'id_product' => ['xlink_resource' => 'products']], 'associations' => ['customer_messages' => ['resource' => 'customer_message', 'id' => ['required' => true]]]];
     /**
      * @param int $idCustomer
      * @param int|null $read
@@ -125,24 +71,17 @@ class CustomerThreadCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getCustomerMessages($idCustomer, $read = null, $idOrder = null)
+    public static function get_customer_messages($id_customer, $read = null, $id_order = null)
     {
-        $sql = (new DbQuery())
-            ->select('*')
-            ->from('customer_thread', 'ct')
-            ->leftJoin('customer_message', 'cm', 'ct.`id_customer_thread` = cm.`id_customer_thread`')
-            ->where('`id_customer` = '.(int) $idCustomer);
-
+        $sql = (new Db_Query())->select('*')->from('customer_thread', 'ct')->left_join('customer_message', 'cm', 'ct.`id_customer_thread` = cm.`id_customer_thread`')->where('`id_customer` = ' . (int) $id_customer);
         if ($read !== null) {
-            $sql->where('cm.`read` = '.(int) $read);
+            $sql->where('cm.`read` = ' . (int) $read);
         }
-        if ($idOrder !== null) {
-            $sql->where('ct.`id_order` = '.(int) $idOrder);
+        if ($id_order !== null) {
+            $sql->where('ct.`id_order` = ' . (int) $id_order);
         }
-
-        return Db::readOnly()->getArray($sql);
+        return Db::read_only()->get_array($sql);
     }
-
     /**
      * @param string $email
      * @param int $idOrder
@@ -151,39 +90,20 @@ class CustomerThreadCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function getIdCustomerThreadByEmailAndIdOrder($email, $idOrder)
+    public static function get_id_customer_thread_by_email_and_id_order($email, $id_order)
     {
-        return (int)Db::readOnly()->getValue(
-            (new DbQuery())
-                ->select('cm.`id_customer_thread`')
-                ->from('customer_thread', 'cm')
-                ->where('cm.`email` = \''.pSQL($email).'\'')
-                ->where('cm.`id_order` = '.(int) $idOrder)
-        );
+        return (int) Db::read_only()->get_value((new Db_Query())->select('cm.`id_customer_thread`')->from('customer_thread', 'cm')->where('cm.`email` = \'' . p_sql($email) . '\'')->where('cm.`id_order` = ' . (int) $id_order));
     }
-
     /**
      * @return array
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getContacts()
+    public static function get_contacts()
     {
-        return Db::readOnly()->getArray(
-            (new DbQuery())
-                ->select('cl.*, COUNT(*) as `total`')
-                ->select('(SELECT `id_customer_thread` FROM `'._DB_PREFIX_.'customer_thread` ct2 WHERE status = "open" AND ct.`id_contact` = ct2.`id_contact` '.Shop::addSqlRestriction().' ORDER BY `date_upd` ASC LIMIT 1) AS `id_customer_thread`')
-                ->from('customer_thread', 'ct')
-                ->leftJoin('contact_lang', 'cl', 'cl.`id_contact` = ct.`id_contact` AND cl.`id_lang` = '.(int) Context::getContext()->language->id)
-                ->where('ct.`status` = "open"')
-                ->where('ct.`id_contact` IS NOT NULL')
-                ->where('cl.`id_contact` IS NOT NULL '.Shop::addSqlRestriction())
-                ->groupBy('ct.`id_contact`')
-                ->having('COUNT(*) > 0')
-        );
+        return Db::read_only()->get_array((new Db_Query())->select('cl.*, COUNT(*) as `total`')->select('(SELECT `id_customer_thread` FROM `' . _DB_PREFIX_ . 'customer_thread` ct2 WHERE status = "open" AND ct.`id_contact` = ct2.`id_contact` ' . Shop::add_sql_restriction() . ' ORDER BY `date_upd` ASC LIMIT 1) AS `id_customer_thread`')->from('customer_thread', 'ct')->left_join('contact_lang', 'cl', 'cl.`id_contact` = ct.`id_contact` AND cl.`id_lang` = ' . (int) Context::get_context()->language->id)->where('ct.`status` = "open"')->where('ct.`id_contact` IS NOT NULL')->where('cl.`id_contact` IS NOT NULL ' . Shop::add_sql_restriction())->group_by('ct.`id_contact`')->having('COUNT(*) > 0'));
     }
-
     /**
      * @param string|null $where
      *
@@ -191,16 +111,10 @@ class CustomerThreadCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function getTotalCustomerThreads($where = null)
+    public static function get_total_customer_threads($where = null)
     {
-        return (int) Db::readOnly()->getValue(
-            (new DbQuery())
-                ->select('COUNT(*)')
-                ->from('customer_thread')
-                ->where(($where ?: '1').' '.Shop::addSqlRestriction())
-        );
+        return (int) Db::read_only()->get_value((new Db_Query())->select('COUNT(*)')->from('customer_thread')->where(($where ?: '1') . ' ' . Shop::add_sql_restriction()));
     }
-
     /**
      * @param int $idCustomerThread
      *
@@ -208,22 +122,10 @@ class CustomerThreadCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function getMessageCustomerThreads($idCustomerThread)
+    public static function get_message_customer_threads($id_customer_thread)
     {
-        return Db::readOnly()->getArray(
-            (new DbQuery())
-                ->select('ct.*, cm.*, cl.name subject, CONCAT(e.firstname, \' \', e.lastname) employee_name')
-                ->select('CONCAT(c.firstname, \' \', c.lastname) customer_name, c.firstname')
-                ->from('customer_thread', 'ct')
-                ->leftJoin('customer_message', 'cm', 'ct.`id_customer_thread` = cm.`id_customer_thread`')
-                ->leftJoin('contact_lang', 'cl', 'cl.`id_contact` = ct.`id_contact` AND cl.`id_lang` = '.(int) Context::getContext()->language->id)
-                ->leftJoin('employee', 'e', 'e.`id_employee` = cm.`id_employee`')
-                ->leftJoin('customer', 'c', '(IFNULL(ct.`id_customer`, ct.`email`) = IFNULL(c.`id_customer`, c.`email`))')
-                ->where('ct.`id_customer_thread` = '.(int) $idCustomerThread)
-                ->orderBy('cm.`date_add` ASC')
-        );
+        return Db::read_only()->get_array((new Db_Query())->select('ct.*, cm.*, cl.name subject, CONCAT(e.firstname, \' \', e.lastname) employee_name')->select('CONCAT(c.firstname, \' \', c.lastname) customer_name, c.firstname')->from('customer_thread', 'ct')->left_join('customer_message', 'cm', 'ct.`id_customer_thread` = cm.`id_customer_thread`')->left_join('contact_lang', 'cl', 'cl.`id_contact` = ct.`id_contact` AND cl.`id_lang` = ' . (int) Context::get_context()->language->id)->left_join('employee', 'e', 'e.`id_employee` = cm.`id_employee`')->left_join('customer', 'c', '(IFNULL(ct.`id_customer`, ct.`email`) = IFNULL(c.`id_customer`, c.`email`))')->where('ct.`id_customer_thread` = ' . (int) $id_customer_thread)->order_by('cm.`date_add` ASC'));
     }
-
     /**
      * @param int $idCustomerThread
      *
@@ -231,38 +133,21 @@ class CustomerThreadCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function getNextThread($idCustomerThread)
+    public static function get_next_thread($id_customer_thread)
     {
-        $context = Context::getContext();
-
-        return Db::readOnly()->getValue(
-            (new DbQuery())
-                ->select('`id_customer_thread`')
-                ->from('customer_thread', 'ct')
-                ->where('ct.status = "open"')
-                ->where('ct.`date_upd` = (SELECT date_add FROM '._DB_PREFIX_.'customer_message WHERE (id_employee IS NULL OR id_employee = 0) AND id_customer_thread = '.(int) $idCustomerThread.' ORDER BY date_add DESC LIMIT 1)')
-                ->where($context->cookie->{'customer_threadFilter_cl!id_contact'} ? 'ct.`id_contact` = '.(int) $context->cookie->{'customer_threadFilter_cl!id_contact'} : '')
-                ->where($context->cookie->{'customer_threadFilter_l!id_lang'} ? 'ct.`id_lang` = '.(int) $context->cookie->{'customer_threadFilter_l!id_lang'} : '')
-                ->orderBy('ct.`date_upd` ASC')
-        );
+        $context = Context::get_context();
+        return Db::read_only()->get_value((new Db_Query())->select('`id_customer_thread`')->from('customer_thread', 'ct')->where('ct.status = "open"')->where('ct.`date_upd` = (SELECT date_add FROM ' . _DB_PREFIX_ . 'customer_message WHERE (id_employee IS NULL OR id_employee = 0) AND id_customer_thread = ' . (int) $id_customer_thread . ' ORDER BY date_add DESC LIMIT 1)')->where($context->cookie->{'customer_threadFilter_cl!id_contact'} ? 'ct.`id_contact` = ' . (int) $context->cookie->{'customer_threadFilter_cl!id_contact'} : '')->where($context->cookie->{'customer_threadFilter_l!id_lang'} ? 'ct.`id_lang` = ' . (int) $context->cookie->{'customer_threadFilter_l!id_lang'} : '')->order_by('ct.`date_upd` ASC'));
     }
-
     /**
      * @return array
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function getWsCustomerMessages()
+    public function get_ws_customer_messages()
     {
-        return Db::readOnly()->getArray(
-            (new DbQuery())
-                ->select('`id_customer_message` AS `id`')
-                ->from('customer_message')
-                ->where('`id_customer_thread` = '.(int) $this->id)
-        );
+        return Db::read_only()->get_array((new Db_Query())->select('`id_customer_message` AS `id`')->from('customer_message')->where('`id_customer_thread` = ' . (int) $this->id));
     }
-
     /**
      * @return bool
      *
@@ -271,29 +156,21 @@ class CustomerThreadCore extends ObjectModel
      */
     public function delete()
     {
-        if (!Validate::isUnsignedId($this->id)) {
+        if (!Validate::is_unsigned_id($this->id)) {
             return false;
         }
-
         $return = true;
-        $result = Db::readOnly()->getArray(
-            (new DbQuery())
-                ->select('`id_customer_message`')
-                ->from('customer_message')
-                ->where('`id_customer_thread` = '.(int) $this->id)
-        );
-
+        $result = Db::read_only()->get_array((new Db_Query())->select('`id_customer_message`')->from('customer_message')->where('`id_customer_thread` = ' . (int) $this->id));
         if (count($result)) {
             foreach ($result as $res) {
-                $message = new CustomerMessage((int) $res['id_customer_message']);
-                if (!Validate::isLoadedObject($message)) {
+                $message = new Customer_Message((int) $res['id_customer_message']);
+                if (!Validate::is_loaded_object($message)) {
                     $return = false;
                 } else {
                     $return = $message->delete() && $return;
                 }
             }
         }
-
         return parent::delete() && $return;
     }
 }

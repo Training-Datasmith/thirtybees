@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,11 +30,10 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * A TaxManager define a way to retrieve tax.
  */
-interface TaxManagerInterface
+interface Tax_Manager_Interface
 {
     /**
      * This method determine if the tax manager is available for the specified address.
@@ -42,12 +41,11 @@ interface TaxManagerInterface
      *
      * @return bool
      */
-    public static function isAvailableForThisAddress(Address $address);
-
+    public static function is_available_for_this_address(Address $address);
     /**
      * Return the tax calculator associated to this address
      *
      * @return TaxCalculator
      */
-    public function getTaxCalculator();
+    public function get_tax_calculator();
 }

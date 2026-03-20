@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,24 +30,22 @@ declare(strict_types=1);
  *  @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class FileLoggerCore
  */
-class FileLoggerCore extends AbstractLogger
+class File_Logger_Core extends Abstract_Logger
 {
     /**
      * @var string
      */
     protected $filename = '';
-
     /**
      * Check if the specified filename is writable and set the filename
      *
      * @param string $filename
      *
      */
-    public function setFilename($filename): void
+    public function set_filename($filename): void
     {
         if (is_writable(dirname($filename))) {
             $this->filename = $filename;
@@ -55,17 +53,15 @@ class FileLoggerCore extends AbstractLogger
             $this->filename = '';
         }
     }
-
     /**
      * Log the message
      *
      * @return string
      */
-    public function getFilename()
+    public function get_filename()
     {
         return $this->filename;
     }
-
     /**
      * Write the message in the log file
      *
@@ -74,20 +70,17 @@ class FileLoggerCore extends AbstractLogger
      *
      * @return bool True on success, false on failure.
      */
-    protected function logMessage($message, $level)
+    protected function log_message($message, $level)
     {
         if (!is_string($message)) {
             $message = print_r($message, true);
         }
-
-        $formattedMessage = '*'.$this->level_value[$level].'* '."\t".date('Y/m/d - H:i:s').': '.$message."\r\n";
-
+        $formatted_message = '*' . $this->level_value[$level] . '* ' . "\t" . date('Y/m/d - H:i:s') . ': ' . $message . "\r\n";
         $result = false;
-        $path = $this->getFilename();
+        $path = $this->get_filename();
         if ($path) {
-            return (bool) file_put_contents($path, $formattedMessage, FILE_APPEND);
+            return (bool) file_put_contents($path, $formatted_message, FILE_APPEND);
         }
-
         return $result;
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,11 +30,10 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class ShopUrlCore
  */
-class ShopUrlCore extends ObjectModel
+class Shop_Url_Core extends Object_Model
 {
     /** @var int $id_shop */
     public $id_shop;
@@ -54,89 +53,55 @@ class ShopUrlCore extends ObjectModel
     protected static $main_domain = [];
     /** @var array $main_domain_ssl */
     protected static $main_domain_ssl = [];
-
     /**
      * @var array Object model definition
      */
-    public static $definition = [
-        'table'   => 'shop_url',
-        'primary' => 'id_shop_url',
-        'fields'  => [
-            'id_shop'      => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedInt', 'required' => true               ],
-            'domain'       => ['type' => self::TYPE_STRING, 'validate' => 'isCleanHtml', 'required' => true, 'size' => 150],
-            'domain_ssl'   => ['type' => self::TYPE_STRING, 'validate' => 'isCleanHtml', 'size' => 150, 'dbNullable' => false],
-            'physical_uri' => ['type' => self::TYPE_STRING, 'validate' => 'isUriPath', 'size' => 64, 'dbNullable' => false],
-            'virtual_uri'  => ['type' => self::TYPE_STRING, 'validate' => 'isUriPath', 'size' => 64, 'dbNullable' => false],
-            'main'         => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbType' => 'tinyint(1)', 'dbNullable' => false],
-            'active'       => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbType' => 'tinyint(1)', 'dbNullable' => false],
-        ],
-        'keys' => [
-            'shop_url' => [
-                'full_shop_url'     => ['type' => ObjectModel::UNIQUE_KEY, 'columns' => ['domain', 'physical_uri', 'virtual_uri']],
-                'full_shop_url_ssl' => ['type' => ObjectModel::UNIQUE_KEY, 'columns' => ['domain_ssl', 'physical_uri', 'virtual_uri']],
-                'id_shop'           => ['type' => ObjectModel::KEY, 'columns' => ['id_shop', 'main']],
-            ],
-        ],
-    ];
-
+    public static $definition = ['table' => 'shop_url', 'primary' => 'id_shop_url', 'fields' => ['id_shop' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedInt', 'required' => true], 'domain' => ['type' => self::TYPE_STRING, 'validate' => 'isCleanHtml', 'required' => true, 'size' => 150], 'domain_ssl' => ['type' => self::TYPE_STRING, 'validate' => 'isCleanHtml', 'size' => 150, 'dbNullable' => false], 'physical_uri' => ['type' => self::TYPE_STRING, 'validate' => 'isUriPath', 'size' => 64, 'dbNullable' => false], 'virtual_uri' => ['type' => self::TYPE_STRING, 'validate' => 'isUriPath', 'size' => 64, 'dbNullable' => false], 'main' => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbType' => 'tinyint(1)', 'dbNullable' => false], 'active' => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbType' => 'tinyint(1)', 'dbNullable' => false]], 'keys' => ['shop_url' => ['full_shop_url' => ['type' => Object_Model::UNIQUE_KEY, 'columns' => ['domain', 'physical_uri', 'virtual_uri']], 'full_shop_url_ssl' => ['type' => Object_Model::UNIQUE_KEY, 'columns' => ['domain_ssl', 'physical_uri', 'virtual_uri']], 'id_shop' => ['type' => Object_Model::KEY, 'columns' => ['id_shop', 'main']]]]];
     /**
      * @var array Webservice parameters
      */
-    protected $webserviceParameters = [
-        'fields' => [
-            'id_shop' => ['xlink_resource' => 'shops'],
-        ],
-    ];
-
+    protected $webservice_parameters = ['fields' => ['id_shop' => ['xlink_resource' => 'shops']]];
     /**
      * @return array
      *
      * @throws PrestaShopException
      */
-    public function getFields()
+    public function get_fields()
     {
         $this->domain = trim($this->domain);
         $this->domain_ssl = trim($this->domain_ssl);
-
         if ($this->physical_uri) {
             $this->physical_uri = trim(str_replace(' ', '', $this->physical_uri), '/');
-            $this->physical_uri = preg_replace('#/+#', '/', '/'.$this->physical_uri.'/');
+            $this->physical_uri = preg_replace('#/+#', '/', '/' . $this->physical_uri . '/');
         } else {
             $this->physical_uri = '/';
         }
-
         if ($this->virtual_uri) {
             $this->virtual_uri = trim(str_replace(' ', '', $this->virtual_uri), '/');
-            $this->virtual_uri = preg_replace('#/+#', '/', trim($this->virtual_uri, '/')).'/';
+            $this->virtual_uri = preg_replace('#/+#', '/', trim($this->virtual_uri, '/')) . '/';
         }
-
-        return parent::getFields();
+        return parent::get_fields();
     }
-
     /**
      * @return string
      */
-    public function getBaseURI()
+    public function get_base_uri()
     {
-        return $this->physical_uri.$this->virtual_uri;
+        return $this->physical_uri . $this->virtual_uri;
     }
-
     /**
      * @param bool $ssl
      *
      * @return string|null
      */
-    public function getURL($ssl = false)
+    public function get_url($ssl = false)
     {
         if (!$this->id) {
             return null;
         }
-
-        $url = ($ssl) ? 'https://'.$this->domain_ssl : 'http://'.$this->domain;
-
-        return $url.$this->getBaseUri();
+        $url = $ssl ? 'https://' . $this->domain_ssl : 'http://' . $this->domain;
+        return $url . $this->get_base_uri();
     }
-
     /**
      * Get list of shop urls
      *
@@ -146,46 +111,39 @@ class ShopUrlCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function getShopUrls($idShop = false)
+    public static function get_shop_urls($id_shop = false)
     {
-        $urls = new PrestaShopCollection('ShopUrl');
-        if ($idShop) {
-            $urls->where('id_shop', '=', $idShop);
+        $urls = new Presta_Shop_Collection('ShopUrl');
+        if ($id_shop) {
+            $urls->where('id_shop', '=', $id_shop);
         }
-
         return $urls;
     }
-
     /**
      * @return bool
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function setMain()
+    public function set_main()
     {
-        $conn = Db::getInstance();
-
-        $res = $conn->update('shop_url', ['main' => 0], 'id_shop = '.(int) $this->id_shop);
-        $res = $conn->update('shop_url', ['main' => 1], 'id_shop_url = '.(int) $this->id) && $res;
-
+        $conn = Db::get_instance();
+        $res = $conn->update('shop_url', ['main' => 0], 'id_shop = ' . (int) $this->id_shop);
+        $res = $conn->update('shop_url', ['main' => 1], 'id_shop_url = ' . (int) $this->id) && $res;
         $this->main = true;
-
         // Reset main URL for all shops to prevent problems
-        $sql = 'SELECT s1.id_shop_url FROM '._DB_PREFIX_.'shop_url s1
+        $sql = 'SELECT s1.id_shop_url FROM ' . _DB_PREFIX_ . 'shop_url s1
 				WHERE (
-					SELECT COUNT(*) FROM '._DB_PREFIX_.'shop_url s2
+					SELECT COUNT(*) FROM ' . _DB_PREFIX_ . 'shop_url s2
 					WHERE s2.main = 1
 					AND s2.id_shop = s1.id_shop
 				) = 0
 				GROUP BY s1.id_shop';
-        foreach ($conn->getArray($sql) as $row) {
-            $conn->update('shop_url', ['main' => 1], 'id_shop_url = '.$row['id_shop_url']);
+        foreach ($conn->get_array($sql) as $row) {
+            $conn->update('shop_url', ['main' => 1], 'id_shop_url = ' . $row['id_shop_url']);
         }
-
         return $res;
     }
-
     /**
      * @param string $domain
      * @param string $domainSsl
@@ -196,59 +154,39 @@ class ShopUrlCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public function canAddThisUrl($domain, $domainSsl, $physicalUri, $virtualUri)
+    public function can_add_this_url($domain, $domain_ssl, $physical_uri, $virtual_uri)
     {
-        $physicalUri = trim($physicalUri, '/');
-
-        if ($physicalUri) {
-            $physicalUri = preg_replace('#/+#', '/', '/'.$physicalUri.'/');
+        $physical_uri = trim($physical_uri, '/');
+        if ($physical_uri) {
+            $physical_uri = preg_replace('#/+#', '/', '/' . $physical_uri . '/');
         } else {
-            $physicalUri = '/';
+            $physical_uri = '/';
         }
-
-        $virtualUri = trim($virtualUri, '/');
-        if ($virtualUri) {
-            $virtualUri = preg_replace('#/+#', '/', trim($virtualUri, '/')).'/';
+        $virtual_uri = trim($virtual_uri, '/');
+        if ($virtual_uri) {
+            $virtual_uri = preg_replace('#/+#', '/', trim($virtual_uri, '/')) . '/';
         }
-
-        return Db::readOnly()->getValue(
-            (new DbQuery())
-                ->select('`id_shop_url`')
-                ->from('shop_url')
-                ->where('`physical_uri` = \''.pSQL($physicalUri).'\'')
-                ->where('`virtual_uri` = \''.pSQL($virtualUri).'\'')
-                ->where('`domain` = \''.pSQL($domain).'\''.(($domainSsl) ? ' OR domain_ssl = \''.pSQL($domainSsl).'\'' : ''))
-                ->where($this->id ? '`id_shop_url` != '.(int) $this->id : '')
-        );
+        return Db::read_only()->get_value((new Db_Query())->select('`id_shop_url`')->from('shop_url')->where('`physical_uri` = \'' . p_sql($physical_uri) . '\'')->where('`virtual_uri` = \'' . p_sql($virtual_uri) . '\'')->where('`domain` = \'' . p_sql($domain) . '\'' . ($domain_ssl ? ' OR domain_ssl = \'' . p_sql($domain_ssl) . '\'' : ''))->where($this->id ? '`id_shop_url` != ' . (int) $this->id : ''));
     }
-
     /**
      * @param int $idShop
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function cacheMainDomainForShop($idShop): void
+    public static function cache_main_domain_for_shop($id_shop): void
     {
-        if (!isset(static::$main_domain_ssl[(int) $idShop]) || !isset(static::$main_domain[(int) $idShop])) {
-            $row = Db::readOnly()->getRow(
-                (new DbQuery())
-                    ->select('`domain`, `domain_ssl`')
-                    ->from('shop_url')
-                    ->where('`main` = 1')
-                    ->where('`id_shop` = '.($idShop !== null ? (int) $idShop : (int) Context::getContext()->shop->id))
-            );
-            static::$main_domain[(int)$idShop] = $row['domain'] ?? '';
-            static::$main_domain_ssl[(int)$idShop] = $row['domain_ssl'] ?? '';
+        if (!isset(static::$main_domain_ssl[(int) $id_shop]) || !isset(static::$main_domain[(int) $id_shop])) {
+            $row = Db::read_only()->get_row((new Db_Query())->select('`domain`, `domain_ssl`')->from('shop_url')->where('`main` = 1')->where('`id_shop` = ' . ($id_shop !== null ? (int) $id_shop : (int) Context::get_context()->shop->id)));
+            static::$main_domain[(int) $id_shop] = $row['domain'] ?? '';
+            static::$main_domain_ssl[(int) $id_shop] = $row['domain_ssl'] ?? '';
         }
     }
-
-    public static function resetMainDomainCache(): void
+    public static function reset_main_domain_cache(): void
     {
         static::$main_domain = [];
         static::$main_domain_ssl = [];
     }
-
     /**
      * @param int|null $idShop
      *
@@ -257,13 +195,11 @@ class ShopUrlCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getMainShopDomain($idShop = null)
+    public static function get_main_shop_domain($id_shop = null)
     {
-        static::cacheMainDomainForShop($idShop);
-
-        return static::$main_domain[(int) $idShop];
+        static::cache_main_domain_for_shop($id_shop);
+        return static::$main_domain[(int) $id_shop];
     }
-
     /**
      * @param int|null $idShop
      *
@@ -272,10 +208,9 @@ class ShopUrlCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getMainShopDomainSSL($idShop = null)
+    public static function get_main_shop_domain_ssl($id_shop = null)
     {
-        static::cacheMainDomainForShop($idShop);
-
-        return static::$main_domain_ssl[(int) $idShop];
+        static::cache_main_domain_for_shop($id_shop);
+        return static::$main_domain_ssl[(int) $id_shop];
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,11 +30,10 @@ declare(strict_types=1);
  *  @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class Core_Business_ContainerBuilder
  */
-class Core_Business_ContainerBuilder
+class Core_business_container_Builder
 {
     /**
      * Construct PrestaShop Core Service container
@@ -43,11 +42,9 @@ class Core_Business_ContainerBuilder
      */
     public function build()
     {
-        $container = new Core_Foundation_IoC_Container();
-
+        $container = new Core_foundation_io_C_container();
         $container->bind('Core_Business_ConfigurationInterface', 'Adapter_Configuration', true);
         $container->bind('Core_Foundation_Database_DatabaseInterface', 'Adapter_Database', true);
-
         return $container;
     }
 }

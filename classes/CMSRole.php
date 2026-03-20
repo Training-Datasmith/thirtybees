@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,41 +30,24 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class CMSRoleCore
  */
-class CMSRoleCore extends ObjectModel
+class Cms_Role_Core extends Object_Model
 {
     /**
      * @var array Object model definition
      */
-    public static $definition = [
-        'table'   => 'cms_role',
-        'primary' => 'id_cms_role',
-        'fields'  => [
-            'name'   => ['type' => self::TYPE_STRING, 'validate' => 'isGenericName', 'size' => 50, 'unique' => true, 'dbNullable' => false],
-            'id_cms' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedInt', 'dbNullable' => false],
-        ],
-        'keys' => [
-            'cms_role' => [
-                'primary' => ['type' => ObjectModel::PRIMARY_KEY, 'columns' => ['id_cms_role', 'id_cms']],
-            ],
-            'cms_role_lang' => [
-                'primary' => ['type' => ObjectModel::PRIMARY_KEY, 'columns' => ['id_cms_role', 'id_lang', 'id_shop']],
-            ],
-        ],
-    ];
+    public static $definition = ['table' => 'cms_role', 'primary' => 'id_cms_role', 'fields' => ['name' => ['type' => self::TYPE_STRING, 'validate' => 'isGenericName', 'size' => 50, 'unique' => true, 'dbNullable' => false], 'id_cms' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedInt', 'dbNullable' => false]], 'keys' => ['cms_role' => ['primary' => ['type' => Object_Model::PRIMARY_KEY, 'columns' => ['id_cms_role', 'id_cms']]], 'cms_role_lang' => ['primary' => ['type' => Object_Model::PRIMARY_KEY, 'columns' => ['id_cms_role', 'id_lang', 'id_shop']]]]];
     /** @var string name */
     public $name;
     // @codingStandarsIgnoreEnd
     /** @var int id_cms */
     public $id_cms;
-
     /**
      * @return string
      */
-    public static function getRepositoryClassName()
+    public static function get_repository_class_name()
     {
         return 'Core_Business_CMS_CMSRoleRepository';
     }

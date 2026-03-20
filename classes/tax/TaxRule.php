@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -31,85 +30,48 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-class TaxRuleCore extends ObjectModel
+class Tax_Rule_Core extends Object_Model
 {
     /**
      * @var int
      */
     public $id_tax_rules_group;
-
     /**
      * @var int
      */
     public $id_country;
-
     /**
      * @var int
      */
     public $id_state;
-
     /**
      * @var string
      */
     public $zipcode_from;
-
     /**
      * @var string
      */
     public $zipcode_to;
-
     /**
      * @var int
      */
     public $id_tax;
-
     /**
      * @var int
      */
     public $behavior;
-
     /**
      * @var string
      */
     public $description;
-
     /**
      * @var array Object model definition
      */
-    public static $definition = [
-        'table'   => 'tax_rule',
-        'primary' => 'id_tax_rule',
-        'primaryKeyDbType' => 'int(11)',
-        'fields'  => [
-            'id_tax_rules_group' => ['type' => self::TYPE_INT,    'validate' => 'isUnsignedId', 'required' => true, 'dbType' => 'int(11)'],
-            'id_country'         => ['type' => self::TYPE_INT,    'validate' => 'isUnsignedId', 'required' => true, 'dbType' => 'int(11)'],
-            'id_state'           => ['type' => self::TYPE_INT,    'validate' => 'isUnsignedId', 'dbType' => 'int(11)', 'dbNullable' => false],
-            'zipcode_from'       => ['type' => self::TYPE_STRING, 'validate' => 'isPostCode', 'size' => 12, 'dbNullable' => false],
-            'zipcode_to'         => ['type' => self::TYPE_STRING, 'validate' => 'isPostCode', 'size' => 12, 'dbNullable' => false],
-            'id_tax'             => ['type' => self::TYPE_INT,    'validate' => 'isUnsignedId', 'required' => true, 'dbType' => 'int(11)'],
-            'behavior'           => ['type' => self::TYPE_INT,    'validate' => 'isUnsignedInt', 'dbType' => 'int(11)', 'dbNullable' => false],
-            'description'        => ['type' => self::TYPE_STRING, 'validate' => 'isString', 'size' => 100, 'dbNullable' => false],
-        ],
-        'keys' => [
-            'tax_rule' => [
-                'category_getproducts' => ['type' => ObjectModel::KEY, 'columns' => ['id_tax_rules_group', 'id_country', 'id_state', 'zipcode_from']],
-                'id_tax'               => ['type' => ObjectModel::KEY, 'columns' => ['id_tax']],
-                'id_tax_rules_group'   => ['type' => ObjectModel::KEY, 'columns' => ['id_tax_rules_group']],
-            ],
-        ],
-    ];
-
+    public static $definition = ['table' => 'tax_rule', 'primary' => 'id_tax_rule', 'primaryKeyDbType' => 'int(11)', 'fields' => ['id_tax_rules_group' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true, 'dbType' => 'int(11)'], 'id_country' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true, 'dbType' => 'int(11)'], 'id_state' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'dbType' => 'int(11)', 'dbNullable' => false], 'zipcode_from' => ['type' => self::TYPE_STRING, 'validate' => 'isPostCode', 'size' => 12, 'dbNullable' => false], 'zipcode_to' => ['type' => self::TYPE_STRING, 'validate' => 'isPostCode', 'size' => 12, 'dbNullable' => false], 'id_tax' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true, 'dbType' => 'int(11)'], 'behavior' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedInt', 'dbType' => 'int(11)', 'dbNullable' => false], 'description' => ['type' => self::TYPE_STRING, 'validate' => 'isString', 'size' => 100, 'dbNullable' => false]], 'keys' => ['tax_rule' => ['category_getproducts' => ['type' => Object_Model::KEY, 'columns' => ['id_tax_rules_group', 'id_country', 'id_state', 'zipcode_from']], 'id_tax' => ['type' => Object_Model::KEY, 'columns' => ['id_tax']], 'id_tax_rules_group' => ['type' => Object_Model::KEY, 'columns' => ['id_tax_rules_group']]]]];
     /**
      * @var array Webservice parameters
      */
-    protected $webserviceParameters = [
-        'fields' => [
-            'id_tax_rules_group' => ['xlink_resource' => 'tax_rule_groups'],
-            'id_state'           => ['xlink_resource' => 'states'],
-            'id_country'         => ['xlink_resource' => 'countries'],
-        ],
-    ];
-
+    protected $webservice_parameters = ['fields' => ['id_tax_rules_group' => ['xlink_resource' => 'tax_rule_groups'], 'id_state' => ['xlink_resource' => 'states'], 'id_country' => ['xlink_resource' => 'countries']]];
     /**
      * @param int $idGroup
      *
@@ -117,15 +79,12 @@ class TaxRuleCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function deleteByGroupId($idGroup)
+    public static function delete_by_group_id($id_group)
     {
-        return Db::getInstance()->execute(
-            '
-			DELETE FROM `'._DB_PREFIX_.'tax_rule`
-			WHERE `id_tax_rules_group` = '.(int) $idGroup
-        );
+        return Db::get_instance()->execute('
+			DELETE FROM `' . _DB_PREFIX_ . 'tax_rule`
+			WHERE `id_tax_rules_group` = ' . (int) $id_group);
     }
-
     /**
      * @param int $idTaxRule
      *
@@ -134,15 +93,12 @@ class TaxRuleCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function retrieveById($idTaxRule)
+    public static function retrieve_by_id($id_tax_rule)
     {
-        return Db::readOnly()->getRow(
-            '
-			SELECT * FROM `'._DB_PREFIX_.'tax_rule`
-			WHERE `id_tax_rule` = '.(int) $idTaxRule
-        );
+        return Db::read_only()->get_row('
+			SELECT * FROM `' . _DB_PREFIX_ . 'tax_rule`
+			WHERE `id_tax_rule` = ' . (int) $id_tax_rule);
     }
-
     /**
      * @param int $idLang
      * @param int $idGroup
@@ -152,10 +108,9 @@ class TaxRuleCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getTaxRulesByGroupId($idLang, $idGroup)
+    public static function get_tax_rules_by_group_id($id_lang, $id_group)
     {
-        return Db::readOnly()->getArray(
-            '
+        return Db::read_only()->get_array('
 		SELECT g.`id_tax_rule`,
 				 c.`name` AS country_name,
 				 s.`name` AS state_name,
@@ -165,15 +120,13 @@ class TaxRuleCore extends ObjectModel
 				 g.`behavior`,
 				 g.`id_country`,
 				 g.`id_state`
-		FROM `'._DB_PREFIX_.'tax_rule` g
-		LEFT JOIN `'._DB_PREFIX_.'country_lang` c ON (g.`id_country` = c.`id_country` AND `id_lang` = '.(int) $idLang.')
-		LEFT JOIN `'._DB_PREFIX_.'state` s ON (g.`id_state` = s.`id_state`)
-		LEFT JOIN `'._DB_PREFIX_.'tax` t ON (g.`id_tax` = t.`id_tax`)
-		WHERE `id_tax_rules_group` = '.(int) $idGroup.'
-		ORDER BY `country_name` ASC, `state_name` ASC, `zipcode_from` ASC, `zipcode_to` ASC'
-        );
+		FROM `' . _DB_PREFIX_ . 'tax_rule` g
+		LEFT JOIN `' . _DB_PREFIX_ . 'country_lang` c ON (g.`id_country` = c.`id_country` AND `id_lang` = ' . (int) $id_lang . ')
+		LEFT JOIN `' . _DB_PREFIX_ . 'state` s ON (g.`id_state` = s.`id_state`)
+		LEFT JOIN `' . _DB_PREFIX_ . 'tax` t ON (g.`id_tax` = t.`id_tax`)
+		WHERE `id_tax_rules_group` = ' . (int) $id_group . '
+		ORDER BY `country_name` ASC, `state_name` ASC, `zipcode_from` ASC, `zipcode_to` ASC');
     }
-
     /**
      * @param int $idTax
      *
@@ -181,15 +134,12 @@ class TaxRuleCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function deleteTaxRuleByIdTax($idTax)
+    public static function delete_tax_rule_by_id_tax($id_tax)
     {
-        return Db::getInstance()->execute(
-            '
-			DELETE FROM `'._DB_PREFIX_.'tax_rule`
-			WHERE `id_tax` = '.(int) $idTax
-        );
+        return Db::get_instance()->execute('
+			DELETE FROM `' . _DB_PREFIX_ . 'tax_rule`
+			WHERE `id_tax` = ' . (int) $id_tax);
     }
-
     /**
      * @param int $idTax
      *
@@ -197,51 +147,44 @@ class TaxRuleCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function isTaxInUse($idTax)
+    public static function is_tax_in_use($id_tax)
     {
-        $cacheId = 'TaxRule::isTaxInUse_'.(int) $idTax;
-        if (!Cache::isStored($cacheId)) {
-            $result = (int) Db::readOnly()->getValue('SELECT COUNT(*) FROM `'._DB_PREFIX_.'tax_rule` WHERE `id_tax` = '.(int) $idTax);
-            Cache::store($cacheId, $result);
-
+        $cache_id = 'TaxRule::isTaxInUse_' . (int) $id_tax;
+        if (!Cache::is_stored($cache_id)) {
+            $result = (int) Db::read_only()->get_value('SELECT COUNT(*) FROM `' . _DB_PREFIX_ . 'tax_rule` WHERE `id_tax` = ' . (int) $id_tax);
+            Cache::store($cache_id, $result);
             return $result;
         }
-
-        return Cache::retrieve($cacheId);
+        return Cache::retrieve($cache_id);
     }
-
     /**
      * @param string $zipCodes a range of zipcode (eg: 75000 / 75000-75015)
      *
      * @return array an array containing two zipcode ordered by zipcode
      */
-    public function breakDownZipCode($zipCodes)
+    public function break_down_zip_code($zip_codes)
     {
-        $zipCodes = explode('-', $zipCodes);
-
-        if (count($zipCodes) == 2) {
-            if ($zipCodes[0] > $zipCodes[1]) {
-                $from = $zipCodes[1];
-                $to = $zipCodes[0];
-            } elseif ($zipCodes[0] == $zipCodes[1]) {
-                $from = $zipCodes[0];
+        $zip_codes = explode('-', $zip_codes);
+        if (count($zip_codes) == 2) {
+            if ($zip_codes[0] > $zip_codes[1]) {
+                $from = $zip_codes[1];
+                $to = $zip_codes[0];
+            } elseif ($zip_codes[0] == $zip_codes[1]) {
+                $from = $zip_codes[0];
                 $to = 0;
             } else {
-                $from = $zipCodes[0];
-                $to = $zipCodes[1];
+                $from = $zip_codes[0];
+                $to = $zip_codes[1];
             }
-        } elseif (count($zipCodes) == 1) {
-            $from = $zipCodes[0];
+        } elseif (count($zip_codes) == 1) {
+            $from = $zip_codes[0];
             $to = 0;
         } else {
-            $from = $zipCodes[0];
-            $to = $zipCodes[1] ?? 0;
-
+            $from = $zip_codes[0];
+            $to = $zip_codes[1] ?? 0;
         }
-
         return [$from, $to];
     }
-
     /**
      * Replace a tax_rule id by an other one in the tax_rule table
      *
@@ -252,13 +195,11 @@ class TaxRuleCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function swapTaxId($oldId, $newId)
+    public static function swap_tax_id($old_id, $new_id)
     {
-        return Db::getInstance()->execute(
-            '
-		UPDATE `'._DB_PREFIX_.'tax_rule`
-		SET `id_tax` = '.(int) $newId.'
-		WHERE `id_tax` = '.(int) $oldId
-        );
+        return Db::get_instance()->execute('
+		UPDATE `' . _DB_PREFIX_ . 'tax_rule`
+		SET `id_tax` = ' . (int) $new_id . '
+		WHERE `id_tax` = ' . (int) $old_id);
     }
 }

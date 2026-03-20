@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,134 +30,87 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
-use Thirtybees\Core\InitializationCallback;
-
+use Thirtybees\Core\Initialization_Callback;
 /**
  * Class ManufacturerCore
  */
-class ManufacturerCore extends ObjectModel implements InitializationCallback
+class Manufacturer_Core extends Object_Model implements Initialization_Callback
 {
     /**
      * @var string[]
      */
-    protected static $cacheName = [];
-
+    protected static $cache_name = [];
     /**
      * @var int|null Object ID
      */
     public $id;
-
     /**
      * @var int manufacturer ID
      */
     public $id_manufacturer;
-
     /**
      * @var string Name
      */
     public $name;
-
     /**
      * @var string|string[] A description
      */
     public $description;
-
     /**
      * @var string|string[] A short description
      */
     public $short_description;
-
     /**
      * @var int Address
      */
     public $id_address;
-
     /**
      * @var string Object creation date
      */
     public $date_add;
-
     /**
      * @var string Object last modification date
      */
     public $date_upd;
-
     /**
      * @var string Friendly URL
      */
     public $link_rewrite;
-
     /**
      * @var string|string[] Meta title
      */
     public $meta_title;
-
     /**
      * @var string|string[] Meta keywords
      */
     public $meta_keywords;
-
     /**
      * @var string|string[] Meta description
      */
     public $meta_description;
-
     /**
      * @var bool active
      */
     public $active;
-
     /**
      * @var array Object model definition
      */
-    public static $definition = [
-        'table'     => 'manufacturer',
-        'primary'   => 'id_manufacturer',
-        'multilang' => true,
-        'fields'    => [
-            'name'              => ['type' => self::TYPE_STRING, 'validate' => 'isCatalogName', 'required' => true, 'size' => 64],
-            'date_add'          => ['type' => self::TYPE_DATE, 'dbNullable' => false],
-            'date_upd'          => ['type' => self::TYPE_DATE, 'dbNullable' => false],
-            'active'            => ['type' => self::TYPE_BOOL, 'dbType' => 'tinyint(1)', 'dbDefault' => '0'],
-
-            /* Lang fields */
-            'description'       => ['type' => self::TYPE_HTML, 'lang' => true, 'validate' => 'isCleanHtml', 'size' => ObjectModel::SIZE_TEXT],
-            'short_description' => ['type' => self::TYPE_HTML, 'lang' => true, 'validate' => 'isCleanHtml', 'size' => ObjectModel::SIZE_TEXT],
-            'meta_title'        => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isGenericName', 'size' => 128],
-            'meta_keywords'     => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isGenericName'],
-            'meta_description'  => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isGenericName', 'size' => 255],
-        ],
-        'keys' => [
-            'manufacturer_shop' => [
-                'id_shop' => ['type' => ObjectModel::KEY, 'columns' => ['id_shop']],
-            ],
-        ],
-        'images' => [
-            ImageEntity::ENTITY_TYPE_MANUFACTURERS => [
-                'inputName' => 'logo',
-                'path' => _PS_MANU_IMG_DIR_,
-            ],
-        ],
-    ];
-
+    public static $definition = ['table' => 'manufacturer', 'primary' => 'id_manufacturer', 'multilang' => true, 'fields' => [
+        'name' => ['type' => self::TYPE_STRING, 'validate' => 'isCatalogName', 'required' => true, 'size' => 64],
+        'date_add' => ['type' => self::TYPE_DATE, 'dbNullable' => false],
+        'date_upd' => ['type' => self::TYPE_DATE, 'dbNullable' => false],
+        'active' => ['type' => self::TYPE_BOOL, 'dbType' => 'tinyint(1)', 'dbDefault' => '0'],
+        /* Lang fields */
+        'description' => ['type' => self::TYPE_HTML, 'lang' => true, 'validate' => 'isCleanHtml', 'size' => Object_Model::SIZE_TEXT],
+        'short_description' => ['type' => self::TYPE_HTML, 'lang' => true, 'validate' => 'isCleanHtml', 'size' => Object_Model::SIZE_TEXT],
+        'meta_title' => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isGenericName', 'size' => 128],
+        'meta_keywords' => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isGenericName'],
+        'meta_description' => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isGenericName', 'size' => 255],
+    ], 'keys' => ['manufacturer_shop' => ['id_shop' => ['type' => Object_Model::KEY, 'columns' => ['id_shop']]]], 'images' => [Image_Entity::ENTITY_TYPE_MANUFACTURERS => ['inputName' => 'logo', 'path' => _PS_MANU_IMG_DIR_]]];
     /**
      * @var array Webservice parameters
      */
-    protected $webserviceParameters = [
-        'fields'       => [
-            'active'       => [],
-            'link_rewrite' => ['getter' => 'getLink', 'setter' => false],
-        ],
-        'associations' => [
-            'addresses' => [
-                'resource' => 'address', 'setter' => false, 'fields' => [
-                    'id' => ['xlink_resource' => 'addresses'],
-                ],
-            ],
-        ],
-    ];
-
+    protected $webservice_parameters = ['fields' => ['active' => [], 'link_rewrite' => ['getter' => 'getLink', 'setter' => false]], 'associations' => ['addresses' => ['resource' => 'address', 'setter' => false, 'fields' => ['id' => ['xlink_resource' => 'addresses']]]]];
     /**
      * ManufacturerCore constructor.
      *
@@ -167,24 +120,21 @@ class ManufacturerCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function __construct($id = null, $idLang = null)
+    public function __construct($id = null, $id_lang = null)
     {
-        parent::__construct($id, $idLang);
-
-        $this->link_rewrite = $this->getLink();
+        parent::__construct($id, $id_lang);
+        $this->link_rewrite = $this->get_link();
         $this->image_dir = _PS_MANU_IMG_DIR_;
     }
-
     /**
      * @return string
      *
      * @throws PrestaShopException
      */
-    public function getLink()
+    public function get_link()
     {
         return Tools::link_rewrite($this->name);
     }
-
     /**
      * Return manufacturers
      *
@@ -202,65 +152,33 @@ class ManufacturerCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getManufacturers($getNbProducts = false, $idLang = 0, $active = true, $p = false, $n = false, $allGroup = false, $groupBy = true)
+    public static function get_manufacturers($get_nb_products = false, $id_lang = 0, $active = true, $p = false, $n = false, $all_group = false, $group_by = true)
     {
-        if (!$groupBy) {
-            Tools::displayParameterAsDeprecated('$groupBy');
+        if (!$group_by) {
+            Tools::display_parameter_as_deprecated('$groupBy');
         }
-        if (!$idLang) {
-            $idLang = (int) Configuration::get('PS_LANG_DEFAULT');
+        if (!$id_lang) {
+            $id_lang = (int) Configuration::get('PS_LANG_DEFAULT');
         }
-        if (!Group::isFeatureActive()) {
-            $allGroup = true;
+        if (!Group::is_feature_active()) {
+            $all_group = true;
         }
-
-        $conn = Db::readOnly();
-        $manufacturers = $conn->getArray(
-            (new DbQuery())
-                ->select('m.*, ml.`description`, ml.`short_description`')
-                ->from('manufacturer', 'm')
-                ->join(Shop::addSqlAssociation('manufacturer', 'm'))
-                ->innerJoin('manufacturer_lang', 'ml', 'm.`id_manufacturer` = ml.`id_manufacturer`')
-                ->where('ml.`id_lang` = '.(int) $idLang)
-                ->where($active ? 'm.`active` = 1' : '')
-                ->groupBy($groupBy ? 'm.`id_manufacturer`' : '')
-                ->orderBy('m.`name` ASC')
-                ->limit($p ? (int) $n : 0, $p ? ((int) $p - 1) * (int) $n : 0)
-        );
-
-        if ($getNbProducts) {
-            $sqlGroups = '';
-            if (!$allGroup) {
-                $groups = FrontController::getCurrentCustomerGroups();
-                $sqlGroups = (count($groups) ? 'IN ('.implode(',', $groups).')' : '= 1');
+        $conn = Db::read_only();
+        $manufacturers = $conn->get_array((new Db_Query())->select('m.*, ml.`description`, ml.`short_description`')->from('manufacturer', 'm')->join(Shop::add_sql_association('manufacturer', 'm'))->inner_join('manufacturer_lang', 'ml', 'm.`id_manufacturer` = ml.`id_manufacturer`')->where('ml.`id_lang` = ' . (int) $id_lang)->where($active ? 'm.`active` = 1' : '')->group_by($group_by ? 'm.`id_manufacturer`' : '')->order_by('m.`name` ASC')->limit($p ? (int) $n : 0, $p ? ((int) $p - 1) * (int) $n : 0));
+        if ($get_nb_products) {
+            $sql_groups = '';
+            if (!$all_group) {
+                $groups = Front_Controller::get_current_customer_groups();
+                $sql_groups = count($groups) ? 'IN (' . implode(',', $groups) . ')' : '= 1';
             }
-
-            $categoryGroupSql = (new DbQuery())
-                ->select('1')
-                ->from('category_group', 'cg')
-                ->leftJoin('category_product', 'cp', 'cp.`id_category` = cg.`id_category`')
-                ->where('p.`id_product` = cp.`id_product`')
-                ->where('cg.`id_group` '.$sqlGroups);
-            $results = $conn->getArray(
-                (new DbQuery())
-                    ->select('p.`id_manufacturer`, COUNT(DISTINCT p.`id_product`) AS `nb_products`')
-                    ->from('product', 'p')
-                    ->join(Shop::addSqlAssociation('product', 'p'))
-                    ->leftJoin('manufacturer', 'm', 'm.`id_manufacturer` = p.`id_manufacturer`')
-                    ->where('p.`id_manufacturer` != 0')
-                    ->where('product_shop.`visibility` NOT IN ("none")')
-                    ->where($active ? 'product_shop.`active` = 1' : '')
-                    ->where(Group::isFeatureActive() && $allGroup ? '' : 'EXISTS ('.$categoryGroupSql->build().')')
-                    ->groupBy('p.`id_manufacturer`')
-            );
-
+            $category_group_sql = (new Db_Query())->select('1')->from('category_group', 'cg')->left_join('category_product', 'cp', 'cp.`id_category` = cg.`id_category`')->where('p.`id_product` = cp.`id_product`')->where('cg.`id_group` ' . $sql_groups);
+            $results = $conn->get_array((new Db_Query())->select('p.`id_manufacturer`, COUNT(DISTINCT p.`id_product`) AS `nb_products`')->from('product', 'p')->join(Shop::add_sql_association('product', 'p'))->left_join('manufacturer', 'm', 'm.`id_manufacturer` = p.`id_manufacturer`')->where('p.`id_manufacturer` != 0')->where('product_shop.`visibility` NOT IN ("none")')->where($active ? 'product_shop.`active` = 1' : '')->where(Group::is_feature_active() && $all_group ? '' : 'EXISTS (' . $category_group_sql->build() . ')')->group_by('p.`id_manufacturer`'));
             $counts = [];
             if (!empty($results)) {
                 foreach ($results as $result) {
                     $counts[(int) $result['id_manufacturer']] = (int) $result['nb_products'];
                 }
             }
-
             if (count($counts)) {
                 foreach ($manufacturers as $key => $manufacturer) {
                     if (array_key_exists((int) $manufacturer['id_manufacturer'], $counts)) {
@@ -271,16 +189,13 @@ class ManufacturerCore extends ObjectModel implements InitializationCallback
                 }
             }
         }
-
-        $totalManufacturers = count($manufacturers);
-        $rewriteSettings = (int) Configuration::get('PS_REWRITING_SETTINGS');
-        for ($i = 0; $i < $totalManufacturers; $i++) {
-            $manufacturers[$i]['link_rewrite'] = ($rewriteSettings ? Tools::link_rewrite($manufacturers[$i]['name']) : 0);
+        $total_manufacturers = count($manufacturers);
+        $rewrite_settings = (int) Configuration::get('PS_REWRITING_SETTINGS');
+        for ($i = 0; $i < $total_manufacturers; $i++) {
+            $manufacturers[$i]['link_rewrite'] = $rewrite_settings ? Tools::link_rewrite($manufacturers[$i]['name']) : 0;
         }
-
         return $manufacturers;
     }
-
     /**
      * @param int $idManufacturer
      *
@@ -288,21 +203,13 @@ class ManufacturerCore extends ObjectModel implements InitializationCallback
      *
      * @throws PrestaShopException
      */
-    public static function getNameById($idManufacturer)
+    public static function get_name_by_id($id_manufacturer)
     {
-        if (!isset(static::$cacheName[$idManufacturer])) {
-            static::$cacheName[$idManufacturer] = Db::readOnly()->getValue(
-                (new DbQuery())
-                    ->select('name')
-                    ->from('manufacturer')
-                    ->where('`id_manufacturer` = '.(int) $idManufacturer)
-                    ->where('`active` = 1')
-            );
+        if (!isset(static::$cache_name[$id_manufacturer])) {
+            static::$cache_name[$id_manufacturer] = Db::read_only()->get_value((new Db_Query())->select('name')->from('manufacturer')->where('`id_manufacturer` = ' . (int) $id_manufacturer)->where('`active` = 1'));
         }
-
-        return static::$cacheName[$idManufacturer];
+        return static::$cache_name[$id_manufacturer];
     }
-
     /**
      * @param string $name
      *
@@ -311,22 +218,14 @@ class ManufacturerCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getIdByName($name)
+    public static function get_id_by_name($name)
     {
-        $result = Db::readOnly()->getRow(
-            (new DbQuery())
-                ->select('`id_manufacturer`')
-                ->from('manufacturer')
-                ->where('`name` = \''.pSQL($name).'\'')
-        );
-
+        $result = Db::read_only()->get_row((new Db_Query())->select('`id_manufacturer`')->from('manufacturer')->where('`name` = \'' . p_sql($name) . '\''));
         if (isset($result['id_manufacturer'])) {
             return (int) $result['id_manufacturer'];
         }
-
         return false;
     }
-
     /**
      * @param int $idManufacturer
      * @param int|null $idLang
@@ -343,134 +242,79 @@ class ManufacturerCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getProducts(
-        $idManufacturer,
-        $idLang,
-        $p,
-        $n,
-        $orderBy = null,
-        $orderWay = null,
-        $getTotal = false,
-        $active = true,
-        $activeCategory = true,
-        ?Context $context = null
-    ) {
+    public static function get_products($id_manufacturer, $id_lang, $p, $n, $order_by = null, $order_way = null, $get_total = false, $active = true, $active_category = true, ?Context $context = null)
+    {
         if (!$context) {
-            $context = Context::getContext();
+            $context = Context::get_context();
         }
-
         $front = true;
         if (!in_array($context->controller->controller_type, ['front', 'modulefront'])) {
             $front = false;
         }
-
         if ($p < 1) {
             $p = 1;
         }
-
-        if (empty($orderBy) || $orderBy == 'position') {
-            $orderBy = 'name';
+        if (empty($order_by) || $order_by == 'position') {
+            $order_by = 'name';
         }
-
-        if (empty($orderWay)) {
-            $orderWay = 'ASC';
+        if (empty($order_way)) {
+            $order_way = 'ASC';
         }
-
-        if (!Validate::isOrderBy($orderBy) || !Validate::isOrderWay($orderWay)) {
-            throw new PrestaShopException(sprintf(Tools::displayError('Invalid ordering parameters: orderBy=[%s] orderWay=[%s]'), $orderBy, $orderWay));
+        if (!Validate::is_order_by($order_by) || !Validate::is_order_way($order_way)) {
+            throw new Presta_Shop_Exception(sprintf(Tools::display_error('Invalid ordering parameters: orderBy=[%s] orderWay=[%s]'), $order_by, $order_way));
         }
-
-        $groups = FrontController::getCurrentCustomerGroups();
-        $sqlGroups = count($groups) ? 'IN ('.implode(',', $groups).')' : '= 1';
-
+        $groups = Front_Controller::get_current_customer_groups();
+        $sql_groups = count($groups) ? 'IN (' . implode(',', $groups) . ')' : '= 1';
         /* Return only the number of products */
-        $connection = Db::readOnly();
-        if ($getTotal) {
-            $categoryGroupSql = (new DbQuery())
-                ->select('1')
-                ->from('category_group', 'cg')
-                ->leftJoin('category_product', 'cp', 'cp.`id_category` = cg.`id_category`')
-                ->join($activeCategory ? 'INNER JOIN `'._DB_PREFIX_.'category` ca ON (cp.`id_category` = ca.`id_category` AND ca.`active` = 1)' : '')
-                ->where('p.`id_product` = cp.`id_product`')
-                ->where('cg.`id_group` '.$sqlGroups);
-            $result = $connection->getArray(
-                (new DbQuery())
-                    ->select('p.`id_product`')
-                    ->from('product', 'p')
-                    ->join(Shop::addSqlAssociation('product', 'p'))
-                    ->where('p.`id_manufacturer` = '.(int) $idManufacturer)
-                    ->where($active ? 'product_shop.`active` = 1' : '')
-                    ->where($front ? 'product_shop.`visibility` IN ("both", "catalog")' : '')
-                    ->where('EXISTS ('.$categoryGroupSql->build().')')
-            );
-
+        $connection = Db::read_only();
+        if ($get_total) {
+            $category_group_sql = (new Db_Query())->select('1')->from('category_group', 'cg')->left_join('category_product', 'cp', 'cp.`id_category` = cg.`id_category`')->join($active_category ? 'INNER JOIN `' . _DB_PREFIX_ . 'category` ca ON (cp.`id_category` = ca.`id_category` AND ca.`active` = 1)' : '')->where('p.`id_product` = cp.`id_product`')->where('cg.`id_group` ' . $sql_groups);
+            $result = $connection->get_array((new Db_Query())->select('p.`id_product`')->from('product', 'p')->join(Shop::add_sql_association('product', 'p'))->where('p.`id_manufacturer` = ' . (int) $id_manufacturer)->where($active ? 'product_shop.`active` = 1' : '')->where($front ? 'product_shop.`visibility` IN ("both", "catalog")' : '')->where('EXISTS (' . $category_group_sql->build() . ')'));
             return count($result);
         }
-        if (strpos($orderBy, '.') > 0) {
-            $orderBy = explode('.', $orderBy);
-            $orderBy = pSQL($orderBy[0]).'.`'.pSQL($orderBy[1]).'`';
+        if (strpos($order_by, '.') > 0) {
+            $order_by = explode('.', $order_by);
+            $order_by = p_sql($order_by[0]) . '.`' . p_sql($order_by[1]) . '`';
         }
-
-        if ($orderBy == 'price') {
-            $aliasWithDot = 'product_shop.';
-        } elseif ($orderBy == 'name') {
-            $aliasWithDot = 'pl.';
-        } elseif ($orderBy == 'manufacturer_name') {
-            $orderBy = 'name';
-            $aliasWithDot = 'm.';
-        } elseif ($orderBy == 'quantity') {
-            $aliasWithDot = 'stock.';
+        if ($order_by == 'price') {
+            $alias_with_dot = 'product_shop.';
+        } elseif ($order_by == 'name') {
+            $alias_with_dot = 'pl.';
+        } elseif ($order_by == 'manufacturer_name') {
+            $order_by = 'name';
+            $alias_with_dot = 'm.';
+        } elseif ($order_by == 'quantity') {
+            $alias_with_dot = 'stock.';
         } else {
-            $aliasWithDot = 'p.';
+            $alias_with_dot = 'p.';
         }
-
-        $sql = (new DbQuery())
-            ->select('p.*, product_shop.*, stock.`out_of_stock`, IFNULL(stock.`quantity`, 0) AS `quantity`')
-            ->select(Combination::isFeatureActive() ? 'product_attribute_shop.`minimal_quantity` AS `product_attribute_minimal_quantity`, IFNULL(product_attribute_shop.`id_product_attribute`,0) AS `id_product_attribute`' : '')
-            ->select('pl.`description`, pl.`description_short`, pl.`link_rewrite`, pl.`meta_description`, pl.`meta_keywords`')
-            ->select('pl.`meta_title`, pl.`name`, pl.`available_now`, pl.`available_later`, image_shop.`id_image` AS `id_image`, il.`legend`, m.`name` AS `manufacturer_name`')
-            ->select('DATEDIFF(product_shop.`date_add`, DATE_SUB("'.date('Y-m-d').' 00:00:00", INTERVAL '.(Validate::isUnsignedInt(Configuration::get('PS_NB_DAYS_NEW_PRODUCT')) ? (int) Configuration::get('PS_NB_DAYS_NEW_PRODUCT') : 20).' DAY)) > 0 AS `new`')
-            ->from('product', 'p')
-            ->join(Shop::addSqlAssociation('product', 'p'))
-            ->join(Combination::isFeatureActive() ? 'LEFT JOIN `'._DB_PREFIX_.'product_attribute_shop` product_attribute_shop ON (p.`id_product` = product_attribute_shop.`id_product` AND product_attribute_shop.`default_on` = 1 AND product_attribute_shop.`id_shop` = '.(int) $context->shop->id.')' : '')
-            ->leftJoin('product_lang', 'pl', 'p.`id_product` = pl.`id_product`')
-            ->leftJoin('image_shop', 'image_shop', 'image_shop.`id_product` = p.`id_product` AND image_shop.cover=1 AND image_shop.id_shop='.(int) $context->shop->id)
-            ->leftJoin('image_lang', 'il', 'image_shop.`id_image` = il.`id_image` AND il.`id_lang` = '.(int) $idLang)
-            ->leftJoin('manufacturer', 'm', 'm.`id_manufacturer` = p.`id_manufacturer`')
-            ->join(Product::sqlStock('p', 0))
-            ->where('pl.`id_lang` = '.(int) $idLang.Shop::addSqlRestrictionOnLang('pl'));
-
-        if (Group::isFeatureActive() || $activeCategory) {
-            $sql->innerJoin('category_product', 'cp', 'p.`id_product` = cp.`id_product`');
-            if (Group::isFeatureActive()) {
-                $sql->innerJoin('category_group', 'cg', 'cp.`id_category` = cg.`id_category`');
-                $sql->where('cg.`id_group` '.$sqlGroups);
+        $sql = (new Db_Query())->select('p.*, product_shop.*, stock.`out_of_stock`, IFNULL(stock.`quantity`, 0) AS `quantity`')->select(Combination::is_feature_active() ? 'product_attribute_shop.`minimal_quantity` AS `product_attribute_minimal_quantity`, IFNULL(product_attribute_shop.`id_product_attribute`,0) AS `id_product_attribute`' : '')->select('pl.`description`, pl.`description_short`, pl.`link_rewrite`, pl.`meta_description`, pl.`meta_keywords`')->select('pl.`meta_title`, pl.`name`, pl.`available_now`, pl.`available_later`, image_shop.`id_image` AS `id_image`, il.`legend`, m.`name` AS `manufacturer_name`')->select('DATEDIFF(product_shop.`date_add`, DATE_SUB("' . date('Y-m-d') . ' 00:00:00", INTERVAL ' . (Validate::is_unsigned_int(Configuration::get('PS_NB_DAYS_NEW_PRODUCT')) ? (int) Configuration::get('PS_NB_DAYS_NEW_PRODUCT') : 20) . ' DAY)) > 0 AS `new`')->from('product', 'p')->join(Shop::add_sql_association('product', 'p'))->join(Combination::is_feature_active() ? 'LEFT JOIN `' . _DB_PREFIX_ . 'product_attribute_shop` product_attribute_shop ON (p.`id_product` = product_attribute_shop.`id_product` AND product_attribute_shop.`default_on` = 1 AND product_attribute_shop.`id_shop` = ' . (int) $context->shop->id . ')' : '')->left_join('product_lang', 'pl', 'p.`id_product` = pl.`id_product`')->left_join('image_shop', 'image_shop', 'image_shop.`id_product` = p.`id_product` AND image_shop.cover=1 AND image_shop.id_shop=' . (int) $context->shop->id)->left_join('image_lang', 'il', 'image_shop.`id_image` = il.`id_image` AND il.`id_lang` = ' . (int) $id_lang)->left_join('manufacturer', 'm', 'm.`id_manufacturer` = p.`id_manufacturer`')->join(Product::sql_stock('p', 0))->where('pl.`id_lang` = ' . (int) $id_lang . Shop::add_sql_restriction_on_lang('pl'));
+        if (Group::is_feature_active() || $active_category) {
+            $sql->inner_join('category_product', 'cp', 'p.`id_product` = cp.`id_product`');
+            if (Group::is_feature_active()) {
+                $sql->inner_join('category_group', 'cg', 'cp.`id_category` = cg.`id_category`');
+                $sql->where('cg.`id_group` ' . $sql_groups);
             }
-            if ($activeCategory) {
-                $sql->innerJoin('category', 'ca', 'cp.`id_category` = ca.`id_category`');
+            if ($active_category) {
+                $sql->inner_join('category', 'ca', 'cp.`id_category` = ca.`id_category`');
                 $sql->where('ca.`active` = 1');
             }
         }
-
-        $sql->where('p.`id_manufacturer` = '.(int) $idManufacturer);
+        $sql->where('p.`id_manufacturer` = ' . (int) $id_manufacturer);
         $sql->where($active ? '`product_shop`.`active` = 1' : '');
         $sql->where($front ? '`product_shop`.`visibility` IN ("both", "catalog")' : '');
-        $sql->groupBy('p.`id_product`');
-        $sql->orderBy($aliasWithDot.'`'.bqSQL($orderBy).'` '.pSQL($orderWay));
+        $sql->group_by('p.`id_product`');
+        $sql->order_by($alias_with_dot . '`' . bq_sql($order_by) . '` ' . p_sql($order_way));
         $sql->limit((int) $n, ((int) $p - 1) * (int) $n);
-        $result = $connection->getArray($sql);
-
+        $result = $connection->get_array($sql);
         if (!$result) {
             return false;
         }
-
-        if ($orderBy == 'price') {
-            Tools::orderbyPrice($result, $orderWay);
+        if ($order_by == 'price') {
+            Tools::orderby_price($result, $order_way);
         }
-
-        return Product::getProductsProperties($idLang, $result);
+        return Product::get_products_properties($id_lang, $result);
     }
-
     /**
      * Specify if a manufacturer already in base
      *
@@ -481,18 +325,11 @@ class ManufacturerCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function manufacturerExists($idManufacturer)
+    public static function manufacturer_exists($id_manufacturer)
     {
-        $row = Db::readOnly()->getRow(
-            (new DbQuery())
-                ->select('`id_manufacturer`')
-                ->from('manufacturer', 'm')
-                ->where('m.`id_manufacturer` = '.(int) $idManufacturer)
-        );
-
+        $row = Db::read_only()->get_row((new Db_Query())->select('`id_manufacturer`')->from('manufacturer', 'm')->where('m.`id_manufacturer` = ' . (int) $id_manufacturer));
         return isset($row['id_manufacturer']);
     }
-
     /**
      * Delete several objects from database
      *
@@ -504,22 +341,19 @@ class ManufacturerCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function deleteSelection($selection)
+    public function delete_selection($selection)
     {
         if (!is_array($selection)) {
             return false;
         }
-
         $result = true;
         foreach ($selection as $id) {
             $this->id = (int) $id;
-            $this->id_address = $this->getManufacturerAddress();
+            $this->id_address = $this->get_manufacturer_address();
             $result = $this->delete() && $result;
         }
-
         return $result;
     }
-
     /**
      * @return bool
      *
@@ -529,24 +363,18 @@ class ManufacturerCore extends ObjectModel implements InitializationCallback
     public function delete()
     {
         $address = new Address($this->id_address);
-
-        if (Validate::isLoadedObject($address) && !$address->delete()) {
+        if (Validate::is_loaded_object($address) && !$address->delete()) {
             return false;
         }
-
-        if (PageCache::isEnabled()) {
-            PageCache::invalidateEntity('manufacturer', $this->id);
+        if (Page_Cache::is_enabled()) {
+            Page_Cache::invalidate_entity('manufacturer', $this->id);
         }
-
         if (parent::delete()) {
-            CartRule::cleanProductRuleIntegrity('manufacturers', $this->id);
-
-            return $this->deleteImage();
+            Cart_Rule::clean_product_rule_integrity('manufacturers', $this->id);
+            return $this->delete_image();
         }
-
         return false;
     }
-
     /**
      * @param int $idLang
      *
@@ -555,26 +383,15 @@ class ManufacturerCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function getProductsLite($idLang)
+    public function get_products_lite($id_lang)
     {
-        $context = Context::getContext();
+        $context = Context::get_context();
         $front = true;
         if (!in_array($context->controller->controller_type, ['front', 'modulefront'])) {
             $front = false;
         }
-
-        return Db::readOnly()->getArray(
-            (new DbQuery())
-                ->select('p.`id_product`, pl.`name`')
-                ->from('product', 'p')
-                ->join(Shop::addSqlAssociation('product', 'p'))
-                ->leftJoin('product_lang', 'pl', 'p.`id_product` = pl.`id_product`')
-                ->where('pl.`id_lang` = '.(int) $idLang.$context->shop->addSqlRestrictionOnLang('pl'))
-                ->where('p.`id_manufacturer` = '.(int) $this->id)
-                ->where($front ? 'product_shop.`visibility` IN ("both", "catalog")' : '')
-        );
+        return Db::read_only()->get_array((new Db_Query())->select('p.`id_product`, pl.`name`')->from('product', 'p')->join(Shop::add_sql_association('product', 'p'))->left_join('product_lang', 'pl', 'p.`id_product` = pl.`id_product`')->where('pl.`id_lang` = ' . (int) $id_lang . $context->shop->add_sql_restriction_on_lang('pl'))->where('p.`id_manufacturer` = ' . (int) $this->id)->where($front ? 'product_shop.`visibility` IN ("both", "catalog")' : ''));
     }
-
     /**
      * @param int $idLang
      *
@@ -583,38 +400,20 @@ class ManufacturerCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function getAddresses($idLang)
+    public function get_addresses($id_lang)
     {
-        return Db::readOnly()->getArray(
-            (new DbQuery())
-                ->select('a.*, cl.`name` AS `country`, s.`name` AS `state`')
-                ->from('address', 'a')
-                ->leftJoin('country_lang', 'cl', 'cl.`id_country` = a.`id_country`')
-                ->leftJoin('state', 's', 's.`id_state` = a.`id_state`')
-                ->where('cl.`id_lang` = '.(int) $idLang)
-                ->where('`id_manufacturer` = '.(int) $this->id)
-                ->where('a.`deleted` = 0')
-        );
+        return Db::read_only()->get_array((new Db_Query())->select('a.*, cl.`name` AS `country`, s.`name` AS `state`')->from('address', 'a')->left_join('country_lang', 'cl', 'cl.`id_country` = a.`id_country`')->left_join('state', 's', 's.`id_state` = a.`id_state`')->where('cl.`id_lang` = ' . (int) $id_lang)->where('`id_manufacturer` = ' . (int) $this->id)->where('a.`deleted` = 0'));
     }
-
     /**
      * @return array
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function getWsAddresses()
+    public function get_ws_addresses()
     {
-        return Db::readOnly()->getArray(
-            (new DbQuery())
-                ->select('a.`id_address` AS `id`')
-                ->from('address', 'a')
-                ->join(Shop::addSqlAssociation('manufacturer', 'a'))
-                ->where('a.`id_manufacturer` = '.(int) $this->id)
-                ->where('a.`deleted` = 0')
-        );
+        return Db::read_only()->get_array((new Db_Query())->select('a.`id_address` AS `id`')->from('address', 'a')->join(Shop::add_sql_association('manufacturer', 'a'))->where('a.`id_manufacturer` = ' . (int) $this->id)->where('a.`deleted` = 0'));
     }
-
     /**
      * @param array $idAddresses
      *
@@ -623,39 +422,20 @@ class ManufacturerCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function setWsAddresses($idAddresses)
+    public function set_ws_addresses($id_addresses)
     {
         $ids = [];
-
-        foreach ($idAddresses as $id) {
+        foreach ($id_addresses as $id) {
             $ids[] = (int) $id['id'];
         }
-
-        $conn = Db::getInstance();
-        $result1 = $conn->update(
-            'address',
-            [
-                'id_manufacturer' => 0,
-            ],
-            '`id_manufacturer` = '.(int) $this->id.' AND `deleted` = 0'
-        );
-
+        $conn = Db::get_instance();
+        $result1 = $conn->update('address', ['id_manufacturer' => 0], '`id_manufacturer` = ' . (int) $this->id . ' AND `deleted` = 0');
         $result2 = true;
         if (count($ids)) {
-            $result2 = $conn->update(
-                'address',
-                [
-                    'id_customer'     => 0,
-                    'id_supplier'     => 0,
-                    'id_manufacturer' => (int) $this->id,
-                ],
-                '`id_address` IN('.implode(',', $ids).') AND `deleted` = 0'
-            );
+            $result2 = $conn->update('address', ['id_customer' => 0, 'id_supplier' => 0, 'id_manufacturer' => (int) $this->id], '`id_address` IN(' . implode(',', $ids) . ') AND `deleted` = 0');
         }
-
-        return ($result1 && $result2);
+        return $result1 && $result2;
     }
-
     /**
      * @param bool|null $nullValues
      *
@@ -663,41 +443,32 @@ class ManufacturerCore extends ObjectModel implements InitializationCallback
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function update($nullValues = null)
+    public function update($null_values = null)
     {
         if ('TB_PAGE_CACHE_ENABLED') {
-            PageCache::invalidateEntity('manufacturer', $this->id);
+            Page_Cache::invalidate_entity('manufacturer', $this->id);
         }
-
-        return parent::update($nullValues);
+        return parent::update($null_values);
     }
-
     /**
      * @return int
      *
      * @throws PrestaShopException
      */
-    protected function getManufacturerAddress()
+    protected function get_manufacturer_address()
     {
         if (!(int) $this->id) {
             return 0;
         }
-
-        return (int)Db::readOnly()->getValue(
-            (new DbQuery())
-                ->select('`id_address`')
-                ->from('address')
-                ->where('`id_manufacturer` = '.(int) $this->id)
-        );
+        return (int) Db::read_only()->get_value((new Db_Query())->select('`id_address`')->from('address')->where('`id_manufacturer` = ' . (int) $this->id));
     }
-
     /**
      * Database initialization callback
      *
      * @throws PrestaShopException
      */
-    public static function initializationCallback(Db $conn): void
+    public static function initialization_callback(Db $conn): void
     {
-        ImageEntity::rebuildImageEntities(static::class, self::$definition['images']);
+        Image_Entity::rebuild_image_entities(static::class, self::$definition['images']);
     }
 }

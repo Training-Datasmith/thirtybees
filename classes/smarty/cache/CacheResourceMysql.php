@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,23 +30,20 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 namespace Thirtybees\Core\Smarty\Cache;
 
 use Db;
-use PrestaShopDatabaseException;
-use PrestaShopException;
-use Smarty_CacheResource_Custom;
-
+use Presta_Shop_Database_Exception;
+use Presta_Shop_Exception;
+use Smarty_cache_Resource_custom;
 /**
  * Class CacheResourceMysqlCore
  */
-class CacheResourceMysqlCore extends Smarty_CacheResource_Custom
+class Cache_Resource_Mysql_Core extends Smarty_cache_Resource_custom
 {
     public function __construct(protected \Encryptor $encryptor)
     {
     }
-
     /**
      * fetch cached content and its modification time from data source
      *
@@ -62,9 +59,9 @@ class CacheResourceMysqlCore extends Smarty_CacheResource_Custom
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    protected function fetch($id, $name, $cacheId, $compileId, &$content, &$mtime)
+    protected function fetch($id, $name, $cache_id, $compile_id, &$content, &$mtime)
     {
-        $row = Db::readOnly()->getRow('SELECT modified, content FROM '._DB_PREFIX_.'smarty_cache WHERE id_smarty_cache = "'.pSQL($id, true).'"');
+        $row = Db::read_only()->get_row('SELECT modified, content FROM ' . _DB_PREFIX_ . 'smarty_cache WHERE id_smarty_cache = "' . p_sql($id, true) . '"');
         if ($row) {
             $encoded = $row['content'];
             if ($encoded) {
@@ -76,11 +73,9 @@ class CacheResourceMysqlCore extends Smarty_CacheResource_Custom
                 }
             }
         }
-
         $content = null;
         $mtime = null;
     }
-
     /**
      * Fetch cached content's modification timestamp from data source
      *
@@ -93,13 +88,11 @@ class CacheResourceMysqlCore extends Smarty_CacheResource_Custom
      *
      * @throws PrestaShopException
      */
-    protected function fetchTimestamp($id, $name, $cacheId, $compileId)
+    protected function fetch_timestamp($id, $name, $cache_id, $compile_id)
     {
-        $value = Db::readOnly()->getValue('SELECT modified FROM '._DB_PREFIX_.'smarty_cache WHERE id_smarty_cache = "'.pSQL($id, true).'"');
-
+        $value = Db::read_only()->get_value('SELECT modified FROM ' . _DB_PREFIX_ . 'smarty_cache WHERE id_smarty_cache = "' . p_sql($id, true) . '"');
         return strtotime((string) $value);
     }
-
     /**
      * Save content to cache
      *
@@ -114,23 +107,19 @@ class CacheResourceMysqlCore extends Smarty_CacheResource_Custom
      *
      * @throws PrestaShopException
      */
-    protected function save($id, $name, $cacheId, $compileId, $expTime, $content)
+    protected function save($id, $name, $cache_id, $compile_id, $exp_time, $content)
     {
-        $conn = Db::getInstance();
-        $conn->execute(
-            '
-		REPLACE INTO '._DB_PREFIX_.'smarty_cache (id_smarty_cache, name, cache_id, content)
+        $conn = Db::get_instance();
+        $conn->execute('
+		REPLACE INTO ' . _DB_PREFIX_ . 'smarty_cache (id_smarty_cache, name, cache_id, content)
 		VALUES (
-			"'.pSQL($id, true).'",
-			"'.pSQL(sha1($name)).'",
-			"'.pSQL($cacheId, true).'",
-			"'.base64_encode((string) $this->encryptor->encrypt($content)).'"
-		)'
-        );
-
+			"' . p_sql($id, true) . '",
+			"' . p_sql(sha1($name)) . '",
+			"' . p_sql($cache_id, true) . '",
+			"' . base64_encode((string) $this->encryptor->encrypt($content)) . '"
+		)');
         return (bool) $conn->Affected_Rows();
     }
-
     /**
      * Delete content from cache
      *
@@ -143,31 +132,26 @@ class CacheResourceMysqlCore extends Smarty_CacheResource_Custom
      *
      * @throws PrestaShopException
      */
-    protected function delete($name, $cacheId, $compileId, $expTime)
+    protected function delete($name, $cache_id, $compile_id, $exp_time)
     {
-        $conn = Db::getInstance();
-
+        $conn = Db::get_instance();
         // delete the whole cache
-        if ($name === null && $cacheId === null && $compileId === null && $expTime === null) {
+        if ($name === null && $cache_id === null && $compile_id === null && $exp_time === null) {
             // returning the number of deleted caches would require a second query to count them
-            $conn->execute('TRUNCATE TABLE '._DB_PREFIX_.'smarty_cache');
-
+            $conn->execute('TRUNCATE TABLE ' . _DB_PREFIX_ . 'smarty_cache');
             return -1;
         }
-
         $where = [];
         if ($name !== null) {
-            $where[] = 'name = "'.pSQL(sha1($name)).'"';
+            $where[] = 'name = "' . p_sql(sha1($name)) . '"';
         }
-        if ($expTime !== null) {
-            $where[] = 'modified < DATE_SUB(NOW(), INTERVAL '.(int) $expTime.' SECOND)';
+        if ($exp_time !== null) {
+            $where[] = 'modified < DATE_SUB(NOW(), INTERVAL ' . (int) $exp_time . ' SECOND)';
         }
-        if ($cacheId !== null) {
-            $where[] = '(cache_id  = "'.pSQL($cacheId, true).'" OR cache_id LIKE "'.pSQL($cacheId.'|%', true).'")';
+        if ($cache_id !== null) {
+            $where[] = '(cache_id  = "' . p_sql($cache_id, true) . '" OR cache_id LIKE "' . p_sql($cache_id . '|%', true) . '")';
         }
-
-        $conn->execute('DELETE FROM '._DB_PREFIX_.'smarty_cache WHERE '.implode(' AND ', $where));
-
+        $conn->execute('DELETE FROM ' . _DB_PREFIX_ . 'smarty_cache WHERE ' . implode(' AND ', $where));
         return $conn->Affected_Rows();
     }
 }

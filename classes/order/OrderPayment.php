@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,11 +30,10 @@ declare(strict_types=1);
  *  @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class OrderPaymentCore
  */
-class OrderPaymentCore extends ObjectModel
+class Order_Payment_Core extends Object_Model
 {
     /** @var string $order_reference */
     public $order_reference;
@@ -58,34 +57,10 @@ class OrderPaymentCore extends ObjectModel
     public $card_holder;
     /** @var string $date_add */
     public $date_add;
-
     /**
      * @var array Object model definition
      */
-    public static $definition = [
-        'table'   => 'order_payment',
-        'primary' => 'id_order_payment',
-        'primaryKeyDbType' => 'int(11)',
-        'fields'  => [
-            'order_reference' => ['type' => self::TYPE_STRING, 'validate' => 'isAnything', 'size' => 9],
-            'id_currency'     => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true, 'size' => 10],
-            'amount'          => ['type' => self::TYPE_PRICE, 'validate' => 'isNegativePrice', 'required' => true],
-            'payment_method'  => ['type' => self::TYPE_STRING, 'validate' => 'isGenericName', 'dbNullable' => false],
-            'conversion_rate' => ['type' => self::TYPE_FLOAT, 'validate' => 'isFloat', 'size' => 13, 'decimals' => 6, 'dbDefault' => '1.000000'],
-            'transaction_id'  => ['type' => self::TYPE_STRING, 'validate' => 'isAnything', 'size' => 254],
-            'card_number'     => ['type' => self::TYPE_STRING, 'validate' => 'isAnything', 'size' => 254],
-            'card_brand'      => ['type' => self::TYPE_STRING, 'validate' => 'isAnything', 'size' => 254                     ],
-            'card_expiration' => ['type' => self::TYPE_STRING, 'validate' => 'isAnything', 'size' => 7, 'dbType' => 'char(7)'],
-            'card_holder'     => ['type' => self::TYPE_STRING, 'validate' => 'isAnything', 'size' => 254],
-            'date_add'        => ['type' => self::TYPE_DATE, 'validate' => 'isDate', 'dbNullable' => false],
-        ],
-        'keys' => [
-            'order_payment' => [
-                'order_reference' => ['type' => ObjectModel::KEY, 'columns' => ['order_reference']],
-            ],
-        ],
-    ];
-
+    public static $definition = ['table' => 'order_payment', 'primary' => 'id_order_payment', 'primaryKeyDbType' => 'int(11)', 'fields' => ['order_reference' => ['type' => self::TYPE_STRING, 'validate' => 'isAnything', 'size' => 9], 'id_currency' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true, 'size' => 10], 'amount' => ['type' => self::TYPE_PRICE, 'validate' => 'isNegativePrice', 'required' => true], 'payment_method' => ['type' => self::TYPE_STRING, 'validate' => 'isGenericName', 'dbNullable' => false], 'conversion_rate' => ['type' => self::TYPE_FLOAT, 'validate' => 'isFloat', 'size' => 13, 'decimals' => 6, 'dbDefault' => '1.000000'], 'transaction_id' => ['type' => self::TYPE_STRING, 'validate' => 'isAnything', 'size' => 254], 'card_number' => ['type' => self::TYPE_STRING, 'validate' => 'isAnything', 'size' => 254], 'card_brand' => ['type' => self::TYPE_STRING, 'validate' => 'isAnything', 'size' => 254], 'card_expiration' => ['type' => self::TYPE_STRING, 'validate' => 'isAnything', 'size' => 7, 'dbType' => 'char(7)'], 'card_holder' => ['type' => self::TYPE_STRING, 'validate' => 'isAnything', 'size' => 254], 'date_add' => ['type' => self::TYPE_DATE, 'validate' => 'isDate', 'dbNullable' => false]], 'keys' => ['order_payment' => ['order_reference' => ['type' => Object_Model::KEY, 'columns' => ['order_reference']]]]];
     /**
      * @param bool $autoDate
      * @param bool $nullValues
@@ -95,17 +70,14 @@ class OrderPaymentCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function add($autoDate = true, $nullValues = false)
+    public function add($auto_date = true, $null_values = false)
     {
-        if (parent::add($autoDate, $nullValues)) {
-            Hook::triggerEvent('actionPaymentCCAdd', ['paymentCC' => $this]);
-
+        if (parent::add($auto_date, $null_values)) {
+            Hook::trigger_event('actionPaymentCCAdd', ['paymentCC' => $this]);
             return true;
         }
-
         return false;
     }
-
     /**
      * Get the detailed payment of an order
      *
@@ -116,20 +88,10 @@ class OrderPaymentCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getByOrderId($idOrder)
+    public static function get_by_order_id($id_order)
     {
-        return ObjectModel::hydrateCollection(
-            'OrderPayment',
-            Db::readOnly()->getArray(
-                (new DbQuery())
-                    ->select('op.*')
-                    ->from('order_payment', 'op')
-                    ->innerJoin('orders', 'o', 'o.`reference`=op.`order_reference`')
-                    ->where('o.`id_order` = '.(int) $idOrder)
-            )
-        );
+        return Object_Model::hydrate_collection('OrderPayment', Db::read_only()->get_array((new Db_Query())->select('op.*')->from('order_payment', 'op')->inner_join('orders', 'o', 'o.`reference`=op.`order_reference`')->where('o.`id_order` = ' . (int) $id_order)));
     }
-
     /**
      * Get the detailed payment of an order
      *
@@ -140,19 +102,10 @@ class OrderPaymentCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getByOrderReference($orderReference)
+    public static function get_by_order_reference($order_reference)
     {
-        return ObjectModel::hydrateCollection(
-            'OrderPayment',
-            Db::readOnly()->getArray(
-                (new DbQuery())
-                    ->select('*')
-                    ->from('order_payment')
-                    ->where('`order_reference` = \''.pSQL($orderReference).'\'')
-            )
-        );
+        return Object_Model::hydrate_collection('OrderPayment', Db::read_only()->get_array((new Db_Query())->select('*')->from('order_payment')->where('`order_reference` = \'' . p_sql($order_reference) . '\'')));
     }
-
     /**
      * Get Order Payments By Invoice ID
      *
@@ -163,23 +116,16 @@ class OrderPaymentCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getByInvoiceId($idInvoice)
+    public static function get_by_invoice_id($id_invoice)
     {
-        $payments = Db::readOnly()->getArray(
-            (new DbQuery())
-                ->select('`id_order_payment`')
-                ->from('order_invoice_payment')
-                ->where('`id_order_invoice` = '.(int) $idInvoice)
-        );
-
-        $collection = new PrestaShopCollection('OrderPayment');
-        if (! $payments) {
+        $payments = Db::read_only()->get_array((new Db_Query())->select('`id_order_payment`')->from('order_invoice_payment')->where('`id_order_invoice` = ' . (int) $id_invoice));
+        $collection = new Presta_Shop_Collection('OrderPayment');
+        if (!$payments) {
             return $collection->empty();
         }
-        $paymentList = array_column($payments, 'id_order_payment');
-        return $collection->where('id_order_payment', 'IN', $paymentList);
+        $payment_list = array_column($payments, 'id_order_payment');
+        return $collection->where('id_order_payment', 'IN', $payment_list);
     }
-
     /**
      * Return order invoice object linked to the payment
      *
@@ -189,20 +135,12 @@ class OrderPaymentCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public function getOrderInvoice($idOrder)
+    public function get_order_invoice($id_order)
     {
-        $res = Db::readOnly()->getValue(
-            (new DbQuery())
-                ->select('`id_order_invoice`')
-                ->from('order_invoice_payment')
-                ->where('`id_order_payment` = '.(int) $this->id)
-                ->where('`id_order` = '.(int) $idOrder)
-        );
-
+        $res = Db::read_only()->get_value((new Db_Query())->select('`id_order_invoice`')->from('order_invoice_payment')->where('`id_order_payment` = ' . (int) $this->id)->where('`id_order` = ' . (int) $id_order));
         if (!$res) {
             return false;
         }
-
-        return new OrderInvoice((int) $res);
+        return new Order_Invoice((int) $res);
     }
 }

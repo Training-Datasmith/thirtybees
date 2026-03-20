@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,84 +30,72 @@ declare(strict_types=1);
  *  @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class Core_Foundation_Database_EntityMetaData
  */
-class Core_Foundation_Database_EntityMetaData
+class Core_foundation_database_entity_Meta_Data
 {
     /**
      * @var string
      */
-    protected $tableName;
-
+    protected $table_name;
     /**
      * @var string[]
      */
-    protected $primaryKeyFieldnames;
-
+    protected $primary_key_fieldnames;
     /**
      * @var string
      */
-    protected $entityClassName;
-
+    protected $entity_class_name;
     /**
      * @param string $name
      *
      * @return Core_Foundation_Database_EntityMetaData $this
      */
-    public function setTableName($name)
+    public function set_table_name($name)
     {
-        $this->tableName = $name;
-
+        $this->table_name = $name;
         return $this;
     }
-
     /**
      * @return string
      */
-    public function getTableName()
+    public function get_table_name()
     {
-        return $this->tableName;
+        return $this->table_name;
     }
-
     /**
      * @param string[] $primaryKeyFieldnames
      *
      * @return static
      */
-    public function setPrimaryKeyFieldNames(array $primaryKeyFieldnames)
+    public function set_primary_key_field_names(array $primary_key_fieldnames)
     {
-        $this->primaryKeyFieldnames = $primaryKeyFieldnames;
-
+        $this->primary_key_fieldnames = $primary_key_fieldnames;
         return $this;
     }
-
     /**
      * @return string[]
      */
-    public function getPrimaryKeyFieldnames()
+    public function get_primary_key_fieldnames()
     {
-        return $this->primaryKeyFieldnames;
+        return $this->primary_key_fieldnames;
     }
-
     /**
      * @param string $entityClassName
      *
      * @return static
      */
-    public function setEntityClassName($entityClassName)
+    public function set_entity_class_name($entity_class_name)
     {
-        $this->entityClassName = $entityClassName;
-
+        $this->entity_class_name = $entity_class_name;
         return $this;
     }
-
     /**
      * @return string
      */
-    public function getEntityClassName()
+    public function get_entity_class_name()
     {
-        return $this->entityClassName;
+        return $this->entity_class_name;
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,35 +30,21 @@ declare(strict_types=1);
  *  @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class OrderReturnStateCore
  */
-class OrderReturnStateCore extends ObjectModel
+class Order_Return_State_Core extends Object_Model
 {
     /** @var string|string[] Name */
     public $name;
-
     /** @var string Display state in the specified color */
     public $color;
-
     /** @var bool Active */
     public $active = 1;
-
     /**
      * @var array Object model definition
      */
-    public static $definition = [
-        'table'     => 'order_return_state',
-        'primary'   => 'id_order_return_state',
-        'multilang' => true,
-        'fields'    => [
-            'color'   => ['type' => self::TYPE_STRING, 'validate' => 'isColor', 'size' => 32],
-            'name'    => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isGenericName', 'required' => true, 'size' => 64],
-            'active'  => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbDefault' => '1'],
-        ],
-    ];
-
+    public static $definition = ['table' => 'order_return_state', 'primary' => 'id_order_return_state', 'multilang' => true, 'fields' => ['color' => ['type' => self::TYPE_STRING, 'validate' => 'isColor', 'size' => 32], 'name' => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isGenericName', 'required' => true, 'size' => 64], 'active' => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbDefault' => '1']]];
     /**
      * @param int $id
      * @param int $idLang
@@ -66,11 +52,10 @@ class OrderReturnStateCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function __construct($id = null, $idLang = null, $idShop = null)
+    public function __construct($id = null, $id_lang = null, $id_shop = null)
     {
-        parent::__construct($id, $idLang, $idShop);
+        parent::__construct($id, $id_lang, $id_shop);
     }
-
     /**
      * Get all available order statuses
      *
@@ -81,16 +66,8 @@ class OrderReturnStateCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getOrderReturnStates($idLang)
+    public static function get_order_return_states($id_lang)
     {
-        return Db::readOnly()->getArray(
-            (new DbQuery())
-                ->select('*')
-                ->from('order_return_state', 'ors')
-                ->where('ors.`active` = 1')
-                ->leftJoin('order_return_state_lang', 'orsl', 'ors.`id_order_return_state` = orsl.`id_order_return_state` AND orsl.`id_lang` = '.(int) $idLang)
-                ->orderBy('ors.`id_order_return_state` ASC')
-        );
+        return Db::read_only()->get_array((new Db_Query())->select('*')->from('order_return_state', 'ors')->where('ors.`active` = 1')->left_join('order_return_state_lang', 'orsl', 'ors.`id_order_return_state` = orsl.`id_order_return_state` AND orsl.`id_lang` = ' . (int) $id_lang)->order_by('ors.`id_order_return_state` ASC'));
     }
-
 }

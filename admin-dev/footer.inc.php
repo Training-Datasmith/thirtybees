@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -31,17 +31,14 @@ declare(strict_types=1);
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
 /** @noinspection PhpUnhandledExceptionInspection */
-
-if (! defined('_TB_VERSION_')) {
+if (!defined('_TB_VERSION_')) {
     exit;
 }
-Tools::displayFileAsDeprecated();
-
-$overrideFolder = '';
+Tools::display_file_as_deprecated();
+$override_folder = '';
 if (isset($con)) {
-    $overrideFolder = $con->override_folder;
+    $override_folder = $con->override_folder;
 }
-
-$dir = Context::getContext()->smarty->getTemplateDir(0).'controllers'.DIRECTORY_SEPARATOR.trim($overrideFolder, '\\/').DIRECTORY_SEPARATOR;
-$footer_tpl = file_exists($dir.'footer.tpl') ? $dir.'footer.tpl' : 'footer.tpl';
-echo Context::getContext()->smarty->fetch($footer_tpl);
+$dir = Context::get_context()->smarty->get_template_dir(0) . 'controllers' . DIRECTORY_SEPARATOR . trim($override_folder, '\/') . DIRECTORY_SEPARATOR;
+$footer_tpl = file_exists($dir . 'footer.tpl') ? $dir . 'footer.tpl' : 'footer.tpl';
+echo Context::get_context()->smarty->fetch($footer_tpl);

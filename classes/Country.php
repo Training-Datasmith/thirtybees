@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,11 +30,10 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class CountryCore
  */
-class CountryCore extends ObjectModel
+class Country_Core extends Object_Model
 {
     /** @var int|null Object ID */
     public $id;
@@ -60,55 +59,27 @@ class CountryCore extends ObjectModel
     public $display_tax_label = true;
     /** @var bool Status for delivery */
     public $active = true;
-
     /**
      * @var array Object model definition
      */
-    public static $definition = [
-        'table'        => 'country',
-        'primary'      => 'id_country',
-        'multilang'    => true,
-        'fields'       => [
-            'id_zone'                    => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true],
-            'id_currency'                => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'dbDefault' => '0'],
-            'iso_code'                   => ['type' => self::TYPE_STRING, 'validate' => 'isLanguageIsoCode', 'required' => true, 'size' => 3],
-            'call_prefix'                => ['type' => self::TYPE_INT, 'validate' => 'isInt', 'dbType' => 'int(10)', 'dbDefault' => '0'],
-            'active'                     => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbDefault' => '0'],
-            'contains_states'            => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'required' => true, 'dbType' => 'tinyint(1)', 'dbDefault' => '0'],
-            'need_identification_number' => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'required' => true, 'dbType' => 'tinyint(1)', 'dbDefault' => '0'],
-            'need_zip_code'              => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbType' => 'tinyint(1)', 'dbDefault' => '1'],
-            'zip_code_format'            => ['type' => self::TYPE_STRING, 'validate' => 'isZipCodeFormat', 'size' => 12, 'dbDefault' => ''],
-            'display_tax_label'          => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'required' => true, 'dbType' => 'tinyint(1)'],
-
-            /* Lang fields */
-            'name'                       => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isGenericName', 'required' => true, 'size' => 64],
-        ],
-        'associations' => [
-            'zone'     => ['type' => self::HAS_ONE],
-            'currency' => ['type' => self::HAS_ONE],
-        ],
-        'keys' => [
-            'country' => [
-                'country_'         => ['type' => ObjectModel::KEY, 'columns' => ['id_zone']],
-                'country_iso_code' => ['type' => ObjectModel::KEY, 'columns' => ['iso_code']],
-            ],
-            'country_shop' => [
-                'id_shop' => ['type' => ObjectModel::KEY, 'columns' => ['id_shop']],
-            ],
-        ],
-    ];
-
+    public static $definition = ['table' => 'country', 'primary' => 'id_country', 'multilang' => true, 'fields' => [
+        'id_zone' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true],
+        'id_currency' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'dbDefault' => '0'],
+        'iso_code' => ['type' => self::TYPE_STRING, 'validate' => 'isLanguageIsoCode', 'required' => true, 'size' => 3],
+        'call_prefix' => ['type' => self::TYPE_INT, 'validate' => 'isInt', 'dbType' => 'int(10)', 'dbDefault' => '0'],
+        'active' => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbDefault' => '0'],
+        'contains_states' => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'required' => true, 'dbType' => 'tinyint(1)', 'dbDefault' => '0'],
+        'need_identification_number' => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'required' => true, 'dbType' => 'tinyint(1)', 'dbDefault' => '0'],
+        'need_zip_code' => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbType' => 'tinyint(1)', 'dbDefault' => '1'],
+        'zip_code_format' => ['type' => self::TYPE_STRING, 'validate' => 'isZipCodeFormat', 'size' => 12, 'dbDefault' => ''],
+        'display_tax_label' => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'required' => true, 'dbType' => 'tinyint(1)'],
+        /* Lang fields */
+        'name' => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isGenericName', 'required' => true, 'size' => 64],
+    ], 'associations' => ['zone' => ['type' => self::HAS_ONE], 'currency' => ['type' => self::HAS_ONE]], 'keys' => ['country' => ['country_' => ['type' => Object_Model::KEY, 'columns' => ['id_zone']], 'country_iso_code' => ['type' => Object_Model::KEY, 'columns' => ['iso_code']]], 'country_shop' => ['id_shop' => ['type' => Object_Model::KEY, 'columns' => ['id_shop']]]]];
     /**
      * @var array Webservice parameters
      */
-    protected $webserviceParameters = [
-        'objectsNodeName' => 'countries',
-        'fields'          => [
-            'id_zone'     => ['xlink_resource' => 'zones'],
-            'id_currency' => ['xlink_resource' => 'currencies'],
-        ],
-    ];
-
+    protected $webservice_parameters = ['objectsNodeName' => 'countries', 'fields' => ['id_zone' => ['xlink_resource' => 'zones'], 'id_currency' => ['xlink_resource' => 'currencies']]];
     /**
      * @param int $idShop
      * @param int $idLang
@@ -118,17 +89,10 @@ class CountryCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getCountriesByIdShop($idShop, $idLang)
+    public static function get_countries_by_id_shop($id_shop, $id_lang)
     {
-        return Db::readOnly()->getArray(
-            (new DbQuery())
-                ->select('*')
-                ->from('country', 'c')
-                ->leftJoin('country_shop', 'cs', 'cs.`id_country` = c.`id_country` AND cs.`id_shop` = '.(int) $idShop)
-                ->leftJoin('country_lang', 'cl', 'cl.`id_country` = c.`id_country` AND cl.`id_lang` = '.(int) $idLang)
-        );
+        return Db::read_only()->get_array((new Db_Query())->select('*')->from('country', 'c')->left_join('country_shop', 'cs', 'cs.`id_country` = c.`id_country` AND cs.`id_shop` = ' . (int) $id_shop)->left_join('country_lang', 'cl', 'cl.`id_country` = c.`id_country` AND cl.`id_lang` = ' . (int) $id_lang));
     }
-
     /**
      * Get a country ID by its iso code
      *
@@ -140,24 +104,16 @@ class CountryCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getByIso($isoCode, $active = false)
+    public static function get_by_iso($iso_code, $active = false)
     {
-        if (Validate::isLanguageIsoCode($isoCode)) {
-            $result = Db::readOnly()->getRow(
-                (new DbQuery())
-                    ->select('`id_country`')
-                    ->from('country')
-                    ->where('`iso_code` = \'' . pSQL(strtoupper($isoCode)) . '\'')
-                    ->where($active ? '`active` = 1' : '')
-            );
-
+        if (Validate::is_language_iso_code($iso_code)) {
+            $result = Db::read_only()->get_row((new Db_Query())->select('`id_country`')->from('country')->where('`iso_code` = \'' . p_sql(strtoupper($iso_code)) . '\'')->where($active ? '`active` = 1' : ''));
             if (isset($result['id_country'])) {
-                return (int)$result['id_country'];
+                return (int) $result['id_country'];
             }
         }
         return false;
     }
-
     /**
      * @param int $idCountry
      *
@@ -166,35 +122,21 @@ class CountryCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getIdZone($idCountry)
+    public static function get_id_zone($id_country)
     {
-        $idCountry = (int)$idCountry;
-
-        if (! $idCountry) {
+        $id_country = (int) $id_country;
+        if (!$id_country) {
             return false;
         }
-
-        $key = 'country_getIdZone_' . $idCountry;
-        if (!Cache::isStored($key)) {
-            $result = Db::readOnly()->getRow(
-                (new DbQuery())
-                    ->select('`id_zone`')
-                    ->from('country')
-                    ->where('`id_country` = ' . $idCountry)
-            );
-
-            $zoneId = (isset($result['id_zone']) && $result['id_zone'])
-                ? (int)$result['id_zone']
-                : false;
-
-            Cache::store($key, $zoneId);
-
-            return $zoneId;
+        $key = 'country_getIdZone_' . $id_country;
+        if (!Cache::is_stored($key)) {
+            $result = Db::read_only()->get_row((new Db_Query())->select('`id_zone`')->from('country')->where('`id_country` = ' . $id_country));
+            $zone_id = isset($result['id_zone']) && $result['id_zone'] ? (int) $result['id_zone'] : false;
+            Cache::store($key, $zone_id);
+            return $zone_id;
         }
-
         return Cache::retrieve($key);
     }
-
     /**
      * Get a country name with its ID
      *
@@ -205,28 +147,18 @@ class CountryCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function getNameById($idLang, $idCountry)
+    public static function get_name_by_id($id_lang, $id_country)
     {
-        $idLang = (int)$idLang;
-        $idCountry = (int)$idCountry;
-
-        $key = 'country_getNameById_'.$idCountry.'_'.$idLang;
-        if (!Cache::isStored($key)) {
-            $result = Db::readOnly()->getValue(
-                (new DbQuery())
-                    ->select('`name`')
-                    ->from('country_lang')
-                    ->where('`id_lang` = '.$idLang)
-                    ->where('`id_country` = '.$idCountry)
-            );
+        $id_lang = (int) $id_lang;
+        $id_country = (int) $id_country;
+        $key = 'country_getNameById_' . $id_country . '_' . $id_lang;
+        if (!Cache::is_stored($key)) {
+            $result = Db::read_only()->get_value((new Db_Query())->select('`name`')->from('country_lang')->where('`id_lang` = ' . $id_lang)->where('`id_country` = ' . $id_country));
             Cache::store($key, $result);
-
             return $result;
         }
-
         return Cache::retrieve($key);
     }
-
     /**
      * Get a country iso with its ID
      *
@@ -236,26 +168,17 @@ class CountryCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function getIsoById($idCountry)
+    public static function get_iso_by_id($id_country)
     {
-        $idCountry = (int)$idCountry;
-
-        $key = 'country_getIsoById_' . $idCountry;
-        if (!Cache::isStored($key)) {
-            $result = Db::readOnly()->getValue(
-                (new DbQuery())
-                    ->select('`iso_code`')
-                    ->from('country')
-                    ->where('`id_country` = '.$idCountry)
-            );
+        $id_country = (int) $id_country;
+        $key = 'country_getIsoById_' . $id_country;
+        if (!Cache::is_stored($key)) {
+            $result = Db::read_only()->get_value((new Db_Query())->select('`iso_code`')->from('country')->where('`id_country` = ' . $id_country));
             Cache::store($key, $result);
-
             return $result;
         }
-
         return Cache::retrieve($key);
     }
-
     /**
      * Get a country id with its name
      *
@@ -267,25 +190,15 @@ class CountryCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getIdByName($idLang, $countryName)
+    public static function get_id_by_name($id_lang, $country_name)
     {
-        $idLang = (int) $idLang;
-
-        $result = Db::readOnly()->getRow(
-            (new DbQuery())
-                ->select('`id_country`')
-                ->from('country_lang')
-                ->where('`name` = \''.pSQL($countryName).'\'')
-                ->where($idLang ? '`id_lang` = '. $idLang : '')
-        );
-
+        $id_lang = (int) $id_lang;
+        $result = Db::read_only()->get_row((new Db_Query())->select('`id_country`')->from('country_lang')->where('`name` = \'' . p_sql($country_name) . '\'')->where($id_lang ? '`id_lang` = ' . $id_lang : ''));
         if (isset($result['id_country'])) {
             return (int) $result['id_country'];
         }
-
         return false;
     }
-
     /**
      * @param int $idCountry
      *
@@ -293,20 +206,13 @@ class CountryCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function getNeedZipCode($idCountry)
+    public static function get_need_zip_code($id_country)
     {
-        if (!(int) $idCountry) {
+        if (!(int) $id_country) {
             return false;
         }
-
-        return (bool) Db::readOnly()->getValue(
-            (new DbQuery())
-                ->select('`need_zip_code`')
-                ->from('country')
-                ->where('`id_country` = '.(int) $idCountry)
-        );
+        return (bool) Db::read_only()->get_value((new Db_Query())->select('`need_zip_code`')->from('country')->where('`id_country` = ' . (int) $id_country));
     }
-
     /**
      * @param int $idCountry
      *
@@ -314,41 +220,29 @@ class CountryCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function getZipCodeFormat($idCountry)
+    public static function get_zip_code_format($id_country)
     {
-        $idCountry = (int)$idCountry;
-
-        if (! $idCountry) {
+        $id_country = (int) $id_country;
+        if (!$id_country) {
             return false;
         }
-
-        $zipCodeFormat = Db::readOnly()->getValue(
-            (new DbQuery())
-                ->select('`zip_code_format`')
-                ->from('country')
-                ->where('`id_country` = '.$idCountry)
-        );
-
-        if (isset($zipCodeFormat) && $zipCodeFormat) {
-            return $zipCodeFormat;
+        $zip_code_format = Db::read_only()->get_value((new Db_Query())->select('`zip_code_format`')->from('country')->where('`id_country` = ' . $id_country));
+        if (isset($zip_code_format) && $zip_code_format) {
+            return $zip_code_format;
         }
-
         return false;
     }
-
     /**
      * Returns the default country ID
      *
      * @deprecated 1.0.0 use $context->country->id instead
      * @return int default country id
      */
-    public static function getDefaultCountryId()
+    public static function get_default_country_id()
     {
-        Tools::displayAsDeprecated();
-
-        return (int)Context::getContext()->country->id;
+        Tools::display_as_deprecated();
+        return (int) Context::get_context()->country->id;
     }
-
     /**
      * @param int $idZone
      * @param int $idLang
@@ -358,22 +252,12 @@ class CountryCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getCountriesByZoneId($idZone, $idLang)
+    public static function get_countries_by_zone_id($id_zone, $id_lang)
     {
-        $idZone = (int)$idZone;
-        $idLang = (int)$idLang;
-
-        return Db::readOnly()->getArray(
-            (new DbQuery())
-                ->select('c.*, cl.*')
-                ->from('country', 'c')
-                ->join(Shop::addSqlAssociation('country', 'c', false))
-                ->leftJoin('state', 's', 's.`id_country` = c.`id_country`')
-                ->leftJoin('country_lang', 'cl', 'c.`id_country` = cl.`id_country` AND cl.`id_lang` = '.$idLang)
-                ->where('c.`id_zone` = '.$idZone.' OR s.`id_zone` = '.$idZone)
-        );
+        $id_zone = (int) $id_zone;
+        $id_lang = (int) $id_lang;
+        return Db::read_only()->get_array((new Db_Query())->select('c.*, cl.*')->from('country', 'c')->join(Shop::add_sql_association('country', 'c', false))->left_join('state', 's', 's.`id_country` = c.`id_country`')->left_join('country_lang', 'cl', 'c.`id_country` = cl.`id_country` AND cl.`id_lang` = ' . $id_lang)->where('c.`id_zone` = ' . $id_zone . ' OR s.`id_zone` = ' . $id_zone));
     }
-
     /**
      * @param int $idCountry
      *
@@ -381,16 +265,10 @@ class CountryCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function containsStates($idCountry)
+    public static function contains_states($id_country)
     {
-        return (bool) Db::readOnly()->getValue(
-            (new DbQuery())
-                ->select('`contains_states`')
-                ->from('country')
-                ->where('`id_country` = '.(int) $idCountry)
-        );
+        return (bool) Db::read_only()->get_value((new Db_Query())->select('`contains_states`')->from('country')->where('`id_country` = ' . (int) $id_country));
     }
-
     /**
      * @return bool
      *
@@ -402,20 +280,17 @@ class CountryCore extends ObjectModel
         if (!parent::delete()) {
             return false;
         }
-
-        return Db::getInstance()->delete('cart_rule_country', '`id_country` = '.(int) $this->id);
+        return Db::get_instance()->delete('cart_rule_country', '`id_country` = ' . (int) $this->id);
     }
-
     /**
      * @return bool
      *
      * @throws PrestaShopException
      */
-    public function isNeedDni()
+    public function is_need_dni()
     {
-        return Country::isNeedDniByCountryId($this->id);
+        return Country::is_need_dni_by_country_id($this->id);
     }
-
     /**
      * @param int $idCountry
      *
@@ -423,16 +298,10 @@ class CountryCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function isNeedDniByCountryId($idCountry)
+    public static function is_need_dni_by_country_id($id_country)
     {
-        return (bool) Db::readOnly()->getValue(
-            (new DbQuery())
-                ->select('`need_identification_number`')
-                ->from('country')
-                ->where('`id_country` = '.(int) $idCountry)
-        );
+        return (bool) Db::read_only()->get_value((new Db_Query())->select('`need_identification_number`')->from('country')->where('`id_country` = ' . (int) $id_country));
     }
-
     /**
      * @param array $idsCountries
      * @param int $idZone
@@ -442,20 +311,12 @@ class CountryCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function affectZoneToSelection($idsCountries, $idZone)
+    public function affect_zone_to_selection($ids_countries, $id_zone)
     {
         // cast every array values to int (security)
-        $idsCountries = array_map(intval(...), $idsCountries);
-
-        return Db::getInstance()->update(
-            'country',
-            [
-                'id_zone' => (int) $idZone,
-            ],
-            '`id_country` IN ('.implode(',', $idsCountries).')'
-        );
+        $ids_countries = array_map(intval(...), $ids_countries);
+        return Db::get_instance()->update('country', ['id_zone' => (int) $id_zone], '`id_country` IN (' . implode(',', $ids_countries) . ')');
     }
-
     /**
      * Replace letters of zip code format And check this format on the zip code
      *
@@ -463,18 +324,16 @@ class CountryCore extends ObjectModel
      *
      * @return bool
      */
-    public function checkZipCode($zipCode)
+    public function check_zip_code($zip_code)
     {
-        $zipRegexp = '/^'.$this->zip_code_format.'$/ui';
-        $zipRegexp = str_replace(' ', '( |)', $zipRegexp);
-        $zipRegexp = str_replace('-', '(-|)', $zipRegexp);
-        $zipRegexp = str_replace('N', '[0-9]', $zipRegexp);
-        $zipRegexp = str_replace('L', '[a-zA-Z]', $zipRegexp);
-        $zipRegexp = str_replace('C', $this->iso_code, $zipRegexp);
-
-        return (bool) preg_match($zipRegexp, (string)$zipCode);
+        $zip_regexp = '/^' . $this->zip_code_format . '$/ui';
+        $zip_regexp = str_replace(' ', '( |)', $zip_regexp);
+        $zip_regexp = str_replace('-', '(-|)', $zip_regexp);
+        $zip_regexp = str_replace('N', '[0-9]', $zip_regexp);
+        $zip_regexp = str_replace('L', '[a-zA-Z]', $zip_regexp);
+        $zip_regexp = str_replace('C', $this->iso_code, $zip_regexp);
+        return (bool) preg_match($zip_regexp, (string) $zip_code);
     }
-
     /**
      * @param bool $autoDate
      * @param bool $nullValues
@@ -484,14 +343,10 @@ class CountryCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function add($autoDate = true, $nullValues = false)
+    public function add($auto_date = true, $null_values = false)
     {
-        return (
-            parent::add($autoDate, $nullValues) &&
-            static::addModuleRestrictions([], [['id_country' => $this->id]], [])
-        );
+        return parent::add($auto_date, $null_values) && static::add_module_restrictions([], [['id_country' => $this->id]], []);
     }
-
     /**
      *
      * @return bool
@@ -499,39 +354,30 @@ class CountryCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function addModuleRestrictions(array $shops = [], array $countries = [], array $modules = [])
+    public static function add_module_restrictions(array $shops = [], array $countries = [], array $modules = [])
     {
         if (!count($shops)) {
-            $shops = Shop::getShops(true, null, true);
+            $shops = Shop::get_shops(true, null, true);
         }
-
         if (!count($countries)) {
-            $countries = Country::getCountries((int) Context::getContext()->cookie->id_lang);
+            $countries = Country::get_countries((int) Context::get_context()->cookie->id_lang);
         }
-
         if (!count($modules)) {
-            $modules = Module::getPaymentModules();
+            $modules = Module::get_payment_modules();
         }
-
         $insert = [];
-        foreach ($shops as $idShop) {
+        foreach ($shops as $id_shop) {
             foreach ($countries as $country) {
                 foreach ($modules as $module) {
-                    $insert[] = [
-                        'id_module'  => (int) $module['id_module'],
-                        'id_shop'    => (int) $idShop,
-                        'id_country' => (int) $country['id_country'],
-                    ];
+                    $insert[] = ['id_module' => (int) $module['id_module'], 'id_shop' => (int) $id_shop, 'id_country' => (int) $country['id_country']];
                 }
             }
         }
-
         if (!empty($insert)) {
-            return Db::getInstance()->insert('module_country', $insert, false, true, Db::INSERT_IGNORE);
+            return Db::get_instance()->insert('module_country', $insert, false, true, Db::INSERT_IGNORE);
         }
         return true;
     }
-
     /**
      * Return available countries
      *
@@ -545,39 +391,23 @@ class CountryCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getCountries($idLang, $active = false, $containStates = false, $listStates = true)
+    public static function get_countries($id_lang, $active = false, $contain_states = false, $list_states = true)
     {
         $countries = [];
-        $connection = Db::readOnly();
-        $result = $connection->getArray(
-            (new DbQuery())
-                ->select('cl.*, c.*, cl.`name` AS `country`, z.`name` AS `zone`')
-                ->from('country', 'c')
-                ->join(Shop::addSqlAssociation('country', 'c'))
-                ->leftJoin('country_lang', 'cl', 'c.`id_country` = cl.`id_country` AND cl.`id_lang` = '.(int) $idLang)
-                ->leftJoin('zone', 'z', 'z.`id_zone` = c.`id_zone`')
-                ->where($active ? 'c.`active` = 1' : '')
-                ->where($containStates ? 'c.`contains_states` = '.(int) $containStates : '')
-                ->orderBy('cl.`name` ASC')
-        );
+        $connection = Db::read_only();
+        $result = $connection->get_array((new Db_Query())->select('cl.*, c.*, cl.`name` AS `country`, z.`name` AS `zone`')->from('country', 'c')->join(Shop::add_sql_association('country', 'c'))->left_join('country_lang', 'cl', 'c.`id_country` = cl.`id_country` AND cl.`id_lang` = ' . (int) $id_lang)->left_join('zone', 'z', 'z.`id_zone` = c.`id_zone`')->where($active ? 'c.`active` = 1' : '')->where($contain_states ? 'c.`contains_states` = ' . (int) $contain_states : '')->order_by('cl.`name` ASC'));
         foreach ($result as $row) {
             $countries[$row['id_country']] = $row;
         }
-
-        if ($listStates) {
-            $result = $connection->getArray(
-                (new DbQuery())
-                    ->select('*')
-                    ->from('state')
-                    ->orderBy('`name` ASC')
-            );
+        if ($list_states) {
+            $result = $connection->get_array((new Db_Query())->select('*')->from('state')->order_by('`name` ASC'));
             foreach ($result as $row) {
-                if (isset($countries[$row['id_country']]) && $row['active'] == 1) { /* Does not keep the state if its country has been disabled and not selected */
+                if (isset($countries[$row['id_country']]) && $row['active'] == 1) {
+                    /* Does not keep the state if its country has been disabled and not selected */
                     $countries[$row['id_country']]['states'][] = $row;
                 }
             }
         }
-
         return $countries;
     }
 }

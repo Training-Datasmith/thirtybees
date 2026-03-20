@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -18,21 +18,18 @@ declare(strict_types=1);
  * @copyright 2017-2024 thirty bees
  * @license   Open Software License (OSL 3.0)
  */
-
 namespace Thirtybees\Core\Smarty\Cache;
 
 use Cache;
-use Smarty_CacheResource_Custom;
-
+use Smarty_cache_Resource_custom;
 /**
  * Class CacheResourceMysqlCore
  */
-class CacheResourceServerSideCacheCore extends Smarty_CacheResource_Custom
+class Cache_Resource_Server_Side_Cache_Core extends Smarty_cache_Resource_custom
 {
     public function __construct(protected \Cache $cache)
     {
     }
-
     /**
      * fetch cached content and its modification time from server side cache
      *
@@ -46,22 +43,21 @@ class CacheResourceServerSideCacheCore extends Smarty_CacheResource_Custom
      * @return void
      *
      */
-    protected function fetch($id, $name, $cacheId, $compileId, &$content, &$mtime)
+    protected function fetch($id, $name, $cache_id, $compile_id, &$content, &$mtime)
     {
-        $cacheKey = $this->getCacheKey($name, $cacheId, $compileId);
-        $value = $this->cache->get($cacheKey);
+        $cache_key = $this->get_cache_key($name, $cache_id, $compile_id);
+        $value = $this->cache->get($cache_key);
         if (is_object($value)) {
-            $value = (array)$value;
+            $value = (array) $value;
         }
         if (is_array($value) && isset($value['mtime'])) {
-            $mtime = (int)$value['mtime'];
+            $mtime = (int) $value['mtime'];
             $content = $value['content'];
         } else {
             $content = null;
             $mtime = null;
         }
     }
-
     /**
      * Fetch cached content's modification timestamp from server side cache
      *
@@ -72,18 +68,17 @@ class CacheResourceServerSideCacheCore extends Smarty_CacheResource_Custom
      *
      * @return int|boolean timestamp (epoch) the template was modified, or false if not found
      */
-    protected function fetchTimestamp($id, $name, $cacheId, $compileId)
+    protected function fetch_timestamp($id, $name, $cache_id, $compile_id)
     {
-        $value = $this->cache->get($this->getCacheKey($name, $cacheId, $compileId));
+        $value = $this->cache->get($this->get_cache_key($name, $cache_id, $compile_id));
         if (is_object($value)) {
-            $value = (array)$value;
+            $value = (array) $value;
         }
         if (is_array($value) && isset($value['mtime'])) {
-            return (int)$value['mtime'];
+            return (int) $value['mtime'];
         }
         return false;
     }
-
     /**
      * Save content to server side cache
      *
@@ -96,15 +91,11 @@ class CacheResourceServerSideCacheCore extends Smarty_CacheResource_Custom
      *
      * @return bool success
      */
-    protected function save($id, $name, $cacheId, $compileId, $expTime, $content)
+    protected function save($id, $name, $cache_id, $compile_id, $exp_time, $content)
     {
-        $value = [
-            'mtime' => time(),
-            'content' => $content,
-        ];
-        return $this->cache->set($this->getCacheKey($name, $cacheId, $compileId), $value, $expTime);
+        $value = ['mtime' => time(), 'content' => $content];
+        return $this->cache->set($this->get_cache_key($name, $cache_id, $compile_id), $value, $exp_time);
     }
-
     /**
      * Delete content from cache
      *
@@ -115,14 +106,14 @@ class CacheResourceServerSideCacheCore extends Smarty_CacheResource_Custom
      *
      * @return int number of deleted caches
      */
-    protected function delete($name, $cacheId, $compileId, $expTime)
+    protected function delete($name, $cache_id, $compile_id, $exp_time)
     {
-        if ($name === null && $cacheId === null && $compileId === null) {
+        if ($name === null && $cache_id === null && $compile_id === null) {
             $this->cache->flush();
             return -1;
         }
-        $key = $this->getCacheKey($name, $cacheId, $compileId);
-        if ($name && !$cacheId) {
+        $key = $this->get_cache_key($name, $cache_id, $compile_id);
+        if ($name && !$cache_id) {
             $key = $key . '*';
         }
         $deleted = $this->cache->delete($key);
@@ -131,7 +122,6 @@ class CacheResourceServerSideCacheCore extends Smarty_CacheResource_Custom
         }
         return 1;
     }
-
     /**
      * @param string $name
      * @param string $cacheId
@@ -139,20 +129,20 @@ class CacheResourceServerSideCacheCore extends Smarty_CacheResource_Custom
      *
      * @return string
      */
-    protected function getCacheKey($name, $cacheId, $compileId)
+    protected function get_cache_key($name, $cache_id, $compile_id)
     {
         $parts = ['smarty'];
         if ($name) {
             $name = trim(str_replace(_PS_ROOT_DIR_, '', $name), '/');
             $parts[] = $name;
         }
-        if ($cacheId) {
-            $cacheId = str_replace('*', '_', $cacheId);
-            $parts[] = $cacheId;
+        if ($cache_id) {
+            $cache_id = str_replace('*', '_', $cache_id);
+            $parts[] = $cache_id;
         }
-        if ($compileId) {
-            $compileId = str_replace('*', '_', $compileId);
-            $parts[] = $compileId;
+        if ($compile_id) {
+            $compile_id = str_replace('*', '_', $compile_id);
+            $parts[] = $compile_id;
         }
         return implode('~', $parts);
     }

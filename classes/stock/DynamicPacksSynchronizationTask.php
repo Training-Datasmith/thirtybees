@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -18,28 +18,26 @@ declare(strict_types=1);
  * @copyright 2017-2024 thirty bees
  * @license   Open Software License (OSL 3.0)
  */
-
 namespace Thirtybees\Core\Stock\Synchronization;
 
 use Context;
 use Db;
-use DbQuery;
+use Db_Query;
 use Pack;
-use PrestaShopDatabaseException;
-use PrestaShopException;
-use StockAvailable;
-use Thirtybees\Core\InitializationCallback;
-use Thirtybees\Core\WorkQueue\ScheduledTask;
-use Thirtybees\Core\WorkQueue\WorkQueueContext;
-use Thirtybees\Core\WorkQueue\WorkQueueTask;
-use Thirtybees\Core\WorkQueue\WorkQueueTaskCallable;
-
+use Presta_Shop_Database_Exception;
+use Presta_Shop_Exception;
+use Stock_Available;
+use Thirtybees\Core\Initialization_Callback;
+use Thirtybees\Core\Work_Queue\Scheduled_Task;
+use Thirtybees\Core\Work_Queue\Work_Queue_Context;
+use Thirtybees\Core\Work_Queue\Work_Queue_Task;
+use Thirtybees\Core\Work_Queue\Work_Queue_Task_Callable;
 /**
  * Class DynamicPacksSynchronizationTaskCore
  *
  * Work queue task to synchronize dynamic packs quantities
  */
-class DynamicPacksSynchronizationTaskCore implements WorkQueueTaskCallable, InitializationCallback
+class Dynamic_Packs_Synchronization_Task_Core implements Work_Queue_Task_Callable, Initialization_Callback
 {
     /**
      * Creates work queue task to synchronize packs
@@ -47,19 +45,14 @@ class DynamicPacksSynchronizationTaskCore implements WorkQueueTaskCallable, Init
      * @param int[] $productIds
      * @return WorkQueueTask
      */
-    public static function createTask($productIds = null)
+    public static function create_task($product_ids = null)
     {
         $parameters = [];
-        if (! is_null($productIds)) {
-            $parameters['productIds'] = array_filter(array_map(intval(...), $productIds));
+        if (!is_null($product_ids)) {
+            $parameters['productIds'] = array_filter(array_map(intval(...), $product_ids));
         }
-        return WorkQueueTask::createTask(
-            static::getTaskName(),
-            $parameters,
-            WorkQueueContext::fromContext(Context::getContext())
-        );
+        return Work_Queue_Task::create_task(static::get_task_name(), $parameters, Work_Queue_Context::from_context(Context::get_context()));
     }
-
     /**
      * Task execution method
      *
@@ -69,125 +62,92 @@ class DynamicPacksSynchronizationTaskCore implements WorkQueueTaskCallable, Init
      * @throws PrestaShopException
      * @throws PrestaShopDatabaseException
      */
-    public function execute(WorkQueueContext $context, array $parameters): int
+    public function execute(Work_Queue_Context $context, array $parameters): int
     {
-        $conn = Db::getInstance();
-
+        $conn = Db::get_instance();
         if (isset($parameters['productIds'])) {
-            $productIds = array_filter(array_map(intval(...), $parameters['productIds']));
-            $productIdsSql = (new DbQuery())
-                ->select('DISTINCT id_product')
-                ->from('product_shop')
-                ->where('pack_dynamic')
-                ->where('id_product IN (' .implode(',', $productIds). ')');
-            $productIds = array_map(intval(...), array_column($conn->getArray($productIdsSql), 'id_product'));
+            $product_ids = array_filter(array_map(intval(...), $parameters['productIds']));
+            $product_ids_sql = (new Db_Query())->select('DISTINCT id_product')->from('product_shop')->where('pack_dynamic')->where('id_product IN (' . implode(',', $product_ids) . ')');
+            $product_ids = array_map(intval(...), array_column($conn->get_array($product_ids_sql), 'id_product'));
         } else {
-            $productIds = Pack::getDynamicPacks();
+            $product_ids = Pack::get_dynamic_packs();
         }
-
-        if (! $productIds) {
+        if (!$product_ids) {
             return 0;
         }
-
-        $productIds = implode(',', $productIds);
-
+        $product_ids = implode(',', $product_ids);
         // figure out current stocks
-        $currentStockSql = (new DbQuery())
-            ->select('s.*')
-            ->from('stock_available', 's')
-            ->where("s.id_product IN ($productIds)");
-
-        $currentQuantities = [];
-        foreach ($conn->getArray($currentStockSql) as $row) {
-            $productId = (int)$row['id_product'];
-            $productAttributeId = (int)$row['id_product_attribute'];
-            $shopId = (int)$row['id_shop'];
-            $shopGroupId = (int)$row['id_shop_group'];
-            $key = "$shopId|$shopGroupId|$productId|$productAttributeId";
-            $currentQuantities[$key] = [
-                'id' => (int)$row['id_stock_available'],
-                'quantity' => (int)$row['quantity'],
-            ];
+        $current_stock_sql = (new Db_Query())->select('s.*')->from('stock_available', 's')->where("s.id_product IN ({$product_ids})");
+        $current_quantities = [];
+        foreach ($conn->get_array($current_stock_sql) as $row) {
+            $product_id = (int) $row['id_product'];
+            $product_attribute_id = (int) $row['id_product_attribute'];
+            $shop_id = (int) $row['id_shop'];
+            $shop_group_id = (int) $row['id_shop_group'];
+            $key = "{$shop_id}|{$shop_group_id}|{$product_id}|{$product_attribute_id}";
+            $current_quantities[$key] = ['id' => (int) $row['id_stock_available'], 'quantity' => (int) $row['quantity']];
         }
-
         // calculate dynamic stocks
-        $dynamicStockSql = (new DbQuery())
-            ->select('sa.id_shop')
-            ->select('sa.id_shop_group')
-            ->select('p.id_product_pack AS id_product')
-            ->select('0 AS id_product_attribute')
-            ->select('MIN(FLOOR(sa.quantity / p.quantity)) AS quantity')
-            ->from('pack', 'p')
-            ->innerJoin('stock_available', 'sa', '(sa.id_product = p.id_product_item AND sa.id_product_attribute = p.id_product_attribute_item)')
-            ->where("p.id_product_pack IN ($productIds)")
-            ->groupBy('sa.id_shop')
-            ->groupBy('sa.id_shop_group')
-            ->groupBy('p.id_product_pack');
-
+        $dynamic_stock_sql = (new Db_Query())->select('sa.id_shop')->select('sa.id_shop_group')->select('p.id_product_pack AS id_product')->select('0 AS id_product_attribute')->select('MIN(FLOOR(sa.quantity / p.quantity)) AS quantity')->from('pack', 'p')->inner_join('stock_available', 'sa', '(sa.id_product = p.id_product_item AND sa.id_product_attribute = p.id_product_attribute_item)')->where("p.id_product_pack IN ({$product_ids})")->group_by('sa.id_shop')->group_by('sa.id_shop_group')->group_by('p.id_product_pack');
         $cnt = 0;
         // update stock
-        foreach ($conn->getArray($dynamicStockSql) as $row) {
-            $productId = (int)$row['id_product'];
-            $productAttributeId = (int)$row['id_product_attribute'];
-            $shopId = (int)$row['id_shop'];
-            $shopGroupId = (int)$row['id_shop_group'];
-            $key = "$shopId|$shopGroupId|$productId|$productAttributeId";
-            $quantity = (int)$row['quantity'];
-
-            if (isset($currentQuantities[$key])) {
-                if ($currentQuantities[$key]['quantity'] !== $quantity) {
-                    $stockAvailable = new StockAvailable($currentQuantities[$key]['id']);
-                    $stockAvailable->quantity = $quantity;
-                    $stockAvailable->update();
+        foreach ($conn->get_array($dynamic_stock_sql) as $row) {
+            $product_id = (int) $row['id_product'];
+            $product_attribute_id = (int) $row['id_product_attribute'];
+            $shop_id = (int) $row['id_shop'];
+            $shop_group_id = (int) $row['id_shop_group'];
+            $key = "{$shop_id}|{$shop_group_id}|{$product_id}|{$product_attribute_id}";
+            $quantity = (int) $row['quantity'];
+            if (isset($current_quantities[$key])) {
+                if ($current_quantities[$key]['quantity'] !== $quantity) {
+                    $stock_available = new Stock_Available($current_quantities[$key]['id']);
+                    $stock_available->quantity = $quantity;
+                    $stock_available->update();
                     $cnt++;
                 }
-                unset($currentQuantities[$key]);
+                unset($current_quantities[$key]);
             } else {
-                $stockAvailable = new StockAvailable();
-                $stockAvailable->out_of_stock = StockAvailable::outOfStock($productId, $shopId);
-                $stockAvailable->id_product = $productId;
-                $stockAvailable->id_product_attribute = $productAttributeId;
-                $stockAvailable->quantity = $quantity;
-                $stockAvailable->id_shop = $shopId;
-                $stockAvailable->id_shop_group = $shopGroupId;
-                $stockAvailable->add();
+                $stock_available = new Stock_Available();
+                $stock_available->out_of_stock = Stock_Available::out_of_stock($product_id, $shop_id);
+                $stock_available->id_product = $product_id;
+                $stock_available->id_product_attribute = $product_attribute_id;
+                $stock_available->quantity = $quantity;
+                $stock_available->id_shop = $shop_id;
+                $stock_available->id_shop_group = $shop_group_id;
+                $stock_available->add();
                 $cnt++;
             }
         }
-
         // delete all residual stock
-        if ($currentQuantities) {
-            $ids = implode(',', array_column($currentQuantities, 'id'));
-            $conn->delete('stock_available', "id_stock_available IN ($ids)");
+        if ($current_quantities) {
+            $ids = implode(',', array_column($current_quantities, 'id'));
+            $conn->delete('stock_available', "id_stock_available IN ({$ids})");
         }
-
         return $cnt;
     }
-
     /**
      * Callback method to initialize class
      *
      * @throws PrestaShopException
      */
-    public static function initializationCallback(Db $conn): void
+    public static function initialization_callback(Db $conn): void
     {
-        $task = static::getTaskName();
-        $trackingTasks = ScheduledTask::getTasksForCallable($task);
-        if (! $trackingTasks) {
-            $scheduledTask = new ScheduledTask();
-            $scheduledTask->frequency = '0 */8 * * *';
-            $scheduledTask->name = 'Dynamic packs synchronization task';
-            $scheduledTask->description = 'Synchronizes dynamic packs quantities';
-            $scheduledTask->task = $task;
-            $scheduledTask->active = true;
-            $scheduledTask->add();
+        $task = static::get_task_name();
+        $tracking_tasks = Scheduled_Task::get_tasks_for_callable($task);
+        if (!$tracking_tasks) {
+            $scheduled_task = new Scheduled_Task();
+            $scheduled_task->frequency = '0 */8 * * *';
+            $scheduled_task->name = 'Dynamic packs synchronization task';
+            $scheduled_task->description = 'Synchronizes dynamic packs quantities';
+            $scheduled_task->task = $task;
+            $scheduled_task->active = true;
+            $scheduled_task->add();
         }
     }
-
     /**
      * @return string
      */
-    public static function getTaskName(): ?string
+    public static function get_task_name(): ?string
     {
         return preg_replace('/Core$/', '', static::class);
     }

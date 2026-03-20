@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -18,31 +18,25 @@ declare(strict_types=1);
  * @copyright 2017-2024 thirty bees
  * @license   Open Software License (OSL 3.0)
  */
-
 namespace Thirtybees\Core\Import;
 
-use PrestaShopException;
+use Presta_Shop_Exception;
 use Tools;
-
 /**
  * class CSVDataSource
  */
-class CSVDataSourceCore implements DataSourceInterface
+class Csv_Data_Source_Core implements Data_Source_Interface
 {
     /**
      * @var resource
      */
     protected $handle;
-
-    private readonly bool $containsBom;
-
+    private readonly bool $contains_bom;
     /**
      * @var int
      */
-    private $numberOfColumns = 0;
-
+    private $number_of_columns = 0;
     private bool $convert = false;
-
     /**
      * Creates new CSV data source
      *
@@ -57,23 +51,20 @@ class CSVDataSourceCore implements DataSourceInterface
             }
             $this->handle = fopen($this->filepath, 'r');
         }
-
-        if (! $this->handle) {
-            throw new PrestaShopException(sprintf(Tools::displayError('Cannot read CSV file "%s"'), $this->filepath));
+        if (!$this->handle) {
+            throw new Presta_Shop_Exception(sprintf(Tools::display_error('Cannot read CSV file "%s"'), $this->filepath));
         }
-
         // detect if file contains BOM header or not
-        $this->containsBom = fread($this->handle, 3) == "\xEF\xBB\xBF";
-        if (! $this->containsBom) {
+        $this->contains_bom = fread($this->handle, 3) == "﻿";
+        if (!$this->contains_bom) {
             $this->rewind();
         }
-        $line = $this->getRow();
+        $line = $this->get_row();
         if ($line) {
-            $this->numberOfColumns = count($line);
+            $this->number_of_columns = count($line);
         }
         $this->rewind();
     }
-
     /**
      * Rewinds file handle to the beginning
      *
@@ -83,19 +74,18 @@ class CSVDataSourceCore implements DataSourceInterface
     {
         $result = rewind($this->handle);
         if ($result) {
-            if ($this->containsBom) {
+            if ($this->contains_bom) {
                 fread($this->handle, 3);
             }
         }
         return $result;
     }
-
     /**
      * Returns current row
      *
      * @return array|false
      */
-    public function getRow(): array|false
+    public function get_row(): array|false
     {
         $row = fgetcsv($this->handle, 0, $this->separator);
         if ($row && $this->convert) {
@@ -103,7 +93,6 @@ class CSVDataSourceCore implements DataSourceInterface
         }
         return $row;
     }
-
     /**
      * Closes CSV file
      *
@@ -116,42 +105,38 @@ class CSVDataSourceCore implements DataSourceInterface
         }
         return true;
     }
-
     /**
      * Returns information about number of columns in the dataset
      *
      * @return int
      */
-    public function getNumberOfColumns()
+    public function get_number_of_columns()
     {
-        return $this->numberOfColumns;
+        return $this->number_of_columns;
     }
-
     /**
      * Returns information about number of rows in the dataset
      */
-    public function getNumberOfRows(): int
+    public function get_number_of_rows(): int
     {
         $this->rewind();
         $cnt = 0;
-        while ($this->getRow()) {
+        while ($this->get_row()) {
             $cnt++;
         }
         $this->rewind();
         return $cnt;
     }
-
     /**
      * @param string|null $string
      *
      * @return string
      */
-    protected static function convertString($string): string|array|false
+    protected static function convert_string($string): string|array|false
     {
-        if (! is_string($string)) {
+        if (!is_string($string)) {
             return '';
         }
         return mb_convert_encoding($string, 'UTF-8', mb_list_encodings());
     }
-
 }

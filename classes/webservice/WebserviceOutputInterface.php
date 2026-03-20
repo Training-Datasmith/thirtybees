@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,50 +30,42 @@ declare(strict_types=1);
  *  @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Interface WebserviceOutputInterface
  */
-interface WebserviceOutputInterface
+interface Webservice_Output_Interface
 {
     /**
      * @param array $languages
      */
     public function __construct($languages = []);
-
     /**
      * @param string $url
      * @return static
      */
-    public function setWsUrl($url);
-
+    public function set_ws_url($url);
     /**
      * @return string
      */
-    public function getWsUrl();
-
+    public function get_ws_url();
     /**
      * @return string
      */
-    public function getContentType();
-
+    public function get_content_type();
     /**
      * @param string $schema
      * @return static
      */
-    public function setSchemaToDisplay($schema);
-
+    public function set_schema_to_display($schema);
     /**
      * @return string
      */
-    public function getSchemaToDisplay();
-
+    public function get_schema_to_display();
     /**
      * @param array $field
      * @return string
      */
-    public function renderField($field);
-
+    public function render_field($field);
     /**
      * @param string $obj
      * @param array $params
@@ -81,15 +73,13 @@ interface WebserviceOutputInterface
      * @param bool $hasChild
      * @return string
      */
-    public function renderNodeHeader($obj, $params, $moreAttr = null, $hasChild = true);
-
+    public function render_node_header($obj, $params, $more_attr = null, $has_child = true);
     /**
      * @param string $obj
      * @param array $params
      * @return string
      */
-    public function renderNodeFooter($obj, $params);
-
+    public function render_node_footer($obj, $params);
     /**
      * @param ObjectModel $obj
      * @param array $params
@@ -97,37 +87,32 @@ interface WebserviceOutputInterface
      * @param bool $closedTags
      * @return string
      */
-    public function renderAssociationHeader($obj, $params, $assocName, $closedTags = false);
-
+    public function render_association_header($obj, $params, $assoc_name, $closed_tags = false);
     /**
      * @param ObjectModel $obj
      * @param array $params
      * @param string $assocName
      * @return string
      */
-    public function renderAssociationFooter($obj, $params, $assocName);
-
+    public function render_association_footer($obj, $params, $assoc_name);
     /**
      * @param string $content
      * @return string
      */
-    public function overrideContent($content);
-
+    public function override_content($content);
     /**
      * @return string
      */
-    public function renderErrorsHeader();
-
+    public function render_errors_header();
     /**
      * @return string
      */
-    public function renderErrorsFooter();
-
+    public function render_errors_footer();
     /**
      * @param string $message
      * @param int|null $code
      * @param array $extra
      * @return string
      */
-    public function renderErrors($message, $code = null, $extra = []);
+    public function render_errors($message, $code = null, $extra = []);
 }

@@ -1,44 +1,41 @@
 <?php
+
 /** @noinspection PhpUnhandledExceptionInspection */
-
-include('config/config.php');
-
-$action = Tools::getValue('action', '');
-
+include 'config/config.php';
+$action = Tools::get_value('action', '');
 switch ($action) {
     case 'view':
-        setViewType(Tools::getIntValue('type', 0));
+        set_view_type(Tools::get_int_value('type', 0));
         break;
     case 'sort':
-        setSortBy(Tools::getValue('sort_by'));
-        setDescending(Tools::getValue('descending') === 'true');
+        set_sort_by(Tools::get_value('sort_by'));
+        set_descending(Tools::get_value('descending') === 'true');
         break;
     case 'extract':
-        $path = normalizePath(Tools::getValue('path', ''));
+        $path = normalize_path(Tools::get_value('path', ''));
         $path = FILE_MANAGER_BASE_DIR . $path;
         $info = pathinfo($path);
-        $base_folder = FILE_MANAGER_BASE_DIR . fix_dirname($path).'/';
+        $base_folder = FILE_MANAGER_BASE_DIR . fix_dirname($path) . '/';
         switch ($info['extension']) {
             case 'zip':
-                $zip = new ZipArchive();
+                $zip = new Zip_Archive();
                 if ($zip->open($path) === true) {
                     //make all the folders
-                    for ($i = 0; $i < $zip->numFiles; $i++) {
-                        $OnlyFileName = $zip->getNameIndex($i);
-                        $FullFileName = $zip->statIndex($i);
-                        if ($FullFileName['name'][strlen($FullFileName['name']) - 1] == '/') {
-                            create_folder($base_folder.$FullFileName['name']);
+                    for ($i = 0; $i < $zip->num_files; $i++) {
+                        $only_file_name = $zip->get_name_index($i);
+                        $full_file_name = $zip->stat_index($i);
+                        if ($full_file_name['name'][strlen($full_file_name['name']) - 1] == '/') {
+                            create_folder($base_folder . $full_file_name['name']);
                         }
                     }
                     //unzip into the folders
-                    for ($i = 0; $i < $zip->numFiles; $i++) {
-                        $OnlyFileName = $zip->getNameIndex($i);
-                        $FullFileName = $zip->statIndex($i);
-
-                        if (!($FullFileName['name'][strlen($FullFileName['name']) - 1] == '/')) {
-                            $fileinfo = pathinfo($OnlyFileName);
-                            if (in_array(strtolower($fileinfo['extension']), getFileExtensions())) {
-                                copy('zip://'.$path.'#'.$OnlyFileName, $base_folder.$FullFileName['name']);
+                    for ($i = 0; $i < $zip->num_files; $i++) {
+                        $only_file_name = $zip->get_name_index($i);
+                        $full_file_name = $zip->stat_index($i);
+                        if (!($full_file_name['name'][strlen($full_file_name['name']) - 1] == '/')) {
+                            $fileinfo = pathinfo($only_file_name);
+                            if (in_array(strtolower($fileinfo['extension']), get_file_extensions())) {
+                                copy('zip://' . $path . '#' . $only_file_name, $base_folder . $full_file_name['name']);
                             }
                         }
                     }
@@ -48,23 +45,22 @@ switch ($action) {
                 }
                 break;
             case 'gz':
-                $p = new PharData($path);
-                $p->decompress(); // creates files.tar
+                $p = new Phar_Data($path);
+                $p->decompress();
+                // creates files.tar
                 break;
             case 'tar':
                 // unarchive from the tar
-                $phar = new PharData($path);
-                $phar->decompressFiles();
+                $phar = new Phar_Data($path);
+                $phar->decompress_files();
                 $files = [];
-                check_files_extensions_on_phar($phar, $files, '', getFileExtensions());
-                $phar->extractTo($base_folder, $files, true);
-
+                check_files_extensions_on_phar($phar, $files, '', get_file_extensions());
+                $phar->extract_to($base_folder, $files, true);
                 break;
         }
         break;
     case 'media_preview':
-
-        $preview_file = Tools::getValue('file', '');
+        $preview_file = Tools::get_value('file', '');
         $info = pathinfo($preview_file);
         ?>
         <div id="jp_container_1" class="jp-video " style="margin:0 auto;">
@@ -122,8 +118,8 @@ switch ($action) {
                 </div>
             </div>
         </div>
-        <?php
-        if (in_array(strtolower($info['extension']), getFileExtensions('audio'))) {
+        <?php 
+        if (in_array(strtolower($info['extension']), get_file_extensions('audio'))) {
             ?>
             <script type="text/javascript">
                 $(document).ready(function () {
@@ -131,11 +127,21 @@ switch ($action) {
                     $("#jquery_jplayer_1").jPlayer({
                         ready: function () {
                             $(this).jPlayer("setMedia", {
-                                title: "<?php Tools::safeOutput(Tools::getValue('title')); ?>",
-                                mp3: "<?php echo Tools::safeOutput($preview_file); ?>",
-                                m4a: "<?php echo Tools::safeOutput($preview_file); ?>",
-                                oga: "<?php echo Tools::safeOutput($preview_file); ?>",
-                                wav: "<?php echo Tools::safeOutput($preview_file); ?>"
+                                title: "<?php 
+            Tools::safe_output(Tools::get_value('title'));
+            ?>",
+                                mp3: "<?php 
+            echo Tools::safe_output($preview_file);
+            ?>",
+                                m4a: "<?php 
+            echo Tools::safe_output($preview_file);
+            ?>",
+                                oga: "<?php 
+            echo Tools::safe_output($preview_file);
+            ?>",
+                                wav: "<?php 
+            echo Tools::safe_output($preview_file);
+            ?>"
                             });
                         },
                         swfPath: "js",
@@ -147,7 +153,9 @@ switch ($action) {
                 });
             </script>
 
-        <?php } elseif (in_array(strtolower($info['extension']), getFileExtensions('video'))) { ?>
+        <?php 
+        } elseif (in_array(strtolower($info['extension']), get_file_extensions('video'))) {
+            ?>
 
             <script type="text/javascript">
                 $(document).ready(function () {
@@ -155,9 +163,15 @@ switch ($action) {
                     $("#jquery_jplayer_1").jPlayer({
                         ready: function () {
                             $(this).jPlayer("setMedia", {
-                                title: "<?php Tools::safeOutput(Tools::getValue('title')); ?>",
-                                m4v: "<?php echo Tools::safeOutput($preview_file); ?>",
-                                ogv: "<?php echo Tools::safeOutput($preview_file); ?>"
+                                title: "<?php 
+            Tools::safe_output(Tools::get_value('title'));
+            ?>",
+                                m4v: "<?php 
+            echo Tools::safe_output($preview_file);
+            ?>",
+                                ogv: "<?php 
+            echo Tools::safe_output($preview_file);
+            ?>"
                             });
                         },
                         swfPath: "js",
@@ -170,8 +184,7 @@ switch ($action) {
                 });
             </script>
 
-        <?php
-
+        <?php 
         }
         break;
     default:

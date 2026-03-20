@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -18,24 +18,22 @@ declare(strict_types=1);
  * @copyright 2017-2024 thirty bees
  * @license   Open Software License (OSL 3.0)
  */
-
-namespace Thirtybees\Core\WorkQueue;
+namespace Thirtybees\Core\Work_Queue;
 
 /**
  * Class WorkQueueClientCore
  */
-class WorkQueueClientCore
+class Work_Queue_Client_Core
 {
     /**
      * Enqueues new work queue task
      *
      * @return WorkQueueFuture work queue future descriptor
      */
-    public function enqueue(WorkQueueTask $task)
+    public function enqueue(Work_Queue_Task $task)
     {
-        return $this->getExecutor()->enqueue($task);
+        return $this->get_executor()->enqueue($task);
     }
-
     /**
      * Immediately executes work queue task and waits for its completion.
      *
@@ -44,33 +42,30 @@ class WorkQueueClientCore
      *
      * @return WorkQueueFuture
      */
-    public function runImmediately(WorkQueueTask $task)
+    public function run_immediately(Work_Queue_Task $task)
     {
-        $executor = $this->getExecutor();
-        if ($executor->supportsImmediateExecution()) {
+        $executor = $this->get_executor();
+        if ($executor->supports_immediate_execution()) {
             return $executor->run($task);
         }
-        return $this->getImmediateExecutor()->run($task);
+        return $this->get_immediate_executor()->run($task);
     }
-
     /**
      * Returns immediate work queue executor
      *
      * @return WorkQueueExecutor
      */
-    public function getImmediateExecutor()
+    public function get_immediate_executor()
     {
-        return WorkQueueImmediateExecutor::getInstance();
+        return Work_Queue_Immediate_Executor::get_instance();
     }
-
     /**
      * Returns work queue executor
      *
      * @return WorkQueueExecutor
      */
-    public function getExecutor()
+    public function get_executor()
     {
-        return $this->getImmediateExecutor();
+        return $this->get_immediate_executor();
     }
-
 }

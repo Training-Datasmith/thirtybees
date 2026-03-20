@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -18,46 +18,39 @@ declare(strict_types=1);
  * @copyright 2017-2024 thirty bees
  * @license   Open Software License (OSL 3.0)
  */
-
 namespace Thirtybees\Core\Tracking\Extractor;
 
-use Thirtybees\Core\Tracking\DataExtractor;
-
+use Thirtybees\Core\Tracking\Data_Extractor;
 /**
  * Class SystemExtractorCore
  */
-class SystemExtractorCore extends DataExtractor
+class System_Extractor_Core extends Data_Extractor
 {
     /**
      * Returns data name
      *
      * @return string
      */
-    public function getName()
+    public function get_name()
     {
         return $this->l('Thirtybees system information');
     }
-
     /**
      * Returns detailed information about this data
      *
      * @return string
      */
-    public function getDescription()
+    public function get_description()
     {
         return $this->l('Information about your thirty bees version');
     }
-
     /**
      * Extracts value
      *
      * @return array
      */
-    public function extractValue()
+    public function extract_value()
     {
-        return [
-            'version' => _TB_VERSION_,
-            'revision' => _TB_REVISION_,
-        ];
+        return ['version' => _TB_VERSION_, 'revision' => _TB_REVISION_];
     }
 }

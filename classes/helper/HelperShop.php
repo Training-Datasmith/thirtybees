@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,11 +30,10 @@ declare(strict_types=1);
  *  @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class HelperShopCore
  */
-class HelperShopCore extends Helper
+class Helper_Shop_Core extends Helper
 {
     /**
      * Render shop list
@@ -44,51 +43,34 @@ class HelperShopCore extends Helper
      * @throws PrestaShopException
      * @throws SmartyException
      */
-    public function getRenderedShopList()
+    public function get_rendered_shop_list()
     {
-        if (!Shop::isFeatureActive() || Shop::getTotalShops(false) < 2) {
+        if (!Shop::is_feature_active() || Shop::get_total_shops(false) < 2) {
             return '';
         }
-
-        $shopContext = Shop::getContext();
-        $tree = Shop::getTree();
-        $controller = $this->getController();
-
-        if ($shopContext == Shop::CONTEXT_ALL || ($controller->multishop_context_group == false && $shopContext == Shop::CONTEXT_GROUP)) {
-            $currentShopValue = '';
-            $currentShopName = Translate::getAdminTranslation('All shops');
-        } elseif ($shopContext == Shop::CONTEXT_GROUP) {
-            $currentShopValue = 'g-'.Shop::getContextShopGroupID();
-            $currentShopName = sprintf(Translate::getAdminTranslation('%s group'), $tree[Shop::getContextShopGroupID()]['name']);
+        $shop_context = Shop::get_context();
+        $tree = Shop::get_tree();
+        $controller = $this->get_controller();
+        if ($shop_context == Shop::CONTEXT_ALL || $controller->multishop_context_group == false && $shop_context == Shop::CONTEXT_GROUP) {
+            $current_shop_value = '';
+            $current_shop_name = Translate::get_admin_translation('All shops');
+        } elseif ($shop_context == Shop::CONTEXT_GROUP) {
+            $current_shop_value = 'g-' . Shop::get_context_shop_group_id();
+            $current_shop_name = sprintf(Translate::get_admin_translation('%s group'), $tree[Shop::get_context_shop_group_id()]['name']);
         } else {
-            $currentShopValue = 's-'.Shop::getContextShopID();
-            $currentShopName = '';
-
-            foreach ($tree as $groupData) {
-                foreach ($groupData['shops'] as $shopId => $shopData) {
-                    if ($shopId == Shop::getContextShopID()) {
-                        $currentShopName = $shopData['name'];
+            $current_shop_value = 's-' . Shop::get_context_shop_id();
+            $current_shop_name = '';
+            foreach ($tree as $group_data) {
+                foreach ($group_data['shops'] as $shop_id => $shop_data) {
+                    if ($shop_id == Shop::get_context_shop_id()) {
+                        $current_shop_name = $shop_data['name'];
                         break;
                     }
                 }
             }
         }
-
-        $tpl = $this->createTemplate('helpers/shops_list/list.tpl');
-        $tpl->assign(
-            [
-                'tree'                    => $tree,
-                'current_shop_name'       => $currentShopName,
-                'current_shop_value'      => $currentShopValue,
-                'multishop_context'       => $controller->multishop_context,
-                'multishop_context_group' => $controller->multishop_context_group,
-                'is_shop_context'         => ($controller->multishop_context & Shop::CONTEXT_SHOP),
-                'is_group_context'        => ($controller->multishop_context & Shop::CONTEXT_GROUP),
-                'shop_context'            => $shopContext,
-                'url'                     => $_SERVER['REQUEST_URI'].(($_SERVER['QUERY_STRING']) ? '&' : '?').'setShopContext=',
-            ]
-        );
-
+        $tpl = $this->create_template('helpers/shops_list/list.tpl');
+        $tpl->assign(['tree' => $tree, 'current_shop_name' => $current_shop_name, 'current_shop_value' => $current_shop_value, 'multishop_context' => $controller->multishop_context, 'multishop_context_group' => $controller->multishop_context_group, 'is_shop_context' => $controller->multishop_context & Shop::CONTEXT_SHOP, 'is_group_context' => $controller->multishop_context & Shop::CONTEXT_GROUP, 'shop_context' => $shop_context, 'url' => $_SERVER['REQUEST_URI'] . ($_SERVER['QUERY_STRING'] ? '&' : '?') . 'setShopContext=']);
         return $tpl->fetch();
     }
 }

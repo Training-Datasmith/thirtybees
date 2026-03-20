@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -18,35 +18,31 @@ declare(strict_types=1);
  * @copyright 2017-2024 thirty bees
  * @license   Open Software License (OSL 3.0)
  */
-
 namespace Thirtybees\Core\Import;
 
 /**
  * Interface DataSourceInterface
  */
-interface DataSourceInterface
+interface Data_Source_Interface
 {
     /**
      * Returns current row
      *
      * @return array|false
      */
-    public function getRow();
-
+    public function get_row();
     /**
      * Returns information about number of columns in the dataset. Resets pointer in the data source
      *
      * @return int
      */
-    public function getNumberOfColumns();
-
+    public function get_number_of_columns();
     /**
      * Returns information about number of rows in the dataset. Resets pointer in the data source
      *
      * @return int
      */
-    public function getNumberOfRows();
-
+    public function get_number_of_rows();
     /**
      * Closes data source
      *

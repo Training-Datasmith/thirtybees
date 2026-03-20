@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -18,25 +18,20 @@ declare(strict_types=1);
  * @copyright 2017-2024 thirty bees
  * @license   Open Software License (OSL 3.0)
  */
-
 namespace Thirtybees\Core\Mail;
 
 use Throwable;
-
 /**
  * Interface MailTransport
  */
-interface MailTransport
+interface Mail_Transport
 {
-    public function getName(): string;
-
-    public function getDescription(): string;
-
+    public function get_name(): string;
+    public function get_description(): string;
     /**
      * @return string|null
      */
-    public function getConfigUrl();
-
+    public function get_config_url();
     /**
      * @param MailAddress[] $toAddresses
      * @param MailAddress[] $bccAddresses
@@ -46,16 +41,5 @@ interface MailTransport
      *
      * @throws Throwable
      */
-    public function sendMail(
-        int         $idShop,
-        int         $idLang,
-        MailAddress $fromAddress,
-        array       $toAddresses,
-        array       $bccAddresses,
-        MailAddress $replyTo,
-        string      $subject,
-        array       $templates,
-        array       $templateVars,
-        array       $attachements
-    ): bool;
+    public function send_mail(int $id_shop, int $id_lang, Mail_Address $from_address, array $to_addresses, array $bcc_addresses, Mail_Address $reply_to, string $subject, array $templates, array $template_vars, array $attachements): bool;
 }

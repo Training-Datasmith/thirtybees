@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,17 +30,15 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class CacheFsCore
  */
-class CacheFsCore extends Cache
+class Cache_Fs_Core extends Cache
 {
     /**
      * @var int Number of subfolders to dispatch cached filenames
      */
     protected int $depth;
-
     /**
      * CacheFsCore constructor.
      *
@@ -48,28 +46,25 @@ class CacheFsCore extends Cache
      */
     protected function __construct()
     {
-        $this->depth = (int) Db::readOnly()->getValue('SELECT value FROM '._DB_PREFIX_.'configuration WHERE name= \'PS_CACHEFS_DIRECTORY_DEPTH\'');
-
-        $keysFilename = $this->getFilename(static::KEYS_NAME);
-        if (file_exists($keysFilename)) {
-            $this->keys = json_decode(file_get_contents($keysFilename), true);
-            if (! is_array($this->keys)) {
+        $this->depth = (int) Db::read_only()->get_value('SELECT value FROM ' . _DB_PREFIX_ . 'configuration WHERE name= \'PS_CACHEFS_DIRECTORY_DEPTH\'');
+        $keys_filename = $this->get_filename(static::KEYS_NAME);
+        if (file_exists($keys_filename)) {
+            $this->keys = json_decode(file_get_contents($keys_filename), true);
+            if (!is_array($this->keys)) {
                 $this->keys = [];
             }
         }
     }
-
     /**
      * @return bool
      */
-    public static function checkEnvironment()
+    public static function check_environment()
     {
-        if (! is_dir(_PS_CACHEFS_DIRECTORY_)) {
+        if (!is_dir(_PS_CACHEFS_DIRECTORY_)) {
             @mkdir(_PS_CACHEFS_DIRECTORY_, 0777, true);
         }
         return is_writable(_PS_CACHEFS_DIRECTORY_);
     }
-
     /**
      * Cache a data
      *
@@ -81,17 +76,12 @@ class CacheFsCore extends Cache
      */
     protected function _set($key, $value, $ttl = 0)
     {
-        $definedUmask = defined('_TB_UMASK_') ? _TB_UMASK_ : 0000;
-
-        $previousUmask = @umask($definedUmask);
-
-        $result = @file_put_contents($this->getFilename($key), json_encode($value));
-
-        @umask($previousUmask);
-
+        $defined_umask = defined('_TB_UMASK_') ? _TB_UMASK_ : 00;
+        $previous_umask = @umask($defined_umask);
+        $result = @file_put_contents($this->get_filename($key), json_encode($value));
+        @umask($previous_umask);
         return $result;
     }
-
     /**
      * Retrieve a cached data by key
      *
@@ -105,22 +95,18 @@ class CacheFsCore extends Cache
             $this->delete($key);
             return false;
         }
-
-        $filename = $this->getFilename($key);
-        if (! file_exists($filename)) {
+        $filename = $this->get_filename($key);
+        if (!file_exists($filename)) {
             $this->delete($key);
             return false;
         }
-
         $file = file_get_contents($filename);
-        if (! $file) {
+        if (!$file) {
             $this->delete($key);
             return false;
         }
-
         return json_decode($file, true);
     }
-
     /**
      * Check if a data is cached by key
      *
@@ -134,13 +120,8 @@ class CacheFsCore extends Cache
             $this->delete($key);
             return false;
         }
-
-        return (
-            isset($this->keys[$key]) &&
-            file_exists($this->getFilename($key))
-        );
+        return isset($this->keys[$key]) && file_exists($this->get_filename($key));
     }
-
     /**
      * Delete a data from the cache by key
      *
@@ -150,27 +131,22 @@ class CacheFsCore extends Cache
      */
     protected function _delete($key)
     {
-        $filename = $this->getFilename($key);
-        if (! file_exists($filename)) {
+        $filename = $this->get_filename($key);
+        if (!file_exists($filename)) {
             return true;
         }
         return unlink($filename);
     }
-
     /**
      * Write keys index
      */
-    protected function _writeKeys()
+    protected function _write_keys()
     {
-        $definedUmask = defined('_TB_UMASK_') ? _TB_UMASK_ : 0000;
-
-        $previousUmask = @umask($definedUmask);
-
-        @file_put_contents($this->getFilename(static::KEYS_NAME), json_encode($this->keys));
-
-        @umask($previousUmask);
+        $defined_umask = defined('_TB_UMASK_') ? _TB_UMASK_ : 00;
+        $previous_umask = @umask($defined_umask);
+        @file_put_contents($this->get_filename(static::KEYS_NAME), json_encode($this->keys));
+        @umask($previous_umask);
     }
-
     /**
      * Clean all cached data
      *
@@ -179,64 +155,57 @@ class CacheFsCore extends Cache
     public function flush()
     {
         $this->delete('*');
-
         return true;
     }
-
     /**
      * Delete cache directory
      */
-    public static function deleteCacheDirectory(): void
+    public static function delete_cache_directory(): void
     {
-        Tools::deleteDirectory(_PS_CACHEFS_DIRECTORY_, false);
+        Tools::delete_directory(_PS_CACHEFS_DIRECTORY_, false);
     }
-
     /**
      * Create cache directory
      *
      * @param int $levelDepth
      * @param string $directory
      */
-    public static function createCacheDirectories($levelDepth, $directory = false): void
+    public static function create_cache_directories($level_depth, $directory = false): void
     {
         if (!$directory) {
             $directory = _PS_CACHEFS_DIRECTORY_;
         }
-
         $chars = '0123456789abcdef';
         for ($i = 0, $length = strlen($chars); $i < $length; $i++) {
-            $newDir = $directory.$chars[$i].'/';
-            if (mkdir($newDir)) {
-                if (chmod($newDir, 0777)) {
-                    if ($levelDepth - 1 > 0) {
-                        CacheFs::createCacheDirectories($levelDepth - 1, $newDir);
+            $new_dir = $directory . $chars[$i] . '/';
+            if (mkdir($new_dir)) {
+                if (chmod($new_dir, 0777)) {
+                    if ($level_depth - 1 > 0) {
+                        Cache_Fs::create_cache_directories($level_depth - 1, $new_dir);
                     }
                 }
             }
         }
     }
-
     /**
      * Transform a key into its absolute path
      *
      * @param string $key
      * @return string
      */
-    protected function getFilename($key)
+    protected function get_filename($key)
     {
         $key = md5($key);
         $path = _PS_CACHEFS_DIRECTORY_;
         for ($i = 0; $i < $this->depth; $i++) {
-            $path .= $key[$i].'/';
+            $path .= $key[$i] . '/';
         }
-
         if (!is_dir($path)) {
-            $definedUmask = defined('_TB_UMASK_') ? _TB_UMASK_ : 0000;
-            $previousUmask = @umask($definedUmask);
+            $defined_umask = defined('_TB_UMASK_') ? _TB_UMASK_ : 00;
+            $previous_umask = @umask($defined_umask);
             @mkdir($path, 0777, true);
-            @umask($previousUmask);
+            @umask($previous_umask);
         }
-
-        return $path.$key;
+        return $path . $key;
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,53 +30,45 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class CacheCore
  */
-abstract class CacheCore
+abstract class Cache_Core
 {
     /**
      * Name of keys index
      */
     public const KEYS_NAME = '__keys__';
-
     /**
      * Name of SQL cache index
      *
      * @deprecated 1.5.0 We no longer cache query results
      */
     public const SQL_TABLES_NAME = 'tablesCached';
-
     /**
      * @var Cache
      */
     protected static $instance;
-
     /**
      * @var array List all keys of cached data and their associated ttl
      */
     protected $keys = [];
-
     /**
      * @var array
      *
      * @deprecated 1.5.0 We no longer cache query results
      */
     protected $sql_tables_cached;
-
     /**
      * @var array List of blacklisted tables for SQL cache, these tables won't be indexed
      *
      * @deprecated 1.5.0 We no longer cache query results
      */
     protected $blacklist = [];
-
     /**
      * @var array Store local cache
      */
     protected static $local = [];
-
     /**
      * Cache a data
      *
@@ -87,7 +79,6 @@ abstract class CacheCore
      * @return bool
      */
     abstract protected function _set($key, $value, $ttl = 0);
-
     /**
      * Retrieve a cached data by key
      *
@@ -96,7 +87,6 @@ abstract class CacheCore
      * @return mixed|false
      */
     abstract protected function _get($key);
-
     /**
      * Check if a data is cached by key
      *
@@ -105,7 +95,6 @@ abstract class CacheCore
      * @return bool
      */
     abstract protected function _exists($key);
-
     /**
      * Delete a data from the cache by key
      *
@@ -114,39 +103,34 @@ abstract class CacheCore
      * @return bool
      */
     abstract protected function _delete($key);
-
     /**
      * Write keys index
      */
-    abstract protected function _writeKeys();
-
+    abstract protected function _write_keys();
     /**
      * Clean all cached data
      *
      * @return bool
      */
     abstract public function flush();
-
     /***
      * Returns true, if cache is available for use.
      *
      * @return bool
      */
-    public function isAvailable()
+    public function is_available()
     {
         return true;
     }
-
     /**
      * Returns true if server-side caching is
      *
      * @throws PrestaShopException
      */
-    public static function isEnabled()
+    public static function is_enabled()
     {
-        return (bool)Configuration::get('TB_CACHE_ENABLED');
+        return (bool) Configuration::get('TB_CACHE_ENABLED');
     }
-
     /**
      * @param bool $force
      *
@@ -155,24 +139,22 @@ abstract class CacheCore
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getInstance($force = false)
+    public static function get_instance($force = false)
     {
         if (!static::$instance || $force) {
-            $sql = new DbQuery();
+            $sql = new Db_Query();
             $sql->select('`value`');
             $sql->from('configuration');
             $sql->where('`name` = \'TB_CACHE_SYSTEM\'');
-            $cachingSystem = Db::readOnly()->getValue($sql);
-            if ($cachingSystem) {
-                static::$instance = new $cachingSystem();
+            $caching_system = Db::read_only()->get_value($sql);
+            if ($caching_system) {
+                static::$instance = new $caching_system();
             } else {
-                static::$instance = new CacheNoop();
+                static::$instance = new Cache_Noop();
             }
         }
-
         return static::$instance;
     }
-
     /**
      * Unit testing purpose only
      *
@@ -180,23 +162,21 @@ abstract class CacheCore
      *
      * @deprecated 1.5.0
      */
-    public static function setInstanceForTesting($testInstance): void
+    public static function set_instance_for_testing($test_instance): void
     {
-        Tools::displayAsDeprecated();
-        static::$instance = $testInstance;
+        Tools::display_as_deprecated();
+        static::$instance = $test_instance;
     }
-
     /**
      * Unit testing purpose only
      *
      * @deprecated 1.5.0
      */
-    public static function deleteTestingInstance(): void
+    public static function delete_testing_instance(): void
     {
-        Tools::displayAsDeprecated();
+        Tools::display_as_deprecated();
         static::$instance = null;
     }
-
     /**
      * Store a data in cache
      *
@@ -212,16 +192,12 @@ abstract class CacheCore
             if ($ttl < 0) {
                 $ttl = 0;
             }
-
-            $this->keys[$key] = ($ttl == 0) ? 0 : time() + $ttl;
-            $this->_writeKeys();
-
+            $this->keys[$key] = $ttl == 0 ? 0 : time() + $ttl;
+            $this->_write_keys();
             return true;
         }
-
         return false;
     }
-
     /**
      * Retrieve a data from cache
      *
@@ -234,10 +210,8 @@ abstract class CacheCore
         if (!isset($this->keys[$key])) {
             return false;
         }
-
         return $this->_get($key);
     }
-
     /**
      * Check if a data is cached
      *
@@ -250,10 +224,8 @@ abstract class CacheCore
         if (!isset($this->keys[$key])) {
             return false;
         }
-
         return $this->_exists($key);
     }
-
     /**
      * Delete one or several data from cache (* joker can be used)
      *    E.g.: delete('*'); delete('my_prefix_*'); delete('my_key_name');
@@ -271,30 +243,25 @@ abstract class CacheCore
         } elseif (!str_contains($key, '*')) {
             $keys = [$key];
         } else {
-            $pattern = str_replace('\\*', '.*', preg_quote($key));
+            $pattern = str_replace('\*', '.*', preg_quote($key));
             foreach ($this->keys as $k => $ttl) {
-                if (preg_match('#^'.$pattern.'$#', (string) $k)) {
+                if (preg_match('#^' . $pattern . '$#', (string) $k)) {
                     $keys[] = $k;
                 }
             }
         }
-
         // Delete keys
         foreach ($keys as $key) {
             if (!isset($this->keys[$key])) {
                 continue;
             }
-
             if ($this->_delete($key)) {
                 unset($this->keys[$key]);
             }
         }
-
-        $this->_writeKeys();
-
+        $this->_write_keys();
         return $keys;
     }
-
     /**
      * Store a query in cache
      *
@@ -305,12 +272,11 @@ abstract class CacheCore
      *
      * @deprecated 1.5.0 We no longer cache query results
      */
-    public function setQuery($query, $result)
+    public function set_query($query, $result)
     {
-        Tools::displayAsDeprecated();
+        Tools::display_as_deprecated();
         return false;
     }
-
     /**
      * Autoadjust the table cache size to avoid storing too big elements in the cache
      *
@@ -318,11 +284,10 @@ abstract class CacheCore
      *
      * @deprecated 1.5.0 We no longer cache query results
      */
-    protected function adjustTableCacheSize($table)
+    protected function adjust_table_cache_size($table)
     {
-        Tools::displayAsDeprecated();
+        Tools::display_as_deprecated();
     }
-
     /**
      * @param string $string
      *
@@ -330,12 +295,11 @@ abstract class CacheCore
      *
      * @deprecated 1.5.0 We no longer cache query results
      */
-    protected function getTables($string)
+    protected function get_tables($string)
     {
-        Tools::displayAsDeprecated();
+        Tools::display_as_deprecated();
         return false;
     }
-
     /**
      * Delete a query from cache
      *
@@ -343,11 +307,10 @@ abstract class CacheCore
      *
      * @deprecated 1.5.0 We no longer cache query results
      */
-    public function deleteQuery($query): void
+    public function delete_query($query): void
     {
-        Tools::displayAsDeprecated();
+        Tools::display_as_deprecated();
     }
-
     /**
      * Check if a query contain blacklisted tables
      *
@@ -357,12 +320,11 @@ abstract class CacheCore
      *
      * @deprecated 1.5.0 We no longer cache query results
      */
-    protected function isBlacklist($query)
+    protected function is_blacklist($query)
     {
-        Tools::displayAsDeprecated();
+        Tools::display_as_deprecated();
         return false;
     }
-
     /**
      * @param string $key
      * @param mixed $value
@@ -371,7 +333,6 @@ abstract class CacheCore
     {
         static::$local[$key] = $value;
     }
-
     /**
      * @param string $key
      *
@@ -381,25 +342,22 @@ abstract class CacheCore
     {
         return static::$local[$key] ?? null;
     }
-
     /**
      * @return array
      */
-    public static function retrieveAll()
+    public static function retrieve_all()
     {
         return static::$local;
     }
-
     /**
      * @param string $key
      *
      * @return bool
      */
-    public static function isStored($key)
+    public static function is_stored($key)
     {
         return isset(static::$local[$key]);
     }
-
     /**
      * @param string $key
      */
@@ -408,9 +366,9 @@ abstract class CacheCore
         if ($key === '*') {
             static::$local = [];
         } elseif (str_contains($key, '*')) {
-            $regexp = str_replace('\\*', '.*', preg_quote($key, '#'));
+            $regexp = str_replace('\*', '.*', preg_quote($key, '#'));
             foreach (array_keys(static::$local) as $key) {
-                if (preg_match('#^'.$regexp.'$#', (string) $key)) {
+                if (preg_match('#^' . $regexp . '$#', (string) $key)) {
                     unset(static::$local[$key]);
                 }
             }
@@ -418,5 +376,4 @@ abstract class CacheCore
             unset(static::$local[$key]);
         }
     }
-
 }

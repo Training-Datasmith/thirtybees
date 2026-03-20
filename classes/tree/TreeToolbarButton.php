@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,34 +30,28 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class TreeToolbarButtonCore
  */
-abstract class TreeToolbarButtonCore implements \Stringable
+abstract class Tree_Toolbar_Button_Core implements \Stringable
 {
     public const DEFAULT_TEMPLATE_DIRECTORY = 'helpers/tree';
-
     /**
      * @var array
      */
     protected $_attributes;
-
     /**
      * @var Context
      */
     private $_context;
-
     /**
      * @var string
      */
     protected $_template;
-
     /**
      * @var string
      */
     protected $_template_directory;
-
     /**
      * TreeToolbarButtonCore constructor.
      *
@@ -68,12 +62,11 @@ abstract class TreeToolbarButtonCore implements \Stringable
      */
     public function __construct($label, $id = null, $name = null, $class = null)
     {
-        $this->setLabel($label);
-        $this->setId($id);
-        $this->setName($name);
-        $this->setClass($class);
+        $this->set_label($label);
+        $this->set_id($id);
+        $this->set_name($name);
+        $this->set_class($class);
     }
-
     /**
      *
      * @throws PrestaShopException
@@ -83,258 +76,207 @@ abstract class TreeToolbarButtonCore implements \Stringable
     {
         return $this->render();
     }
-
     /**
      * @param string $name
      * @param mixed $value
      *
      * @return static
      */
-    public function setAttribute($name, $value)
+    public function set_attribute($name, $value)
     {
         if (!isset($this->_attributes)) {
             $this->_attributes = [];
         }
-
         $this->_attributes[$name] = $value;
-
         return $this;
     }
-
     /**
      * @param string $name
      *
      * @return mixed|null
      */
-    public function getAttribute($name)
+    public function get_attribute($name)
     {
-        return $this->hasAttribute($name) ? $this->_attributes[$name] : null;
+        return $this->has_attribute($name) ? $this->_attributes[$name] : null;
     }
-
     /**
      * @param array $value
      *
      * @return static
      * @throws PrestaShopException
      */
-    public function setAttributes($value)
+    public function set_attributes($value)
     {
         if (!is_array($value) && !$value instanceof Traversable) {
-            throw new PrestaShopException('Data value must be an traversable array');
+            throw new Presta_Shop_Exception('Data value must be an traversable array');
         }
-
         $this->_attributes = $value;
-
         return $this;
     }
-
     /**
      * @return array
      */
-    public function getAttributes()
+    public function get_attributes()
     {
         if (!isset($this->_attributes)) {
             $this->_attributes = [];
         }
-
         return $this->_attributes;
     }
-
     /**
      * @param string $value
      *
      * @return TreeToolbarButtonCore
      */
-    public function setClass($value)
+    public function set_class($value)
     {
-        return $this->setAttribute('class', $value);
+        return $this->set_attribute('class', $value);
     }
-
     /**
      * @return string|null
      */
-    public function getClass()
+    public function get_class()
     {
-        return $this->getAttribute('class');
+        return $this->get_attribute('class');
     }
-
     /**
      * @param Context $value
      *
      * @return static
      */
-    public function setContext($value)
+    public function set_context($value)
     {
         $this->_context = $value;
-
         return $this;
     }
-
     /**
      * @return Context
      */
-    public function getContext()
+    public function get_context()
     {
         if (!isset($this->_context)) {
-            $this->_context = Context::getContext();
+            $this->_context = Context::get_context();
         }
-
         return $this->_context;
     }
-
     /**
      * @param string|int $value
      *
      * @return TreeToolbarButtonCore
      */
-    public function setId($value)
+    public function set_id($value)
     {
-        return $this->setAttribute('id', $value);
+        return $this->set_attribute('id', $value);
     }
-
     /**
      * @return string|int|null
      */
-    public function getId()
+    public function get_id()
     {
-        return $this->getAttribute('id');
+        return $this->get_attribute('id');
     }
-
     /**
      * @param string $value
      *
      * @return TreeToolbarButtonCore
      */
-    public function setLabel($value)
+    public function set_label($value)
     {
-        return $this->setAttribute('label', $value);
+        return $this->set_attribute('label', $value);
     }
-
     /**
      * @return string|null
      */
-    public function getLabel()
+    public function get_label()
     {
-        return $this->getAttribute('label');
+        return $this->get_attribute('label');
     }
-
     /**
      * @param string $value
      *
      * @return TreeToolbarButtonCore
      */
-    public function setName($value)
+    public function set_name($value)
     {
-        return $this->setAttribute('name', $value);
+        return $this->set_attribute('name', $value);
     }
-
     /**
      * @return string|null
      */
-    public function getName()
+    public function get_name()
     {
-        return $this->getAttribute('name');
+        return $this->get_attribute('name');
     }
-
     /**
      * @param string $value
      *
      * @return static
      */
-    public function setTemplate($value)
+    public function set_template($value)
     {
         $this->_template = $value;
-
         return $this;
     }
-
     /**
      * @return string
      */
-    public function getTemplate()
+    public function get_template()
     {
         return $this->_template;
     }
-
     /**
      * @param string $value
      *
      * @return static
      */
-    public function setTemplateDirectory($value)
+    public function set_template_directory($value)
     {
-        $this->_template_directory = $this->_normalizeDirectory($value);
-
+        $this->_template_directory = $this->_normalize_directory($value);
         return $this;
     }
-
     /**
      * @return string
      */
-    public function getTemplateDirectory()
+    public function get_template_directory()
     {
         if (!isset($this->_template_directory)) {
-            $this->_template_directory = $this->_normalizeDirectory(static::DEFAULT_TEMPLATE_DIRECTORY);
+            $this->_template_directory = $this->_normalize_directory(static::DEFAULT_TEMPLATE_DIRECTORY);
         }
-
         return $this->_template_directory;
     }
-
     /**
      *
      * @return string
      * @throws PrestaShopException
      */
-    public function getTemplateFile(string $template)
+    public function get_template_file(string $template)
     {
-        if (preg_match_all('/((?:^|[A-Z])[a-z]+)/', $this->getContext()->controller::class, $matches) !== false) {
-            $controllerName = strtolower($matches[0][1]);
+        if (preg_match_all('/((?:^|[A-Z])[a-z]+)/', $this->get_context()->controller::class, $matches) !== false) {
+            $controller_name = strtolower($matches[0][1]);
         }
-        if ($this->getContext()->controller instanceof ModuleAdminController && file_exists(
-            $this->_normalizeDirectory(
-                $this->getContext()->controller->getTemplatePath()
-            ).$this->getTemplateDirectory().$template
-        )) {
-            return $this->_normalizeDirectory($this->getContext()->controller->getTemplatePath())
-                .$this->getTemplateDirectory().$template;
+        if ($this->get_context()->controller instanceof Module_Admin_Controller && file_exists($this->_normalize_directory($this->get_context()->controller->get_template_path()) . $this->get_template_directory() . $template)) {
+            return $this->_normalize_directory($this->get_context()->controller->get_template_path()) . $this->get_template_directory() . $template;
         }
-        if ($this->getContext()->controller instanceof AdminController && isset($controllerName)
-            && file_exists(
-                $this->_normalizeDirectory($this->getContext()->smarty->getTemplateDir(0)).'controllers'
-                .DIRECTORY_SEPARATOR.$controllerName.DIRECTORY_SEPARATOR.$this->getTemplateDirectory().$template
-            )) {
-            return $this->_normalizeDirectory($this->getContext()->smarty->getTemplateDir(0)).'controllers'
-                .DIRECTORY_SEPARATOR.$controllerName.DIRECTORY_SEPARATOR.$this->getTemplateDirectory().$template;
+        if ($this->get_context()->controller instanceof Admin_Controller && isset($controller_name) && file_exists($this->_normalize_directory($this->get_context()->smarty->get_template_dir(0)) . 'controllers' . DIRECTORY_SEPARATOR . $controller_name . DIRECTORY_SEPARATOR . $this->get_template_directory() . $template)) {
+            return $this->_normalize_directory($this->get_context()->smarty->get_template_dir(0)) . 'controllers' . DIRECTORY_SEPARATOR . $controller_name . DIRECTORY_SEPARATOR . $this->get_template_directory() . $template;
         }
-        if (file_exists(
-            $this->_normalizeDirectory($this->getContext()->smarty->getTemplateDir(1))
-            .$this->getTemplateDirectory().$template
-        )) {
-            return $this->_normalizeDirectory($this->getContext()->smarty->getTemplateDir(1))
-                .$this->getTemplateDirectory().$template;
+        if (file_exists($this->_normalize_directory($this->get_context()->smarty->get_template_dir(1)) . $this->get_template_directory() . $template)) {
+            return $this->_normalize_directory($this->get_context()->smarty->get_template_dir(1)) . $this->get_template_directory() . $template;
         }
-
-        if (file_exists(
-            $this->_normalizeDirectory($this->getContext()->smarty->getTemplateDir(0))
-            .$this->getTemplateDirectory().$template
-        )) {
-            return $this->_normalizeDirectory($this->getContext()->smarty->getTemplateDir(0))
-                .$this->getTemplateDirectory().$template;
+        if (file_exists($this->_normalize_directory($this->get_context()->smarty->get_template_dir(0)) . $this->get_template_directory() . $template)) {
+            return $this->_normalize_directory($this->get_context()->smarty->get_template_dir(0)) . $this->get_template_directory() . $template;
         }
-        return $this->getTemplateDirectory().$template;
+        return $this->get_template_directory() . $template;
     }
-
     /**
      * @param string $name
      *
      * @return bool
      */
-    public function hasAttribute($name)
+    public function has_attribute($name)
     {
-        return (isset($this->_attributes)
-            && array_key_exists($name, $this->_attributes));
+        return isset($this->_attributes) && array_key_exists($name, $this->_attributes);
     }
-
     /**
      * @return string
      *
@@ -343,27 +285,20 @@ abstract class TreeToolbarButtonCore implements \Stringable
      */
     public function render()
     {
-        return $this->getContext()->smarty->createTemplate(
-            $this->getTemplateFile($this->getTemplate()),
-            $this->getContext()->smarty
-        )->assign($this->getAttributes())->fetch();
+        return $this->get_context()->smarty->create_template($this->get_template_file($this->get_template()), $this->get_context()->smarty)->assign($this->get_attributes())->fetch();
     }
-
     /**
      *
      * @return string
      * @deprecated 2.0.0
      */
-    protected function _normalizeDirectory(string $directory)
+    protected function _normalize_directory(string $directory)
     {
         $last = $directory[strlen($directory) - 1];
-
         if (in_array($last, ['/', '\\'])) {
             $directory[strlen($directory) - 1] = DIRECTORY_SEPARATOR;
-
             return $directory;
         }
-
         return $directory . DIRECTORY_SEPARATOR;
     }
 }

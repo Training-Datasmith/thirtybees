@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 # ======================================================================== #
 #
 #  This work is licensed under the Creative Commons Attribution 3.0 Unported
@@ -155,13 +154,12 @@ declare(strict_types=1);
 #    * SAVE IMAGE OR OUTPUT TO SCREEN
 #
 # ======================================================================== #
-
-class imageLib
+class Image_Lib
 {
     /**
      * @var string
      */
-    private $fileName;
+    private $file_name;
     /**
      * @var false|GdImage|resource
      */
@@ -169,15 +167,15 @@ class imageLib
     /**
      * @var false|GdImage|resource
      */
-    protected $imageResized;
+    protected $image_resized;
     /**
      * @var false|int
      */
-    private $widthOriginal;
+    private $width_original;
     /**
      * @var false|int
      */
-    private $heightOriginal;
+    private $height_original;
     /**
      * @var false|int
      */
@@ -189,89 +187,86 @@ class imageLib
     /**
      * @var string
      */
-    private $fileExtension;
+    private $file_extension;
     /**
      * @var array
      */
-    private $errorArray = [];
+    private $error_array = [];
     /**
      * @var bool
      */
-    private $forceStretch = true;
+    private $force_stretch = true;
     /**
      * @var bool
      */
-    private $aggresiveSharpening = false;
+    private $aggresive_sharpening = false;
     /**
      * @var string[]
      */
-    private $transparentArray = ['.png', '.gif', '.webp'];
+    private $transparent_array = ['.png', '.gif', '.webp'];
     /**
      * @var bool
      */
-    private $keepTransparency = true;
+    private $keep_transparency = true;
     /**
      * @var int[]
      */
-    private $fillColorArray = ['r' => 255, 'g' => 255, 'b' => 255];
+    private $fill_color_array = ['r' => 255, 'g' => 255, 'b' => 255];
     /**
      * @var string[]
      */
-    private $sharpenArray = ['.jpg'];
+    private $sharpen_array = ['.jpg'];
     /**
      * @var string
      */
-    private $filterOverlayPath;
+    private $filter_overlay_path;
     /**
      * @var bool
      */
-    private $isInterlace;
+    private $is_interlace;
     /**
      * @var array
      */
-    private $captionBoxPositionArray = [];
+    private $caption_box_position_array = [];
     /**
      * @var string
      */
-    private $fontDir = 'fonts';
+    private $font_dir = 'fonts';
     /**
      * @var int
      */
-    private $cropFromTopPercent = 10;
-
+    private $crop_from_top_percent = 10;
     /**
      * @param string $fileName
      * @throws PrestaShopException
      */
-    public function __construct($fileName)
+    public function __construct($file_name)
     {
-        if (!$this->testGDInstalled()) {
-            throw new PrestaShopException('The GD Library is not installed.');
+        if (!$this->test_gd_installed()) {
+            throw new Presta_Shop_Exception('The GD Library is not installed.');
         }
         $this->initialise();
-        $this->fileName = $fileName;
-        $this->fileExtension = fix_strtolower(strrchr($fileName, '.'));
-        $this->image = $this->openImage($fileName);
-        $this->imageResized = $this->image;
-        if ($this->testIsImage($this->image)) {
+        $this->file_name = $file_name;
+        $this->file_extension = fix_strtolower(strrchr($file_name, '.'));
+        $this->image = $this->open_image($file_name);
+        $this->image_resized = $this->image;
+        if ($this->test_is_image($this->image)) {
             $this->width = imagesx($this->image);
-            $this->widthOriginal = imagesx($this->image);
+            $this->width_original = imagesx($this->image);
             $this->height = imagesy($this->image);
-            $this->heightOriginal = imagesy($this->image);
+            $this->height_original = imagesy($this->image);
         } else {
-            $this->errorArray[] = 'File is not an image';
+            $this->error_array[] = 'File is not an image';
         }
     }
-
     /**
      * @return void
      */
     private function initialise()
     {
-        $this->filterOverlayPath = dirname(__FILE__).'/filters';
-        $this->isInterlace = false;
+        $this->filter_overlay_path = dirname(__FILE__) . '/filters';
+        $this->is_interlace = false;
     }
-
     /**
      * @param int $newWidth
      * @param int $newHeight
@@ -281,53 +276,50 @@ class imageLib
      * @return void
      * @throws PrestaShopException
      */
-    public function resizeImage($newWidth, $newHeight, $option = 0, $sharpen = false, $autoRotate = false)
+    public function resize_image($new_width, $new_height, $option = 0, $sharpen = false, $auto_rotate = false)
     {
-        $cropPos = 'm';
+        $crop_pos = 'm';
         if (is_array($option) && fix_strtolower($option[0]) == 'crop') {
-            $cropPos = $option[1];
-        } else {
-            if (strpos($option, '-') !== false) {
-                $optionPiecesArray = explode('-', $option);
-                $cropPos = end($optionPiecesArray);
-            }
+            $crop_pos = $option[1];
+        } else if (strpos($option, '-') !== false) {
+            $option_pieces_array = explode('-', $option);
+            $crop_pos = end($option_pieces_array);
         }
-        $option = $this->prepOption($option);
+        $option = $this->prep_option($option);
         if (!$this->image) {
-            throw new PrestaShopException('file '.$this->getFileName().' is missing or invalid');
+            throw new Presta_Shop_Exception('file ' . $this->get_file_name() . ' is missing or invalid');
         }
-        $dimensionsArray = $this->getDimensions($newWidth, $newHeight, $option);
-        $optimalWidth = $dimensionsArray['optimalWidth'];
-        $optimalHeight = $dimensionsArray['optimalHeight'];
-        $this->imageResized = imagecreatetruecolor($optimalWidth, $optimalHeight);
-        $this->keepTransparancy($optimalWidth, $optimalHeight, $this->imageResized);
-        imagecopyresampled($this->imageResized, $this->image, 0, 0, 0, 0, $optimalWidth, $optimalHeight, $this->width, $this->height);
+        $dimensions_array = $this->get_dimensions($new_width, $new_height, $option);
+        $optimal_width = $dimensions_array['optimalWidth'];
+        $optimal_height = $dimensions_array['optimalHeight'];
+        $this->image_resized = imagecreatetruecolor($optimal_width, $optimal_height);
+        $this->keep_transparancy($optimal_width, $optimal_height, $this->image_resized);
+        imagecopyresampled($this->image_resized, $this->image, 0, 0, 0, 0, $optimal_width, $optimal_height, $this->width, $this->height);
         if ($option == 4 || $option == 'crop') {
-            if (($optimalWidth >= $newWidth && $optimalHeight >= $newHeight)) {
-                $this->crop($optimalWidth, $optimalHeight, $newWidth, $newHeight, $cropPos);
+            if ($optimal_width >= $new_width && $optimal_height >= $new_height) {
+                $this->crop($optimal_width, $optimal_height, $new_width, $new_height, $crop_pos);
             }
         }
-        if ($autoRotate) {
-            $exifData = $this->getExif();
-            if (count($exifData) > 0) {
-                switch ($exifData['orientation']) {
+        if ($auto_rotate) {
+            $exif_data = $this->get_exif();
+            if (count($exif_data) > 0) {
+                switch ($exif_data['orientation']) {
                     case 8:
-                        $this->imageResized = imagerotate($this->imageResized, 90, 0);
+                        $this->image_resized = imagerotate($this->image_resized, 90, 0);
                         break;
                     case 3:
-                        $this->imageResized = imagerotate($this->imageResized, 180, 0);
+                        $this->image_resized = imagerotate($this->image_resized, 180, 0);
                         break;
                     case 6:
-                        $this->imageResized = imagerotate($this->imageResized, -90, 0);
+                        $this->image_resized = imagerotate($this->image_resized, -90, 0);
                         break;
                 }
             }
         }
-        if ($sharpen && in_array($this->fileExtension, $this->sharpenArray)) {
+        if ($sharpen && in_array($this->file_extension, $this->sharpen_array)) {
             $this->sharpen();
         }
     }
-
     /**
      * @param int $newWidth
      * @param int $newHeight
@@ -335,34 +327,32 @@ class imageLib
      * @return void
      * @throws PrestaShopException
      */
-    public function cropImage($newWidth, $newHeight, $cropPos = 'm')
+    public function crop_image($new_width, $new_height, $crop_pos = 'm')
     {
         if (!$this->image) {
-            throw new PrestaShopException('file '.$this->getFileName().' is missing or invalid');
+            throw new Presta_Shop_Exception('file ' . $this->get_file_name() . ' is missing or invalid');
         }
-        $this->imageResized = $this->image;
-        $this->crop($this->width, $this->height, $newWidth, $newHeight, $cropPos);
+        $this->image_resized = $this->image;
+        $this->crop($this->width, $this->height, $new_width, $new_height, $crop_pos);
     }
-
     /**
      * @param int $width
      * @param int $height
      * @param GdImage $im
      * @return void
      */
-    private function keepTransparancy($width, $height, $im)
+    private function keep_transparancy($width, $height, $im)
     {
-        if (in_array($this->fileExtension, $this->transparentArray) && $this->keepTransparency) {
+        if (in_array($this->file_extension, $this->transparent_array) && $this->keep_transparency) {
             imagealphablending($im, false);
             imagesavealpha($im, true);
             $transparent = imagecolorallocatealpha($im, 255, 255, 255, 127);
             imagefilledrectangle($im, 0, 0, $width, $height, $transparent);
         } else {
-            $color = imagecolorallocate($im, $this->fillColorArray['r'], $this->fillColorArray['g'], $this->fillColorArray['b']);
+            $color = imagecolorallocate($im, $this->fill_color_array['r'], $this->fill_color_array['g'], $this->fill_color_array['b']);
             imagefilledrectangle($im, 0, 0, $width, $height, $color);
         }
     }
-
     /**
      * @param int $optimalWidth
      * @param int $optimalHeight
@@ -371,19 +361,18 @@ class imageLib
      * @param string $cropPos
      * @return void
      */
-    private function crop($optimalWidth, $optimalHeight, $newWidth, $newHeight, $cropPos)
+    private function crop($optimal_width, $optimal_height, $new_width, $new_height, $crop_pos)
     {
-        $cropArray = $this->getCropPlacing($optimalWidth, $optimalHeight, $newWidth, $newHeight, $cropPos);
-        $cropStartX = (int) $cropArray['x'];
-        $cropStartY = (int) $cropArray['y'];
-        $crop = imagecreatetruecolor($newWidth, $newHeight);
-        $this->keepTransparancy($optimalWidth, $optimalHeight, $crop);
-        imagecopyresampled($crop, $this->imageResized, 0, 0, $cropStartX, $cropStartY, $newWidth, $newHeight, $newWidth, $newHeight);
-        $this->imageResized = $crop;
-        $this->width = $newWidth;
-        $this->height = $newHeight;
+        $crop_array = $this->get_crop_placing($optimal_width, $optimal_height, $new_width, $new_height, $crop_pos);
+        $crop_start_x = (int) $crop_array['x'];
+        $crop_start_y = (int) $crop_array['y'];
+        $crop = imagecreatetruecolor($new_width, $new_height);
+        $this->keep_transparancy($optimal_width, $optimal_height, $crop);
+        imagecopyresampled($crop, $this->image_resized, 0, 0, $crop_start_x, $crop_start_y, $new_width, $new_height, $new_width, $new_height);
+        $this->image_resized = $crop;
+        $this->width = $new_width;
+        $this->height = $new_height;
     }
-
     /**
      * @param int $optimalWidth
      * @param int $optimalHeight
@@ -392,270 +381,245 @@ class imageLib
      * @param string $pos
      * @return array
      */
-    private function getCropPlacing($optimalWidth, $optimalHeight, $newWidth, $newHeight, $pos = 'm')
+    private function get_crop_placing($optimal_width, $optimal_height, $new_width, $new_height, $pos = 'm')
     {
         $pos = fix_strtolower($pos);
         if (strstr($pos, 'x')) {
             $pos = str_replace(' ', '', $pos);
-            $xyArray = explode('x', $pos);
-            list($cropStartX, $cropStartY) = $xyArray;
+            $xy_array = explode('x', $pos);
+            list($crop_start_x, $crop_start_y) = $xy_array;
         } else {
             switch ($pos) {
                 case 'tl':
-                    $cropStartX = 0;
-                    $cropStartY = 0;
+                    $crop_start_x = 0;
+                    $crop_start_y = 0;
                     break;
                 case 't':
-                    $cropStartX = ($optimalWidth / 2) - ($newWidth / 2);
-                    $cropStartY = 0;
+                    $crop_start_x = $optimal_width / 2 - $new_width / 2;
+                    $crop_start_y = 0;
                     break;
                 case 'tr':
-                    $cropStartX = $optimalWidth - $newWidth;
-                    $cropStartY = 0;
+                    $crop_start_x = $optimal_width - $new_width;
+                    $crop_start_y = 0;
                     break;
                 case 'l':
-                    $cropStartX = 0;
-                    $cropStartY = ($optimalHeight / 2) - ($newHeight / 2);
+                    $crop_start_x = 0;
+                    $crop_start_y = $optimal_height / 2 - $new_height / 2;
                     break;
                 case 'm':
-                    $cropStartX = ($optimalWidth / 2) - ($newWidth / 2);
-                    $cropStartY = ($optimalHeight / 2) - ($newHeight / 2);
+                    $crop_start_x = $optimal_width / 2 - $new_width / 2;
+                    $crop_start_y = $optimal_height / 2 - $new_height / 2;
                     break;
                 case 'r':
-                    $cropStartX = $optimalWidth - $newWidth;
-                    $cropStartY = ($optimalHeight / 2) - ($newHeight / 2);
+                    $crop_start_x = $optimal_width - $new_width;
+                    $crop_start_y = $optimal_height / 2 - $new_height / 2;
                     break;
                 case 'bl':
-                    $cropStartX = 0;
-                    $cropStartY = $optimalHeight - $newHeight;
+                    $crop_start_x = 0;
+                    $crop_start_y = $optimal_height - $new_height;
                     break;
                 case 'b':
-                    $cropStartX = ($optimalWidth / 2) - ($newWidth / 2);
-                    $cropStartY = $optimalHeight - $newHeight;
+                    $crop_start_x = $optimal_width / 2 - $new_width / 2;
+                    $crop_start_y = $optimal_height - $new_height;
                     break;
                 case 'br':
-                    $cropStartX = $optimalWidth - $newWidth;
-                    $cropStartY = $optimalHeight - $newHeight;
+                    $crop_start_x = $optimal_width - $new_width;
+                    $crop_start_y = $optimal_height - $new_height;
                     break;
                 case 'auto':
-                    if ($optimalHeight > $optimalWidth) {
-                        $cropStartX = ($optimalWidth / 2) - ($newWidth / 2);
-                        $cropStartY = ($this->cropFromTopPercent / 100) * $optimalHeight;
+                    if ($optimal_height > $optimal_width) {
+                        $crop_start_x = $optimal_width / 2 - $new_width / 2;
+                        $crop_start_y = $this->crop_from_top_percent / 100 * $optimal_height;
                     } else {
-                        $cropStartX = ($optimalWidth / 2) - ($newWidth / 2);
-                        $cropStartY = ($optimalHeight / 2) - ($newHeight / 2);
+                        $crop_start_x = $optimal_width / 2 - $new_width / 2;
+                        $crop_start_y = $optimal_height / 2 - $new_height / 2;
                     }
                     break;
                 default:
-                    $cropStartX = ($optimalWidth / 2) - ($newWidth / 2);
-                    $cropStartY = ($optimalHeight / 2) - ($newHeight / 2);
+                    $crop_start_x = $optimal_width / 2 - $new_width / 2;
+                    $crop_start_y = $optimal_height / 2 - $new_height / 2;
                     break;
             }
         }
-        return ['x' => $cropStartX, 'y' => $cropStartY];
+        return ['x' => $crop_start_x, 'y' => $crop_start_y];
     }
-
     /**
      * @param int $newWidth
      * @param int $newHeight
      * @param string $option
      * @return array
      */
-    private function getDimensions($newWidth, $newHeight, $option)
+    private function get_dimensions($new_width, $new_height, $option)
     {
         switch (strval($option)) {
             case '0':
             case 'exact':
-                $optimalWidth = $newWidth;
-                $optimalHeight = $newHeight;
+                $optimal_width = $new_width;
+                $optimal_height = $new_height;
                 break;
             case '1':
             case 'portrait':
-                $dimensionsArray = $this->getSizeByFixedHeight($newWidth, $newHeight);
-                $optimalWidth = $dimensionsArray['optimalWidth'];
-                $optimalHeight = $dimensionsArray['optimalHeight'];
+                $dimensions_array = $this->get_size_by_fixed_height($new_width, $new_height);
+                $optimal_width = $dimensions_array['optimalWidth'];
+                $optimal_height = $dimensions_array['optimalHeight'];
                 break;
             case '2':
             case 'landscape':
-                $dimensionsArray = $this->getSizeByFixedWidth($newWidth, $newHeight);
-                $optimalWidth = $dimensionsArray['optimalWidth'];
-                $optimalHeight = $dimensionsArray['optimalHeight'];
+                $dimensions_array = $this->get_size_by_fixed_width($new_width, $new_height);
+                $optimal_width = $dimensions_array['optimalWidth'];
+                $optimal_height = $dimensions_array['optimalHeight'];
                 break;
             case '3':
             case 'auto':
-                $dimensionsArray = $this->getSizeByAuto($newWidth, $newHeight);
-                $optimalWidth = $dimensionsArray['optimalWidth'];
-                $optimalHeight = $dimensionsArray['optimalHeight'];
+                $dimensions_array = $this->get_size_by_auto($new_width, $new_height);
+                $optimal_width = $dimensions_array['optimalWidth'];
+                $optimal_height = $dimensions_array['optimalHeight'];
                 break;
             case '4':
             case 'crop':
-                $dimensionsArray = $this->getOptimalCrop($newWidth, $newHeight);
-                $optimalWidth = $dimensionsArray['optimalWidth'];
-                $optimalHeight = $dimensionsArray['optimalHeight'];
+                $dimensions_array = $this->get_optimal_crop($new_width, $new_height);
+                $optimal_width = $dimensions_array['optimalWidth'];
+                $optimal_height = $dimensions_array['optimalHeight'];
                 break;
             default:
-                $optimalWidth = $newWidth;
-                $optimalHeight = $newHeight;
+                $optimal_width = $new_width;
+                $optimal_height = $new_height;
                 break;
         }
-        return [
-            'optimalWidth' => $optimalWidth,
-            'optimalHeight' => $optimalHeight,
-        ];
+        return ['optimalWidth' => $optimal_width, 'optimalHeight' => $optimal_height];
     }
-
     /**
      * @param int $newWidth
      * @param int $newHeight
      * @return array
      */
-    private function getSizeByFixedHeight($newWidth, $newHeight)
+    private function get_size_by_fixed_height($new_width, $new_height)
     {
-        if (!$this->forceStretch) {
-            if ($this->height < $newHeight) {
+        if (!$this->force_stretch) {
+            if ($this->height < $new_height) {
                 return ['optimalWidth' => $this->width, 'optimalHeight' => $this->height];
             }
         }
         $ratio = $this->width / $this->height;
-        $newWidth = $newHeight * $ratio;
-        return ['optimalWidth' => $newWidth, 'optimalHeight' => $newHeight];
+        $new_width = $new_height * $ratio;
+        return ['optimalWidth' => $new_width, 'optimalHeight' => $new_height];
     }
-
     /**
      * @param int $newWidth
      * @param int $newHeight
      * @return array
      */
-    private function getSizeByFixedWidth($newWidth, $newHeight)
+    private function get_size_by_fixed_width($new_width, $new_height)
     {
-        if (!$this->forceStretch) {
-            if ($this->width < $newWidth) {
+        if (!$this->force_stretch) {
+            if ($this->width < $new_width) {
                 return ['optimalWidth' => $this->width, 'optimalHeight' => $this->height];
             }
         }
         $ratio = $this->height / $this->width;
-        $newHeight = $newWidth * $ratio;
-        return ['optimalWidth' => $newWidth, 'optimalHeight' => $newHeight];
+        $new_height = $new_width * $ratio;
+        return ['optimalWidth' => $new_width, 'optimalHeight' => $new_height];
     }
-
     /**
      * @param int $newWidth
      * @param int $newHeight
      * @return array
      */
-    private function getSizeByAuto($newWidth, $newHeight)
+    private function get_size_by_auto($new_width, $new_height)
     {
-        if (!$this->forceStretch) {
-            if ($this->width < $newWidth && $this->height < $newHeight) {
+        if (!$this->force_stretch) {
+            if ($this->width < $new_width && $this->height < $new_height) {
                 return ['optimalWidth' => $this->width, 'optimalHeight' => $this->height];
             }
         }
         if ($this->height < $this->width) {
-            $dimensionsArray = $this->getSizeByFixedWidth($newWidth, $newHeight);
-            $optimalWidth = $dimensionsArray['optimalWidth'];
-            $optimalHeight = $dimensionsArray['optimalHeight'];
+            $dimensions_array = $this->get_size_by_fixed_width($new_width, $new_height);
+            $optimal_width = $dimensions_array['optimalWidth'];
+            $optimal_height = $dimensions_array['optimalHeight'];
         } elseif ($this->height > $this->width) {
-            $dimensionsArray = $this->getSizeByFixedHeight($newWidth, $newHeight);
-            $optimalWidth = $dimensionsArray['optimalWidth'];
-            $optimalHeight = $dimensionsArray['optimalHeight'];
+            $dimensions_array = $this->get_size_by_fixed_height($new_width, $new_height);
+            $optimal_width = $dimensions_array['optimalWidth'];
+            $optimal_height = $dimensions_array['optimalHeight'];
+        } else if ($new_height < $new_width) {
+            $dimensions_array = $this->get_size_by_fixed_width($new_width, $new_height);
+            $optimal_width = $dimensions_array['optimalWidth'];
+            $optimal_height = $dimensions_array['optimalHeight'];
+        } else if ($new_height > $new_width) {
+            $dimensions_array = $this->get_size_by_fixed_height($new_width, $new_height);
+            $optimal_width = $dimensions_array['optimalWidth'];
+            $optimal_height = $dimensions_array['optimalHeight'];
         } else {
-            if ($newHeight < $newWidth) {
-                $dimensionsArray = $this->getSizeByFixedWidth($newWidth, $newHeight);
-                $optimalWidth = $dimensionsArray['optimalWidth'];
-                $optimalHeight = $dimensionsArray['optimalHeight'];
-            } else {
-                if ($newHeight > $newWidth) {
-                    $dimensionsArray = $this->getSizeByFixedHeight($newWidth, $newHeight);
-                    $optimalWidth = $dimensionsArray['optimalWidth'];
-                    $optimalHeight = $dimensionsArray['optimalHeight'];
-                } else {
-                    $optimalWidth = $newWidth;
-                    $optimalHeight = $newHeight;
-                }
-            }
+            $optimal_width = $new_width;
+            $optimal_height = $new_height;
         }
-        return ['optimalWidth' => $optimalWidth, 'optimalHeight' => $optimalHeight];
+        return ['optimalWidth' => $optimal_width, 'optimalHeight' => $optimal_height];
     }
-
     /**
      * @param int $newWidth
      * @param int $newHeight
      * @return array
      */
-    private function getOptimalCrop($newWidth, $newHeight)
+    private function get_optimal_crop($new_width, $new_height)
     {
-        if (!$this->forceStretch) {
-            if ($this->width < $newWidth && $this->height < $newHeight) {
+        if (!$this->force_stretch) {
+            if ($this->width < $new_width && $this->height < $new_height) {
                 return ['optimalWidth' => $this->width, 'optimalHeight' => $this->height];
             }
         }
-        $heightRatio = $this->height / $newHeight;
-        $widthRatio = $this->width / $newWidth;
-        $optimalRatio = min($heightRatio, $widthRatio);
-        $optimalHeight = round($this->height / $optimalRatio);
-        $optimalWidth = round($this->width / $optimalRatio);
-        return ['optimalWidth' => $optimalWidth, 'optimalHeight' => $optimalHeight];
+        $height_ratio = $this->height / $new_height;
+        $width_ratio = $this->width / $new_width;
+        $optimal_ratio = min($height_ratio, $width_ratio);
+        $optimal_height = round($this->height / $optimal_ratio);
+        $optimal_width = round($this->width / $optimal_ratio);
+        return ['optimalWidth' => $optimal_width, 'optimalHeight' => $optimal_height];
     }
-
     /**
      * @return void
      */
     private function sharpen()
     {
-        if ($this->aggresiveSharpening) {
-            $sharpenMatrix = [
-                [-1, -1, -1],
-                [-1, 16, -1],
-                [-1, -1, -1],
-            ];
+        if ($this->aggresive_sharpening) {
+            $sharpen_matrix = [[-1, -1, -1], [-1, 16, -1], [-1, -1, -1]];
             $divisor = 8;
             $offset = 0;
-            imageconvolution($this->imageResized, $sharpenMatrix, $divisor, $offset);
+            imageconvolution($this->image_resized, $sharpen_matrix, $divisor, $offset);
         } else {
-            $sharpness = $this->findSharp($this->widthOriginal, $this->width);
-            $sharpenMatrix = [
-                [-1, -2, -1 ],
-                [-2, $sharpness + 12, -2],
-                [-1, -2, -1],
-            ];
+            $sharpness = $this->find_sharp($this->width_original, $this->width);
+            $sharpen_matrix = [[-1, -2, -1], [-2, $sharpness + 12, -2], [-1, -2, -1]];
             $divisor = $sharpness;
             $offset = 0;
-            imageconvolution($this->imageResized, $sharpenMatrix, $divisor, $offset);
+            imageconvolution($this->image_resized, $sharpen_matrix, $divisor, $offset);
         }
     }
-
     /**
      * @param float $orig
      * @param float $final
      * @return float
      */
-    private function findSharp($orig, $final)
+    private function find_sharp($orig, $final)
     {
         $final = $final * (750.0 / $orig);
         $a = 52;
         $b = -0.27810650887573124;
-        $c = .00047337278106508946;
+        $c = 0.00047337278106508946;
         $result = $a + $b * $final + $c * $final * $final;
         return max(round($result), 0);
     }
-
     /**
      * @param array|string $option
      * @return string
      * @throws PrestaShopException
      */
-    private function prepOption($option)
+    private function prep_option($option)
     {
         if (is_array($option)) {
             if (fix_strtolower($option[0]) == 'crop' && count($option) == 2) {
                 return 'crop';
             } else {
-                throw new PrestaShopException('Crop resize option array is badly formatted.');
+                throw new Presta_Shop_Exception('Crop resize option array is badly formatted.');
             }
-        } else {
-            if (strpos($option, 'crop') !== false) {
-                return 'crop';
-            }
+        } else if (strpos($option, 'crop') !== false) {
+            return 'crop';
         }
         if (is_string($option)) {
             return fix_strtolower($option);
@@ -663,130 +627,120 @@ class imageLib
         /** @var string $option */
         return $option;
     }
-
     /**
      * @param string $preset
      * @return void
      */
-    public function borderPreset($preset)
+    public function border_preset($preset)
     {
         switch ($preset) {
             case 'simple':
-                $this->addBorder(7, '#fff');
-                $this->addBorder(6, '#f2f1f0');
-                $this->addBorder(2, '#fff');
-                $this->addBorder(1, '#ccc');
+                $this->add_border(7, '#fff');
+                $this->add_border(6, '#f2f1f0');
+                $this->add_border(2, '#fff');
+                $this->add_border(1, '#ccc');
                 break;
             default:
                 break;
         }
     }
-
     /**
      * @param int $thickness
      * @param array $rgbArray
      * @return void
      */
-    public function addBorder($thickness = 1, $rgbArray = [255, 255, 255])
+    public function add_border($thickness = 1, $rgb_array = [255, 255, 255])
     {
-        if ($this->imageResized) {
-            $rgbArray = $this->formatColor($rgbArray);
-            $r = $rgbArray['r'];
-            $g = $rgbArray['g'];
-            $b = $rgbArray['b'];
+        if ($this->image_resized) {
+            $rgb_array = $this->format_color($rgb_array);
+            $r = $rgb_array['r'];
+            $g = $rgb_array['g'];
+            $b = $rgb_array['b'];
             $x1 = 0;
             $y1 = 0;
-            $x2 = ImageSX($this->imageResized) - 1;
-            $y2 = ImageSY($this->imageResized) - 1;
-            $rgbArray = ImageColorAllocate($this->imageResized, $r, $g, $b);
+            $x2 = image_sx($this->image_resized) - 1;
+            $y2 = image_sy($this->image_resized) - 1;
+            $rgb_array = image_color_allocate($this->image_resized, $r, $g, $b);
             for ($i = 0; $i < $thickness; $i++) {
-                ImageRectangle($this->imageResized, $x1++, $y1++, $x2--, $y2--, $rgbArray);
+                image_rectangle($this->image_resized, $x1++, $y1++, $x2--, $y2--, $rgb_array);
             }
         }
     }
-
     /**
      * @return void
      */
-    public function greyScale()
+    public function grey_scale()
     {
-        if ($this->imageResized) {
-            imagefilter($this->imageResized, IMG_FILTER_GRAYSCALE);
+        if ($this->image_resized) {
+            imagefilter($this->image_resized, IMG_FILTER_GRAYSCALE);
         }
     }
-
     /**
      * @return void
      */
-    public function greyScaleEnhanced()
+    public function grey_scale_enhanced()
     {
-        if ($this->imageResized) {
-            imagefilter($this->imageResized, IMG_FILTER_GRAYSCALE);
-            imagefilter($this->imageResized, IMG_FILTER_CONTRAST, -15);
-            imagefilter($this->imageResized, IMG_FILTER_BRIGHTNESS, 2);
+        if ($this->image_resized) {
+            imagefilter($this->image_resized, IMG_FILTER_GRAYSCALE);
+            imagefilter($this->image_resized, IMG_FILTER_CONTRAST, -15);
+            imagefilter($this->image_resized, IMG_FILTER_BRIGHTNESS, 2);
             $this->sharpen();
         }
     }
-
     /**
      * @return void
      */
-    public function greyScaleDramatic()
+    public function grey_scale_dramatic()
     {
         $this->gd_filter_monopin();
     }
-
     /**
      * @return void
      */
-    public function blackAndWhite()
+    public function black_and_white()
     {
-        if ($this->imageResized) {
-            imagefilter($this->imageResized, IMG_FILTER_GRAYSCALE);
-            imagefilter($this->imageResized, IMG_FILTER_CONTRAST, -1000);
+        if ($this->image_resized) {
+            imagefilter($this->image_resized, IMG_FILTER_GRAYSCALE);
+            imagefilter($this->image_resized, IMG_FILTER_CONTRAST, -1000);
         }
     }
-
     /**
      * @return void
      */
     public function negative()
     {
-        if ($this->imageResized) {
-            imagefilter($this->imageResized, IMG_FILTER_NEGATE);
+        if ($this->image_resized) {
+            imagefilter($this->image_resized, IMG_FILTER_NEGATE);
         }
     }
-
     /**
      * @return void
      */
     public function sepia()
     {
-        if ($this->imageResized) {
-            imagefilter($this->imageResized, IMG_FILTER_GRAYSCALE);
-            imagefilter($this->imageResized, IMG_FILTER_BRIGHTNESS, -10);
-            imagefilter($this->imageResized, IMG_FILTER_CONTRAST, -20);
-            imagefilter($this->imageResized, IMG_FILTER_COLORIZE, 60, 30, -15);
+        if ($this->image_resized) {
+            imagefilter($this->image_resized, IMG_FILTER_GRAYSCALE);
+            imagefilter($this->image_resized, IMG_FILTER_BRIGHTNESS, -10);
+            imagefilter($this->image_resized, IMG_FILTER_CONTRAST, -20);
+            imagefilter($this->image_resized, IMG_FILTER_COLORIZE, 60, 30, -15);
         }
     }
-
     /**
      * @return void
      */
     public function sepia2()
     {
-        if ($this->imageResized) {
-            $total = imagecolorstotal($this->imageResized);
+        if ($this->image_resized) {
+            $total = imagecolorstotal($this->image_resized);
             for ($i = 0; $i < $total; $i++) {
-                $index = imagecolorsforindex($this->imageResized, $i);
+                $index = imagecolorsforindex($this->image_resized, $i);
                 $red = ($index['red'] * 0.393 + $index['green'] * 0.769 + $index['blue'] * 0.189) / 1.351;
-                $green = ($index['red'] * 0.349 + $index['green'] * 0.686 + $index['blue'] * 0.168) / 1.203;
-                $blue = ($index['red'] * 0.272 + $index['green'] * 0.534 + $index['blue'] * 0.131) / 2.140;
-                imagecolorset($this->imageResized, $i, $red, $green, $blue);
+                $green = ($index['red'] * 0.349 + $index['green'] * 0.6860000000000001 + $index['blue'] * 0.168) / 1.203;
+                $blue = ($index['red'] * 0.272 + $index['green'] * 0.534 + $index['blue'] * 0.131) / 2.14;
+                imagecolorset($this->image_resized, $i, $red, $green, $blue);
             }
         }
     }
-
     /**
      * @return void
      */
@@ -794,35 +748,32 @@ class imageLib
     {
         $this->gd_filter_vintage();
     }
-
     /**
      * @return void
      */
     public function gd_filter_monopin()
     {
-        if ($this->imageResized) {
-            imagefilter($this->imageResized, IMG_FILTER_GRAYSCALE);
-            imagefilter($this->imageResized, IMG_FILTER_BRIGHTNESS, -15);
-            imagefilter($this->imageResized, IMG_FILTER_CONTRAST, -15);
-            $this->imageResized = $this->gd_apply_overlay($this->imageResized, 'vignette', 100);
+        if ($this->image_resized) {
+            imagefilter($this->image_resized, IMG_FILTER_GRAYSCALE);
+            imagefilter($this->image_resized, IMG_FILTER_BRIGHTNESS, -15);
+            imagefilter($this->image_resized, IMG_FILTER_CONTRAST, -15);
+            $this->image_resized = $this->gd_apply_overlay($this->image_resized, 'vignette', 100);
         }
     }
-
     /**
      * @return void
      */
     public function gd_filter_vintage()
     {
-        if ($this->imageResized) {
-            $this->imageResized = $this->gd_apply_overlay($this->imageResized, 'vignette', 45);
-            imagefilter($this->imageResized, IMG_FILTER_BRIGHTNESS, 20);
-            imagefilter($this->imageResized, IMG_FILTER_CONTRAST, -35);
-            imagefilter($this->imageResized, IMG_FILTER_COLORIZE, 60, -10, 35);
-            imagefilter($this->imageResized, IMG_FILTER_SMOOTH, 7);
-            $this->imageResized = $this->gd_apply_overlay($this->imageResized, 'scratch', 10);
+        if ($this->image_resized) {
+            $this->image_resized = $this->gd_apply_overlay($this->image_resized, 'vignette', 45);
+            imagefilter($this->image_resized, IMG_FILTER_BRIGHTNESS, 20);
+            imagefilter($this->image_resized, IMG_FILTER_CONTRAST, -35);
+            imagefilter($this->image_resized, IMG_FILTER_COLORIZE, 60, -10, 35);
+            imagefilter($this->image_resized, IMG_FILTER_SMOOTH, 7);
+            $this->image_resized = $this->gd_apply_overlay($this->image_resized, 'scratch', 10);
         }
     }
-
     /**
      * @param GdImage $im
      * @param string $type
@@ -838,7 +789,7 @@ class imageLib
         imagesavealpha($filter, true);
         $transparent = imagecolorallocatealpha($filter, 255, 255, 255, 127);
         imagefilledrectangle($filter, 0, 0, $width, $height, $transparent);
-        $overlay = $this->filterOverlayPath.'/'.$type.'.png';
+        $overlay = $this->filter_overlay_path . '/' . $type . '.png';
         $png = imagecreatefrompng($overlay);
         imagecopyresampled($filter, $png, 0, 0, 0, 0, $width, $height, imagesx($png), imagesy($png));
         $comp = imagecreatetruecolor($width, $height);
@@ -848,29 +799,21 @@ class imageLib
         imagedestroy($comp);
         return $im;
     }
-
     /**
      * @param array $rgb
      * @return bool
      */
     public function image_colorize($rgb)
     {
-        imageTrueColorToPalette($this->imageResized, true, 256);
-        $numColors = imageColorsTotal($this->imageResized);
-        for ($x = 0; $x < $numColors; $x++) {
-            list($r, $g, $b) = array_values(imageColorsForIndex($this->imageResized, $x));
+        image_true_color_to_palette($this->image_resized, true, 256);
+        $num_colors = image_colors_total($this->image_resized);
+        for ($x = 0; $x < $num_colors; $x++) {
+            list($r, $g, $b) = array_values(image_colors_for_index($this->image_resized, $x));
             $grayscale = ($r + $g + $b) / 3 / 0xff;
-            imageColorSet(
-                $this->imageResized,
-                $x,
-                $grayscale * $rgb[0],
-                $grayscale * $rgb[1],
-                $grayscale * $rgb[2]
-            );
+            image_color_set($this->image_resized, $x, $grayscale * $rgb[0], $grayscale * $rgb[1], $grayscale * $rgb[2]);
         }
         return true;
     }
-
     /**
      * @param int $reflectionHeight
      * @param int $startingTransparency
@@ -880,72 +823,71 @@ class imageLib
      * @param int $divider
      * @return void
      */
-    public function addReflection($reflectionHeight = 50, $startingTransparency = 30, $inside = false, $bgColor = '#fff', $stretch = false, $divider = 0)
+    public function add_reflection($reflection_height = 50, $starting_transparency = 30, $inside = false, $bg_color = '#fff', $stretch = false, $divider = 0)
     {
-        $rgbArray = $this->formatColor($bgColor);
-        $r = $rgbArray['r'];
-        $g = $rgbArray['g'];
-        $b = $rgbArray['b'];
-        $im = $this->imageResized;
+        $rgb_array = $this->format_color($bg_color);
+        $r = $rgb_array['r'];
+        $g = $rgb_array['g'];
+        $b = $rgb_array['b'];
+        $im = $this->image_resized;
         $li = imagecreatetruecolor($this->width, 1);
         $bgc = imagecolorallocate($li, $r, $g, $b);
         imagefilledrectangle($li, 0, 0, $this->width, 1, $bgc);
-        $bg = imagecreatetruecolor($this->width, $reflectionHeight);
+        $bg = imagecreatetruecolor($this->width, $reflection_height);
         $wh = imagecolorallocate($im, 255, 255, 255);
         $im = imagerotate($im, -180, $wh);
         imagecopyresampled($bg, $im, 0, 0, 0, 0, $this->width, $this->height, $this->width, $this->height);
         $im = $bg;
-        $bg = imagecreatetruecolor($this->width, $reflectionHeight);
+        $bg = imagecreatetruecolor($this->width, $reflection_height);
         for ($x = 0; $x < $this->width; $x++) {
-            imagecopy($bg, $im, $x, 0, $this->width - $x - 1, 0, 1, $reflectionHeight);
+            imagecopy($bg, $im, $x, 0, $this->width - $x - 1, 0, 1, $reflection_height);
         }
         $im = $bg;
         if ($stretch) {
-            $step = 100 / ($reflectionHeight + $startingTransparency);
+            $step = 100 / ($reflection_height + $starting_transparency);
         } else {
-            $step = 100 / $reflectionHeight;
+            $step = 100 / $reflection_height;
         }
-        for ($i = 0; $i <= $reflectionHeight; $i++) {
-            if ($startingTransparency > 100) {
-                $startingTransparency = 100;
+        for ($i = 0; $i <= $reflection_height; $i++) {
+            if ($starting_transparency > 100) {
+                $starting_transparency = 100;
             }
-            if ($startingTransparency < 1) {
-                $startingTransparency = 1;
+            if ($starting_transparency < 1) {
+                $starting_transparency = 1;
             }
-            imagecopymerge($bg, $li, 0, $i, 0, 0, $this->width, 1, $startingTransparency);
-            $startingTransparency += $step;
+            imagecopymerge($bg, $li, 0, $i, 0, 0, $this->width, 1, $starting_transparency);
+            $starting_transparency += $step;
         }
         imagecopymerge($im, $li, 0, 0, 0, 0, $this->width, $divider, 100);
         $x = imagesx($im);
         $y = imagesy($im);
         if ($inside) {
             $final = imagecreatetruecolor($this->width, $this->height);
-            imagecopymerge($final, $this->imageResized, 0, 0, 0, $reflectionHeight, $this->width, $this->height - $reflectionHeight, 100);
-            imagecopymerge($final, $im, 0, $this->height - $reflectionHeight, 0, 0, $x, $y, 100);
+            imagecopymerge($final, $this->image_resized, 0, 0, 0, $reflection_height, $this->width, $this->height - $reflection_height, 100);
+            imagecopymerge($final, $im, 0, $this->height - $reflection_height, 0, 0, $x, $y, 100);
         } else {
             $final = imagecreatetruecolor($this->width, $this->height + $y);
-            imagecopymerge($final, $this->imageResized, 0, 0, 0, 0, $this->width, $this->height, 100);
+            imagecopymerge($final, $this->image_resized, 0, 0, 0, 0, $this->width, $this->height, 100);
             imagecopymerge($final, $im, 0, $this->height, 0, 0, $x, $y, 100);
         }
-        $this->imageResized = $final;
+        $this->image_resized = $final;
         imagedestroy($li);
         imagedestroy($im);
     }
-
     /**
      * @param int $value
      * @param string $bgColor
      * @return void
      */
-    public function rotate($value = 90, $bgColor = 'transparent')
+    public function rotate($value = 90, $bg_color = 'transparent')
     {
-        if ($this->imageResized) {
-            $degrees = (int)$value;
-            $rgbArray = $this->formatColor($bgColor);
-            $r = $rgbArray['r'];
-            $g = $rgbArray['g'];
-            $b = $rgbArray['b'];
-            $a = $rgbArray['a'] ?? 0;
+        if ($this->image_resized) {
+            $degrees = (int) $value;
+            $rgb_array = $this->format_color($bg_color);
+            $r = $rgb_array['r'];
+            $g = $rgb_array['g'];
+            $b = $rgb_array['b'];
+            $a = $rgb_array['a'] ?? 0;
             if (is_string($value)) {
                 $value = fix_strtolower($value);
                 switch ($value) {
@@ -963,151 +905,138 @@ class imageLib
                 }
             }
             $degrees = 360 - $degrees;
-            $bg = ImageColorAllocateAlpha($this->imageResized, $r, $g, $b, $a);
-            ImageFill($this->imageResized, 0, 0, $bg);
-            $this->imageResized = imagerotate($this->imageResized, $degrees, $bg);
-            ImageSaveAlpha($this->imageResized, true);
+            $bg = image_color_allocate_alpha($this->image_resized, $r, $g, $b, $a);
+            image_fill($this->image_resized, 0, 0, $bg);
+            $this->image_resized = imagerotate($this->image_resized, $degrees, $bg);
+            image_save_alpha($this->image_resized, true);
         }
     }
-
     /**
      * @param int $radius
      * @param string|array $bgColor
      * @return void
      */
-    public function roundCorners($radius = 5, $bgColor = 'transparent')
+    public function round_corners($radius = 5, $bg_color = 'transparent')
     {
-        $isTransparent = false;
-        if (!is_array($bgColor)) {
-            if (fix_strtolower($bgColor) == 'transparent') {
-                $isTransparent = true;
+        $is_transparent = false;
+        if (!is_array($bg_color)) {
+            if (fix_strtolower($bg_color) == 'transparent') {
+                $is_transparent = true;
             }
         }
-        if ($isTransparent) {
-            $bgColor = $this->findUnusedGreen();
+        if ($is_transparent) {
+            $bg_color = $this->find_unused_green();
         }
-        $rgbArray = $this->formatColor($bgColor);
-        $r = $rgbArray['r'];
-        $g = $rgbArray['g'];
-        $b = $rgbArray['b'];
-        $cornerImg = imagecreatetruecolor($radius, $radius);
-        $maskColor = imagecolorallocate($cornerImg, 0, 0, 0);
-        imagecolortransparent($cornerImg, $maskColor);
-        $imagebgColor = imagecolorallocate($cornerImg, $r, $g, $b);
-        imagefill($cornerImg, 0, 0, $imagebgColor);
-        imagefilledellipse($cornerImg, $radius, $radius, $radius * 2, $radius * 2, $maskColor);
-        imagecopymerge($this->imageResized, $cornerImg, 0, 0, 0, 0, $radius, $radius, 100);
-        $cornerImg = imagerotate($cornerImg, 90, 0);
-        imagecopymerge($this->imageResized, $cornerImg, 0, $this->height - $radius, 0, 0, $radius, $radius, 100);
-        $cornerImg = imagerotate($cornerImg, 90, 0);
-        imagecopymerge($this->imageResized, $cornerImg, $this->width - $radius, $this->height - $radius, 0, 0, $radius, $radius, 100);
-        $cornerImg = imagerotate($cornerImg, 90, 0);
-        imagecopymerge($this->imageResized, $cornerImg, $this->width - $radius, 0, 0, 0, $radius, $radius, 100);
-        if ($isTransparent) {
-            $this->imageResized = $this->transparentImage($this->imageResized);
-            imagesavealpha($this->imageResized, true);
+        $rgb_array = $this->format_color($bg_color);
+        $r = $rgb_array['r'];
+        $g = $rgb_array['g'];
+        $b = $rgb_array['b'];
+        $corner_img = imagecreatetruecolor($radius, $radius);
+        $mask_color = imagecolorallocate($corner_img, 0, 0, 0);
+        imagecolortransparent($corner_img, $mask_color);
+        $imagebg_color = imagecolorallocate($corner_img, $r, $g, $b);
+        imagefill($corner_img, 0, 0, $imagebg_color);
+        imagefilledellipse($corner_img, $radius, $radius, $radius * 2, $radius * 2, $mask_color);
+        imagecopymerge($this->image_resized, $corner_img, 0, 0, 0, 0, $radius, $radius, 100);
+        $corner_img = imagerotate($corner_img, 90, 0);
+        imagecopymerge($this->image_resized, $corner_img, 0, $this->height - $radius, 0, 0, $radius, $radius, 100);
+        $corner_img = imagerotate($corner_img, 90, 0);
+        imagecopymerge($this->image_resized, $corner_img, $this->width - $radius, $this->height - $radius, 0, 0, $radius, $radius, 100);
+        $corner_img = imagerotate($corner_img, 90, 0);
+        imagecopymerge($this->image_resized, $corner_img, $this->width - $radius, 0, 0, 0, $radius, $radius, 100);
+        if ($is_transparent) {
+            $this->image_resized = $this->transparent_image($this->image_resized);
+            imagesavealpha($this->image_resized, true);
         }
     }
-
     /**
      * @param int $shadowAngle
      * @param int $blur
      * @param string|array $bgColor
      * @return void
      */
-    public function addShadow($shadowAngle = 45, $blur = 15, $bgColor = 'transparent')
+    public function add_shadow($shadow_angle = 45, $blur = 15, $bg_color = 'transparent')
     {
         define('STEPS', $blur * 2);
-        $shadowDistance = $blur * 0.25;
-        $blurWidth = $blurHeight = $blur;
-        if ($shadowAngle == 0) {
-            $distWidth = 0;
-            $distHeight = 0;
+        $shadow_distance = $blur * 0.25;
+        $blur_width = $blur_height = $blur;
+        if ($shadow_angle == 0) {
+            $dist_width = 0;
+            $dist_height = 0;
         } else {
-            $distWidth = $shadowDistance * cos(deg2rad($shadowAngle));
-            $distHeight = $shadowDistance * sin(deg2rad($shadowAngle));
+            $dist_width = $shadow_distance * cos(deg2rad($shadow_angle));
+            $dist_height = $shadow_distance * sin(deg2rad($shadow_angle));
         }
-        if (fix_strtolower($bgColor) != 'transparent') {
-            $rgbArray = $this->formatColor($bgColor);
-            $r0 = $rgbArray['r'];
-            $g0 = $rgbArray['g'];
-            $b0 = $rgbArray['b'];
+        if (fix_strtolower($bg_color) != 'transparent') {
+            $rgb_array = $this->format_color($bg_color);
+            $r0 = $rgb_array['r'];
+            $g0 = $rgb_array['g'];
+            $b0 = $rgb_array['b'];
         } else {
             $r0 = 0;
             $g0 = 0;
             $b0 = 0;
         }
-        $image = $this->imageResized;
+        $image = $this->image_resized;
         $width = $this->width;
         $height = $this->height;
-        $newImage = imagecreatetruecolor($width, $height);
-        imagecopyresampled($newImage, $image, 0, 0, 0, 0, $width, $height, $width, $height);
-        $rgb = imagecreatetruecolor($width + $blurWidth, $height + $blurHeight);
+        $new_image = imagecreatetruecolor($width, $height);
+        imagecopyresampled($new_image, $image, 0, 0, 0, 0, $width, $height, $width, $height);
+        $rgb = imagecreatetruecolor($width + $blur_width, $height + $blur_height);
         $colour = imagecolorallocate($rgb, 0, 0, 0);
-        imagefilledrectangle($rgb, 0, 0, $width + $blurWidth, $height + $blurHeight, $colour);
+        imagefilledrectangle($rgb, 0, 0, $width + $blur_width, $height + $blur_height, $colour);
         $colour = imagecolorallocate($rgb, 255, 255, 255);
-        imagefilledrectangle($rgb, $blurWidth * 0.5 - $distWidth, $blurHeight * 0.5 - $distHeight, $width + $blurWidth * 0.5 - $distWidth, $height + $blurWidth * 0.5 - $distHeight, $colour);
-        imagecopymerge($rgb, $newImage, $blurWidth * 0.5 - $distWidth, $blurHeight * 0.5 - $distHeight, 0, 0, $width + $blurWidth, $height + $blurHeight, 100);
-        $shadow = imagecreatetruecolor($width + $blurWidth, $height + $blurHeight);
+        imagefilledrectangle($rgb, $blur_width * 0.5 - $dist_width, $blur_height * 0.5 - $dist_height, $width + $blur_width * 0.5 - $dist_width, $height + $blur_width * 0.5 - $dist_height, $colour);
+        imagecopymerge($rgb, $new_image, $blur_width * 0.5 - $dist_width, $blur_height * 0.5 - $dist_height, 0, 0, $width + $blur_width, $height + $blur_height, 100);
+        $shadow = imagecreatetruecolor($width + $blur_width, $height + $blur_height);
         imagealphablending($shadow, false);
         $colour = imagecolorallocate($shadow, 0, 0, 0);
-        imagefilledrectangle($shadow, 0, 0, $width + $blurWidth, $height + $blurHeight, $colour);
+        imagefilledrectangle($shadow, 0, 0, $width + $blur_width, $height + $blur_height, $colour);
         for ($i = 0; $i <= STEPS; $i++) {
-            $t = ((1.0 * $i) / STEPS);
+            $t = 1.0 * $i / STEPS;
             $intensity = 255 * $t * $t;
             $colour = imagecolorallocate($shadow, $intensity, $intensity, $intensity);
-            $points = [
-                $blurWidth * $t, $blurHeight,
-                $blurWidth, $blurHeight * $t,
-                $width, $blurHeight * $t,
-                $width + $blurWidth * (1 - $t), $blurHeight,
-                $width + $blurWidth * (1 - $t), $height,
-                $width, $height + $blurHeight * (1 - $t),
-                $blurWidth, $height + $blurHeight * (1 - $t),
-                $blurWidth * $t,
-                $height,
-            ];
+            $points = [$blur_width * $t, $blur_height, $blur_width, $blur_height * $t, $width, $blur_height * $t, $width + $blur_width * (1 - $t), $blur_height, $width + $blur_width * (1 - $t), $height, $width, $height + $blur_height * (1 - $t), $blur_width, $height + $blur_height * (1 - $t), $blur_width * $t, $height];
             imagepolygon($shadow, $points, 8, $colour);
         }
         for ($i = 0; $i <= STEPS; $i++) {
-            $t = ((1.0 * $i) / STEPS);
+            $t = 1.0 * $i / STEPS;
             $intensity = 255 * $t * $t;
             $colour = imagecolorallocate($shadow, $intensity, $intensity, $intensity);
-            imagefilledarc($shadow, $blurWidth - 1, $blurHeight - 1, 2 * (1 - $t) * $blurWidth, 2 * (1 - $t) * $blurHeight, 180, 268, $colour, IMG_ARC_PIE);
-            imagefilledarc($shadow, $width, $blurHeight - 1, 2 * (1 - $t) * $blurWidth, 2 * (1 - $t) * $blurHeight, 270, 358, $colour, IMG_ARC_PIE);
-            imagefilledarc($shadow, $width, $height, 2 * (1 - $t) * $blurWidth, 2 * (1 - $t) * $blurHeight, 0, 90, $colour, IMG_ARC_PIE);
-            imagefilledarc($shadow, $blurWidth - 1, $height, 2 * (1 - $t) * $blurWidth, 2 * (1 - $t) * $blurHeight, 90, 180, $colour, IMG_ARC_PIE);
+            imagefilledarc($shadow, $blur_width - 1, $blur_height - 1, 2 * (1 - $t) * $blur_width, 2 * (1 - $t) * $blur_height, 180, 268, $colour, IMG_ARC_PIE);
+            imagefilledarc($shadow, $width, $blur_height - 1, 2 * (1 - $t) * $blur_width, 2 * (1 - $t) * $blur_height, 270, 358, $colour, IMG_ARC_PIE);
+            imagefilledarc($shadow, $width, $height, 2 * (1 - $t) * $blur_width, 2 * (1 - $t) * $blur_height, 0, 90, $colour, IMG_ARC_PIE);
+            imagefilledarc($shadow, $blur_width - 1, $height, 2 * (1 - $t) * $blur_width, 2 * (1 - $t) * $blur_height, 90, 180, $colour, IMG_ARC_PIE);
         }
         $colour = imagecolorallocate($shadow, 255, 255, 255);
-        imagefilledrectangle($shadow, $blurWidth, $blurHeight, $width, $height, $colour);
-        imagefilledrectangle($shadow, $blurWidth * 0.5 - $distWidth, $blurHeight * 0.5 - $distHeight, $width + $blurWidth * 0.5 - 1 - $distWidth, $height + $blurHeight * 0.5 - 1 - $distHeight, $colour);
+        imagefilledrectangle($shadow, $blur_width, $blur_height, $width, $height, $colour);
+        imagefilledrectangle($shadow, $blur_width * 0.5 - $dist_width, $blur_height * 0.5 - $dist_height, $width + $blur_width * 0.5 - 1 - $dist_width, $height + $blur_height * 0.5 - 1 - $dist_height, $colour);
         imagealphablending($rgb, false);
-        for ($theX = 0; $theX < imagesx($rgb); $theX++) {
-            for ($theY = 0; $theY < imagesy($rgb); $theY++) {
-                $colArray = imagecolorat($rgb, $theX, $theY);
-                $r = ($colArray >> 16) & 0xFF;
-                $g = ($colArray >> 8) & 0xFF;
-                $b = $colArray & 0xFF;
-                $colArray = imagecolorat($shadow, $theX, $theY);
-                $a = $colArray & 0xFF;
+        for ($the_x = 0; $the_x < imagesx($rgb); $the_x++) {
+            for ($the_y = 0; $the_y < imagesy($rgb); $the_y++) {
+                $col_array = imagecolorat($rgb, $the_x, $the_y);
+                $r = $col_array >> 16 & 0xff;
+                $g = $col_array >> 8 & 0xff;
+                $b = $col_array & 0xff;
+                $col_array = imagecolorat($shadow, $the_x, $the_y);
+                $a = $col_array & 0xff;
                 $a = 127 - floor($a / 2);
                 $t = $a / 128.0;
-                if (fix_strtolower($bgColor) == 'transparent') {
-                    $myColour = imagecolorallocatealpha($rgb, $r, $g, $b, $a);
+                if (fix_strtolower($bg_color) == 'transparent') {
+                    $my_colour = imagecolorallocatealpha($rgb, $r, $g, $b, $a);
                 } else {
-                    $myColour = imagecolorallocate($rgb, $r * (1.0 - $t) + $r0 * $t, $g * (1.0 - $t) + $g0 * $t, $b * (1.0 - $t) + $b0 * $t);
+                    $my_colour = imagecolorallocate($rgb, $r * (1.0 - $t) + $r0 * $t, $g * (1.0 - $t) + $g0 * $t, $b * (1.0 - $t) + $b0 * $t);
                 }
-                imagesetpixel($rgb, $theX, $theY, $myColour);
+                imagesetpixel($rgb, $the_x, $the_y, $my_colour);
             }
         }
         imagealphablending($rgb, true);
         imagesavealpha($rgb, true);
-        $this->imageResized = $rgb;
+        $this->image_resized = $rgb;
         imagedestroy($image);
-        imagedestroy($newImage);
+        imagedestroy($new_image);
         imagedestroy($shadow);
     }
-
     /**
      * @param string $side
      * @param int $thickness
@@ -1116,20 +1045,19 @@ class imageLib
      * @param int $transaprencyAmount
      * @return void
      */
-    public function addCaptionBox($side = 'b', $thickness = 50, $padding = 0, $bgColor = '#000', $transaprencyAmount = 30)
+    public function add_caption_box($side = 'b', $thickness = 50, $padding = 0, $bg_color = '#000', $transaprency_amount = 30)
     {
         $side = fix_strtolower($side);
-        $rgbArray = $this->formatColor($bgColor);
-        $r = $rgbArray['r'];
-        $g = $rgbArray['g'];
-        $b = $rgbArray['b'];
-        $positionArray = $this->calculateCaptionBoxPosition($side, $thickness, $padding);
-        $this->captionBoxPositionArray = $positionArray;
-        $transaprencyAmount = $this->invertTransparency($transaprencyAmount, 127, false);
-        $transparent = imagecolorallocatealpha($this->imageResized, $r, $g, $b, $transaprencyAmount);
-        imagefilledrectangle($this->imageResized, $positionArray['x1'], $positionArray['y1'], $positionArray['x2'], $positionArray['y2'], $transparent);
+        $rgb_array = $this->format_color($bg_color);
+        $r = $rgb_array['r'];
+        $g = $rgb_array['g'];
+        $b = $rgb_array['b'];
+        $position_array = $this->calculate_caption_box_position($side, $thickness, $padding);
+        $this->caption_box_position_array = $position_array;
+        $transaprency_amount = $this->invert_transparency($transaprency_amount, 127, false);
+        $transparent = imagecolorallocatealpha($this->image_resized, $r, $g, $b, $transaprency_amount);
+        imagefilledrectangle($this->image_resized, $position_array['x1'], $position_array['y1'], $position_array['x2'], $position_array['y2'], $transparent);
     }
-
     /**
      * @param string $text
      * @param string $fontColor
@@ -1139,203 +1067,200 @@ class imageLib
      * @return void
      * @throws PrestaShopException
      */
-    public function addTextToCaptionBox($text, $fontColor = '#fff', $fontSize = 12, $angle = 0, $font = null)
+    public function add_text_to_caption_box($text, $font_color = '#fff', $font_size = 12, $angle = 0, $font = null)
     {
-        if (count($this->captionBoxPositionArray) == 4) {
-            $x1 = $this->captionBoxPositionArray['x1'];
-            $x2 = $this->captionBoxPositionArray['x2'];
-            $y1 = $this->captionBoxPositionArray['y1'];
-            $y2 = $this->captionBoxPositionArray['y2'];
+        if (count($this->caption_box_position_array) == 4) {
+            $x1 = $this->caption_box_position_array['x1'];
+            $x2 = $this->caption_box_position_array['x2'];
+            $y1 = $this->caption_box_position_array['y1'];
+            $y2 = $this->caption_box_position_array['y2'];
         } else {
-            throw new PrestaShopException('No caption box found.');
+            throw new Presta_Shop_Exception('No caption box found.');
         }
-        $font = $this->getTextFont($font);
-        $textSizeArray = $this->getTextSize($fontSize, $angle, $font, $text);
-        $textWidth = $textSizeArray['width'];
-        $textHeight = $textSizeArray['height'];
-        $boxXMiddle = (($x2 - $x1) / 2);
-        $boxYMiddle = (($y2 - $y1) / 2);
-        $xPos = ($x1 + $boxXMiddle) - ($textWidth / 2);
-        $yPos = ($y1 + $boxYMiddle) - ($textHeight / 2);
-        $pos = $xPos.'x'.$yPos;
-        $this->addText($text, $pos, 0, $fontColor, $fontSize, $angle, $font);
+        $font = $this->get_text_font($font);
+        $text_size_array = $this->get_text_size($font_size, $angle, $font, $text);
+        $text_width = $text_size_array['width'];
+        $text_height = $text_size_array['height'];
+        $box_x_middle = ($x2 - $x1) / 2;
+        $box_y_middle = ($y2 - $y1) / 2;
+        $x_pos = $x1 + $box_x_middle - $text_width / 2;
+        $y_pos = $y1 + $box_y_middle - $text_height / 2;
+        $pos = $x_pos . 'x' . $y_pos;
+        $this->add_text($text, $pos, 0, $font_color, $font_size, $angle, $font);
     }
-
     /**
      * @param string $side
      * @param int $thickness
      * @param int $padding
      * @return array
      */
-    private function calculateCaptionBoxPosition($side, $thickness, $padding)
+    private function calculate_caption_box_position($side, $thickness, $padding)
     {
-        $positionArray = [];
+        $position_array = [];
         switch ($side) {
             case 't':
-                $positionArray['x1'] = 0;
-                $positionArray['y1'] = $padding;
-                $positionArray['x2'] = $this->width;
-                $positionArray['y2'] = $thickness + $padding;
+                $position_array['x1'] = 0;
+                $position_array['y1'] = $padding;
+                $position_array['x2'] = $this->width;
+                $position_array['y2'] = $thickness + $padding;
                 break;
             case 'r':
-                $positionArray['x1'] = $this->width - $thickness - $padding;
-                $positionArray['y1'] = 0;
-                $positionArray['x2'] = $this->width - $padding;
-                $positionArray['y2'] = $this->height;
+                $position_array['x1'] = $this->width - $thickness - $padding;
+                $position_array['y1'] = 0;
+                $position_array['x2'] = $this->width - $padding;
+                $position_array['y2'] = $this->height;
                 break;
             case 'b':
-                $positionArray['x1'] = 0;
-                $positionArray['y1'] = $this->height - $thickness - $padding;
-                $positionArray['x2'] = $this->width;
-                $positionArray['y2'] = $this->height - $padding;
+                $position_array['x1'] = 0;
+                $position_array['y1'] = $this->height - $thickness - $padding;
+                $position_array['x2'] = $this->width;
+                $position_array['y2'] = $this->height - $padding;
                 break;
             case 'l':
-                $positionArray['x1'] = $padding;
-                $positionArray['y1'] = 0;
-                $positionArray['x2'] = $thickness + $padding;
-                $positionArray['y2'] = $this->height;
+                $position_array['x1'] = $padding;
+                $position_array['y1'] = 0;
+                $position_array['x2'] = $thickness + $padding;
+                $position_array['y2'] = $this->height;
                 break;
             default:
                 break;
         }
-        return $positionArray;
+        return $position_array;
     }
-
     /**
      * @param bool $debug
      * @return array
      */
-    public function getExif($debug = false)
+    public function get_exif($debug = false)
     {
-        if (!$this->testEXIFInstalled()) {
+        if (!$this->test_exif_installed()) {
             return [];
         }
-        if (!file_exists($this->fileName)) {
+        if (!file_exists($this->file_name)) {
             return [];
         }
-        if ($this->fileExtension != '.jpg') {
+        if ($this->file_extension != '.jpg') {
             return [];
         }
-        $exifData = exif_read_data($this->fileName, 'IFD0');
-        $ev = $exifData['ApertureValue'];
-        $apPeicesArray = explode('/', $ev);
-        if (count($apPeicesArray) == 2) {
-            $apertureValue = round($apPeicesArray[0] / $apPeicesArray[1], 2, PHP_ROUND_HALF_DOWN).' EV';
+        $exif_data = exif_read_data($this->file_name, 'IFD0');
+        $ev = $exif_data['ApertureValue'];
+        $ap_peices_array = explode('/', $ev);
+        if (count($ap_peices_array) == 2) {
+            $aperture_value = round($ap_peices_array[0] / $ap_peices_array[1], 2, PHP_ROUND_HALF_DOWN) . ' EV';
         } else {
-            $apertureValue = '';
+            $aperture_value = '';
         }
-        $focalLength = $exifData['FocalLength'];
-        $flPeicesArray = explode('/', $focalLength);
-        if (count($flPeicesArray) == 2) {
-            $focalLength = $flPeicesArray[0] / $flPeicesArray[1].'.0 mm';
+        $focal_length = $exif_data['FocalLength'];
+        $fl_peices_array = explode('/', $focal_length);
+        if (count($fl_peices_array) == 2) {
+            $focal_length = $fl_peices_array[0] / $fl_peices_array[1] . '.0 mm';
         } else {
-            $focalLength = '';
+            $focal_length = '';
         }
-        $fNumber = $exifData['FNumber'];
-        $fnPeicesArray = explode('/', $fNumber);
-        if (count($fnPeicesArray) == 2) {
-            $fNumber = $fnPeicesArray[0] / $fnPeicesArray[1];
+        $f_number = $exif_data['FNumber'];
+        $fn_peices_array = explode('/', $f_number);
+        if (count($fn_peices_array) == 2) {
+            $f_number = $fn_peices_array[0] / $fn_peices_array[1];
         } else {
-            $fNumber = '';
+            $f_number = '';
         }
-        if (isset($exifData['ExposureProgram'])) {
-            $ep = $exifData['ExposureProgram'];
+        if (isset($exif_data['ExposureProgram'])) {
+            $ep = $exif_data['ExposureProgram'];
         }
         if (isset($ep)) {
-            $ep = $this->resolveExposureProgram($ep);
+            $ep = $this->resolve_exposure_program($ep);
         }
-        $mm = $exifData['MeteringMode'];
-        $mm = $this->resolveMeteringMode($mm);
-        $flash = $exifData['Flash'];
-        $flash = $this->resolveFlash($flash);
-        if (isset($exifData['Make'])) {
-            $exifDataArray['make'] = $exifData['Make'];
+        $mm = $exif_data['MeteringMode'];
+        $mm = $this->resolve_metering_mode($mm);
+        $flash = $exif_data['Flash'];
+        $flash = $this->resolve_flash($flash);
+        if (isset($exif_data['Make'])) {
+            $exif_data_array['make'] = $exif_data['Make'];
         } else {
-            $exifDataArray['make'] = '';
+            $exif_data_array['make'] = '';
         }
-        if (isset($exifData['Model'])) {
-            $exifDataArray['model'] = $exifData['Model'];
+        if (isset($exif_data['Model'])) {
+            $exif_data_array['model'] = $exif_data['Model'];
         } else {
-            $exifDataArray['model'] = '';
+            $exif_data_array['model'] = '';
         }
-        if (isset($exifData['DateTime'])) {
-            $exifDataArray['date'] = $exifData['DateTime'];
+        if (isset($exif_data['DateTime'])) {
+            $exif_data_array['date'] = $exif_data['DateTime'];
         } else {
-            $exifDataArray['date'] = '';
+            $exif_data_array['date'] = '';
         }
-        if (isset($exifData['ExposureTime'])) {
-            $exifDataArray['exposure time'] = $exifData['ExposureTime'].' sec.';
+        if (isset($exif_data['ExposureTime'])) {
+            $exif_data_array['exposure time'] = $exif_data['ExposureTime'] . ' sec.';
         } else {
-            $exifDataArray['exposure time'] = '';
+            $exif_data_array['exposure time'] = '';
         }
-        if ($apertureValue != '') {
-            $exifDataArray['aperture value'] = $apertureValue;
+        if ($aperture_value != '') {
+            $exif_data_array['aperture value'] = $aperture_value;
         } else {
-            $exifDataArray['aperture value'] = '';
+            $exif_data_array['aperture value'] = '';
         }
-        if (isset($exifData['COMPUTED']['ApertureFNumber'])) {
-            $exifDataArray['f-stop'] = $exifData['COMPUTED']['ApertureFNumber'];
+        if (isset($exif_data['COMPUTED']['ApertureFNumber'])) {
+            $exif_data_array['f-stop'] = $exif_data['COMPUTED']['ApertureFNumber'];
         } else {
-            $exifDataArray['f-stop'] = '';
+            $exif_data_array['f-stop'] = '';
         }
-        if (isset($exifData['FNumber'])) {
-            $exifDataArray['fnumber'] = $exifData['FNumber'];
+        if (isset($exif_data['FNumber'])) {
+            $exif_data_array['fnumber'] = $exif_data['FNumber'];
         } else {
-            $exifDataArray['fnumber'] = '';
+            $exif_data_array['fnumber'] = '';
         }
-        if ($fNumber != '') {
-            $exifDataArray['fnumber value'] = $fNumber;
+        if ($f_number != '') {
+            $exif_data_array['fnumber value'] = $f_number;
         } else {
-            $exifDataArray['fnumber value'] = '';
+            $exif_data_array['fnumber value'] = '';
         }
-        if (isset($exifData['ISOSpeedRatings'])) {
-            $exifDataArray['iso'] = $exifData['ISOSpeedRatings'];
+        if (isset($exif_data['ISOSpeedRatings'])) {
+            $exif_data_array['iso'] = $exif_data['ISOSpeedRatings'];
         } else {
-            $exifDataArray['iso'] = '';
+            $exif_data_array['iso'] = '';
         }
-        if ($focalLength != '') {
-            $exifDataArray['focal length'] = $focalLength;
+        if ($focal_length != '') {
+            $exif_data_array['focal length'] = $focal_length;
         } else {
-            $exifDataArray['focal length'] = '';
+            $exif_data_array['focal length'] = '';
         }
         if (isset($ep)) {
-            $exifDataArray['exposure program'] = $ep;
+            $exif_data_array['exposure program'] = $ep;
         } else {
-            $exifDataArray['exposure program'] = '';
+            $exif_data_array['exposure program'] = '';
         }
         if ($mm != '') {
-            $exifDataArray['metering mode'] = $mm;
+            $exif_data_array['metering mode'] = $mm;
         } else {
-            $exifDataArray['metering mode'] = '';
+            $exif_data_array['metering mode'] = '';
         }
         if ($flash != '') {
-            $exifDataArray['flash status'] = $flash;
+            $exif_data_array['flash status'] = $flash;
         } else {
-            $exifDataArray['flash status'] = '';
+            $exif_data_array['flash status'] = '';
         }
-        if (isset($exifData['Artist'])) {
-            $exifDataArray['creator'] = $exifData['Artist'];
+        if (isset($exif_data['Artist'])) {
+            $exif_data_array['creator'] = $exif_data['Artist'];
         } else {
-            $exifDataArray['creator'] = '';
+            $exif_data_array['creator'] = '';
         }
-        if (isset($exifData['Copyright'])) {
-            $exifDataArray['copyright'] = $exifData['Copyright'];
+        if (isset($exif_data['Copyright'])) {
+            $exif_data_array['copyright'] = $exif_data['Copyright'];
         } else {
-            $exifDataArray['copyright'] = '';
+            $exif_data_array['copyright'] = '';
         }
-        if (isset($exifData['Orientation'])) {
-            $exifDataArray['orientation'] = $exifData['Orientation'];
+        if (isset($exif_data['Orientation'])) {
+            $exif_data_array['orientation'] = $exif_data['Orientation'];
         } else {
-            $exifDataArray['orientation'] = '';
+            $exif_data_array['orientation'] = '';
         }
-        return $exifDataArray;
+        return $exif_data_array;
     }
-
     /**
      * @param int $ep
      * @return int|string
      */
-    private function resolveExposureProgram($ep)
+    private function resolve_exposure_program($ep)
     {
         switch ($ep) {
             case 0:
@@ -1370,12 +1295,11 @@ class imageLib
         }
         return $ep;
     }
-
     /**
      * @param int $mm
      * @return int|string
      */
-    private function resolveMeteringMode($mm)
+    private function resolve_metering_mode($mm)
     {
         switch ($mm) {
             case 0:
@@ -1407,12 +1331,11 @@ class imageLib
         }
         return $mm;
     }
-
     /**
      * @param int $flash
      * @return int|string
      */
-    private function resolveFlash($flash)
+    private function resolve_flash($flash)
     {
         switch ($flash) {
             case 0:
@@ -1486,36 +1409,32 @@ class imageLib
         }
         return $flash;
     }
-
     /**
      * @param string $value
      * @return void
      */
-    public function writeIPTCcaption($value)
+    public function write_ipt_ccaption($value)
     {
-        $this->writeIPTC(120, $value);
+        $this->write_iptc(120, $value);
     }
-
     /**
      * @param string $value
      * @return void
      */
-    public function writeIPTCwriter($value)
+    public function write_ipt_cwriter($value)
     {
     }
-
     /**
      * @param int $dat
      * @param string $value
      * @return void
      */
-    private function writeIPTC($dat, $value)
+    private function write_iptc($dat, $value)
     {
         $caption_block = $this->iptc_maketag(2, $dat, $value);
-        $image_string = iptcembed($caption_block, $this->fileName);
+        $image_string = iptcembed($caption_block, $this->file_name);
         file_put_contents('iptc.jpg', $image_string);
     }
-
     /**
      * @param int $rec
      * @param int $dat
@@ -1526,21 +1445,11 @@ class imageLib
     {
         $len = strlen($val);
         if ($len < 0x8000) {
-            return chr(0x1c).chr($rec).chr($dat).
-                chr($len >> 8).
-                chr($len & 0xff).
-                $val;
+            return chr(0x1c) . chr($rec) . chr($dat) . chr($len >> 8) . chr($len & 0xff) . $val;
         } else {
-            return chr(0x1c).chr($rec).chr($dat).
-                chr(0x80).chr(0x04).
-                chr(($len >> 24) & 0xff).
-                chr(($len >> 16) & 0xff).
-                chr(($len >> 8) & 0xff).
-                chr(($len) & 0xff).
-                $val;
+            return chr(0x1c) . chr($rec) . chr($dat) . chr(0x80) . chr(0x4) . chr($len >> 24 & 0xff) . chr($len >> 16 & 0xff) . chr($len >> 8 & 0xff) . chr($len & 0xff) . $val;
         }
     }
-
     /**
      * @param string $text
      * @param string $pos
@@ -1552,41 +1461,39 @@ class imageLib
      * @return void
      * @throws PrestaShopException
      */
-    public function addText($text, $pos = '20x20', $padding = 0, $fontColor = '#fff', $fontSize = 12, $angle = 0, $font = null)
+    public function add_text($text, $pos = '20x20', $padding = 0, $font_color = '#fff', $font_size = 12, $angle = 0, $font = null)
     {
-        $rgbArray = $this->formatColor($fontColor);
-        $r = $rgbArray['r'];
-        $g = $rgbArray['g'];
-        $b = $rgbArray['b'];
-        $font = $this->getTextFont($font);
-        $textSizeArray = $this->getTextSize($fontSize, $angle, $font, $text);
-        $textWidth = $textSizeArray['width'];
-        $textHeight = $textSizeArray['height'];
-        $posArray = $this->calculatePosition($pos, $padding, $textWidth, $textHeight, false);
-        $x = $posArray['width'];
-        $y = $posArray['height'];
-        $fontColor = imagecolorallocate($this->imageResized, $r, $g, $b);
-        imagettftext($this->imageResized, $fontSize, $angle, $x, $y, $fontColor, $font, $text);
+        $rgb_array = $this->format_color($font_color);
+        $r = $rgb_array['r'];
+        $g = $rgb_array['g'];
+        $b = $rgb_array['b'];
+        $font = $this->get_text_font($font);
+        $text_size_array = $this->get_text_size($font_size, $angle, $font, $text);
+        $text_width = $text_size_array['width'];
+        $text_height = $text_size_array['height'];
+        $pos_array = $this->calculate_position($pos, $padding, $text_width, $text_height, false);
+        $x = $pos_array['width'];
+        $y = $pos_array['height'];
+        $font_color = imagecolorallocate($this->image_resized, $r, $g, $b);
+        imagettftext($this->image_resized, $font_size, $angle, $x, $y, $font_color, $font, $text);
     }
-
     /**
      * @param string $font
      * @return string
      * @throws PrestaShopException
      */
-    private function getTextFont($font)
+    private function get_text_font($font)
     {
-        $fontPath = dirname(__FILE__).'/'.$this->fontDir;
-        putenv('GDFONTPATH='.realpath('.'));
+        $font_path = dirname(__FILE__) . '/' . $this->font_dir;
+        putenv('GDFONTPATH=' . realpath('.'));
         if ($font == null || !file_exists($font)) {
-            $font = $fontPath.'/arimo.ttf';
+            $font = $font_path . '/arimo.ttf';
             if (!file_exists($font)) {
-                throw new PrestaShopException('Font not found');
+                throw new Presta_Shop_Exception('Font not found');
             }
         }
         return $font;
     }
-
     /**
      * @param int $fontSize
      * @param int $angle
@@ -1594,14 +1501,13 @@ class imageLib
      * @param string $text
      * @return array
      */
-    private function getTextSize($fontSize, $angle, $font, $text)
+    private function get_text_size($font_size, $angle, $font, $text)
     {
-        $box = @imageTTFBbox($fontSize, $angle, $font, $text);
-        $textWidth = abs($box[4] - $box[0]);
-        $textHeight = abs($box[5] - $box[1]);
-        return ['height' => $textHeight, 'width' => $textWidth];
+        $box = @image_ttf_bbox($font_size, $angle, $font, $text);
+        $text_width = abs($box[4] - $box[0]);
+        $text_height = abs($box[5] - $box[1]);
+        return ['height' => $text_height, 'width' => $text_width];
     }
-
     /**
      * @param string $watermarkImage
      * @param string $pos
@@ -1610,22 +1516,21 @@ class imageLib
      * @return void
      * @throws PrestaShopException
      */
-    public function addWatermark($watermarkImage, $pos, $padding = 0, $opacity = 0)
+    public function add_watermark($watermark_image, $pos, $padding = 0, $opacity = 0)
     {
-        $stamp = $this->openImage($watermarkImage);
-        $im = $this->imageResized;
+        $stamp = $this->open_image($watermark_image);
+        $im = $this->image_resized;
         $sx = imagesx($stamp);
         $sy = imagesy($stamp);
-        $posArray = $this->calculatePosition($pos, $padding, $sx, $sy);
-        $x = $posArray['width'];
-        $y = $posArray['height'];
-        if (fix_strtolower(strrchr($watermarkImage, '.')) == '.png') {
-            $opacity = $this->invertTransparency($opacity, 100);
-            $this->filterOpacity($stamp, $opacity);
+        $pos_array = $this->calculate_position($pos, $padding, $sx, $sy);
+        $x = $pos_array['width'];
+        $y = $pos_array['height'];
+        if (fix_strtolower(strrchr($watermark_image, '.')) == '.png') {
+            $opacity = $this->invert_transparency($opacity, 100);
+            $this->filter_opacity($stamp, $opacity);
         }
         imagecopy($im, $stamp, $x, $y, 0, 0, imagesx($stamp), imagesy($stamp));
     }
-
     /**
      * @param string $pos
      * @param int $padding
@@ -1634,13 +1539,13 @@ class imageLib
      * @param bool $upperLeft
      * @return array
      */
-    private function calculatePosition($pos, $padding, $assetWidth, $assetHeight, $upperLeft = true)
+    private function calculate_position($pos, $padding, $asset_width, $asset_height, $upper_left = true)
     {
         $pos = fix_strtolower($pos);
         if (strstr($pos, 'x')) {
             $pos = str_replace(' ', '', $pos);
-            $xyArray = explode('x', $pos);
-            list($width, $height) = $xyArray;
+            $xy_array = explode('x', $pos);
+            list($width, $height) = $xy_array;
         } else {
             switch ($pos) {
                 case 'tl':
@@ -1648,36 +1553,36 @@ class imageLib
                     $height = 0 + $padding;
                     break;
                 case 't':
-                    $width = ($this->width / 2) - ($assetWidth / 2);
+                    $width = $this->width / 2 - $asset_width / 2;
                     $height = 0 + $padding;
                     break;
                 case 'tr':
-                    $width = $this->width - $assetWidth - $padding;
+                    $width = $this->width - $asset_width - $padding;
                     $height = 0 + $padding;
                     break;
                 case 'l':
                     $width = 0 + $padding;
-                    $height = ($this->height / 2) - ($assetHeight / 2);
+                    $height = $this->height / 2 - $asset_height / 2;
                     break;
                 case 'm':
-                    $width = ($this->width / 2) - ($assetWidth / 2);
-                    $height = ($this->height / 2) - ($assetHeight / 2);
+                    $width = $this->width / 2 - $asset_width / 2;
+                    $height = $this->height / 2 - $asset_height / 2;
                     break;
                 case 'r':
-                    $width = $this->width - $assetWidth - $padding;
-                    $height = ($this->height / 2) - ($assetHeight / 2);
+                    $width = $this->width - $asset_width - $padding;
+                    $height = $this->height / 2 - $asset_height / 2;
                     break;
                 case 'bl':
                     $width = 0 + $padding;
-                    $height = $this->height - $assetHeight - $padding;
+                    $height = $this->height - $asset_height - $padding;
                     break;
                 case 'b':
-                    $width = ($this->width / 2) - ($assetWidth / 2);
-                    $height = $this->height - $assetHeight - $padding;
+                    $width = $this->width / 2 - $asset_width / 2;
+                    $height = $this->height - $asset_height - $padding;
                     break;
                 case 'br':
-                    $width = $this->width - $assetWidth - $padding;
-                    $height = $this->height - $assetHeight - $padding;
+                    $width = $this->width - $asset_width - $padding;
+                    $height = $this->height - $asset_height - $padding;
                     break;
                 default:
                     $width = 0;
@@ -1685,17 +1590,16 @@ class imageLib
                     break;
             }
         }
-        if (!$upperLeft) {
-            $height = $height + $assetHeight;
+        if (!$upper_left) {
+            $height = $height + $asset_height;
         }
         return ['width' => $width, 'height' => $height];
     }
-
     /**
      * @param GdImage $img
      * @param int $opacity
      */
-    private function filterOpacity($img, $opacity = 75)
+    private function filter_opacity($img, $opacity = 75)
     {
         if (!isset($opacity)) {
             return;
@@ -1710,7 +1614,7 @@ class imageLib
         $minalpha = 127;
         for ($x = 0; $x < $w; $x++) {
             for ($y = 0; $y < $h; $y++) {
-                $alpha = (imagecolorat($img, $x, $y) >> 24) & 0xFF;
+                $alpha = imagecolorat($img, $x, $y) >> 24 & 0xff;
                 if ($alpha < $minalpha) {
                     $minalpha = $alpha;
                 }
@@ -1719,27 +1623,26 @@ class imageLib
         for ($x = 0; $x < $w; $x++) {
             for ($y = 0; $y < $h; $y++) {
                 $colorxy = imagecolorat($img, $x, $y);
-                $alpha = ($colorxy >> 24) & 0xFF;
+                $alpha = $colorxy >> 24 & 0xff;
                 if ($minalpha !== 127) {
                     $alpha = 127 + 127 * $opacity * ($alpha - 127) / (127 - $minalpha);
                 } else {
                     $alpha += 127 * $opacity;
                 }
-                $alphacolorxy = imagecolorallocatealpha($img, ($colorxy >> 16) & 0xFF, ($colorxy >> 8) & 0xFF, $colorxy & 0xFF, $alpha);
+                $alphacolorxy = imagecolorallocatealpha($img, $colorxy >> 16 & 0xff, $colorxy >> 8 & 0xff, $colorxy & 0xff, $alpha);
                 imagesetpixel($img, $x, $y, $alphacolorxy);
             }
         }
     }
-
     /**
      * @param string $file
      * @return false|GdImage|resource
      * @throws PrestaShopException
      */
-    private function openImage($file)
+    private function open_image($file)
     {
-        if (!file_exists($file) && !$this->checkStringStartsWith('http://', $file) && !$this->checkStringStartsWith('https://', $file)) {
-            throw new PrestaShopException('Image not found.');
+        if (!file_exists($file) && !$this->check_string_starts_with('http://', $file) && !$this->check_string_starts_with('https://', $file)) {
+            throw new Presta_Shop_Exception('Image not found.');
         }
         $extension = mime_content_type($file);
         $extension = fix_strtolower($extension);
@@ -1753,9 +1656,7 @@ class imageLib
                 $img = @imagecreatefromwebp($file);
                 break;
             case 'avif':
-                $img = function_exists('imagecreatefromavif')
-                    ? imagecreatefromavif($file)
-                    : false;
+                $img = function_exists('imagecreatefromavif') ? imagecreatefromavif($file) : false;
                 break;
             case 'gif':
                 $img = @imagecreatefromgif($file);
@@ -1773,125 +1674,122 @@ class imageLib
         }
         return $img;
     }
-
     /**
      * @return void
      * @throws PrestaShopException
      */
     public function reset()
     {
-        $this->__construct($this->fileName);
+        $this->__construct($this->file_name);
     }
-
     /**
      * @param string $savePath
      * @param int $imageQuality
      * @return void
      * @throws PrestaShopException
      */
-    public function saveImage($savePath, $imageQuality = 100)
+    public function save_image($save_path, $image_quality = 100)
     {
-        if (! static::isImageResource($this->imageResized)) {
-            throw new PrestaShopException('saveImage: This is not a resource.');
+        if (!static::is_image_resource($this->image_resized)) {
+            throw new Presta_Shop_Exception('saveImage: This is not a resource.');
         }
-        $fileInfoArray = pathInfo($savePath);
+        $file_info_array = path_info($save_path);
         clearstatcache();
-        if (!is_writable($fileInfoArray['dirname'])) {
-            throw new PrestaShopException('The path is not writable. Please check your permissions.');
+        if (!is_writable($file_info_array['dirname'])) {
+            throw new Presta_Shop_Exception('The path is not writable. Please check your permissions.');
         }
-        $extension = strrchr($savePath, '.');
+        $extension = strrchr($save_path, '.');
         $extension = fix_strtolower($extension);
         $error = '';
         switch ($extension) {
             case '.jpg':
             case '.jpeg':
-                $this->checkInterlaceImage($this->isInterlace);
+                $this->check_interlace_image($this->is_interlace);
                 if (imagetypes() & IMG_JPG) {
-                    imagejpeg($this->imageResized, $savePath, $imageQuality);
+                    imagejpeg($this->image_resized, $save_path, $image_quality);
                 } else {
                     $error = 'jpg';
                 }
                 break;
             case '.webp':
                 if (imagetypes() & IMG_WEBP) {
-                    imagewebp($this->imageResized, $savePath, $imageQuality);
+                    imagewebp($this->image_resized, $save_path, $image_quality);
                 } else {
                     $error = 'webp';
                 }
                 break;
             case '.avif':
-                if (defined('IMG_AVIF') && (imagetypes() & IMG_AVIF) && function_exists('imageavif')) {
-                    imageavif($this->imageResized, $savePath, $imageQuality);
+                if (defined('IMG_AVIF') && imagetypes() & IMG_AVIF && function_exists('imageavif')) {
+                    imageavif($this->image_resized, $save_path, $image_quality);
                 } else {
                     $error = 'avif';
                 }
                 break;
             case '.gif':
-                $this->checkInterlaceImage($this->isInterlace);
+                $this->check_interlace_image($this->is_interlace);
                 if (imagetypes() & IMG_GIF) {
-                    imagegif($this->imageResized, $savePath);
+                    imagegif($this->image_resized, $save_path);
                 } else {
                     $error = 'gif';
                 }
                 break;
             case '.png':
-                $scaleQuality = round(($imageQuality / 100) * 9);
-                $invertScaleQuality = 9 - $scaleQuality;
-                $this->checkInterlaceImage($this->isInterlace);
+                $scale_quality = round($image_quality / 100 * 9);
+                $invert_scale_quality = 9 - $scale_quality;
+                $this->check_interlace_image($this->is_interlace);
                 if (imagetypes() & IMG_PNG) {
-                    imagepng($this->imageResized, $savePath, $invertScaleQuality);
+                    imagepng($this->image_resized, $save_path, $invert_scale_quality);
                 } else {
                     $error = 'png';
                 }
                 break;
             case '.bmp':
-                file_put_contents($savePath, $this->GD2BMPstring($this->imageResized));
+                file_put_contents($save_path, $this->gd2bm_pstring($this->image_resized));
                 break;
             default:
-                $this->errorArray[] = 'This file type ('.$extension.') is not supported. File not saved.';
+                $this->error_array[] = 'This file type (' . $extension . ') is not supported. File not saved.';
                 break;
         }
         if ($error != '') {
-            $this->errorArray[] = $error.' support is NOT enabled. File not saved.';
+            $this->error_array[] = $error . ' support is NOT enabled. File not saved.';
         }
     }
-
     /**
      * @param string $fileType
      * @param int $imageQuality
      * @return void
      * @throws PrestaShopException
      */
-    public function displayImage($fileType = 'jpg', $imageQuality = 100)
+    public function display_image($file_type = 'jpg', $image_quality = 100)
     {
-        if (! static::isImageResource($this->imageResized)) {
-            throw new PrestaShopException('saveImage: This is not a resource.');
+        if (!static::is_image_resource($this->image_resized)) {
+            throw new Presta_Shop_Exception('saveImage: This is not a resource.');
         }
-        switch ($fileType) {
+        switch ($file_type) {
             case 'jpg':
             case 'jpeg':
                 header('Content-type: image/jpeg');
-                imagejpeg($this->imageResized, '', $imageQuality);
+                imagejpeg($this->image_resized, '', $image_quality);
                 break;
             case 'webp':
                 header('Content-type: image/webp');
-                imagewebp($this->imageResized, '', $imageQuality);
+                imagewebp($this->image_resized, '', $image_quality);
                 break;
             case 'avif':
                 if (function_exists('imageavif')) {
                     header('Content-type: image/avif');
-                    imageavif($this->imageResized, '', $imageQuality);
+                    imageavif($this->image_resized, '', $image_quality);
                 }
                 break;
             case 'gif':
                 header('Content-type: image/gif');
-                imagegif($this->imageResized);
+                imagegif($this->image_resized);
                 break;
             case 'png':
                 header('Content-type: image/png');
-                $scaleQuality = round(($imageQuality / 100) * 9);
-                $invertScaleQuality = 9 - $scaleQuality;
-                imagepng($this->imageResized, '', $invertScaleQuality);
+                $scale_quality = round($image_quality / 100 * 9);
+                $invert_scale_quality = 9 - $scale_quality;
+                imagepng($this->image_resized, '', $invert_scale_quality);
                 break;
             case 'bmp':
                 echo 'bmp file format is not supported.';
@@ -1900,191 +1798,166 @@ class imageLib
                 break;
         }
     }
-
     /**
      * @param bool $bool
      * @return void
      */
-    public function setTransparency($bool)
+    public function set_transparency($bool)
     {
-        $this->keepTransparency = $bool;
+        $this->keep_transparency = $bool;
     }
-
     /**
      * @param string|array $value
      * @return void
      */
-    public function setFillColor($value)
+    public function set_fill_color($value)
     {
-        $colorArray = $this->formatColor($value);
-        $this->fillColorArray = $colorArray;
+        $color_array = $this->format_color($value);
+        $this->fill_color_array = $color_array;
     }
-
     /**
      * @param int $value
      * @return void
      */
-    public function setCropFromTop($value)
+    public function set_crop_from_top($value)
     {
-        $this->cropFromTopPercent = $value;
+        $this->crop_from_top_percent = $value;
     }
-
     /**
      * @return bool
      */
-    public function testGDInstalled()
+    public function test_gd_installed()
     {
         if (extension_loaded('gd') && function_exists('gd_info')) {
-            $gdInstalled = true;
+            $gd_installed = true;
         } else {
-            $gdInstalled = false;
+            $gd_installed = false;
         }
-        return $gdInstalled;
+        return $gd_installed;
     }
-
     /**
      * @return bool
      */
-    public function testEXIFInstalled()
+    public function test_exif_installed()
     {
         if (extension_loaded('exif')) {
-            $exifInstalled = true;
+            $exif_installed = true;
         } else {
-            $exifInstalled = false;
+            $exif_installed = false;
         }
-        return $exifInstalled;
+        return $exif_installed;
     }
-
     /**
      * @param GdImage $image
      * @return bool
      */
-    public function testIsImage($image)
+    public function test_is_image($image)
     {
         if ($image) {
-            $fileIsImage = true;
+            $file_is_image = true;
         } else {
-            $fileIsImage = false;
+            $file_is_image = false;
         }
-        return $fileIsImage;
+        return $file_is_image;
     }
-
     /**
      * @return void
      */
-    public function testFunct()
+    public function test_funct()
     {
         echo $this->height;
     }
-
     /**
      * @param bool $value
      * @return void
      */
-    public function setForceStretch($value)
+    public function set_force_stretch($value)
     {
-        $this->forceStretch = $value;
+        $this->force_stretch = $value;
     }
-
     /**
      * @param string $fileName
      * @return void
      * @throws PrestaShopException
      */
-    public function setFile($fileName)
+    public function set_file($file_name)
     {
-        self::__construct($fileName);
+        self::__construct($file_name);
     }
-
     /**
      * @return string
      */
-    public function getFileName()
+    public function get_file_name()
     {
-        return $this->fileName;
+        return $this->file_name;
     }
-
     /**
      * @return false|int
      */
-    public function getHeight()
+    public function get_height()
     {
         return $this->height;
     }
-
     /**
      * @return false|int
      */
-    public function getWidth()
+    public function get_width()
     {
         return $this->width;
     }
-
     /**
      * @return false|int
      */
-    public function getOriginalHeight()
+    public function get_original_height()
     {
-        return $this->heightOriginal;
+        return $this->height_original;
     }
-
     /**
      * @return false|int
      */
-    public function getOriginalWidth()
+    public function get_original_width()
     {
-        return $this->widthOriginal;
+        return $this->width_original;
     }
-
     /**
      * @return array
      */
-    public function getErrors()
+    public function get_errors()
     {
-        return $this->errorArray;
+        return $this->error_array;
     }
-
     /**
      * @param bool $isEnabled
      * @return void
      */
-    private function checkInterlaceImage($isEnabled)
+    private function check_interlace_image($is_enabled)
     {
-        if ($isEnabled) {
-            imageinterlace($this->imageResized, $isEnabled);
+        if ($is_enabled) {
+            imageinterlace($this->image_resized, $is_enabled);
         }
     }
-
     /**
      * @param string|array $value
      * @return array
      */
-    protected function formatColor($value)
+    protected function format_color($value)
     {
-        $rgbArray = [];
+        $rgb_array = [];
         if (is_array($value)) {
             if (key($value) == 0 && count($value) == 3) {
-                $rgbArray['r'] = $value[0];
-                $rgbArray['g'] = $value[1];
-                $rgbArray['b'] = $value[2];
+                $rgb_array['r'] = $value[0];
+                $rgb_array['g'] = $value[1];
+                $rgb_array['b'] = $value[2];
             } else {
-                $rgbArray = $value;
+                $rgb_array = $value;
             }
+        } else if (fix_strtolower($value) == 'transparent') {
+            $rgb_array = ['r' => 255, 'g' => 255, 'b' => 255, 'a' => 127];
         } else {
-            if (fix_strtolower($value) == 'transparent') {
-                $rgbArray = [
-                    'r' => 255,
-                    'g' => 255,
-                    'b' => 255,
-                    'a' => 127,
-                ];
-            } else {
-                $rgbArray = $this->hex2dec($value);
-            }
+            $rgb_array = $this->hex2dec($value);
         }
-        return $rgbArray;
+        return $rgb_array;
     }
-
     /**
      * @param string $hex
      * @return array
@@ -2093,84 +1966,75 @@ class imageLib
     {
         $color = str_replace('#', '', $hex);
         if (strlen($color) == 3) {
-            $color = $color.$color;
+            $color = $color . $color;
         }
-        $rgb = [
-            'r' => hexdec(substr($color, 0, 2)),
-            'g' => hexdec(substr($color, 2, 2)),
-            'b' => hexdec(substr($color, 4, 2)),
-            'a' => 0,
-        ];
+        $rgb = ['r' => hexdec(substr($color, 0, 2)), 'g' => hexdec(substr($color, 2, 2)), 'b' => hexdec(substr($color, 4, 2)), 'a' => 0];
         return $rgb;
     }
-
     /**
      * @param array $colorArray
      * @return bool
      */
-    private function testColorExists($colorArray)
+    private function test_color_exists($color_array)
     {
-        $r = $colorArray['r'];
-        $g = $colorArray['g'];
-        $b = $colorArray['b'];
-        if (imagecolorexact($this->imageResized, $r, $g, $b) == -1) {
+        $r = $color_array['r'];
+        $g = $color_array['g'];
+        $b = $color_array['b'];
+        if (imagecolorexact($this->image_resized, $r, $g, $b) == -1) {
             return false;
         } else {
             return true;
         }
     }
-
     /**
      * @return int[]
      */
-    private function findUnusedGreen()
+    private function find_unused_green()
     {
         $green = 255;
         do {
-            $greenChroma = [0, $green, 0];
-            $colorArray = $this->formatColor($greenChroma);
-            $match = $this->testColorExists($colorArray);
+            $green_chroma = [0, $green, 0];
+            $color_array = $this->format_color($green_chroma);
+            $match = $this->test_color_exists($color_array);
             $green--;
         } while ($match == false && $green > 0);
         if (!$match) {
-            $greenChroma = [0, $green, 0];
+            $green_chroma = [0, $green, 0];
         }
-        return $greenChroma;
+        return $green_chroma;
     }
-
     /**
      * @param int $value
      * @param int $originalMax
      * @param bool $invert
      * @return float|int
      */
-    private function invertTransparency($value, $originalMax, $invert = true)
+    private function invert_transparency($value, $original_max, $invert = true)
     {
-        if ($value > $originalMax) {
-            $value = $originalMax;
+        if ($value > $original_max) {
+            $value = $original_max;
         }
         if ($value < 0) {
             $value = 0;
         }
         if ($invert) {
-            return $originalMax - (($value / 100) * $originalMax);
+            return $original_max - $value / 100 * $original_max;
         } else {
-            return ($value / 100) * $originalMax;
+            return $value / 100 * $original_max;
         }
     }
-
     /**
      * @param GdImage $src
      * @return GdImage
      */
-    private function transparentImage($src)
+    private function transparent_image($src)
     {
         for ($x = 0; $x < imagesx($src); ++$x) {
             for ($y = 0; $y < imagesy($src); ++$y) {
                 $color = imagecolorat($src, $x, $y);
-                $r = ($color >> 16) & 0xFF;
-                $g = ($color >> 8) & 0xFF;
-                $b = $color & 0xFF;
+                $r = $color >> 16 & 0xff;
+                $g = $color >> 8 & 0xff;
+                $b = $color & 0xff;
                 for ($i = 0; $i < 270; $i++) {
                     if ($r == 0 && $g == 255 && $b == 0) {
                         $trans_colour = imagecolorallocatealpha($src, 0, 0, 0, 127);
@@ -2181,77 +2045,73 @@ class imageLib
         }
         return $src;
     }
-
     /**
      * @param string $needle
      * @param string $haystack
      * @return bool
      */
-    public function checkStringStartsWith($needle, $haystack)
+    public function check_string_starts_with($needle, $haystack)
     {
-        return (substr($haystack, 0, strlen($needle)) == $needle);
+        return substr($haystack, 0, strlen($needle)) == $needle;
     }
-
     /**
      * @param GdImage $gd_image
      * @return string
      */
-    private function GD2BMPstring($gd_image)
+    private function gd2bm_pstring($gd_image)
     {
-        $imageX = ImageSX($gd_image);
-        $imageY = ImageSY($gd_image);
+        $image_x = image_sx($gd_image);
+        $image_y = image_sy($gd_image);
         $BMP = '';
-        for ($y = ($imageY - 1); $y >= 0; $y--) {
+        for ($y = $image_y - 1; $y >= 0; $y--) {
             $thisline = '';
-            for ($x = 0; $x < $imageX; $x++) {
-                $argb = $this->GetPixelColor($gd_image, $x, $y);
-                $thisline .= chr($argb['blue']).chr($argb['green']).chr($argb['red']);
+            for ($x = 0; $x < $image_x; $x++) {
+                $argb = $this->get_pixel_color($gd_image, $x, $y);
+                $thisline .= chr($argb['blue']) . chr($argb['green']) . chr($argb['red']);
             }
             while (strlen($thisline) % 4) {
                 $thisline .= "\x00";
             }
             $BMP .= $thisline;
         }
-        $bmpSize = strlen($BMP) + 14 + 40;
+        $bmp_size = strlen($BMP) + 14 + 40;
         $BITMAPFILEHEADER = 'BM';
-        $BITMAPFILEHEADER .= $this->LittleEndian2String($bmpSize, 4);
-        $BITMAPFILEHEADER .= $this->LittleEndian2String(0, 2);
-        $BITMAPFILEHEADER .= $this->LittleEndian2String(0, 2);
-        $BITMAPFILEHEADER .= $this->LittleEndian2String(54, 4);
-        $BITMAPINFOHEADER = $this->LittleEndian2String(40, 4);
-        $BITMAPINFOHEADER .= $this->LittleEndian2String($imageX, 4);
-        $BITMAPINFOHEADER .= $this->LittleEndian2String($imageY, 4);
-        $BITMAPINFOHEADER .= $this->LittleEndian2String(1, 2);
-        $BITMAPINFOHEADER .= $this->LittleEndian2String(24, 2);
-        $BITMAPINFOHEADER .= $this->LittleEndian2String(0, 4);
-        $BITMAPINFOHEADER .= $this->LittleEndian2String(0, 4);
-        $BITMAPINFOHEADER .= $this->LittleEndian2String(2835, 4);
-        $BITMAPINFOHEADER .= $this->LittleEndian2String(2835, 4);
-        $BITMAPINFOHEADER .= $this->LittleEndian2String(0, 4);
-        $BITMAPINFOHEADER .= $this->LittleEndian2String(0, 4);
-        return $BITMAPFILEHEADER.$BITMAPINFOHEADER.$BMP;
+        $BITMAPFILEHEADER .= $this->little_endian2string($bmp_size, 4);
+        $BITMAPFILEHEADER .= $this->little_endian2string(0, 2);
+        $BITMAPFILEHEADER .= $this->little_endian2string(0, 2);
+        $BITMAPFILEHEADER .= $this->little_endian2string(54, 4);
+        $BITMAPINFOHEADER = $this->little_endian2string(40, 4);
+        $BITMAPINFOHEADER .= $this->little_endian2string($image_x, 4);
+        $BITMAPINFOHEADER .= $this->little_endian2string($image_y, 4);
+        $BITMAPINFOHEADER .= $this->little_endian2string(1, 2);
+        $BITMAPINFOHEADER .= $this->little_endian2string(24, 2);
+        $BITMAPINFOHEADER .= $this->little_endian2string(0, 4);
+        $BITMAPINFOHEADER .= $this->little_endian2string(0, 4);
+        $BITMAPINFOHEADER .= $this->little_endian2string(2835, 4);
+        $BITMAPINFOHEADER .= $this->little_endian2string(2835, 4);
+        $BITMAPINFOHEADER .= $this->little_endian2string(0, 4);
+        $BITMAPINFOHEADER .= $this->little_endian2string(0, 4);
+        return $BITMAPFILEHEADER . $BITMAPINFOHEADER . $BMP;
     }
-
     /**
      * @param GdImage $img
      * @param int $x
      * @param int $y
      * @return array|false
      */
-    private function GetPixelColor($img, $x, $y)
+    private function get_pixel_color($img, $x, $y)
     {
-        if (! static::isImageResource($img)) {
+        if (!static::is_image_resource($img)) {
             return false;
         }
-        return @ImageColorsForIndex($img, @ImageColorAt($img, $x, $y));
+        return @image_colors_for_index($img, @image_color_at($img, $x, $y));
     }
-
     /**
      * @param int $number
      * @param int $minbytes
      * @return string
      */
-    private function LittleEndian2String($number, $minbytes = 1)
+    private function little_endian2string($number, $minbytes = 1)
     {
         $intstring = '';
         while ($number > 0) {
@@ -2260,12 +2120,11 @@ class imageLib
         }
         return str_pad($intstring, $minbytes, "\x00", STR_PAD_RIGHT);
     }
-
     /**
      * @param string $filename
      * @return false|GdImage|resource
      */
-    private function ImageCreateFromBMP($filename)
+    private function image_create_from_bmp($filename)
     {
         if (!$f1 = fopen($filename, 'rb')) {
             return false;
@@ -2274,17 +2133,15 @@ class imageLib
         if ($FILE['file_type'] != 19778) {
             return false;
         }
-        $BMP = unpack('Vheader_size/Vwidth/Vheight/vplanes/vbits_per_pixel' .
-            '/Vcompression/Vsize_bitmap/Vhoriz_resolution' .
-            '/Vvert_resolution/Vcolors_used/Vcolors_important', fread($f1, 40));
+        $BMP = unpack('Vheader_size/Vwidth/Vheight/vplanes/vbits_per_pixel' . '/Vcompression/Vsize_bitmap/Vhoriz_resolution' . '/Vvert_resolution/Vcolors_used/Vcolors_important', fread($f1, 40));
         $BMP['colors'] = pow(2, $BMP['bits_per_pixel']);
         if ($BMP['size_bitmap'] == 0) {
             $BMP['size_bitmap'] = $FILE['file_size'] - $FILE['bitmap_offset'];
         }
         $BMP['bytes_per_pixel'] = $BMP['bits_per_pixel'] / 8;
-        $BMP['decal'] = ($BMP['width'] * $BMP['bytes_per_pixel'] / 4);
+        $BMP['decal'] = $BMP['width'] * $BMP['bytes_per_pixel'] / 4;
         $BMP['decal'] -= floor($BMP['width'] * $BMP['bytes_per_pixel'] / 4);
-        $BMP['decal'] = 4 - (4 * $BMP['decal']);
+        $BMP['decal'] = 4 - 4 * $BMP['decal'];
         if ($BMP['decal'] == 4) {
             $BMP['decal'] = 0;
         }
@@ -2301,44 +2158,44 @@ class imageLib
             $X = 0;
             while ($X < $BMP['width']) {
                 if ($BMP['bits_per_pixel'] == 24) {
-                    $COLOR = unpack('V', substr($IMG, $P, 3).$VIDE);
+                    $COLOR = unpack('V', substr($IMG, $P, 3) . $VIDE);
                 } elseif ($BMP['bits_per_pixel'] == 16) {
                     $COLOR = unpack('v', substr($IMG, $P, 2));
-                    $blue = ($COLOR[1] & 0x001f) << 3;
-                    $green = ($COLOR[1] & 0x07e0) >> 3;
+                    $blue = ($COLOR[1] & 0x1f) << 3;
+                    $green = ($COLOR[1] & 0x7e0) >> 3;
                     $red = ($COLOR[1] & 0xf800) >> 8;
                     $COLOR[1] = $red * 65536 + $green * 256 + $blue;
                 } elseif ($BMP['bits_per_pixel'] == 8) {
-                    $COLOR = unpack('n', $VIDE.substr($IMG, $P, 1));
-                    $COLOR[1] = $PALETTE[ $COLOR[1] + 1 ];
+                    $COLOR = unpack('n', $VIDE . substr($IMG, $P, 1));
+                    $COLOR[1] = $PALETTE[$COLOR[1] + 1];
                 } elseif ($BMP['bits_per_pixel'] == 4) {
-                    $COLOR = unpack('n', $VIDE.substr($IMG, floor($P), 1));
-                    if (($P * 2) % 2 == 0) {
-                        $COLOR[1] = ($COLOR[1] >> 4);
+                    $COLOR = unpack('n', $VIDE . substr($IMG, floor($P), 1));
+                    if ($P * 2 % 2 == 0) {
+                        $COLOR[1] = $COLOR[1] >> 4;
                     } else {
-                        $COLOR[1] = ($COLOR[1] & 0x0F);
+                        $COLOR[1] = $COLOR[1] & 0xf;
                     }
-                    $COLOR[1] = $PALETTE[ $COLOR[1] + 1 ];
+                    $COLOR[1] = $PALETTE[$COLOR[1] + 1];
                 } elseif ($BMP['bits_per_pixel'] == 1) {
-                    $COLOR = unpack('n', $VIDE.substr($IMG, floor($P), 1));
-                    if (($P * 8) % 8 == 0) {
+                    $COLOR = unpack('n', $VIDE . substr($IMG, floor($P), 1));
+                    if ($P * 8 % 8 == 0) {
                         $COLOR[1] = $COLOR[1] >> 7;
-                    } elseif (($P * 8) % 8 == 1) {
+                    } elseif ($P * 8 % 8 == 1) {
                         $COLOR[1] = ($COLOR[1] & 0x40) >> 6;
-                    } elseif (($P * 8) % 8 == 2) {
+                    } elseif ($P * 8 % 8 == 2) {
                         $COLOR[1] = ($COLOR[1] & 0x20) >> 5;
-                    } elseif (($P * 8) % 8 == 3) {
+                    } elseif ($P * 8 % 8 == 3) {
                         $COLOR[1] = ($COLOR[1] & 0x10) >> 4;
-                    } elseif (($P * 8) % 8 == 4) {
+                    } elseif ($P * 8 % 8 == 4) {
                         $COLOR[1] = ($COLOR[1] & 0x8) >> 3;
-                    } elseif (($P * 8) % 8 == 5) {
+                    } elseif ($P * 8 % 8 == 5) {
                         $COLOR[1] = ($COLOR[1] & 0x4) >> 2;
-                    } elseif (($P * 8) % 8 == 6) {
+                    } elseif ($P * 8 % 8 == 6) {
                         $COLOR[1] = ($COLOR[1] & 0x2) >> 1;
-                    } elseif (($P * 8) % 8 == 7) {
-                        $COLOR[1] = ($COLOR[1] & 0x1);
+                    } elseif ($P * 8 % 8 == 7) {
+                        $COLOR[1] = $COLOR[1] & 0x1;
                     }
-                    $COLOR[1] = $PALETTE[ $COLOR[1] + 1 ];
+                    $COLOR[1] = $PALETTE[$COLOR[1] + 1];
                 } else {
                     return false;
                 }
@@ -2352,23 +2209,21 @@ class imageLib
         fclose($f1);
         return $res;
     }
-
     /**
      * @return void
      */
     public function __destruct()
     {
-        if (static::isImageResource($this->imageResized)) {
-            imagedestroy($this->imageResized);
+        if (static::is_image_resource($this->image_resized)) {
+            imagedestroy($this->image_resized);
         }
     }
-
     /**
      * Returns true, if $image is either resource, or GdImage
      * @param resource|GdImage|mixed $image
      * @return bool
      */
-    private static function isImageResource($image)
+    private static function is_image_resource($image)
     {
         if (is_null($image)) {
             return false;
@@ -2377,7 +2232,7 @@ class imageLib
             return true;
         }
         /** @noinspection PhpElementIsNotAvailableInCurrentPhpVersionInspection */
-        if (class_exists('GdImage') && ($image instanceof GdImage)) {
+        if (class_exists('GdImage') && $image instanceof Gd_Image) {
             return true;
         }
         return false;

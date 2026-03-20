@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,36 +30,15 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class StockMvtWSCore
  */
-class StockMvtWSCore extends ObjectModelCore
+class Stock_Mvt_Ws_Core extends Object_Model_Core
 {
     /**
      * @var array Object model definition
      */
-    public static $definition = [
-        'table'   => 'stock_mvt',
-        'primary' => 'id_stock_mvt',
-        'primaryKeyDbType' => 'bigint(20) unsigned',
-        'fields'  => [
-            'id_stock'            => ['type' => self::TYPE_INT,    'validate' => 'isUnsignedId',  'required' => true],
-            'id_order'            => ['type' => self::TYPE_INT,    'validate' => 'isUnsignedId'                     ],
-            'id_supply_order'     => ['type' => self::TYPE_INT,    'validate' => 'isUnsignedId'                     ],
-            'id_stock_mvt_reason' => ['type' => self::TYPE_INT,    'validate' => 'isUnsignedId',  'required' => true],
-            'id_employee'         => ['type' => self::TYPE_INT,    'validate' => 'isUnsignedId',  'required' => true],
-            'employee_lastname'   => ['type' => self::TYPE_STRING, 'validate' => 'isName', 'size' => 32, 'dbDefault' => '', 'dbNullable' => true],
-            'employee_firstname'  => ['type' => self::TYPE_STRING, 'validate' => 'isName', 'size' => 32, 'dbDefault' => '', 'dbNullable' => true],
-            'physical_quantity'   => ['type' => self::TYPE_INT,    'validate' => 'isUnsignedInt', 'required' => true],
-            'date_add'            => ['type' => self::TYPE_DATE,   'validate' => 'isDate',        'required' => true],
-            'sign'                => ['type' => self::TYPE_INT,    'validate' => 'isInt', 'required' => true, 'dbType' => 'tinyint(1)', 'dbDefault' => '1'],
-            'price_te'            => ['type' => self::TYPE_PRICE,  'validate' => 'isPrice',       'required' => true, 'dbDefault' => '0.000000', 'dbNullable' => true],
-            'last_wa'             => ['type' => self::TYPE_PRICE,  'validate' => 'isPrice', 'dbDefault' => '0.000000', 'dbNullable' => true],
-            'current_wa'          => ['type' => self::TYPE_PRICE,  'validate' => 'isPrice', 'dbDefault' => '0.000000', 'dbNullable' => true],
-            'referer'             => ['type' => self::TYPE_INT,    'validate' => 'isUnsignedId', 'dbType' => 'bigint(20) unsigned'],
-        ],
-    ];
+    public static $definition = ['table' => 'stock_mvt', 'primary' => 'id_stock_mvt', 'primaryKeyDbType' => 'bigint(20) unsigned', 'fields' => ['id_stock' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true], 'id_order' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId'], 'id_supply_order' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId'], 'id_stock_mvt_reason' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true], 'id_employee' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true], 'employee_lastname' => ['type' => self::TYPE_STRING, 'validate' => 'isName', 'size' => 32, 'dbDefault' => '', 'dbNullable' => true], 'employee_firstname' => ['type' => self::TYPE_STRING, 'validate' => 'isName', 'size' => 32, 'dbDefault' => '', 'dbNullable' => true], 'physical_quantity' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedInt', 'required' => true], 'date_add' => ['type' => self::TYPE_DATE, 'validate' => 'isDate', 'required' => true], 'sign' => ['type' => self::TYPE_INT, 'validate' => 'isInt', 'required' => true, 'dbType' => 'tinyint(1)', 'dbDefault' => '1'], 'price_te' => ['type' => self::TYPE_PRICE, 'validate' => 'isPrice', 'required' => true, 'dbDefault' => '0.000000', 'dbNullable' => true], 'last_wa' => ['type' => self::TYPE_PRICE, 'validate' => 'isPrice', 'dbDefault' => '0.000000', 'dbNullable' => true], 'current_wa' => ['type' => self::TYPE_PRICE, 'validate' => 'isPrice', 'dbDefault' => '0.000000', 'dbNullable' => true], 'referer' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'dbType' => 'bigint(20) unsigned']]];
     /** @var int $id */
     public $id;
     /**
@@ -157,46 +136,13 @@ class StockMvtWSCore extends ObjectModelCore
     /**
      * @var array Webservice Parameters
      */
-    protected $webserviceParameters = [
-        'fields'        => [
-            'id_product'           => ['xlink_resource' => 'products'],
-            'id_product_attribute' => ['xlink_resource' => 'combinations'],
-            'id_warehouse'         => ['xlink_resource' => 'warehouses'],
-            'id_currency'          => ['xlink_resource' => 'currencies'],
-            'management_type'      => [],
-            'id_employee'          => ['xlink_resource' => 'employees'],
-            'id_stock'             => ['xlink_resource' => 'stocks'],
-            'id_stock_mvt_reason'  => ['xlink_resource' => 'stock_movement_reasons'],
-            'id_order'             => ['xlink_resource' => 'orders'],
-            'id_supply_order'      => ['xlink_resource' => 'supply_orders'],
-            'product_name'         => ['getter' => 'getWSProductName', 'i18n' => true],
-            'ean13'                => [],
-            'upc'                  => [],
-            'reference'            => [],
-        ],
-        'hidden_fields' => [
-            'referer',
-            'employee_firstname',
-            'employee_lastname',
-        ],
-    ];
-
+    protected $webservice_parameters = ['fields' => ['id_product' => ['xlink_resource' => 'products'], 'id_product_attribute' => ['xlink_resource' => 'combinations'], 'id_warehouse' => ['xlink_resource' => 'warehouses'], 'id_currency' => ['xlink_resource' => 'currencies'], 'management_type' => [], 'id_employee' => ['xlink_resource' => 'employees'], 'id_stock' => ['xlink_resource' => 'stocks'], 'id_stock_mvt_reason' => ['xlink_resource' => 'stock_movement_reasons'], 'id_order' => ['xlink_resource' => 'orders'], 'id_supply_order' => ['xlink_resource' => 'supply_orders'], 'product_name' => ['getter' => 'getWSProductName', 'i18n' => true], 'ean13' => [], 'upc' => [], 'reference' => []], 'hidden_fields' => ['referer', 'employee_firstname', 'employee_lastname']];
     /**
      * Associations tables for attributes that require different tables than stated in ObjectModel::definition
      *
      * @var array
      */
-    protected $tables_assoc = [
-        'id_product'           => ['table' => 's'],
-        'id_product_attribute' => ['table' => 's'],
-        'id_warehouse'         => ['table' => 's'],
-        'id_currency'          => ['table' => 's'],
-        'management_type'      => ['table' => 'w'],
-        'ean13'                => ['table' => 's'],
-        'upc'                  => ['table' => 's'],
-        'reference'            => ['table' => 's'],
-    ];
-
+    protected $tables_assoc = ['id_product' => ['table' => 's'], 'id_product_attribute' => ['table' => 's'], 'id_warehouse' => ['table' => 's'], 'id_currency' => ['table' => 's'], 'management_type' => ['table' => 'w'], 'ean13' => ['table' => 's'], 'upc' => ['table' => 's'], 'reference' => ['table' => 's']];
     /**
      * @param int|null $id
      * @param int|null $idLang
@@ -205,13 +151,12 @@ class StockMvtWSCore extends ObjectModelCore
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function __construct($id = null, $idLang = null, $idShop = null)
+    public function __construct($id = null, $id_lang = null, $id_shop = null)
     {
         // calls parent
-        parent::__construct($id, $idLang, $idShop);
-
+        parent::__construct($id, $id_lang, $id_shop);
         if ((int) $this->id != 0) {
-            $res = $this->getWebserviceObjectList(null, (' AND '.$this->def['primary'].' = '.(int) $this->id), null, null, true);
+            $res = $this->get_webservice_object_list(null, ' AND ' . $this->def['primary'] . ' = ' . (int) $this->id, null, null, true);
             if (isset($res[0])) {
                 foreach ($this->tables_assoc as $key => $param) {
                     $this->{$key} = $res[0][$key];
@@ -219,7 +164,6 @@ class StockMvtWSCore extends ObjectModelCore
             }
         }
     }
-
     /**
      * @param string $join
      * @param string $filter
@@ -232,63 +176,51 @@ class StockMvtWSCore extends ObjectModelCore
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function getWebserviceObjectList($join, $filter, $sort, $limit, $full = false)
+    public function get_webservice_object_list($join, $filter, $sort, $limit, $full = false)
     {
-        $query = 'SELECT DISTINCT main.'.$this->def['primary'].' ';
-
+        $query = 'SELECT DISTINCT main.' . $this->def['primary'] . ' ';
         if ($full) {
             $query .= ', s.id_product, s.id_product_attribute, s.id_warehouse, w.id_currency, w.management_type,s.ean13, s.upc, s.reference ';
         }
-
-        $oldFilter = $filter;
+        $old_filter = $filter;
         if ($filter) {
             foreach ($this->tables_assoc as $key => $value) {
-                $filter = str_replace('main.`'.$key.'`', $value['table'].'.`'.$key.'`', $filter);
+                $filter = str_replace('main.`' . $key . '`', $value['table'] . '.`' . $key . '`', $filter);
             }
         }
-
-        $query .= 'FROM '._DB_PREFIX_.$this->def['table'].' as main ';
-
-        if ($filter !== $oldFilter || $full) {
-            $query .= 'LEFT JOIN '._DB_PREFIX_.'stock s ON (s.id_stock = main.id_stock) ';
-            $query .= 'LEFT JOIN '._DB_PREFIX_.'warehouse w ON (w.id_warehouse = s.id_warehouse) ';
-            $query .= 'LEFT JOIN '._DB_PREFIX_.'currency c ON (c.id_currency = w.id_currency) ';
+        $query .= 'FROM ' . _DB_PREFIX_ . $this->def['table'] . ' as main ';
+        if ($filter !== $old_filter || $full) {
+            $query .= 'LEFT JOIN ' . _DB_PREFIX_ . 'stock s ON (s.id_stock = main.id_stock) ';
+            $query .= 'LEFT JOIN ' . _DB_PREFIX_ . 'warehouse w ON (w.id_warehouse = s.id_warehouse) ';
+            $query .= 'LEFT JOIN ' . _DB_PREFIX_ . 'currency c ON (c.id_currency = w.id_currency) ';
         }
-
         if ($join) {
             $query .= $join;
         }
-
         $query .= 'WHERE 1 ';
-
         if ($filter) {
-            $query .= $filter.' ';
+            $query .= $filter . ' ';
         }
-
         if ($sort) {
-            $query .= $sort.' ';
+            $query .= $sort . ' ';
         }
-
         if ($limit) {
-            $query .= $limit.' ';
+            $query .= $limit . ' ';
         }
-
-        return Db::readOnly()->getArray($query);
+        return Db::read_only()->get_array($query);
     }
-
     /**
      * Webservice : getter for the product name
      *
      *
      * @throws PrestaShopException
      */
-    public function getWSProductName(): array
+    public function get_ws_product_name(): array
     {
         $res = [];
-        foreach (Language::getIDs(true) as $idLang) {
-            $res[$idLang] = Product::getProductName($this->id_product, $this->id_product_attribute, $idLang);
+        foreach (Language::get_i_ds(true) as $id_lang) {
+            $res[$id_lang] = Product::get_product_name($this->id_product, $this->id_product_attribute, $id_lang);
         }
-
         return $res;
     }
 }

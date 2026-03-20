@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -18,27 +18,25 @@ declare(strict_types=1);
  * @copyright 2017-2024 thirty bees
  * @license   Open Software License (OSL 3.0)
  */
-
-namespace Thirtybees\Core\DependencyInjection;
+namespace Thirtybees\Core\Dependency_Injection;
 
 use Controller;
-use Core_Foundation_IoC_Container;
+use Core_foundation_io_C_container;
 use Db;
 use Exception;
-use PrestaShopException;
-use Thirtybees\Core\Error\ErrorHandler;
-use Thirtybees\Core\Error\Response\CliErrorResponse;
-use Thirtybees\Core\Error\Response\DebugErrorPage;
-use Thirtybees\Core\Error\Response\ErrorResponseInterface;
-use Thirtybees\Core\Error\Response\ProductionErrorPage;
-use Thirtybees\Core\WorkQueue\Scheduler;
-use Thirtybees\Core\WorkQueue\WorkQueueClient;
+use Presta_Shop_Exception;
+use Thirtybees\Core\Error\Error_Handler;
+use Thirtybees\Core\Error\Response\Cli_Error_Response;
+use Thirtybees\Core\Error\Response\Debug_Error_Page;
+use Thirtybees\Core\Error\Response\Error_Response_Interface;
+use Thirtybees\Core\Error\Response\Production_Error_Page;
+use Thirtybees\Core\Work_Queue\Scheduler;
+use Thirtybees\Core\Work_Queue\Work_Queue_Client;
 use Throwable;
-
 /**
  * Class ServiceLocatorCore
  */
-class ServiceLocatorCore
+class Service_Locator_Core
 {
     // services
     public const SERVICE_SERVICE_LOCATOR = 'Thirtybees\Core\DependencyInjection\ServiceLocator';
@@ -46,57 +44,45 @@ class ServiceLocatorCore
     public const SERVICE_WORK_QUEUE_CLIENT = 'Thirtybees\Core\WorkQueue\WorkQueueClient';
     public const SERVICE_READ_WRITE_CONNECTION = 'Db';
     public const SERVICE_ERROR_HANDLER = 'Thirtybees\Core\Error\ErrorHandler';
-    public const SERVICE_ERROR_RESPONSE = \Thirtybees\Core\Error\Response\ErrorResponseInterface::class;
-
+    public const SERVICE_ERROR_RESPONSE = \Thirtybees\Core\Error\Response\Error_Response_Interface::class;
     // Legacy services
     public const SERVICE_ADAPTER_CONFIGURATION = 'Core_Business_ConfigurationInterface';
-    public const SERVICE_ADAPTER_DATABASE  = 'Core_Foundation_Database_DatabaseInterface';
-
+    public const SERVICE_ADAPTER_DATABASE = 'Core_Foundation_Database_DatabaseInterface';
     /**
      * @var ServiceLocator singleton instance
      */
     protected static $instance;
-
     /**
      * @var Core_Foundation_IoC_Container container
      */
-    protected \Core_Foundation_IoC_Container $container;
-
+    protected \Core_foundation_io_C_container $container;
     /**
      * ServiceLocatorCore constructor
      * @throws PrestaShopException
      */
-    protected function __construct(?Core_Foundation_IoC_Container $container = null)
+    protected function __construct(?Core_foundation_io_C_container $container = null)
     {
-        $this->container = is_null($container)
-            ? new Core_Foundation_IoC_Container()
-            : $container;
-
+        $this->container = is_null($container) ? new Core_foundation_io_C_container() : $container;
         // initialize error page
-        $this->container->bind(static::SERVICE_ERROR_RESPONSE, $this->getErrorResponse(), true);
-
+        $this->container->bind(static::SERVICE_ERROR_RESPONSE, $this->get_error_response(), true);
         // initialize error handler
-        if (! $this->container->knows(static::SERVICE_ERROR_HANDLER)) {
-            $errorHandler = new ErrorHandler($this->getByServiceName(static::SERVICE_ERROR_RESPONSE));
-            $this->container->bind(static::SERVICE_ERROR_HANDLER, $errorHandler, true);
+        if (!$this->container->knows(static::SERVICE_ERROR_HANDLER)) {
+            $error_handler = new Error_Handler($this->get_by_service_name(static::SERVICE_ERROR_RESPONSE));
+            $this->container->bind(static::SERVICE_ERROR_HANDLER, $error_handler, true);
         }
-
         // services
         $this->container->bind(static::SERVICE_SERVICE_LOCATOR, $this, true);
         $this->container->bind(static::SERVICE_WORK_QUEUE_CLIENT, static::SERVICE_WORK_QUEUE_CLIENT, true);
         $this->container->bind(static::SERVICE_SCHEDULER, static::SERVICE_SCHEDULER, true);
         $this->container->bind(static::SERVICE_READ_WRITE_CONNECTION, [Db::class, 'getInstance'], true);
-
         // legacy services
         $this->container->bind(static::SERVICE_ADAPTER_CONFIGURATION, 'Adapter_Configuration', true);
         $this->container->bind(static::SERVICE_ADAPTER_DATABASE, 'Adapter_Database', true);
     }
-
-    public function getServiceLocator(): static
+    public function get_service_locator(): static
     {
         return $this;
     }
-
     /**
      * Instantiates controller class
      *
@@ -104,110 +90,102 @@ class ServiceLocatorCore
      * @return Controller
      * @throws PrestaShopException
      */
-    public function getController($controllerClass)
+    public function get_controller($controller_class)
     {
-        $controller = $this->getByServiceName($controllerClass);
-        if (! ($controller instanceof Controller)) {
-            throw new PrestaShopException("Failed to construct controller, class '$controllerClass' does not extend Controller");
+        $controller = $this->get_by_service_name($controller_class);
+        if (!$controller instanceof Controller) {
+            throw new Presta_Shop_Exception("Failed to construct controller, class '{$controller_class}' does not extend Controller");
         }
         return $controller;
     }
-
     /**
      * @return Scheduler
      * @throws PrestaShopException
      */
-    public function getScheduler()
+    public function get_scheduler()
     {
-        return $this->getByServiceName(static::SERVICE_SCHEDULER);
+        return $this->get_by_service_name(static::SERVICE_SCHEDULER);
     }
-
     /**
      * @return WorkQueueClient
      * @throws PrestaShopException
      */
-    public function getWorkQueueClient()
+    public function get_work_queue_client()
     {
-        return $this->getByServiceName(static::SERVICE_WORK_QUEUE_CLIENT);
+        return $this->get_by_service_name(static::SERVICE_WORK_QUEUE_CLIENT);
     }
-
     /**
      * Returns read/write connection
      *
      * @return Db
      * @throws PrestaShopException
      */
-    public function getConnection()
+    public function get_connection()
     {
-        return $this->getByServiceName(static::SERVICE_READ_WRITE_CONNECTION);
+        return $this->get_by_service_name(static::SERVICE_READ_WRITE_CONNECTION);
     }
-
     /**
      * @return ErrorHandler
      */
-    public function getErrorHandler()
+    public function get_error_handler()
     {
         try {
-            return $this->getByServiceName(static::SERVICE_ERROR_HANDLER);
-        } catch (PrestaShopException) {
+            return $this->get_by_service_name(static::SERVICE_ERROR_HANDLER);
+        } catch (Presta_Shop_Exception) {
             die('Invariant: error handler must always be known to service locator');
         }
     }
-
     /**
      * @param string $serviceName
      * @return mixed|object
      * @throws PrestaShopException
      */
-    public function getByServiceName($serviceName)
+    public function get_by_service_name($service_name)
     {
         try {
-            return $this->container->make($serviceName);
+            return $this->container->make($service_name);
         } catch (Exception $e) {
-            throw new PrestaShopException("Failed to construct service '$serviceName': " . $e->getMessage(), 0, $e);
+            throw new Presta_Shop_Exception("Failed to construct service '{$service_name}': " . $e->get_message(), 0, $e);
         }
     }
-
     /**
      * @return ServiceLocator singleton instance
      */
-    public static function getInstance()
+    public static function get_instance()
     {
         if (is_null(static::$instance)) {
             die('Service locator has not been initialized yet');
         }
         return static::$instance;
     }
-
     /**
      * Method to initialize service locator
      */
-    public static function initialize(?Core_Foundation_IoC_Container $container = null): void
+    public static function initialize(?Core_foundation_io_C_container $container = null): void
     {
-        if (! is_null(static::$instance)) {
+        if (!is_null(static::$instance)) {
             die('Service locator is already initialized');
         }
         try {
             static::$instance = new static($container);
         } catch (Throwable $e) {
-            die('Failed to initialize service locator: '. $e);
+            die('Failed to initialize service locator: ' . $e);
         }
     }
-
     /**
      * @return ErrorResponseInterface
      */
-    protected function getErrorResponse(): \Thirtybees\Core\Error\Response\CliErrorResponse|\Thirtybees\Core\Error\Response\DebugErrorPage|\Thirtybees\Core\Error\Response\ProductionErrorPage
+    protected function get_error_response(): \Thirtybees\Core\Error\Response\Cli_Error_Response|\Thirtybees\Core\Error\Response\Debug_Error_Page|\Thirtybees\Core\Error\Response\Production_Error_Page
     {
         if (php_sapi_name() === 'cli') {
-            return new CliErrorResponse();
+            return new Cli_Error_Response();
         }
         if (_PS_MODE_DEV_) {
-            return new DebugErrorPage();
+            return new Debug_Error_Page();
         }
         if (defined('TB_INSTALLATION_IN_PROGRESS') && TB_INSTALLATION_IN_PROGRESS) {
-            return new DebugErrorPage();
+            return new Debug_Error_Page();
         }
-        return new ProductionErrorPage();
+        return new Production_Error_Page();
     }
 }

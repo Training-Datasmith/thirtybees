@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,57 +30,31 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class StockMvtReasonCore
  */
-class StockMvtReasonCore extends ObjectModel
+class Stock_Mvt_Reason_Core extends Object_Model
 {
     /** @var int identifier of the movement reason */
     public $id;
-
     /** @var string|string[] the name of the movement reason */
     public $name;
-
     /** @var int detrmine if the movement reason correspond to a positive or negative operation */
     public $sign;
-
     /** @var string the creation date of the movement reason */
     public $date_add;
-
     /** @var string the last update date of the movement reason */
     public $date_upd;
-
     /** @var bool True if the movement reason has been deleted (staying in database as deleted) */
     public $deleted = 0;
-
     /**
      * @var array Object model definition
      */
-    public static $definition = [
-        'table'     => 'stock_mvt_reason',
-        'primary'   => 'id_stock_mvt_reason',
-        'multilang' => true,
-        'fields'    => [
-            'sign'     => ['type' => self::TYPE_INT, 'size' => 1, 'signed' => true, 'dbDefault' => '1'],
-            'date_add' => ['type' => self::TYPE_DATE, 'validate' => 'isDate', 'dbNullable' => false],
-            'date_upd' => ['type' => self::TYPE_DATE, 'validate' => 'isDate', 'dbNullable' => false],
-            'deleted'  => ['type' => self::TYPE_BOOL, 'dbDefault' => '0'],
-            'name'     => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isGenericName', 'required' => true, 'size' => 255],
-        ],
-    ];
-
+    public static $definition = ['table' => 'stock_mvt_reason', 'primary' => 'id_stock_mvt_reason', 'multilang' => true, 'fields' => ['sign' => ['type' => self::TYPE_INT, 'size' => 1, 'signed' => true, 'dbDefault' => '1'], 'date_add' => ['type' => self::TYPE_DATE, 'validate' => 'isDate', 'dbNullable' => false], 'date_upd' => ['type' => self::TYPE_DATE, 'validate' => 'isDate', 'dbNullable' => false], 'deleted' => ['type' => self::TYPE_BOOL, 'dbDefault' => '0'], 'name' => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isGenericName', 'required' => true, 'size' => 255]]];
     /**
      * @var array Webservice Parameters
      */
-    protected $webserviceParameters = [
-        'objectsNodeName' => 'stock_movement_reasons',
-        'objectNodeName'  => 'stock_movement_reason',
-        'fields'          => [
-            'sign' => [],
-        ],
-    ];
-
+    protected $webservice_parameters = ['objectsNodeName' => 'stock_movement_reasons', 'objectNodeName' => 'stock_movement_reason', 'fields' => ['sign' => []]];
     /**
      * Gets Stock Mvt Reasons
      *
@@ -91,21 +65,18 @@ class StockMvtReasonCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getStockMvtReasons($idLang, $sign = null)
+    public static function get_stock_mvt_reasons($id_lang, $sign = null)
     {
-        $query = new DbQuery();
+        $query = new Db_Query();
         $query->select('smrl.name, smr.id_stock_mvt_reason, smr.sign');
         $query->from('stock_mvt_reason', 'smr');
-        $query->leftjoin('stock_mvt_reason_lang', 'smrl', 'smr.id_stock_mvt_reason = smrl.id_stock_mvt_reason AND smrl.id_lang='.(int) $idLang);
+        $query->leftjoin('stock_mvt_reason_lang', 'smrl', 'smr.id_stock_mvt_reason = smrl.id_stock_mvt_reason AND smrl.id_lang=' . (int) $id_lang);
         $query->where('smr.deleted = 0');
-
         if ($sign != null) {
-            $query->where('smr.sign = '.(int) $sign);
+            $query->where('smr.sign = ' . (int) $sign);
         }
-
-        return Db::readOnly()->getArray($query);
+        return Db::read_only()->get_array($query);
     }
-
     /**
      * Same as StockMvtReason::getStockMvtReasons(), ignoring a specific lists of ids
      *
@@ -117,26 +88,22 @@ class StockMvtReasonCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getStockMvtReasonsWithFilter($idLang, $idsIgnore, $sign = null)
+    public static function get_stock_mvt_reasons_with_filter($id_lang, $ids_ignore, $sign = null)
     {
-        $query = new DbQuery();
+        $query = new Db_Query();
         $query->select('smrl.name, smr.id_stock_mvt_reason, smr.sign');
         $query->from('stock_mvt_reason', 'smr');
-        $query->leftjoin('stock_mvt_reason_lang', 'smrl', 'smr.id_stock_mvt_reason = smrl.id_stock_mvt_reason AND smrl.id_lang='.(int) $idLang);
+        $query->leftjoin('stock_mvt_reason_lang', 'smrl', 'smr.id_stock_mvt_reason = smrl.id_stock_mvt_reason AND smrl.id_lang=' . (int) $id_lang);
         $query->where('smr.deleted = 0');
-
         if ($sign != null) {
-            $query->where('smr.sign = '.(int) $sign);
+            $query->where('smr.sign = ' . (int) $sign);
         }
-
-        if (count($idsIgnore)) {
-            $idsIgnore = array_map(intval(...), $idsIgnore);
-            $query->where('smr.id_stock_mvt_reason NOT IN('.implode(', ', $idsIgnore).')');
+        if (count($ids_ignore)) {
+            $ids_ignore = array_map(intval(...), $ids_ignore);
+            $query->where('smr.id_stock_mvt_reason NOT IN(' . implode(', ', $ids_ignore) . ')');
         }
-
-        return Db::readOnly()->getArray($query);
+        return Db::read_only()->get_array($query);
     }
-
     /**
      * For a given id_stock_mvt_reason, tells if it exists
      *
@@ -146,14 +113,13 @@ class StockMvtReasonCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function exists($idStockMvtReason)
+    public static function exists($id_stock_mvt_reason)
     {
-        $query = new DbQuery();
+        $query = new Db_Query();
         $query->select('smr.id_stock_mvt_reason');
         $query->from('stock_mvt_reason', 'smr');
-        $query->where('smr.id_stock_mvt_reason = '.(int) $idStockMvtReason);
+        $query->where('smr.id_stock_mvt_reason = ' . (int) $id_stock_mvt_reason);
         $query->where('smr.deleted = 0');
-
-        return Db::readOnly()->getValue($query);
+        return Db::read_only()->get_value($query);
     }
 }

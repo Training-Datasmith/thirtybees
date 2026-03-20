@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,35 +30,29 @@ declare(strict_types=1);
  *  @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class ModuleAdminControllerCore
  */
-abstract class ModuleAdminControllerCore extends AdminController
+abstract class Module_Admin_Controller_Core extends Admin_Controller
 {
     /** @var Module */
     public $module;
-
     /**
      * @throws PrestaShopException
      */
     public function __construct()
     {
         parent::__construct();
-
         $this->controller_type = 'moduleadmin';
-
         $tab = new Tab($this->id);
         if (!$tab->module) {
-            throw new PrestaShopException('Admin tab '.static::class.' is not a module tab');
+            throw new Presta_Shop_Exception('Admin tab ' . static::class . ' is not a module tab');
         }
-
-        $this->module = Module::getInstanceByName($tab->module);
+        $this->module = Module::get_instance_by_name($tab->module);
         if (!$this->module->id) {
-            throw new PrestaShopException("Module {$tab->module} not found");
+            throw new Presta_Shop_Exception("Module {$tab->module} not found");
         }
     }
-
     /**
      * Creates a template object
      *
@@ -69,28 +63,26 @@ abstract class ModuleAdminControllerCore extends AdminController
      * @throws PrestaShopException
      * @throws SmartyException
      */
-    public function createTemplate($tplName)
+    public function create_template($tpl_name)
     {
-        if (!$this->viewAccess()) {
-            return parent::createTemplate($tplName);
+        if (!$this->view_access()) {
+            return parent::create_template($tpl_name);
         }
-        if (file_exists(_PS_THEME_DIR_ . 'modules/' . $this->module->name . '/views/templates/admin/' . $tplName)) {
-            return $this->context->smarty->createTemplate(_PS_THEME_DIR_ . 'modules/' . $this->module->name . '/views/templates/admin/' . $tplName, $this->context->smarty);
+        if (file_exists(_PS_THEME_DIR_ . 'modules/' . $this->module->name . '/views/templates/admin/' . $tpl_name)) {
+            return $this->context->smarty->create_template(_PS_THEME_DIR_ . 'modules/' . $this->module->name . '/views/templates/admin/' . $tpl_name, $this->context->smarty);
         }
-        if (file_exists($this->getTemplatePath() . $this->override_folder . $tplName)) {
-            return $this->context->smarty->createTemplate($this->getTemplatePath() . $this->override_folder . $tplName, $this->context->smarty);
+        if (file_exists($this->get_template_path() . $this->override_folder . $tpl_name)) {
+            return $this->context->smarty->create_template($this->get_template_path() . $this->override_folder . $tpl_name, $this->context->smarty);
         }
-
-        return parent::createTemplate($tplName);
+        return parent::create_template($tpl_name);
     }
-
     /**
      * Get path to back office templates for the module
      *
      * @return string
      */
-    public function getTemplatePath()
+    public function get_template_path()
     {
-        return _PS_MODULE_DIR_.$this->module->name.'/views/templates/admin/';
+        return _PS_MODULE_DIR_ . $this->module->name . '/views/templates/admin/';
     }
 }

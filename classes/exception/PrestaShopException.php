@@ -1,10 +1,8 @@
 <?php
 
-declare(strict_types=1);
-
-use Thirtybees\Core\DependencyInjection\ServiceLocator;
-use Thirtybees\Core\Error\ErrorUtils;
-
+declare (strict_types=1);
+use Thirtybees\Core\Dependency_Injection\Service_Locator;
+use Thirtybees\Core\Error\Error_Utils;
 /**
  * 2007-2016 PrestaShop
  *
@@ -34,17 +32,15 @@ use Thirtybees\Core\Error\ErrorUtils;
  *  @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class PrestaShopExceptionCore
  */
-class PrestaShopExceptionCore extends Exception
+class Presta_Shop_Exception_Core extends Exception
 {
     /**
      * @var array
      */
     protected $trace;
-
     /**
      * PrestaShopExceptionCore constructor.
      *
@@ -55,16 +51,14 @@ class PrestaShopExceptionCore extends Exception
      * @param string|null $file
      * @param int|null $line
      */
-    public function __construct($message = '', $code = 0, ?Throwable $previous = null, $customTrace = null, $file = null, $line = null)
+    public function __construct($message = '', $code = 0, ?Throwable $previous = null, $custom_trace = null, $file = null, $line = null)
     {
         parent::__construct($message, $code, $previous);
-
-        if (!$customTrace) {
-            $this->trace = $this->getTrace();
+        if (!$custom_trace) {
+            $this->trace = $this->get_trace();
         } else {
-            $this->trace = $customTrace;
+            $this->trace = $custom_trace;
         }
-
         if ($file) {
             $this->file = $file;
         }
@@ -72,34 +66,30 @@ class PrestaShopExceptionCore extends Exception
             $this->line = $line;
         }
     }
-
     /**
      * This method acts like an error handler.
      * Exception is displayed to user using currently selected error page, and script execution will end
      */
-    public function displayMessage(): never
+    public function display_message(): never
     {
-        $errorHandler = ServiceLocator::getInstance()->getErrorHandler();
-        $errorHandler->handleFatalError(ErrorUtils::describeException($this));
+        $error_handler = Service_Locator::get_instance()->get_error_handler();
+        $error_handler->handle_fatal_error(Error_Utils::describe_exception($this));
         exit;
     }
-
     /**
      * This method can be overridden by subclasses to include additional sections into output
      *
      * See PrestaShopDatabaseException for example how to add new section displaying SQL query
      */
-    public function getExtraSections(): array
+    public function get_extra_sections(): array
     {
         return [];
     }
-
     /**
      * @return array
      */
-    public function getCustomTrace()
+    public function get_custom_trace()
     {
         return $this->trace;
     }
-
 }

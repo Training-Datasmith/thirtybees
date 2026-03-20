@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,203 +30,129 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class SupplyOrderDetailCore
  */
-class SupplyOrderDetailCore extends ObjectModel
+class Supply_Order_Detail_Core extends Object_Model
 {
     /**
      * @var int Supply order
      */
     public $id_supply_order;
-
     /**
      * @var int Product ordered
      */
     public $id_product;
-
     /**
      * @var int Product attribute ordered
      */
     public $id_product_attribute;
-
     /**
      * @var string Product reference
      */
     public $reference;
-
     /**
      * @var string Product supplier reference
      */
     public $supplier_reference;
-
     /**
      * @var string Product name
      */
     public $name;
-
     /**
      * @var string Product EAN13
      */
     public $ean13;
-
     /**
      * @var string UPC
      */
     public $upc;
-
     /**
      * @var int Currency used to buy this particular product
      */
     public $id_currency;
-
     /**
      * @var float Exchange rate between $id_currency and SupplyOrder::$id_ref_currency, at the time
      */
     public $exchange_rate;
-
     /**
      * @var float Unit price without discount, without tax
      */
     public $unit_price_te = 0;
-
     /**
      * @var int Quantity ordered
      */
     public $quantity_expected = 0;
-
     /**
      * @var int Quantity received
      */
     public $quantity_received = 0;
-
     /**
      * @var float This defines the price of the product, considering the number of units to buy.
      * ($unit_price_te * $quantity), without discount, without tax
      */
     public $price_te = 0;
-
     /**
      * @var float Supplier discount rate for a given product
      */
     public $discount_rate = 0;
-
     /**
      * @var float Supplier discount value (($discount_rate / 100) * $price_te), without tax
      */
     public $discount_value_te = 0;
-
     /**
      * @var float ($price_te - $discount_value_te), with discount, without tax
      */
     public $price_with_discount_te = 0;
-
     /**
      * @var float Tax rate for the given product
      */
     public $tax_rate = 0;
-
     /**
      * @var float Tax value for the given product
      */
     public $tax_value = 0;
-
     /**
      * @var float ($price_with_discount_te + $tax_value)
      */
     public $price_ti = 0;
-
     /**
      * @var float Tax value of the given product after applying the global order discount (i.e. if SupplyOrder::discount_rate is set)
      */
     public $tax_value_with_order_discount = 0;
-
     /**
      * @var float This is like $price_with_discount_te, considering the global order discount.
      * (i.e. if SupplyOrder::discount_rate is set)
      */
     public $price_with_order_discount_te = 0;
-
     /**
      * @var array Object model definition
      */
-    public static $definition = [
-        'table'   => 'supply_order_detail',
-        'primary' => 'id_supply_order_detail',
-        'fields'  => [
-            'id_supply_order'               => ['type' => self::TYPE_INT,    'validate' => 'isUnsignedId',  'required' => true],
-            'id_currency'                   => ['type' => self::TYPE_INT,    'validate' => 'isUnsignedId',  'required' => true],
-            'id_product'                    => ['type' => self::TYPE_INT,    'validate' => 'isUnsignedId',  'required' => true],
-            'id_product_attribute'          => ['type' => self::TYPE_INT,    'validate' => 'isUnsignedId',  'required' => true],
-            'reference'                     => ['type' => self::TYPE_STRING, 'validate' => 'isReference', 'size' => self::SIZE_REFERENCE, 'dbNullable' => false],
-            'supplier_reference'            => ['type' => self::TYPE_STRING, 'validate' => 'isReference', 'size' => self::SIZE_REFERENCE, 'dbNullable' => false],
-            'name'                          => ['type' => self::TYPE_STRING, 'validate' => 'isGenericName', 'required' => true, 'size' => 128],
-            'ean13'                         => ['type' => self::TYPE_STRING, 'validate' => 'isEan13', 'size' => 13],
-            'upc'                           => ['type' => self::TYPE_STRING, 'validate' => 'isUpc', 'size' => 12],
-            'exchange_rate'                 => ['type' => self::TYPE_FLOAT,  'validate' => 'isFloat',       'required' => true, 'dbDefault' => '0.000000', 'dbNullable' => true],
-            'unit_price_te'                 => ['type' => self::TYPE_PRICE,  'validate' => 'isPrice',       'required' => true, 'dbDefault' => '0.000000', 'dbNullable' => true],
-            'quantity_expected'             => ['type' => self::TYPE_INT,    'validate' => 'isUnsignedInt', 'required' => true],
-            'quantity_received'             => ['type' => self::TYPE_INT,    'validate' => 'isUnsignedInt', 'dbNullable' => false],
-            'price_te'                      => ['type' => self::TYPE_PRICE,  'validate' => 'isPrice',       'required' => true, 'dbDefault' => '0.000000', 'dbNullable' => true],
-            'discount_rate'                 => ['type' => self::TYPE_FLOAT,  'validate' => 'isPercentage',  'required' => true, 'dbDefault' => '0.000000', 'dbNullable' => true],
-            'discount_value_te'             => ['type' => self::TYPE_PRICE,  'validate' => 'isPrice',       'required' => true, 'dbDefault' => '0.000000', 'dbNullable' => true],
-            'price_with_discount_te'        => ['type' => self::TYPE_PRICE,  'validate' => 'isPrice',       'required' => true, 'dbDefault' => '0.000000', 'dbNullable' => true],
-            'tax_rate'                      => ['type' => self::TYPE_FLOAT,  'validate' => 'isPercentage',  'required' => true, 'dbDefault' => '0.000000', 'dbNullable' => true],
-            'tax_value'                     => ['type' => self::TYPE_PRICE,  'validate' => 'isPrice',       'required' => true, 'dbDefault' => '0.000000', 'dbNullable' => true],
-            'price_ti'                      => ['type' => self::TYPE_PRICE,  'validate' => 'isPrice',       'required' => true, 'dbDefault' => '0.000000', 'dbNullable' => true],
-            'tax_value_with_order_discount' => ['type' => self::TYPE_PRICE,  'validate' => 'isPrice',       'required' => true, 'dbDefault' => '0.000000', 'dbNullable' => true],
-            'price_with_order_discount_te'  => ['type' => self::TYPE_PRICE,  'validate' => 'isPrice',       'required' => true, 'dbDefault' => '0.000000', 'dbNullable' => true],
-        ],
-        'keys' => [
-            'supply_order_detail' => [
-                'id_product_attribute'         => ['type' => ObjectModel::KEY, 'columns' => ['id_product_attribute']],
-                'id_product_product_attribute' => ['type' => ObjectModel::KEY, 'columns' => ['id_product', 'id_product_attribute']],
-                'id_supply_order'              => ['type' => ObjectModel::KEY, 'columns' => ['id_supply_order', 'id_product']],
-            ],
-        ],
-    ];
-
+    public static $definition = ['table' => 'supply_order_detail', 'primary' => 'id_supply_order_detail', 'fields' => ['id_supply_order' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true], 'id_currency' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true], 'id_product' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true], 'id_product_attribute' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true], 'reference' => ['type' => self::TYPE_STRING, 'validate' => 'isReference', 'size' => self::SIZE_REFERENCE, 'dbNullable' => false], 'supplier_reference' => ['type' => self::TYPE_STRING, 'validate' => 'isReference', 'size' => self::SIZE_REFERENCE, 'dbNullable' => false], 'name' => ['type' => self::TYPE_STRING, 'validate' => 'isGenericName', 'required' => true, 'size' => 128], 'ean13' => ['type' => self::TYPE_STRING, 'validate' => 'isEan13', 'size' => 13], 'upc' => ['type' => self::TYPE_STRING, 'validate' => 'isUpc', 'size' => 12], 'exchange_rate' => ['type' => self::TYPE_FLOAT, 'validate' => 'isFloat', 'required' => true, 'dbDefault' => '0.000000', 'dbNullable' => true], 'unit_price_te' => ['type' => self::TYPE_PRICE, 'validate' => 'isPrice', 'required' => true, 'dbDefault' => '0.000000', 'dbNullable' => true], 'quantity_expected' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedInt', 'required' => true], 'quantity_received' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedInt', 'dbNullable' => false], 'price_te' => ['type' => self::TYPE_PRICE, 'validate' => 'isPrice', 'required' => true, 'dbDefault' => '0.000000', 'dbNullable' => true], 'discount_rate' => ['type' => self::TYPE_FLOAT, 'validate' => 'isPercentage', 'required' => true, 'dbDefault' => '0.000000', 'dbNullable' => true], 'discount_value_te' => ['type' => self::TYPE_PRICE, 'validate' => 'isPrice', 'required' => true, 'dbDefault' => '0.000000', 'dbNullable' => true], 'price_with_discount_te' => ['type' => self::TYPE_PRICE, 'validate' => 'isPrice', 'required' => true, 'dbDefault' => '0.000000', 'dbNullable' => true], 'tax_rate' => ['type' => self::TYPE_FLOAT, 'validate' => 'isPercentage', 'required' => true, 'dbDefault' => '0.000000', 'dbNullable' => true], 'tax_value' => ['type' => self::TYPE_PRICE, 'validate' => 'isPrice', 'required' => true, 'dbDefault' => '0.000000', 'dbNullable' => true], 'price_ti' => ['type' => self::TYPE_PRICE, 'validate' => 'isPrice', 'required' => true, 'dbDefault' => '0.000000', 'dbNullable' => true], 'tax_value_with_order_discount' => ['type' => self::TYPE_PRICE, 'validate' => 'isPrice', 'required' => true, 'dbDefault' => '0.000000', 'dbNullable' => true], 'price_with_order_discount_te' => ['type' => self::TYPE_PRICE, 'validate' => 'isPrice', 'required' => true, 'dbDefault' => '0.000000', 'dbNullable' => true]], 'keys' => ['supply_order_detail' => ['id_product_attribute' => ['type' => Object_Model::KEY, 'columns' => ['id_product_attribute']], 'id_product_product_attribute' => ['type' => Object_Model::KEY, 'columns' => ['id_product', 'id_product_attribute']], 'id_supply_order' => ['type' => Object_Model::KEY, 'columns' => ['id_supply_order', 'id_product']]]]];
     /**
      * @var array Webservice Parameters
      */
-    protected $webserviceParameters = [
-        'objectsNodeName' => 'supply_order_details',
-        'objectNodeName'  => 'supply_order_detail',
-        'fields'          => [
-            'id_supply_order'      => ['xlink_resource' => 'supply_orders'],
-            'id_product'           => ['xlink_resource' => 'products'],
-            'id_product_attribute' => ['xlink_resource' => 'combinations'],
-        ],
-        'hidden_fields'   => [
-            'id_currency',
-        ],
-    ];
-
+    protected $webservice_parameters = ['objectsNodeName' => 'supply_order_details', 'objectNodeName' => 'supply_order_detail', 'fields' => ['id_supply_order' => ['xlink_resource' => 'supply_orders'], 'id_product' => ['xlink_resource' => 'products'], 'id_product_attribute' => ['xlink_resource' => 'combinations']], 'hidden_fields' => ['id_currency']];
     /**
      * @return bool
      *
      * @throws PrestaShopException
      */
-    public function update($nullValues = false)
+    public function update($null_values = false)
     {
-        $this->calculatePrices();
-
-        return parent::update($nullValues);
+        $this->calculate_prices();
+        return parent::update($null_values);
     }
-
     /**
      * @return bool
      *
      * @throws PrestaShopException
      */
-    public function add($autoDate = true, $nullValues = false)
+    public function add($auto_date = true, $null_values = false)
     {
-        $this->calculatePrices();
-
-        return parent::add($autoDate, $nullValues);
+        $this->calculate_prices();
+        return parent::add($auto_date, $null_values);
     }
-
     /**
      * Calculates all prices for this product based on its quantity and unit price
      * Applies discount if necessary
@@ -234,38 +160,23 @@ class SupplyOrderDetailCore extends ObjectModel
      *
      * @return void
      */
-    protected function calculatePrices()
+    protected function calculate_prices()
     {
         // calculates entry price
-        $this->price_te = round(
-            $this->unit_price_te * (int) $this->quantity_expected,
-            _TB_PRICE_DATABASE_PRECISION_
-        );
-
+        $this->price_te = round($this->unit_price_te * (int) $this->quantity_expected, _TB_PRICE_DATABASE_PRECISION_);
         // calculates entry discount value
         if ($this->discount_rate) {
-            $this->discount_value_te = round(
-                $this->price_te * ($this->discount_rate / 100),
-                _TB_PRICE_DATABASE_PRECISION_
-            );
+            $this->discount_value_te = round($this->price_te * ($this->discount_rate / 100), _TB_PRICE_DATABASE_PRECISION_);
         }
-
         // calculates entry price with discount
-        $this->price_with_discount_te = $this->price_te
-                                        - $this->discount_value_te;
-
+        $this->price_with_discount_te = $this->price_te - $this->discount_value_te;
         // calculates tax value
-        $this->tax_value = round(
-            $this->price_with_discount_te * ($this->tax_rate / 100),
-            _TB_PRICE_DATABASE_PRECISION_
-        );
+        $this->tax_value = round($this->price_with_discount_te * ($this->tax_rate / 100), _TB_PRICE_DATABASE_PRECISION_);
         $this->price_ti = $this->price_with_discount_te + $this->tax_value;
-
         // defines default values for order discount fields
         $this->tax_value_with_order_discount = $this->tax_value;
         $this->price_with_order_discount_te = $this->price_with_discount_te;
     }
-
     /**
      * Applies a global order discount rate, for the current product (i.e detail)
      * Calls ObjectModel::update()
@@ -274,37 +185,26 @@ class SupplyOrderDetailCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public function applyGlobalDiscount($discountRate): void
+    public function apply_global_discount($discount_rate): void
     {
-        if ($discountRate != null && is_numeric($discountRate) && (float) $discountRate > 0) {
+        if ($discount_rate != null && is_numeric($discount_rate) && (float) $discount_rate > 0) {
             // calculates new price, with global order discount, tax ecluded
-            $this->price_with_order_discount_te = round(
-                $this->price_with_discount_te
-                - $this->price_with_discount_te * $discountRate / 100,
-                _TB_PRICE_DATABASE_PRECISION_
-            );
-
+            $this->price_with_order_discount_te = round($this->price_with_discount_te - $this->price_with_discount_te * $discount_rate / 100, _TB_PRICE_DATABASE_PRECISION_);
             // calculates new tax value, with global order discount
-            $this->tax_value_with_order_discount = round(
-                $this->price_with_order_discount_te * $this->tax_rate / 100,
-                _TB_PRICE_DATABASE_PRECISION_
-            );
-
+            $this->tax_value_with_order_discount = round($this->price_with_order_discount_te * $this->tax_rate / 100, _TB_PRICE_DATABASE_PRECISION_);
             parent::update();
         }
     }
-
     /**
      * @param int $idLang
      *
      */
-    public function hydrate(array $data, $idLang = null): void
+    public function hydrate(array $data, $id_lang = null): void
     {
-        parent::hydrate($data, $idLang);
-
+        parent::hydrate($data, $id_lang);
         foreach ($data as $key => $value) {
             if (property_exists($this, $key) && $this->def['fields'][$key]['validate'] === 'isPrice') {
-                $this->$key = round($value, _TB_PRICE_DATABASE_PRECISION_);
+                $this->{$key} = round($value, _TB_PRICE_DATABASE_PRECISION_);
             }
         }
     }

@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -18,68 +18,55 @@ declare(strict_types=1);
  * @copyright 2017-2024 thirty bees
  * @license   Open Software License (OSL 3.0)
  */
-
-use Thirtybees\Core\Error\ErrorDescription;
-use Thirtybees\Core\Error\Response\ErrorResponseInterface;
-
-class WebserviceFatalErrorResponseCore implements ErrorResponseInterface
+use Thirtybees\Core\Error\Error_Description;
+use Thirtybees\Core\Error\Response\Error_Response_Interface;
+class Webservice_Fatal_Error_Response_Core implements Error_Response_Interface
 {
     /**
      * @var WebserviceOutputBuilder
      */
-    protected $outputBuilder;
-
+    protected $output_builder;
     /**
      * @var WebserviceLogger
      */
     protected $logger;
-
-    public function __construct(
-        WebserviceOutputBuilder $outputBuilder,
-        WebserviceLogger $logger,
-        protected bool $sendErrorMessage,
-        protected float $startTime
-    ) {
-        $this->outputBuilder = $outputBuilder;
+    public function __construct(Webservice_Output_Builder $output_builder, Webservice_Logger $logger, protected bool $send_error_message, protected float $start_time)
+    {
+        $this->output_builder = $output_builder;
         $this->logger = $logger;
     }
-
     /**
      * @throws PrestaShopException
      * @throws WebserviceException
      */
-    public function sendResponse(ErrorDescription $errorDescription): void
+    public function send_response(Error_Description $error_description): void
     {
-        $time = round(microtime(true) - $this->startTime, 3);
-        $this->outputBuilder->setStatus(500);
-        $this->outputBuilder->setHeaderParams('Execution-Time', $time);
-        foreach ($this->outputBuilder->buildHeader() as $header) {
+        $time = round(microtime(true) - $this->start_time, 3);
+        $this->output_builder->set_status(500);
+        $this->output_builder->set_header_params('Execution-Time', $time);
+        foreach ($this->output_builder->build_header() as $header) {
             header($header);
         }
-
         //clean any output buffer there might be
         while (ob_get_level()) {
             ob_end_clean();
         }
-
         $extra = [];
-        if ($this->sendErrorMessage) {
-            $message = $errorDescription->getExtendedMessage();
-            foreach ($errorDescription->getExtraSections() as $section) {
+        if ($this->send_error_message) {
+            $message = $error_description->get_extended_message();
+            foreach ($error_description->get_extra_sections() as $section) {
                 $extra[$section['label']] = $section['content'];
             }
-            $extra['stacktrace'] = $errorDescription->getTraceAsString();
+            $extra['stacktrace'] = $error_description->get_trace_as_string();
         } else {
-            $message = Tools::displayError('Internal server error');
-            $extra['notice'] = Tools::displayError('You can decrypt error message in the back office');
-            $extra['encrypted_error'] = $errorDescription->encrypt();
+            $message = Tools::display_error('Internal server error');
+            $extra['notice'] = Tools::display_error('You can decrypt error message in the back office');
+            $extra['encrypted_error'] = $error_description->encrypt();
         }
-
-        $content = $this->outputBuilder->getErrors([[2, $message, $extra]]);
+        $content = $this->output_builder->get_errors([[2, $message, $extra]]);
         echo $content;
-
         // log error
-        $this->logger->logResponse('', [[2, $errorDescription->getExtendedMessage()]], $time);
+        $this->logger->log_response('', [[2, $error_description->get_extended_message()]], $time);
         exit;
     }
 }

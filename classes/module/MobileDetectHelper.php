@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * Copyright (C) 2025-2025 thirty bees
  *
@@ -18,71 +18,60 @@ declare(strict_types=1);
  * @copyright 2025-2025 thirty bees
  * @license   Open Software License (OSL 3.0)
  */
-
 namespace Thirtybees\Core\Module;
 
 use Context;
 use Db;
-use DbQuery;
+use Db_Query;
 use Module;
-use PrestaShopException;
-use Thirtybees\Core\DependencyInjection\ServiceLocator;
-use Thirtybees\Core\Error\ErrorUtils;
+use Presta_Shop_Exception;
+use Thirtybees\Core\Dependency_Injection\Service_Locator;
+use Thirtybees\Core\Error\Error_Utils;
 use Throwable;
-
-class MobileDetectHelperCore
+class Mobile_Detect_Helper_Core
 {
-    private static ?bool $isTablet = null;
-
-    private static ?bool $isMobile = null;
-
-    private static ?string $userAgent = null;
-
-    public function isTablet(): bool
+    private static ?bool $is_tablet = null;
+    private static ?bool $is_mobile = null;
+    private static ?string $user_agent = null;
+    public function is_tablet(): bool
     {
         static::detect();
-        return (bool)static::$isTablet;
+        return (bool) static::$is_tablet;
     }
-
-    public function isMobile(): bool
+    public function is_mobile(): bool
     {
         static::detect();
-        return (bool)static::$isMobile;
+        return (bool) static::$is_mobile;
     }
-
-    public function getUserAgent(): string
+    public function get_user_agent(): string
     {
         static::detect();
-        ;
-        return (string)static::$userAgent;
+        return (string) static::$user_agent;
     }
-
     protected static function detect(): void
     {
-        if (is_null(static::$isTablet)) {
-            static::$isMobile = false;
-            static::$isTablet = false;
-            static::$userAgent = (string)($_SERVER['HTTP_USER_AGENT'] ?? '');
-
+        if (is_null(static::$is_tablet)) {
+            static::$is_mobile = false;
+            static::$is_tablet = false;
+            static::$user_agent = (string) ($_SERVER['HTTP_USER_AGENT'] ?? '');
             try {
-                foreach (static::getModulesResponses() as $response) {
+                foreach (static::get_modules_responses() as $response) {
                     if (isset($response['isTablet']) && $response['isTablet']) {
-                        static::$isTablet = true;
+                        static::$is_tablet = true;
                     }
                     if (isset($response['isMobile']) && $response['isMobile']) {
-                        static::$isMobile = true;
+                        static::$is_mobile = true;
                     }
                     if (isset($response['userAgent'])) {
-                        static::$userAgent = (string)$response['userAgent'];
+                        static::$user_agent = (string) $response['userAgent'];
                     }
                 }
             } catch (Throwable $e) {
-                $errorHandler = ServiceLocator::getInstance()->getErrorHandler();
-                $errorHandler->logFatalError(ErrorUtils::describeException($e));
+                $error_handler = Service_Locator::get_instance()->get_error_handler();
+                $error_handler->log_fatal_error(Error_Utils::describe_exception($e));
             }
         }
     }
-
     /**
      * Executes hook 'actionDetectMobile' for all installed modules
      *
@@ -93,26 +82,16 @@ class MobileDetectHelperCore
      *
      * @throws PrestaShopException
      */
-    protected static function getModulesResponses(): array
+    protected static function get_modules_responses(): array
     {
         $responses = [];
-        $sql = (new DbQuery())
-            ->select('DISTINCT m.name')
-            ->from('module', 'm')
-            ->innerJoin('module_shop', 'ms', 'ms.`id_module` = m.`id_module`')
-            ->innerJoin('hook_module', 'hm', 'hm.`id_module` = m.`id_module` AND hm.`id_shop` = ms.`id_shop`')
-            ->innerJoin('hook', 'h', 'hm.`id_hook` = h.`id_hook`')
-            ->where('ms.id_shop = ' . (int)Context::getContext()->shop->id)
-            ->where('m.active')
-            ->where('ms.enable_device > 0')
-            ->where('h.name = "actionDetectMobile"')
-            ->orderBy('hm.position');
-        $conn = Db::getInstance();
-        foreach ($conn->getArray($sql) as $row) {
-            $moduleName = $row['name'];
-            $moduleInstance = Module::getInstanceByName($moduleName);
-            if ($moduleInstance && is_callable([$moduleInstance, 'hookActionDetectMobile'])) {
-                $responses[$moduleName] = $moduleInstance->hookActionDetectMobile();
+        $sql = (new Db_Query())->select('DISTINCT m.name')->from('module', 'm')->inner_join('module_shop', 'ms', 'ms.`id_module` = m.`id_module`')->inner_join('hook_module', 'hm', 'hm.`id_module` = m.`id_module` AND hm.`id_shop` = ms.`id_shop`')->inner_join('hook', 'h', 'hm.`id_hook` = h.`id_hook`')->where('ms.id_shop = ' . (int) Context::get_context()->shop->id)->where('m.active')->where('ms.enable_device > 0')->where('h.name = "actionDetectMobile"')->order_by('hm.position');
+        $conn = Db::get_instance();
+        foreach ($conn->get_array($sql) as $row) {
+            $module_name = $row['name'];
+            $module_instance = Module::get_instance_by_name($module_name);
+            if ($module_instance && is_callable([$module_instance, 'hookActionDetectMobile'])) {
+                $responses[$module_name] = $module_instance->hook_action_detect_mobile();
             }
         }
         return $responses;

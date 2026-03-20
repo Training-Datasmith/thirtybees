@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,39 +30,35 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class HelperImageUploaderCore
  */
-class HelperImageUploaderCore extends HelperUploader
+class Helper_Image_Uploader_Core extends Helper_Uploader
 {
     /**
      * @return int
      */
-    public function getMaxSize()
+    public function get_max_size()
     {
-        return (int) Tools::getMaxUploadSize();
+        return (int) Tools::get_max_upload_size();
     }
-
     /**
      * @return string
      */
-    public function getSavePath()
+    public function get_save_path()
     {
-        return $this->_normalizeDirectory(_PS_TMP_IMG_DIR_);
+        return $this->_normalize_directory(_PS_TMP_IMG_DIR_);
     }
-
     /**
      * @param string|null $fileName
      *
      * @return string
      */
-    public function getFilePath($fileName = null)
+    public function get_file_path($file_name = null)
     {
         //Force file path
-        return tempnam($this->getSavePath(), $this->getUniqueFileName());
+        return tempnam($this->get_save_path(), $this->get_unique_file_name());
     }
-
     /**
      * @param array $file
      *
@@ -70,40 +66,28 @@ class HelperImageUploaderCore extends HelperUploader
      */
     protected function validate(&$file)
     {
-        $file['error'] = $this->checkUploadError($file['error']);
-
+        $file['error'] = $this->check_upload_error($file['error']);
         if ($file['error']) {
             return false;
         }
-
-        $postMaxSize = Tools::convertBytes(ini_get('post_max_size'));
-
-        $uploadMaxFilesize = Tools::convertBytes(ini_get('upload_max_filesize'));
-
-        if ($postMaxSize && ($this->_getServerVars('CONTENT_LENGTH') > $postMaxSize)) {
-            $file['error'] = Tools::displayError('The uploaded file exceeds the post_max_size directive in php.ini');
-
+        $post_max_size = Tools::convert_bytes(ini_get('post_max_size'));
+        $upload_max_filesize = Tools::convert_bytes(ini_get('upload_max_filesize'));
+        if ($post_max_size && $this->_get_server_vars('CONTENT_LENGTH') > $post_max_size) {
+            $file['error'] = Tools::display_error('The uploaded file exceeds the post_max_size directive in php.ini');
             return false;
         }
-
-        if ($uploadMaxFilesize && ($this->_getServerVars('CONTENT_LENGTH') > $uploadMaxFilesize)) {
-            $file['error'] = Tools::displayError('The uploaded file exceeds the upload_max_filesize directive in php.ini');
-
+        if ($upload_max_filesize && $this->_get_server_vars('CONTENT_LENGTH') > $upload_max_filesize) {
+            $file['error'] = Tools::display_error('The uploaded file exceeds the upload_max_filesize directive in php.ini');
             return false;
         }
-
-        if ($error = ImageManager::validateUpload($file, Tools::getMaxUploadSize($this->getMaxSize()), $this->getAcceptTypes())) {
+        if ($error = Image_Manager::validate_upload($file, Tools::get_max_upload_size($this->get_max_size()), $this->get_accept_types())) {
             $file['error'] = $error;
-
             return false;
         }
-
-        if ($file['size'] > $this->getMaxSize()) {
-            $file['error'] = sprintf(Tools::displayError('File (size : %1s) is too big (max : %2s)'), $file['size'], $this->getMaxSize());
-
+        if ($file['size'] > $this->get_max_size()) {
+            $file['error'] = sprintf(Tools::display_error('File (size : %1s) is too big (max : %2s)'), $file['size'], $this->get_max_size());
             return false;
         }
-
         return true;
     }
 }

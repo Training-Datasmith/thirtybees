@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,25 +30,23 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class PrestaShopBackupCore
  */
-class PrestaShopBackupCore
+class Presta_Shop_Backup_Core
 {
     /** @var string default backup directory. */
-    public static $backupDir = '/backups/';
+    public static $backup_dir = '/backups/';
     /** @var int Object id */
     public $id;
     /** @var string Last error messages */
     public $error;
     /** @var string custom backup directory. */
-    public $customBackupDir;
+    public $custom_backup_dir;
     /** @var bool|string $psBackupAll */
-    public $psBackupAll = true;
+    public $ps_backup_all = true;
     /** @var bool|string $psBackupDropTable */
-    public $psBackupDropTable = true;
-
+    public $ps_backup_drop_table = true;
     /**
      * Creates a new backup object
      *
@@ -59,15 +57,13 @@ class PrestaShopBackupCore
     public function __construct($filename = null)
     {
         if ($filename) {
-            $this->id = $this->getRealBackupPath($filename);
+            $this->id = $this->get_real_backup_path($filename);
         }
-
-        $psBackupAll = Configuration::get('PS_BACKUP_ALL');
-        $psBackupDropTable = Configuration::get('PS_BACKUP_DROP_TABLE');
-        $this->psBackupAll = $psBackupAll !== false ? $psBackupAll : true;
-        $this->psBackupDropTable = $psBackupDropTable !== false ? $psBackupDropTable : true;
+        $ps_backup_all = Configuration::get('PS_BACKUP_ALL');
+        $ps_backup_drop_table = Configuration::get('PS_BACKUP_DROP_TABLE');
+        $this->ps_backup_all = $ps_backup_all !== false ? $ps_backup_all : true;
+        $this->ps_backup_drop_table = $ps_backup_drop_table !== false ? $ps_backup_drop_table : true;
     }
-
     /**
      * get the path to use for backup (customBackupDir if specified, or default)
      *
@@ -77,24 +73,17 @@ class PrestaShopBackupCore
      *
      * @throws PrestaShopException
      */
-    public function getRealBackupPath($filename = null)
+    public function get_real_backup_path($filename = null)
     {
-        $backupDir = static::getBackupPath($filename);
-        if (!empty($this->customBackupDir)) {
-            $backupDir = str_replace(
-                _PS_ADMIN_DIR_.static::$backupDir,
-                _PS_ADMIN_DIR_.$this->customBackupDir,
-                $backupDir
-            );
-
-            if (strrpos($backupDir, DIRECTORY_SEPARATOR)) {
-                $backupDir .= DIRECTORY_SEPARATOR;
+        $backup_dir = static::get_backup_path($filename);
+        if (!empty($this->custom_backup_dir)) {
+            $backup_dir = str_replace(_PS_ADMIN_DIR_ . static::$backup_dir, _PS_ADMIN_DIR_ . $this->custom_backup_dir, $backup_dir);
+            if (strrpos($backup_dir, DIRECTORY_SEPARATOR)) {
+                $backup_dir .= DIRECTORY_SEPARATOR;
             }
         }
-
-        return $backupDir;
+        return $backup_dir;
     }
-
     /**
      * Get the full path of the backup file
      *
@@ -104,28 +93,23 @@ class PrestaShopBackupCore
      *
      * @throws PrestaShopException
      */
-    public static function getBackupPath(?string $filename = ''): string
+    public static function get_backup_path(?string $filename = ''): string
     {
-        $backupdir = realpath(_PS_ADMIN_DIR_.static::$backupDir);
-
+        $backupdir = realpath(_PS_ADMIN_DIR_ . static::$backup_dir);
         if ($backupdir === false) {
-            throw new PrestaShopException(Tools::displayError('"Backup" directory does not exist.'));
+            throw new Presta_Shop_Exception(Tools::display_error('"Backup" directory does not exist.'));
         }
-
         // Check the realpath so we can validate the backup file is under the backup directory
         if (!empty($filename)) {
-            $backupfile = realpath($backupdir.DIRECTORY_SEPARATOR.$filename);
+            $backupfile = realpath($backupdir . DIRECTORY_SEPARATOR . $filename);
         } else {
-            $backupfile = $backupdir.DIRECTORY_SEPARATOR;
+            $backupfile = $backupdir . DIRECTORY_SEPARATOR;
         }
-
         if ($backupfile === false || strncmp($backupdir, $backupfile, strlen($backupdir)) != 0) {
-            throw new PrestaShopException(Tools::displayError('Failed to resolve backup file path.'));
+            throw new Presta_Shop_Exception(Tools::display_error('Failed to resolve backup file path.'));
         }
-
         return $backupfile;
     }
-
     /**
      * Check if a backup file exist
      *
@@ -135,17 +119,14 @@ class PrestaShopBackupCore
      *
      * @throws PrestaShopException
      */
-    public static function backupExist(string $filename): int|false
+    public static function backup_exist(string $filename): int|false
     {
-        $backupdir = realpath(_PS_ADMIN_DIR_.static::$backupDir);
-
+        $backupdir = realpath(_PS_ADMIN_DIR_ . static::$backup_dir);
         if ($backupdir === false) {
-            throw new PrestaShopException(Tools::displayError('"Backup" directory does not exist.'));
+            throw new Presta_Shop_Exception(Tools::display_error('"Backup" directory does not exist.'));
         }
-
-        return @filemtime($backupdir.DIRECTORY_SEPARATOR.$filename);
+        return @filemtime($backupdir . DIRECTORY_SEPARATOR . $filename);
     }
-
     /**
      * you can set a different path with that function
      *
@@ -155,28 +136,25 @@ class PrestaShopBackupCore
      *
      * @return bool bo
      */
-    public function setCustomBackupPath($dir): bool
+    public function set_custom_backup_path($dir): bool
     {
-        $customDir = DIRECTORY_SEPARATOR.trim($dir, '/').DIRECTORY_SEPARATOR;
-        if (is_dir(_PS_ADMIN_DIR_.$customDir)) {
-            $this->customBackupDir = $customDir;
+        $custom_dir = DIRECTORY_SEPARATOR . trim($dir, '/') . DIRECTORY_SEPARATOR;
+        if (is_dir(_PS_ADMIN_DIR_ . $custom_dir)) {
+            $this->custom_backup_dir = $custom_dir;
         } else {
             return false;
         }
-
         return true;
     }
-
     /**
      * Get the URL used to retrieve this backup file
      *
      * @return string The url used to request the backup file
      */
-    public function getBackupURL(): string
+    public function get_backup_url(): string
     {
-        return __PS_BASE_URI__.basename(_PS_ADMIN_DIR_).'/backup.php?filename='.basename($this->id);
+        return __PS_BASE_URI__ . basename(_PS_ADMIN_DIR_) . '/backup.php?filename=' . basename($this->id);
     }
-
     /**
      * Deletes a range of backup files
      *
@@ -185,20 +163,17 @@ class PrestaShopBackupCore
      *
      * @throws PrestaShopException
      */
-    public function deleteSelection($list): bool
+    public function delete_selection($list): bool
     {
         foreach ($list as $file) {
             $backup = new self($file);
             if (!$backup->delete()) {
                 $this->error = $backup->error;
-
                 return false;
             }
         }
-
         return true;
     }
-
     /**
      * Creates a new backup file
      *
@@ -209,23 +184,15 @@ class PrestaShopBackupCore
      */
     public function add(): bool
     {
-        if (!$this->psBackupAll) {
-            $ignoreInsertTable = [
-                _DB_PREFIX_.'connections',
-                _DB_PREFIX_.'connections_page',
-                _DB_PREFIX_.'connections_source',
-                _DB_PREFIX_.'guest',
-                _DB_PREFIX_.'statssearch',
-            ];
+        if (!$this->ps_backup_all) {
+            $ignore_insert_table = [_DB_PREFIX_ . 'connections', _DB_PREFIX_ . 'connections_page', _DB_PREFIX_ . 'connections_source', _DB_PREFIX_ . 'guest', _DB_PREFIX_ . 'statssearch'];
         } else {
-            $ignoreInsertTable = [];
+            $ignore_insert_table = [];
         }
-
         // Generate some random number, to make it extra hard to guess backup file names
         $rand = dechex(mt_rand(0, min(0xffffffff, mt_getrandmax())));
         $date = time();
-        $backupfile = $this->getRealBackupPath().$date.'-'.$rand.'.sql';
-
+        $backupfile = $this->get_real_backup_path() . $date . '-' . $rand . '.sql';
         // Figure out what compression is available and open the file
         if (function_exists('bzopen')) {
             $backupfile .= '.bz2';
@@ -236,21 +203,16 @@ class PrestaShopBackupCore
         } else {
             $fp = @fopen($backupfile, 'w');
         }
-
         if ($fp === false) {
-            echo Tools::displayError('Unable to create backup file').' "'.addslashes($backupfile).'"';
-
+            echo Tools::display_error('Unable to create backup file') . ' "' . addslashes($backupfile) . '"';
             return false;
         }
-
         $this->id = realpath($backupfile);
-
-        fwrite($fp, '/* Backup for '.Tools::getHttpHost(false, false).__PS_BASE_URI__."\n *  at ".date($date)."\n */\n");
-        fwrite($fp, "\n".'SET NAMES \'utf8\';'."\n\n");
-
-        $conn = Db::getInstance();
+        fwrite($fp, '/* Backup for ' . Tools::get_http_host(false, false) . __PS_BASE_URI__ . "\n *  at " . date($date) . "\n */\n");
+        fwrite($fp, "\n" . 'SET NAMES \'utf8\';' . "\n\n");
+        $conn = Db::get_instance();
         // Find all tables
-        $tables = $conn->getArray('SHOW TABLES');
+        $tables = $conn->get_array('SHOW TABLES');
         $found = 0;
         foreach ($tables as $table) {
             $table = current($table);
@@ -261,45 +223,36 @@ class PrestaShopBackupCore
             if (!str_starts_with((string) $table, _DB_PREFIX_)) {
                 continue;
             }
-
             // Export the table schema
-            $schema = $conn->getArray('SHOW CREATE TABLE `'.$table.'`');
-
+            $schema = $conn->get_array('SHOW CREATE TABLE `' . $table . '`');
             if (count($schema) != 1 || !isset($schema[0]['Table']) || !isset($schema[0]['Create Table'])) {
                 fclose($fp);
                 $this->delete();
-                echo Tools::displayError('An error occurred while backing up. Unable to obtain the schema of').' "'.$table;
-
+                echo Tools::display_error('An error occurred while backing up. Unable to obtain the schema of') . ' "' . $table;
                 return false;
             }
-
-            fwrite($fp, '/* Scheme for table '.$schema[0]['Table']." */\n");
-
-            if ($this->psBackupDropTable) {
-                fwrite($fp, 'DROP TABLE IF EXISTS `'.$schema[0]['Table'].'`;'."\n");
+            fwrite($fp, '/* Scheme for table ' . $schema[0]['Table'] . " */\n");
+            if ($this->ps_backup_drop_table) {
+                fwrite($fp, 'DROP TABLE IF EXISTS `' . $schema[0]['Table'] . '`;' . "\n");
             }
-
-            fwrite($fp, $schema[0]['Create Table'].";\n\n");
-
-            if (!in_array($schema[0]['Table'], $ignoreInsertTable)) {
-                $data = $conn->query('SELECT * FROM `'.$schema[0]['Table'].'`');
-                $sizeof = $conn->NumRows();
+            fwrite($fp, $schema[0]['Create Table'] . ";\n\n");
+            if (!in_array($schema[0]['Table'], $ignore_insert_table)) {
+                $data = $conn->query('SELECT * FROM `' . $schema[0]['Table'] . '`');
+                $sizeof = $conn->num_rows();
                 $lines = explode("\n", $schema[0]['Create Table']);
-
                 if ($data && $sizeof > 0) {
                     // Export the table data
-                    fwrite($fp, 'INSERT INTO `'.$schema[0]['Table']."` VALUES\n");
+                    fwrite($fp, 'INSERT INTO `' . $schema[0]['Table'] . "` VALUES\n");
                     $i = 1;
-                    while ($row = $conn->nextRow($data)) {
+                    while ($row = $conn->next_row($data)) {
                         $s = '(';
-
                         foreach ($row as $field => $value) {
-                            $tmp = "'".pSQL($value, true)."',";
+                            $tmp = "'" . p_sql($value, true) . "',";
                             if ($tmp != "'',") {
                                 $s .= $tmp;
                             } else {
                                 foreach ($lines as $line) {
-                                    if (str_contains($line, '`'.$field.'`')) {
+                                    if (str_contains($line, '`' . $field . '`')) {
                                         if (preg_match('/(.*NOT NULL.*)/Ui', $line)) {
                                             $s .= "'',";
                                         } else {
@@ -311,15 +264,13 @@ class PrestaShopBackupCore
                             }
                         }
                         $s = rtrim($s, ',');
-
                         if ($i % 200 == 0 && $i < $sizeof) {
-                            $s .= ");\nINSERT INTO `".$schema[0]['Table']."` VALUES\n";
+                            $s .= ");\nINSERT INTO `" . $schema[0]['Table'] . "` VALUES\n";
                         } elseif ($i < $sizeof) {
                             $s .= "),\n";
                         } else {
                             $s .= ");\n";
                         }
-
                         fwrite($fp, $s);
                         ++$i;
                     }
@@ -327,18 +278,14 @@ class PrestaShopBackupCore
             }
             $found++;
         }
-
         fclose($fp);
         if ($found == 0) {
             $this->delete();
-            echo Tools::displayError('No valid tables were found to backup.');
-
+            echo Tools::display_error('No valid tables were found to backup.');
             return false;
         }
-
         return true;
     }
-
     /**
      * Delete the current backup file
      *
@@ -347,12 +294,9 @@ class PrestaShopBackupCore
     public function delete(): bool
     {
         if (!$this->id || !unlink($this->id)) {
-            $this->error = Tools::displayError('Error deleting').' '.($this->id ? '"'.$this->id.'"' :
-                    Tools::displayError('Invalid ID'));
-
+            $this->error = Tools::display_error('Error deleting') . ' ' . ($this->id ? '"' . $this->id . '"' : Tools::display_error('Invalid ID'));
             return false;
         }
-
         return true;
     }
 }

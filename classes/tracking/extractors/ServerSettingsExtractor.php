@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -18,47 +18,39 @@ declare(strict_types=1);
  * @copyright 2017-2024 thirty bees
  * @license   Open Software License (OSL 3.0)
  */
-
 namespace Thirtybees\Core\Tracking\Extractor;
 
-use Thirtybees\Core\Tracking\DataExtractor;
-
+use Thirtybees\Core\Tracking\Data_Extractor;
 /**
  * Class ServerSettingsExtractorCore
  */
-class ServerSettingsExtractorCore extends DataExtractor
+class Server_Settings_Extractor_Core extends Data_Extractor
 {
     /**
      * Returns data name
      *
      * @return string
      */
-    public function getName()
+    public function get_name()
     {
         return $this->l('PHP server configuration');
     }
-
     /**
      * Returns detailed information about this data
      *
      * @return string
      */
-    public function getDescription()
+    public function get_description()
     {
         return $this->l('Information about configuration of your PHP server. Includes information such as memory limit or max execution time');
     }
-
     /**
      * Extracts value
      *
      * @return array
      */
-    public function extractValue()
+    public function extract_value()
     {
-        return [
-            'serverSoftware'   => $_SERVER['SERVER_SOFTWARE'] ?? '',
-            'memoryLimit'      => @ini_get('memory_limit'),
-            'maxExecutionTime' => @ini_get('max_execution_time'),
-        ];
+        return ['serverSoftware' => $_SERVER['SERVER_SOFTWARE'] ?? '', 'memoryLimit' => @ini_get('memory_limit'), 'maxExecutionTime' => @ini_get('max_execution_time')];
     }
 }

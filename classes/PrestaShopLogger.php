@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,14 +30,12 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class PrestaShopLoggerCore
  */
-class PrestaShopLoggerCore extends ObjectModel
+class Presta_Shop_Logger_Core extends Object_Model
 {
     public const MAIL_ERROR = 'INTERNAL_EMAIL_ERROR';
-
     /**
      * @var array
      */
@@ -62,34 +60,10 @@ class PrestaShopLoggerCore extends ObjectModel
     public $date_upd;
     /** @var string hash code for this log object */
     protected $hash;
-
     /**
      * @var array Object model definition
      */
-    public static $definition = [
-        'table'   => 'log',
-        'primary' => 'id_log',
-        'fields'  => [
-            'severity'    => ['type' => self::TYPE_INT, 'validate' => 'isInt', 'required' => true, 'size' => 1, 'signed' => true],
-            'error_code'  => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedInt', 'dbType' => 'int(11)'],
-            'message'     => ['type' => self::TYPE_STRING, 'validate' => 'isString', 'required' => true, 'size' => ObjectModel::SIZE_TEXT],
-            'object_type' => ['type' => self::TYPE_STRING, 'validate' => 'isString', 'size' => 32],
-            'object_id'   => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedInt'],
-            'id_employee' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedInt'],
-            'date_add'    => ['type' => self::TYPE_DATE, 'validate' => 'isDate', 'dbNullable' => false],
-            'date_upd'    => ['type' => self::TYPE_DATE, 'validate' => 'isDate', 'dbNullable' => false],
-        ],
-        'keys' => [
-            'log' => [
-                'message' => [
-                    'type' => ObjectModel::KEY,
-                    'columns' => ['message', 'severity','error_code','object_type', 'object_id'],
-                    'subParts' => [150],
-                ],
-            ],
-        ],
-    ];
-
+    public static $definition = ['table' => 'log', 'primary' => 'id_log', 'fields' => ['severity' => ['type' => self::TYPE_INT, 'validate' => 'isInt', 'required' => true, 'size' => 1, 'signed' => true], 'error_code' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedInt', 'dbType' => 'int(11)'], 'message' => ['type' => self::TYPE_STRING, 'validate' => 'isString', 'required' => true, 'size' => Object_Model::SIZE_TEXT], 'object_type' => ['type' => self::TYPE_STRING, 'validate' => 'isString', 'size' => 32], 'object_id' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedInt'], 'id_employee' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedInt'], 'date_add' => ['type' => self::TYPE_DATE, 'validate' => 'isDate', 'dbNullable' => false], 'date_upd' => ['type' => self::TYPE_DATE, 'validate' => 'isDate', 'dbNullable' => false]], 'keys' => ['log' => ['message' => ['type' => Object_Model::KEY, 'columns' => ['message', 'severity', 'error_code', 'object_type', 'object_id'], 'subParts' => [150]]]]];
     /**
      * add a log item to the database and send a mail if configured for this $severity
      *
@@ -106,44 +80,36 @@ class PrestaShopLoggerCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function addLog($message, $severity = 1, $errorCode = null, $objectType = null, $objectId = null, $allowDuplicate = false, $idEmployee = null)
+    public static function add_log($message, $severity = 1, $error_code = null, $object_type = null, $object_id = null, $allow_duplicate = false, $id_employee = null)
     {
         $log = new static();
         $log->severity = (int) $severity;
-        $log->error_code = (int) $errorCode;
-        $log->message = $message ?: static::getEmptyMessageText();
+        $log->error_code = (int) $error_code;
+        $log->message = $message ?: static::get_empty_message_text();
         $log->date_add = date('Y-m-d H:i:s');
         $log->date_upd = date('Y-m-d H:i:s');
-
-        if ($idEmployee === null && isset(Context::getContext()->employee) && Validate::isLoadedObject(Context::getContext()->employee)) {
-            $idEmployee = Context::getContext()->employee->id;
+        if ($id_employee === null && isset(Context::get_context()->employee) && Validate::is_loaded_object(Context::get_context()->employee)) {
+            $id_employee = Context::get_context()->employee->id;
         }
-
-        if ($idEmployee !== null) {
-            $log->id_employee = (int) $idEmployee;
+        if ($id_employee !== null) {
+            $log->id_employee = (int) $id_employee;
         }
-
-        if (!empty($objectType) && !empty($objectId) && $objectType !== static::MAIL_ERROR) {
-            $log->object_type = substr($objectType, 0, 31);
-            $log->object_id = (int) $objectId;
+        if (!empty($object_type) && !empty($object_id) && $object_type !== static::MAIL_ERROR) {
+            $log->object_type = substr($object_type, 0, 31);
+            $log->object_id = (int) $object_id;
         }
-
-        if ($objectType !== static::MAIL_ERROR) {
-            static::sendByMail($log);
+        if ($object_type !== static::MAIL_ERROR) {
+            static::send_by_mail($log);
         }
-
-        if ($allowDuplicate || !$log->_isPresent()) {
+        if ($allow_duplicate || !$log->_is_present()) {
             $res = $log->add();
             if ($res) {
-                static::$is_present[$log->getHash()] = isset(static::$is_present[$log->getHash()]) ? static::$is_present[$log->getHash()] + 1 : 1;
-
+                static::$is_present[$log->get_hash()] = isset(static::$is_present[$log->get_hash()]) ? static::$is_present[$log->get_hash()] + 1 : 1;
                 return true;
             }
         }
-
         return false;
     }
-
     /**
      * Send e-mail to the shop owner only if the minimal severity level has been reached
      *
@@ -151,19 +117,12 @@ class PrestaShopLoggerCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function sendByMail($log): void
+    public static function send_by_mail($log): void
     {
         if ((int) Configuration::get('PS_LOGS_BY_EMAIL') <= (int) $log->severity) {
-            Mail::Send(
-                (int) Configuration::get('PS_LANG_DEFAULT'),
-                'log_alert',
-                Mail::l('Log: You have a new alert from your shop', (int) Configuration::get('PS_LANG_DEFAULT')),
-                [],
-                Configuration::get('PS_SHOP_EMAIL')
-            );
+            Mail::Send((int) Configuration::get('PS_LANG_DEFAULT'), 'log_alert', Mail::l('Log: You have a new alert from your shop', (int) Configuration::get('PS_LANG_DEFAULT')), [], Configuration::get('PS_SHOP_EMAIL'));
         }
     }
-
     /**
      * check if this log message already exists in database.
      *
@@ -171,71 +130,58 @@ class PrestaShopLoggerCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    protected function _isPresent()
+    protected function _is_present()
     {
-        $key = $this->getHash();
-        if (! isset(static::$is_present[$key])) {
-            static::$is_present[$key] = Db::readOnly()->getValue(
-                'SELECT COUNT(*)
-				FROM `'._DB_PREFIX_.'log`
+        $key = $this->get_hash();
+        if (!isset(static::$is_present[$key])) {
+            static::$is_present[$key] = Db::read_only()->get_value('SELECT COUNT(*)
+				FROM `' . _DB_PREFIX_ . 'log`
 				WHERE
-					`message` = \''.pSQL($this->message).'\'
-					AND `severity` = \''.$this->severity.'\'
-					AND `error_code` = \''.$this->error_code.'\'
-					AND `object_type` = \''.pSQL($this->object_type).'\'
-					AND `object_id` = \''.$this->object_id.'\'
-				'
-            );
+					`message` = \'' . p_sql($this->message) . '\'
+					AND `severity` = \'' . $this->severity . '\'
+					AND `error_code` = \'' . $this->error_code . '\'
+					AND `object_type` = \'' . p_sql($this->object_type) . '\'
+					AND `object_id` = \'' . $this->object_id . '\'
+				');
         }
-
         return static::$is_present[$key];
     }
-
     /**
      * Calculates hash key for current log entry
      *
      * @return string hash
      */
-    public function getHash()
+    public function get_hash()
     {
         if (empty($this->hash)) {
-            $this->hash = md5(
-                $this->message .
-                $this->severity .
-                $this->error_code .
-                $this->object_type .
-                $this->object_id
-            );
+            $this->hash = md5($this->message . $this->severity . $this->error_code . $this->object_type . $this->object_id);
         }
-
         return $this->hash;
     }
-
     /**
      * @return bool
      *
      * @throws PrestaShopException
      */
-    public static function eraseAllLogs()
+    public static function erase_all_logs()
     {
-        return Db::getInstance()->execute('TRUNCATE TABLE '._DB_PREFIX_.'log');
+        return Db::get_instance()->execute('TRUNCATE TABLE ' . _DB_PREFIX_ . 'log');
     }
-
     /**
      * This function is called when empty message is passed to Logger::addLog(). In that case thirtybees will log
      * information about the caller
      *
      * @return string
      */
-    protected static function getEmptyMessageText()
+    protected static function get_empty_message_text()
     {
         foreach (debug_backtrace() as $trace) {
             if (!str_contains($trace['file'], __FILE__)) {
                 $file = str_replace(_PS_ROOT_DIR_, '', $trace['file']);
                 $line = $trace['line'];
-                return sprintf(Tools::displayError('Logger::addLog called with empty message at %s on line %s', false), $file, $line);
+                return sprintf(Tools::display_error('Logger::addLog called with empty message at %s on line %s', false), $file, $line);
             }
         }
-        return Tools::displayError('Logger::addLog called with empty message', false);
+        return Tools::display_error('Logger::addLog called with empty message', false);
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,36 +30,21 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
-use GuzzleHttp\Client;
-
+use Guzzle_Http\Client;
 /**
  * Class ThemeCore
  */
-class ThemeCore extends ObjectModel
+class Theme_Core extends Object_Model
 {
     public const CACHE_FILE_CUSTOMER_THEMES_LIST = '/config/xml/customer_themes_list.xml';
     public const CACHE_FILE_MUST_HAVE_THEMES_LIST = '/config/xml/must_have_themes_list.xml';
     public const UPLOADED_THEME_DIR_NAME = 'uploaded';
-
     /** @var int access rights of created folders (octal) */
     public static $access_rights = 0775;
     /**
      * @var array Object model definition
      */
-    public static $definition = [
-        'table'   => 'theme',
-        'primary' => 'id_theme',
-        'primaryKeyDbType' => 'int(11)',
-        'fields'  => [
-            'name'                 => ['type' => self::TYPE_STRING, 'validate' => 'isGenericName', 'size' => 64, 'required' => true],
-            'directory'            => ['type' => self::TYPE_STRING, 'validate' => 'isDirName', 'size' => 64, 'required' => true],
-            'responsive'           => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbType' => 'tinyint(1)', 'dbDefault' => '0'],
-            'default_left_column'  => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbType' => 'tinyint(1)', 'dbDefault' => '0'],
-            'default_right_column' => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbType' => 'tinyint(1)', 'dbDefault' => '0'],
-            'product_per_page'     => ['type' => self::TYPE_INT, 'validate' => 'isInt', 'dbNullable' => false],
-        ],
-    ];
+    public static $definition = ['table' => 'theme', 'primary' => 'id_theme', 'primaryKeyDbType' => 'int(11)', 'fields' => ['name' => ['type' => self::TYPE_STRING, 'validate' => 'isGenericName', 'size' => 64, 'required' => true], 'directory' => ['type' => self::TYPE_STRING, 'validate' => 'isDirName', 'size' => 64, 'required' => true], 'responsive' => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbType' => 'tinyint(1)', 'dbDefault' => '0'], 'default_left_column' => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbType' => 'tinyint(1)', 'dbDefault' => '0'], 'default_right_column' => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbType' => 'tinyint(1)', 'dbDefault' => '0'], 'product_per_page' => ['type' => self::TYPE_INT, 'validate' => 'isInt', 'dbNullable' => false]]];
     /** @var string $name */
     public $name;
     /** @var string $directory */
@@ -72,7 +57,6 @@ class ThemeCore extends ObjectModel
     public $default_right_column;
     /** @var int $product_per_page */
     public $product_per_page;
-
     /**
      * @param bool $excludedIds
      *
@@ -80,19 +64,15 @@ class ThemeCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function getAllThemes($excludedIds = false)
+    public static function get_all_themes($excluded_ids = false)
     {
-        $themes = new PrestaShopCollection('Theme');
-
-        if (is_array($excludedIds) && !empty($excludedIds)) {
-            $themes->where('id_theme', 'notin', $excludedIds);
+        $themes = new Presta_Shop_Collection('Theme');
+        if (is_array($excluded_ids) && !empty($excluded_ids)) {
+            $themes->where('id_theme', 'notin', $excluded_ids);
         }
-
-        $themes->orderBy('name');
-
+        $themes->order_by('name');
         return $themes;
     }
-
     /**
      * return an array of all available theme (installed or not)
      *
@@ -101,40 +81,35 @@ class ThemeCore extends ObjectModel
      * @return array string (directory)
      * @throws PrestaShopException
      */
-    public static function getAvailable($installedOnly = true)
+    public static function get_available($installed_only = true)
     {
         static $dirlist = [];
-        $availableTheme = [];
-
+        $available_theme = [];
         if (empty($dirlist)) {
             $themes = scandir(_PS_ALL_THEMES_DIR_);
             foreach ($themes as $theme) {
-                if (is_dir(_PS_ALL_THEMES_DIR_.DIRECTORY_SEPARATOR.$theme) && $theme[0] != '.') {
+                if (is_dir(_PS_ALL_THEMES_DIR_ . DIRECTORY_SEPARATOR . $theme) && $theme[0] != '.') {
                     $dirlist[] = $theme;
                 }
             }
         }
-
-        $themesDir = [];
-        if ($installedOnly) {
-            $themes = Theme::getThemes();
-            foreach ($themes as $themeObj) {
+        $themes_dir = [];
+        if ($installed_only) {
+            $themes = Theme::get_themes();
+            foreach ($themes as $theme_obj) {
                 /** @var Theme $themeObj */
-                $themesDir[] = $themeObj->directory;
+                $themes_dir[] = $theme_obj->directory;
             }
-
             foreach ($dirlist as $theme) {
-                if (in_array($theme, $themesDir)) {
-                    $availableTheme[] = $theme;
+                if (in_array($theme, $themes_dir)) {
+                    $available_theme[] = $theme;
                 }
             }
         } else {
-            $availableTheme = $dirlist;
+            $available_theme = $dirlist;
         }
-
-        return $availableTheme;
+        return $available_theme;
     }
-
     /**
      * Returns all installed themes
      *
@@ -142,14 +117,12 @@ class ThemeCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function getThemes()
+    public static function get_themes()
     {
-        $themes = new PrestaShopCollection('Theme');
-        $themes->orderBy('name');
-
+        $themes = new Presta_Shop_Collection('Theme');
+        $themes->order_by('name');
         return $themes;
     }
-
     /**
      * Returns all installed themes that are actually used by some shop
      *
@@ -157,18 +130,17 @@ class ThemeCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function getUsedThemes()
+    public static function get_used_themes()
     {
-        $usedThemes = [];
+        $used_themes = [];
         /** @var Theme $theme */
-        foreach (static::getThemes() as $theme) {
-            if ($theme->isUsed()) {
-                $usedThemes[] = $theme;
+        foreach (static::get_themes() as $theme) {
+            if ($theme->is_used()) {
+                $used_themes[] = $theme;
             }
         }
-        return $usedThemes;
+        return $used_themes;
     }
-
     /**
      * Find a theme by name.
      *
@@ -179,22 +151,14 @@ class ThemeCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getByName($name)
+    public static function get_by_name($name)
     {
-        $idTheme = (int) Db::readOnly()->getValue(
-            (new DbQuery())
-                ->select('`id_theme`')
-                ->from('theme')
-                ->where('`name` = \''.pSQL($name).'\'')
-        );
-
-        if ($idTheme) {
-            return new Theme($idTheme);
+        $id_theme = (int) Db::read_only()->get_value((new Db_Query())->select('`id_theme`')->from('theme')->where('`name` = \'' . p_sql($name) . '\''));
+        if ($id_theme) {
+            return new Theme($id_theme);
         }
-
         return false;
     }
-
     /**
      * Checks if theme exists (by folder) and returns Theme object.
      *
@@ -204,22 +168,14 @@ class ThemeCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function getByDirectory($directory)
+    public static function get_by_directory($directory)
     {
-        if (is_string($directory) && strlen($directory) > 0 && file_exists(_PS_ALL_THEMES_DIR_.$directory) && is_dir(_PS_ALL_THEMES_DIR_.$directory)) {
-            $idTheme = (int) Db::readOnly()->getValue(
-                (new DbQuery())
-                    ->select('`id_theme`')
-                    ->from('theme')
-                    ->where('`directory` = \''.pSQL($directory).'\'')
-            );
-
-            return $idTheme ? new Theme($idTheme) : false;
+        if (is_string($directory) && strlen($directory) > 0 && file_exists(_PS_ALL_THEMES_DIR_ . $directory) && is_dir(_PS_ALL_THEMES_DIR_ . $directory)) {
+            $id_theme = (int) Db::read_only()->get_value((new Db_Query())->select('`id_theme`')->from('theme')->where('`directory` = \'' . p_sql($directory) . '\''));
+            return $id_theme ? new Theme($id_theme) : false;
         }
-
         return false;
     }
-
     /**
      * @param int $idTheme
      *
@@ -227,88 +183,71 @@ class ThemeCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function getThemeInfo($idTheme)
+    public static function get_theme_info($id_theme)
     {
-        $theme = new Theme((int) $idTheme);
-        $themeArr = [];
-
-        $xmlTheme = $theme->loadConfigFile();
-        if ($xmlTheme) {
-            $themeArr['theme_id'] = (int) $theme->id;
-
-            foreach ($xmlTheme->attributes() as $key => $value) {
-                $themeArr['theme_'.$key] = (string) $value;
+        $theme = new Theme((int) $id_theme);
+        $theme_arr = [];
+        $xml_theme = $theme->load_config_file();
+        if ($xml_theme) {
+            $theme_arr['theme_id'] = (int) $theme->id;
+            foreach ($xml_theme->attributes() as $key => $value) {
+                $theme_arr['theme_' . $key] = (string) $value;
             }
-
-            foreach ($xmlTheme->author->attributes() as $key => $value) {
-                $themeArr['author_'.$key] = (string) $value;
+            foreach ($xml_theme->author->attributes() as $key => $value) {
+                $theme_arr['author_' . $key] = (string) $value;
             }
-
-            if ($themeArr['theme_name'] == 'community-theme-default') {
-                $themeArr['tc'] = Module::isEnabled('themeconfigurator');
+            if ($theme_arr['theme_name'] == 'community-theme-default') {
+                $theme_arr['tc'] = Module::is_enabled('themeconfigurator');
             }
         } else {
             // If no xml we use data from database
-            $themeArr['theme_id'] = (int) $theme->id;
-            $themeArr['theme_name'] = $theme->name;
-            $themeArr['theme_directory'] = $theme->directory;
+            $theme_arr['theme_id'] = (int) $theme->id;
+            $theme_arr['theme_name'] = $theme->name;
+            $theme_arr['theme_directory'] = $theme->directory;
         }
-
-        return $themeArr;
+        return $theme_arr;
     }
-
     /**
      * @return array
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getNonInstalledTheme()
+    public static function get_non_installed_theme()
     {
-        $installedThemeDirectories = Theme::getInstalledThemeDirectories();
-        $notInstalledTheme = [];
+        $installed_theme_directories = Theme::get_installed_theme_directories();
+        $not_installed_theme = [];
         foreach (scandir(_PS_ALL_THEMES_DIR_) as $dir) {
-            if (is_dir(_PS_ALL_THEMES_DIR_.$dir)
-                && ! in_array($dir, ['.', '..'])
-                && ! in_array($dir, $installedThemeDirectories)) {
-                $xmlTheme = static::loadDefaultConfig(_PS_ALL_THEMES_DIR_.$dir);
-                if ($xmlTheme) {
+            if (is_dir(_PS_ALL_THEMES_DIR_ . $dir) && !in_array($dir, ['.', '..']) && !in_array($dir, $installed_theme_directories)) {
+                $xml_theme = static::load_default_config(_PS_ALL_THEMES_DIR_ . $dir);
+                if ($xml_theme) {
                     $theme = [];
-                    foreach ($xmlTheme->attributes() as $key => $value) {
+                    foreach ($xml_theme->attributes() as $key => $value) {
                         $theme[$key] = (string) $value;
                     }
-
                     if (!empty($theme)) {
-                        $notInstalledTheme[] = $theme;
+                        $not_installed_theme[] = $theme;
                     }
                 }
             }
         }
-
-        return $notInstalledTheme;
+        return $not_installed_theme;
     }
-
     /**
      * @return array
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getInstalledThemeDirectories()
+    public static function get_installed_theme_directories()
     {
         $list = [];
-        $tmp = Db::readOnly()->getArray(
-            (new DbQuery())
-                ->select('`directory`')
-                ->from('theme')
-        );
+        $tmp = Db::read_only()->get_array((new Db_Query())->select('`directory`')->from('theme'));
         foreach ($tmp as $t) {
             $list[] = $t['directory'];
         }
-
         return $list;
     }
-
     /**
      * check if a theme is used by a shop
      *
@@ -316,16 +255,10 @@ class ThemeCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public function isUsed()
+    public function is_used()
     {
-        return Db::readOnly()->getValue(
-            (new DbQuery())
-                ->select('COUNT(*)')
-                ->from('shop')
-                ->where('`id_theme` = '.(int) $this->id)
-        );
+        return Db::read_only()->get_value((new Db_Query())->select('COUNT(*)')->from('shop')->where('`id_theme` = ' . (int) $this->id));
     }
-
     /**
      * add only theme if the directory exists
      *
@@ -337,15 +270,13 @@ class ThemeCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function add($autoDate = true, $nullValues = false)
+    public function add($auto_date = true, $null_values = false)
     {
-        if (!is_dir(_PS_ALL_THEMES_DIR_.$this->directory)) {
+        if (!is_dir(_PS_ALL_THEMES_DIR_ . $this->directory)) {
             return false;
         }
-
-        return parent::add($autoDate, $nullValues);
+        return parent::add($auto_date, $null_values);
     }
-
     /**
      * update the table PREFIX_theme_meta for the current theme
      *
@@ -356,31 +287,23 @@ class ThemeCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function updateMetas($metas, $fullUpdate = false): void
+    public function update_metas($metas, $full_update = false): void
     {
-        $conn = Db::getInstance();
-        if ($fullUpdate) {
-            $conn->delete('theme_meta', 'id_theme='.(int) $this->id);
+        $conn = Db::get_instance();
+        if ($full_update) {
+            $conn->delete('theme_meta', 'id_theme=' . (int) $this->id);
         }
-
         $values = [];
         if ($this->id > 0) {
             foreach ($metas as $meta) {
-                if (!$fullUpdate) {
-                    $conn->delete('theme_meta', 'id_theme='.(int) $this->id.' AND id_meta='.(int) $meta['id_meta']);
+                if (!$full_update) {
+                    $conn->delete('theme_meta', 'id_theme=' . (int) $this->id . ' AND id_meta=' . (int) $meta['id_meta']);
                 }
-
-                $values[] = [
-                    'id_theme'     => (int) $this->id,
-                    'id_meta'      => (int) $meta['id_meta'],
-                    'left_column'  => (int) $meta['left'],
-                    'right_column' => (int) $meta['right'],
-                ];
+                $values[] = ['id_theme' => (int) $this->id, 'id_meta' => (int) $meta['id_meta'], 'left_column' => (int) $meta['left'], 'right_column' => (int) $meta['right']];
             }
             $conn->insert('theme_meta', $values);
         }
     }
-
     /**
      * @param string $page
      *
@@ -389,19 +312,10 @@ class ThemeCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function hasColumns($page)
+    public function has_columns($page)
     {
-        return Db::readOnly()->getRow(
-            (new DbQuery())
-                ->select('IFNULL(`left_column`, `default_left_column`) AS `left_column`, IFNULL(`right_column`, `default_right_column`) AS `right_column`')
-                ->from('theme', 't')
-                ->leftJoin('theme_meta', 'tm', 't.`id_theme` = tm.`id_theme`')
-                ->leftJoin('meta', 'm', 'm.`id_meta` = tm.`id_meta`')
-                ->where('t.`id_theme` = '.(int) $this->id)
-                ->where('m.`page` = \''.pSQL($page).'\'')
-        );
+        return Db::read_only()->get_row((new Db_Query())->select('IFNULL(`left_column`, `default_left_column`) AS `left_column`, IFNULL(`right_column`, `default_right_column`) AS `right_column`')->from('theme', 't')->left_join('theme_meta', 'tm', 't.`id_theme` = tm.`id_theme`')->left_join('meta', 'm', 'm.`id_meta` = tm.`id_meta`')->where('t.`id_theme` = ' . (int) $this->id)->where('m.`page` = \'' . p_sql($page) . '\''));
     }
-
     /**
      * @param string $page
      *
@@ -409,19 +323,10 @@ class ThemeCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public function hasColumnsSettings($page)
+    public function has_columns_settings($page)
     {
-        return (bool) Db::readOnly()->getValue(
-            (new DbQuery())
-                ->select('m.`id_meta`')
-                ->from('theme', 't')
-                ->leftJoin('theme_meta', 'tm', 't.`id_theme` = tm.`id_theme`')
-                ->leftJoin('meta', 'm', 'm.`id_meta` = tm.`id_meta`')
-                ->where('t.`id_theme` = '.(int) $this->id)
-                ->where('m.`page` = \''.pSQL($page).'\'')
-        );
+        return (bool) Db::read_only()->get_value((new Db_Query())->select('m.`id_meta`')->from('theme', 't')->left_join('theme_meta', 'tm', 't.`id_theme` = tm.`id_theme`')->left_join('meta', 'm', 'm.`id_meta` = tm.`id_meta`')->where('t.`id_theme` = ' . (int) $this->id)->where('m.`page` = \'' . p_sql($page) . '\''));
     }
-
     /**
      * @param string|null $page
      *
@@ -429,19 +334,10 @@ class ThemeCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public function hasLeftColumn($page = null)
+    public function has_left_column($page = null)
     {
-        return (bool) Db::readOnly()->getValue(
-            (new DbQuery())
-                ->select('IFNULL(`left_column`, `default_left_column`)')
-                ->from('theme', 't')
-                ->leftJoin('theme_meta', 'tm', 't.`id_theme` = tm.`id_theme`')
-                ->leftJoin('meta', 'm', 'm.`id_meta` = tm.`id_meta`')
-                ->where('t.`id_theme` = '.(int) $this->id)
-                ->where('m.`page` = \''.pSQL($page).'\'')
-        );
+        return (bool) Db::read_only()->get_value((new Db_Query())->select('IFNULL(`left_column`, `default_left_column`)')->from('theme', 't')->left_join('theme_meta', 'tm', 't.`id_theme` = tm.`id_theme`')->left_join('meta', 'm', 'm.`id_meta` = tm.`id_meta`')->where('t.`id_theme` = ' . (int) $this->id)->where('m.`page` = \'' . p_sql($page) . '\''));
     }
-
     /**
      * @param string|null $page
      *
@@ -449,125 +345,93 @@ class ThemeCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public function hasRightColumn($page = null)
+    public function has_right_column($page = null)
     {
-        return (bool) Db::readOnly()->getValue(
-            (new DbQuery())
-                ->select('IFNULL(`right_column`, `default_right_column`)')
-                ->from('theme', 't')
-                ->leftJoin('theme_meta', 'tm', 't.`id_theme` = tm.`id_theme`')
-                ->leftJoin('meta', 'm', 'm.`id_meta` = tm.`id_meta`')
-                ->where('t.`id_theme` = '.(int) $this->id)
-                ->where('m.`page` = \''.pSQL($page).'\'')
-        );
+        return (bool) Db::read_only()->get_value((new Db_Query())->select('IFNULL(`right_column`, `default_right_column`)')->from('theme', 't')->left_join('theme_meta', 'tm', 't.`id_theme` = tm.`id_theme`')->left_join('meta', 'm', 'm.`id_meta` = tm.`id_meta`')->where('t.`id_theme` = ' . (int) $this->id)->where('m.`page` = \'' . p_sql($page) . '\''));
     }
-
     /**
      * @return array|false
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function getMetas()
+    public function get_metas()
     {
-        if (!Validate::isUnsignedId($this->id) || $this->id == 0) {
+        if (!Validate::is_unsigned_id($this->id) || $this->id == 0) {
             return false;
         }
-
-        return Db::readOnly()->getArray(
-            (new DbQuery())
-                ->select('*')
-                ->from('theme_meta')
-                ->where('`id_theme` = '.(int) $this->id)
-        );
+        return Db::read_only()->get_array((new Db_Query())->select('*')->from('theme_meta')->where('`id_theme` = ' . (int) $this->id));
     }
-
     /**
      * @return bool
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function removeMetas()
+    public function remove_metas()
     {
-        if (!Validate::isUnsignedId($this->id) || $this->id == 0) {
+        if (!Validate::is_unsigned_id($this->id) || $this->id == 0) {
             return false;
         }
-
-        return Db::getInstance()->delete('theme_meta', 'id_theme = '.(int) $this->id);
+        return Db::get_instance()->delete('theme_meta', 'id_theme = ' . (int) $this->id);
     }
-
     /**
      * @return bool
      * @throws PrestaShopException
      */
-    public function toggleResponsive()
+    public function toggle_responsive()
     {
         // Object must have a variable called 'responsive'
         if (!method_exists($this, 'responsive')) {
-            throw new PrestaShopException('property "responsive" is missing in object '.static::class);
+            throw new Presta_Shop_Exception('property "responsive" is missing in object ' . static::class);
         }
-
         // Update only responsive field
-        $this->setFieldsToUpdate(['responsive' => true]);
-
+        $this->set_fields_to_update(['responsive' => true]);
         // Update active responsive on object
         $this->responsive = !(int) $this->responsive;
-
         // Change responsive to active/inactive
         return $this->update(false);
     }
-
     /**
      * @return bool
      * @throws PrestaShopException
      */
-    public function toggleDefaultLeftColumn()
+    public function toggle_default_left_column()
     {
         if (!method_exists($this, 'default_left_column')) {
-            throw new PrestaShopException('property "default_left_column" is missing in object '.static::class);
+            throw new Presta_Shop_Exception('property "default_left_column" is missing in object ' . static::class);
         }
-
-        $this->setFieldsToUpdate(['default_left_column' => true]);
-
+        $this->set_fields_to_update(['default_left_column' => true]);
         $this->default_left_column = !(int) $this->default_left_column;
-
         return $this->update(false);
     }
-
     /**
      * @return bool
      * @throws PrestaShopException
      */
-    public function toggleDefaultRightColumn()
+    public function toggle_default_right_column()
     {
         if (!method_exists($this, 'default_right_column')) {
-            throw new PrestaShopException('property "default_right_column" is missing in object '.static::class);
+            throw new Presta_Shop_Exception('property "default_right_column" is missing in object ' . static::class);
         }
-
-        $this->setFieldsToUpdate(['default_right_column' => true]);
-
+        $this->set_fields_to_update(['default_right_column' => true]);
         $this->default_right_column = !(int) $this->default_right_column;
-
         return $this->update(false);
     }
-
     /**
      * Get the configuration file as an array
      *
      * @return array
      */
-    public function getConfiguration()
+    public function get_configuration()
     {
-        $ob = $this->loadConfigFile();
+        $ob = $this->load_config_file();
         if ($ob) {
             // convert SimpleXMLElement to array
             return json_decode(json_encode($ob), true);
         }
-
         return [];
     }
-
     /**
      * Install a theme with just the directory given.
      *
@@ -582,42 +446,27 @@ class ThemeCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function installFromDir($themeDir)
+    public static function install_from_dir($theme_dir)
     {
-        if (! file_exists($themeDir)) {
-            return sprintf(Tools::displayError('Theme directory not found: "%s"'), $themeDir);
+        if (!file_exists($theme_dir)) {
+            return sprintf(Tools::display_error('Theme directory not found: "%s"'), $theme_dir);
         }
-
-        $xml = static::loadDefaultConfig($themeDir);
-        if (! $xml) {
-            return sprintf(
-                Tools::displayError(
-                    'Bad or missing config.xml in theme in %s.'
-                ),
-                $themeDir
-            );
+        $xml = static::load_default_config($theme_dir);
+        if (!$xml) {
+            return sprintf(Tools::display_error('Bad or missing config.xml in theme in %s.'), $theme_dir);
         }
-        $xmlAttributes = $xml->attributes();
-
-        if (static::getByName((string) $xmlAttributes['name']) !== false) {
-            return sprintf(
-                Tools::displayError(
-                    'A theme with the same name as the theme in %s is already installed.'
-                ),
-                $themeDir
-            );
+        $xml_attributes = $xml->attributes();
+        if (static::get_by_name((string) $xml_attributes['name']) !== false) {
+            return sprintf(Tools::display_error('A theme with the same name as the theme in %s is already installed.'), $theme_dir);
         }
-
         $theme = new Theme();
-        $theme->name = (string) $xmlAttributes['name'];
-        $theme->directory = (string) $xmlAttributes['directory'];
-
+        $theme->name = (string) $xml_attributes['name'];
+        $theme->directory = (string) $xml_attributes['directory'];
         // These are defaults, likely overwritten by the variation.
         $theme->product_per_page = Configuration::get('PS_PRODUCTS_PER_PAGE');
         $theme->responsive = false;
         $theme->default_left_column = true;
         $theme->default_right_column = true;
-
         /**
          * This is an intentional deviation from PrestaShop: only the first
          * variation gets installed, 'name' and 'directory' of the variation
@@ -626,16 +475,9 @@ class ThemeCore extends ObjectModel
          */
         if (isset($xml->variations)) {
             if (count($xml->variations) > 1) {
-                return sprintf(
-                    Tools::displayError(
-                        'thirty bees supports only themes with at most one variation, the theme in %s has multiple ones.'
-                    ),
-                    $themeDir
-                );
+                return sprintf(Tools::display_error('thirty bees supports only themes with at most one variation, the theme in %s has multiple ones.'), $theme_dir);
             }
-
             $variation = $xml->variations->variation[0];
-
             if (isset($variation['product_per_page'])) {
                 $theme->product_per_page = (int) $variation['product_per_page'];
             }
@@ -643,28 +485,18 @@ class ThemeCore extends ObjectModel
                 $theme->responsive = (bool) (string) $variation['responsive'];
             }
             if (isset($variation['default_left_column'])) {
-                $theme->default_left_column =
-                    (bool) (string) $variation['default_left_column'];
+                $theme->default_left_column = (bool) (string) $variation['default_left_column'];
             }
             if (isset($variation['default_right_column'])) {
-                $theme->default_right_column =
-                    (bool) (string) $variation['default_right_column'];
+                $theme->default_right_column = (bool) (string) $variation['default_right_column'];
             }
         }
-
         $theme->add();
-        if (! Validate::isLoadedObject($theme)) {
-            return sprintf(
-                Tools::displayError(
-                    'Error while installing theme in %s'
-                ),
-                $themeDir
-            );
+        if (!Validate::is_loaded_object($theme)) {
+            return sprintf(Tools::display_error('Error while installing theme in %s'), $theme_dir);
         }
-
         return $theme;
     }
-
     /**
      * Install this theme in the current shop context.
      *
@@ -681,89 +513,61 @@ class ThemeCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function installIntoShopContext()
+    public function install_into_shop_context()
     {
-        $return = [
-            'imageTypes'    => [],
-            'moduleErrors'  => [],
-            'documents'     => [],
-            'warnings'      => [
-                'ignoredHooks' => [],
-                'ignoredModules' => [],
-                'unmanagedModules' => [],
-            ],
-        ];
-
-        $xml = $this->loadConfigFile();
+        $return = ['imageTypes' => [], 'moduleErrors' => [], 'documents' => [], 'warnings' => ['ignoredHooks' => [], 'ignoredModules' => [], 'unmanagedModules' => []]];
+        $xml = $this->load_config_file();
         if ($xml) {
             /**
              * Create/update image types.
              */
             if (isset($xml->images->image)) {
-                $imageEntities = ImageEntity::getAll();
-
-                foreach ($xml->images->image as $imageType) {
+                $image_entities = Image_Entity::get_all();
+                foreach ($xml->images->image as $image_type) {
                     // It's installation time, name variants can get ignored.
-
                     // create/update ImageType
-                    $imageTypeObj = ImageType::getInstanceByName((string) $imageType['name'], $this->name);
-                    $imageTypeObj->width = (int) $imageType['width'];
-                    $imageTypeObj->height = (int) $imageType['height'];
-                    $imageTypeObj->save();
-
+                    $image_type_obj = Image_Type::get_instance_by_name((string) $image_type['name'], $this->name);
+                    $image_type_obj->width = (int) $image_type['width'];
+                    $image_type_obj->height = (int) $image_type['height'];
+                    $image_type_obj->save();
                     // associate ImageType with ImageEnity
-                    foreach ($imageEntities as $imageEntity) {
-                        if ((string)$imageType[$imageEntity->name] === 'true') {
-                            $imageEntity->associateImageType((int)$imageTypeObj->id);
+                    foreach ($image_entities as $image_entity) {
+                        if ((string) $image_type[$image_entity->name] === 'true') {
+                            $image_entity->associate_image_type((int) $image_type_obj->id);
                         }
                     }
-
-                    $return['imageTypes'][] = [
-                        'name'   => $imageTypeObj->name,
-                        'width'  => $imageTypeObj->width,
-                        'height' => $imageTypeObj->height,
-                    ];
+                    $return['imageTypes'][] = ['name' => $image_type_obj->name, 'width' => $image_type_obj->width, 'height' => $image_type_obj->height];
                 }
             }
-
             /**
              * Install/enable/disable theme related modules. All Module methods
              * used work on the current shop context.
              */
-            $unrelatedModules = Module::getNotThemeRelatedModules();
-            $hooks = static::getHooksFromConfigFile($xml, $return['warnings']['ignoredHooks']);
-            foreach ($xml->modules->module as $moduleRow) {
-                $moduleName = (string) $moduleRow['name'];
-                $moduleAction = strtolower((string)$moduleRow['action']);
-
-                $module = Module::getInstanceByName($moduleName);
-                if (! $module) {
+            $unrelated_modules = Module::get_not_theme_related_modules();
+            $hooks = static::get_hooks_from_config_file($xml, $return['warnings']['ignoredHooks']);
+            foreach ($xml->modules->module as $module_row) {
+                $module_name = (string) $module_row['name'];
+                $module_action = strtolower((string) $module_row['action']);
+                $module = Module::get_instance_by_name($module_name);
+                if (!$module) {
                     continue;
                 }
-
-                if (in_array($moduleName, $unrelatedModules)) {
-                    $return['warnings']['ignoredModules'][] = [
-                        'module' => $moduleName,
-                        'action' => $moduleAction,
-                    ];
+                if (in_array($module_name, $unrelated_modules)) {
+                    $return['warnings']['ignoredModules'][] = ['module' => $module_name, 'action' => $module_action];
                     continue;
                 }
-
-                switch ($moduleAction) {
+                switch ($module_action) {
                     case 'install':
                     case 'enable':
-                        $manageHooks = true;
-                        if (isset($moduleRow['manageHooks'])) {
-                            $value = strtolower((string)$moduleRow['manageHooks']);
-                            $manageHooks = $value === 'true';
+                        $manage_hooks = true;
+                        if (isset($module_row['manageHooks'])) {
+                            $value = strtolower((string) $module_row['manageHooks']);
+                            $manage_hooks = $value === 'true';
                         }
-                        $moduleHooks = $hooks[$moduleName] ?? [];
-                        $result = $this->installModule($module, $manageHooks, $moduleHooks, $return['warnings']['unmanagedModules']);
+                        $module_hooks = $hooks[$module_name] ?? [];
+                        $result = $this->install_module($module, $manage_hooks, $module_hooks, $return['warnings']['unmanagedModules']);
                         if ($result !== true) {
-                            $return['moduleErrors'][] = [
-                                'module_name' => $moduleName,
-                                'errors'      => $result,
-                            ];
+                            $return['moduleErrors'][] = ['module_name' => $module_name, 'errors' => $result];
                         }
                         break;
                     case 'disable':
@@ -771,84 +575,57 @@ class ThemeCore extends ObjectModel
                         break;
                 }
             }
-
             /**
              * Create/update theme metas.
              */
-            $metasXml = [];
-
+            $metas_xml = [];
             // Collect defined metas.
             if ($xml->metas->meta) {
                 foreach ($xml->metas->meta as $meta) {
-                    $metaId = Db::readOnly()->getValue(
-                        (new DbQuery())
-                            ->select('`id_meta`')
-                            ->from('meta')
-                            ->where('`page` = \''.pSQL($meta['meta_page']).'\'')
-                    );
-                    $metaId = (int) $metaId;
-                    if ($metaId) {
-                        $metasXml[$metaId] = [
-                            'id_meta' => $metaId,
-                            'left'    => (bool) (int) $meta['left'],
-                            'right'   => (bool) (int) $meta['right'],
-                        ];
+                    $meta_id = Db::read_only()->get_value((new Db_Query())->select('`id_meta`')->from('meta')->where('`page` = \'' . p_sql($meta['meta_page']) . '\''));
+                    $meta_id = (int) $meta_id;
+                    if ($meta_id) {
+                        $metas_xml[$meta_id] = ['id_meta' => $meta_id, 'left' => (bool) (int) $meta['left'], 'right' => (bool) (int) $meta['right']];
                     }
                 }
             }
-
             // Fill all other metas with default values.
-            foreach (Meta::getMetas() as $meta) {
-                $metaId = (int) $meta['id_meta'];
-                if (! array_key_exists($metaId, $metasXml)) {
-                    $metasXml[$metaId] = [
-                        'id_meta' => $metaId,
-                        'left'    => $this->default_left_column,
-                        'right'   => $this->default_right_column,
-                    ];
+            foreach (Meta::get_metas() as $meta) {
+                $meta_id = (int) $meta['id_meta'];
+                if (!array_key_exists($meta_id, $metas_xml)) {
+                    $metas_xml[$meta_id] = ['id_meta' => $meta_id, 'left' => $this->default_left_column, 'right' => $this->default_right_column];
                 }
             }
-
-            $this->updateMetas($metasXml, true);
-
+            $this->update_metas($metas_xml, true);
             /**
              * Install the theme into all shops of the current context.
              */
-            $shops = Shop::getContextListShopID();
-            foreach ($shops as $idShop) {
-                $shop = new Shop((int) $idShop);
+            $shops = Shop::get_context_list_shop_id();
+            foreach ($shops as $id_shop) {
+                $shop = new Shop((int) $id_shop);
                 $shop->id_theme = $this->id;
                 $shop->save();
-
-                if (Shop::isFeatureActive()) {
-                    Configuration::updateValue('PS_PRODUCTS_PER_PAGE', (int) $this->product_per_page, false, null, (int) $idShop);
+                if (Shop::is_feature_active()) {
+                    Configuration::update_value('PS_PRODUCTS_PER_PAGE', (int) $this->product_per_page, false, null, (int) $id_shop);
                 } else {
-                    Configuration::updateValue('PS_PRODUCTS_PER_PAGE', (int) $this->product_per_page);
+                    Configuration::update_value('PS_PRODUCTS_PER_PAGE', (int) $this->product_per_page);
                 }
             }
-            $context = Context::getContext();
+            $context = Context::get_context();
             $context->shop->id_theme = $this->id;
             $context->shop->update();
-
             /**
              * Create documentation link.
              */
             foreach ($xml->docs->doc as $row) {
-                $return['documents'][(string) $row['name']] =
-                    preg_replace(
-                        '#^'._PS_ROOT_DIR_.'#',
-                        __PS_BASE_URI__,
-                        _PS_ALL_THEMES_DIR_
-                    ).$this->directory.'/'.$row['path'];
+                $return['documents'][(string) $row['name']] = preg_replace('#^' . _PS_ROOT_DIR_ . '#', __PS_BASE_URI__, _PS_ALL_THEMES_DIR_) . $this->directory . '/' . $row['path'];
             }
         } else {
             // Invalid themes shouldn't get offered for installation.
-            throw new PrestaShopException('Attempt to install theme '.$this->name.' despite its invalid config.xml.');
+            throw new Presta_Shop_Exception('Attempt to install theme ' . $this->name . ' despite its invalid config.xml.');
         }
-
         return $return;
     }
-
     /**
      * Installs module required by theme
      *
@@ -866,56 +643,45 @@ class ThemeCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    protected function installModule(Module $module, $manageHooks, array $hooks, array &$warnings)
+    protected function install_module(Module $module, $manage_hooks, array $hooks, array &$warnings)
     {
-        $moduleName = $module->name;
-
+        $module_name = $module->name;
         // install module if it's not installed yet
-        if (! Module::isInstalled($moduleName)) {
-            if (! $module->install()) {
-                return $module->getErrors();
+        if (!Module::is_installed($module_name)) {
+            if (!$module->install()) {
+                return $module->get_errors();
             }
         }
-
         $module->enable();
-
         // theme can mark some modules as un-managed - module hooks will not be modified during theme installation
-        if (! $manageHooks) {
+        if (!$manage_hooks) {
             return true;
         }
-
         // get list of displayable hooks this module supports
-        $displayableHooks = $module->getDisplayableHookList();
-
+        $displayable_hooks = $module->get_displayable_hook_list();
         // if module has some displayable hooks, but theme does not specify any, it's most
         // likely a bug in theme config.xml
-        if ($displayableHooks && !$hooks) {
-            $warnings[] = $moduleName;
+        if ($displayable_hooks && !$hooks) {
+            $warnings[] = $module_name;
             return true;
         }
-
         // replace module default displayable hooks and hook exceptions with those from the theme configuration.
-        foreach ($displayableHooks as $hook) {
-            $module->unregisterExceptions($hook['id_hook']);
-            $module->unregisterHook($hook['id_hook']);
+        foreach ($displayable_hooks as $hook) {
+            $module->unregister_exceptions($hook['id_hook']);
+            $module->unregister_hook($hook['id_hook']);
         }
-
         foreach ($hooks as $hook) {
-            $module->registerHook($hook['name']);
-            $idHook = Hook::getIdByName($hook['name']);
-
+            $module->register_hook($hook['name']);
+            $id_hook = Hook::get_id_by_name($hook['name']);
             if ($hook['position']) {
-                $module->updatePosition($idHook, false, $hook['position']);
+                $module->update_position($id_hook, false, $hook['position']);
             }
-
             if ($hook['exceptions']) {
-                $module->registerExceptions($idHook, $hook['exceptions']);
+                $module->register_exceptions($id_hook, $hook['exceptions']);
             }
         }
-
         return true;
     }
-
     /**
      * Get the configuration file as SimpleXMLElement
      *
@@ -925,18 +691,15 @@ class ThemeCore extends ObjectModel
      *
      *                inside the theme directory.
      */
-    public function loadConfigFile($validate = false)
+    public function load_config_file($validate = false)
     {
-        $this->collectConfigFilesForRetrocompatibility();
-
-        $xml = static::loadDefaultConfig(_PS_ALL_THEMES_DIR_.$this->directory);
-        if (! $xml || (string) $xml->attributes()->name !== $this->name) {
+        $this->collect_config_files_for_retrocompatibility();
+        $xml = static::load_default_config(_PS_ALL_THEMES_DIR_ . $this->directory);
+        if (!$xml || (string) $xml->attributes()->name !== $this->name) {
             return false;
         }
-
         return $xml;
     }
-
     /**
      * Retrocompatibility with < 1.1.0: collect old configuration files.
      *
@@ -951,29 +714,22 @@ class ThemeCore extends ObjectModel
      *
      * TODO: move this into Core Updater.
      */
-    private function collectConfigFilesForRetrocompatibility(): void
+    private function collect_config_files_for_retrocompatibility(): void
     {
-        $oldConfigFound = false;
-        $oldConfigs = [
-            _PS_CONFIG_DIR_.'xml/themes/'.$this->directory.'.xml',
-            _PS_CONFIG_DIR_.'xml/themes/'.$this->name.'.xml',
-        ];
+        $old_config_found = false;
+        $old_configs = [_PS_CONFIG_DIR_ . 'xml/themes/' . $this->directory . '.xml', _PS_CONFIG_DIR_ . 'xml/themes/' . $this->name . '.xml'];
         if ($this->name === 'community-theme-default') {
-            $oldConfigs[] = _PS_CONFIG_DIR_.'xml/themes/default.xml';
+            $old_configs[] = _PS_CONFIG_DIR_ . 'xml/themes/default.xml';
         }
-        foreach ($oldConfigs as $oldConfig) {
-            if ($oldConfigFound) {
-                @unlink($oldConfig);
-            } elseif (file_exists($oldConfig)) {
-                rename(
-                    $oldConfig,
-                    _PS_ALL_THEMES_DIR_.$this->directory.'/config.xml'
-                );
-                $oldConfigFound = true;
+        foreach ($old_configs as $old_config) {
+            if ($old_config_found) {
+                @unlink($old_config);
+            } elseif (file_exists($old_config)) {
+                rename($old_config, _PS_ALL_THEMES_DIR_ . $this->directory . '/config.xml');
+                $old_config_found = true;
             }
         }
     }
-
     /**
      * Return full path of theme's configuration file.
      *
@@ -982,13 +738,11 @@ class ThemeCore extends ObjectModel
      *                inside the theme directory.
      * @deprecated 1.1.0 Use loadConfigFile() or loadDefaultConfig() directly.
      */
-    public function getConfigFilePath()
+    public function get_config_file_path()
     {
-        $this->collectConfigFilesForRetrocompatibility();
-
-        return _PS_ALL_THEMES_DIR_.$this->directory.'/config.xml';
+        $this->collect_config_files_for_retrocompatibility();
+        return _PS_ALL_THEMES_DIR_ . $this->directory . '/config.xml';
     }
-
     /**
      * Get the configuration file as SimpleXMLElement
      *
@@ -997,20 +751,17 @@ class ThemeCore extends ObjectModel
      *
      * @return SimpleXMLElement | false
      */
-    public static function loadConfigFromFile($filePath, $validate)
+    public static function load_config_from_file($file_path, $validate)
     {
-        if (file_exists($filePath)) {
-            $content = @simplexml_load_file($filePath);
-            if ($content && $validate && !static::validateConfigFile($content)) {
+        if (file_exists($file_path)) {
+            $content = @simplexml_load_file($file_path);
+            if ($content && $validate && !static::validate_config_file($content)) {
                 return false;
             }
-
             return $content;
         }
-
         return false;
     }
-
     /**
      * Validate xml fields in config file
      *
@@ -1018,9 +769,9 @@ class ThemeCore extends ObjectModel
      *
      * @return boolean
      */
-    public static function validateConfigFile($xml)
+    public static function validate_config_file($xml)
     {
-        if (! $xml) {
+        if (!$xml) {
             return false;
         }
         if (!$xml['version'] || !$xml['name']) {
@@ -1041,10 +792,8 @@ class ThemeCore extends ObjectModel
                 return false;
             }
         }
-
         return true;
     }
-
     /**
      * Get the default configuration file of a theme as SimpleXMLElement. This
      * works for installed themes and for theme packages before import.
@@ -1054,24 +803,22 @@ class ThemeCore extends ObjectModel
      *
      * @return SimpleXMLElement | false
      */
-    public static function loadDefaultConfig($themePath)
+    public static function load_default_config($theme_path)
     {
-        $themePath = rtrim($themePath, '/');
-
-        $path = $themePath.'/config.xml'; // Preferred name: all lowercase.
-        if (! file_exists($path)) {
+        $theme_path = rtrim($theme_path, '/');
+        $path = $theme_path . '/config.xml';
+        // Preferred name: all lowercase.
+        if (!file_exists($path)) {
             // Try to find differently cased variants.
-            foreach (scandir($themePath) as $variant) {
+            foreach (scandir($theme_path) as $variant) {
                 if (strcasecmp($variant, 'config.xml') === 0) {
-                    $path = $themePath.'/'.$variant;
+                    $path = $theme_path . '/' . $variant;
                     break;
                 }
             }
         }
-
-        return static::loadConfigFromFile($path, true);
+        return static::load_config_from_file($path, true);
     }
-
     /**
      * Return list of displayable hooks from config.xml indexed by module key
      *
@@ -1080,36 +827,26 @@ class ThemeCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    protected static function getHooksFromConfigFile(SimpleXMLElement $xml, array &$ignored)
+    protected static function get_hooks_from_config_file(Simple_Xml_Element $xml, array &$ignored)
     {
         $hooks = [];
         foreach ($xml->modules->hooks->hook as $entry) {
-            $module = (string)$entry['module'];
-            $hook = (string)$entry['hook'];
-            $position = (int)$entry['position'];
+            $module = (string) $entry['module'];
+            $hook = (string) $entry['hook'];
+            $position = (int) $entry['position'];
             $exceptions = isset($entry['exceptions']) ? explode(',', $entry['exceptions']) : [];
-
             // we will load only displayable hooks, and ignore others.
-            if (Hook::isDisplayableHook($hook)) {
+            if (Hook::is_displayable_hook($hook)) {
                 if (!isset($hooks[$module])) {
                     $hooks[$module] = [];
                 }
-
-                $hooks[$module][] = [
-                    'name' => $hook,
-                    'position' => $position,
-                    'exceptions' => $exceptions,
-                ];
+                $hooks[$module][] = ['name' => $hook, 'position' => $position, 'exceptions' => $exceptions];
             } else {
-                $ignored[] = [
-                    'module' => $module,
-                    'hook' => $hook,
-                ];
+                $ignored[] = ['module' => $module, 'hook' => $hook];
             }
         }
         return $hooks;
     }
-
     /**
      * Helper method to ensure that template exists. If front office template does not exists, it will be downloaded
      * from thirty bees api server
@@ -1117,27 +854,24 @@ class ThemeCore extends ObjectModel
      * @param string $template
      * @throws PrestaShopException
      */
-    public function ensureTemplate($template): void
+    public function ensure_template($template): void
     {
         // template variable usually represents file, simply check if it exists
-        if (! @file_exists($template)) {
+        if (!@file_exists($template)) {
             // first, resolve relative path
-            $directoryPath = $this->getDirectoryPath();
+            $directory_path = $this->get_directory_path();
             $template = str_replace('\\', '/', $template);
-            if (str_starts_with($template, $directoryPath)) {
-                $relativeTemplate = substr($template, strlen($directoryPath));
+            if (str_starts_with($template, $directory_path)) {
+                $relative_template = substr($template, strlen($directory_path));
             } else {
-                $relativeTemplate = $template;
+                $relative_template = $template;
             }
-
-            $this->downloadTemplate($directoryPath, $relativeTemplate);
-
-            if (! @file_exists($template)) {
-                throw new PrestaShopException('Template ' . $template . ' does not exists');
+            $this->download_template($directory_path, $relative_template);
+            if (!@file_exists($template)) {
+                throw new Presta_Shop_Exception('Template ' . $template . ' does not exists');
             }
         }
     }
-
     /**
      * Downloads missing template from thirty bees api server
      *
@@ -1145,86 +879,61 @@ class ThemeCore extends ObjectModel
      * @param string $relativeTemplate
      * @throws PrestaShopException
      */
-    protected function downloadTemplate($directoryPath, $relativeTemplate)
+    protected function download_template($directory_path, $relative_template)
     {
         // throttle api requests - allow one request per hour per resource
-        $cacheKey = 'TB_TEMPLATE_' . md5($relativeTemplate);
-        $lastAttempt = (int)Configuration::getGlobalValue($cacheKey);
+        $cache_key = 'TB_TEMPLATE_' . md5($relative_template);
+        $last_attempt = (int) Configuration::get_global_value($cache_key);
         $now = time();
-        if ($lastAttempt > ($now - 3600)) {
+        if ($last_attempt > $now - 3600) {
             return;
         }
-        Configuration::updateGlobalValue($cacheKey, $now);
-
-        $request = [
-            'action' => 'download-template',
-            'php' => phpversion(),
-            'templates' => [$relativeTemplate],
-        ];
-        $archiveFile = tempnam(_PS_CACHE_DIR_, 'theme-templates');
+        Configuration::update_global_value($cache_key, $now);
+        $request = ['action' => 'download-template', 'php' => phpversion(), 'templates' => [$relative_template]];
+        $archive_file = tempnam(_PS_CACHE_DIR_, 'theme-templates');
         try {
-            $guzzle = new Client([
-                'base_uri' => Configuration::getApiServer(),
-                'verify' => Configuration::getSslTrustStore(),
-                'timeout' => 20,
-            ]);
-            $guzzle->post('/coreupdater/v2.php', [
-                'form_params' => $request,
-                'http_errors' => false,
-                'sink' => $archiveFile,
-                'headers' => [
-                    'X-SID' => Configuration::getServerTrackingId(),
-                ],
-            ]);
-            if (!is_file($archiveFile)) {
-                throw new PrestaShopException('Failed to download file from thirty bees api server');
+            $guzzle = new Client(['base_uri' => Configuration::get_api_server(), 'verify' => Configuration::get_ssl_trust_store(), 'timeout' => 20]);
+            $guzzle->post('/coreupdater/v2.php', ['form_params' => $request, 'http_errors' => false, 'sink' => $archive_file, 'headers' => ['X-SID' => Configuration::get_server_tracking_id()]]);
+            if (!is_file($archive_file)) {
+                throw new Presta_Shop_Exception('Failed to download file from thirty bees api server');
             }
-            $magicNumber = file_get_contents($archiveFile, false, null, 0, 2);
-            if (@filesize($archiveFile) < 100 || strcmp($magicNumber, "\x1f\x8b")) {
+            $magic_number = file_get_contents($archive_file, false, null, 0, 2);
+            if (@filesize($archive_file) < 100 || strcmp($magic_number, "\x1f\x8b")) {
                 // It's an error message response.
-                throw new PrestaShopException('Api error: ' . file_get_contents($archiveFile));
+                throw new Presta_Shop_Exception('Api error: ' . file_get_contents($archive_file));
             }
-
-            $archive = new Archive_Tar($archiveFile, 'gz');
-            $archivePaths = $archive->listContent();
+            $archive = new Archive_Tar($archive_file, 'gz');
+            $archive_paths = $archive->list_content();
             if ($archive->error_object) {
-                throw new PrestaShopException('Failed to open archive: ' . $archive->error_object->message);
+                throw new Presta_Shop_Exception('Failed to open archive: ' . $archive->error_object->message);
             }
-            if (count($archivePaths) !== 1 || $archivePaths[0]['filename'] !== $relativeTemplate) {
-                throw new PrestaShopException('Archive contains invalid content: ' . print_r($archivePaths, true));
+            if (count($archive_paths) !== 1 || $archive_paths[0]['filename'] !== $relative_template) {
+                throw new Presta_Shop_Exception('Archive contains invalid content: ' . print_r($archive_paths, true));
             }
-            $archive->extract($directoryPath);
+            $archive->extract($directory_path);
         } catch (Throwable $e) {
-            throw new PrestaShopException('Failed to download file from thirty bees api server', 0, $e);
+            throw new Presta_Shop_Exception('Failed to download file from thirty bees api server', 0, $e);
         } finally {
-            @unlink($archiveFile);
+            @unlink($archive_file);
         }
     }
-
     /**
      * Returns full path to theme directory
      *
      * @return string
      */
-    public function getDirectoryPath()
+    public function get_directory_path()
     {
         return rtrim(str_replace('\\', '/', _PS_ALL_THEMES_DIR_), '/') . '/' . $this->directory . '/';
     }
-
     /**
      * Returns true, if current theme supports mobile theme variant
      *
      * @return bool
      * @throws PrestaShopException
      */
-    public function supportsMobileVariant()
+    public function supports_mobile_variant()
     {
-        return (
-            isset($_SERVER['HTTP_USER_AGENT']) &&
-            Configuration::get('PS_ALLOW_MOBILE_DEVICE') &&
-            file_exists(_PS_THEME_MOBILE_DIR_) &&
-            is_dir(_PS_THEME_MOBILE_DIR_)
-        );
+        return isset($_SERVER['HTTP_USER_AGENT']) && Configuration::get('PS_ALLOW_MOBILE_DEVICE') && file_exists(_PS_THEME_MOBILE_DIR_) && is_dir(_PS_THEME_MOBILE_DIR_);
     }
-
 }

@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,11 +30,10 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class ConnectionCore
  */
-class ConnectionCore extends ObjectModel
+class Connection_Core extends Object_Model
 {
     /** @var int */
     public $id_guest;
@@ -50,31 +49,10 @@ class ConnectionCore extends ObjectModel
     public $id_shop_group;
     /** @var string */
     public $date_add;
-
     /**
      * @var array Object model definition
      */
-    public static $definition = [
-        'table'   => 'connections',
-        'primary' => 'id_connections',
-        'fields'  => [
-            'id_shop_group' => ['type' => self::TYPE_INT, 'required' => true, 'dbDefault' => '1'],
-            'id_shop'       => ['type' => self::TYPE_INT, 'required' => true, 'dbDefault' => '1'],
-            'id_guest'      => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true],
-            'id_page'       => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true],
-            'ip_address'    => ['type' => self::TYPE_INT, 'validate' => 'isInt', 'dbType' => 'bigint(20)'],
-            'date_add'      => ['type' => self::TYPE_DATE, 'validate' => 'isDate', 'dbNullable' => false],
-            'http_referer'  => ['type' => self::TYPE_STRING, 'validate' => 'isAbsoluteUrl'],
-        ],
-        'keys' => [
-            'connections' => [
-                'date_add' => ['type' => ObjectModel::KEY, 'columns' => ['date_add']],
-                'id_guest' => ['type' => ObjectModel::KEY, 'columns' => ['id_guest']],
-                'id_page'  => ['type' => ObjectModel::KEY, 'columns' => ['id_page']],
-            ],
-        ],
-    ];
-
+    public static $definition = ['table' => 'connections', 'primary' => 'id_connections', 'fields' => ['id_shop_group' => ['type' => self::TYPE_INT, 'required' => true, 'dbDefault' => '1'], 'id_shop' => ['type' => self::TYPE_INT, 'required' => true, 'dbDefault' => '1'], 'id_guest' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true], 'id_page' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true], 'ip_address' => ['type' => self::TYPE_INT, 'validate' => 'isInt', 'dbType' => 'bigint(20)'], 'date_add' => ['type' => self::TYPE_DATE, 'validate' => 'isDate', 'dbNullable' => false], 'http_referer' => ['type' => self::TYPE_STRING, 'validate' => 'isAbsoluteUrl']], 'keys' => ['connections' => ['date_add' => ['type' => Object_Model::KEY, 'columns' => ['date_add']], 'id_guest' => ['type' => Object_Model::KEY, 'columns' => ['id_guest']], 'id_page' => ['type' => Object_Model::KEY, 'columns' => ['id_page']]]]];
     /**
      * @param bool $full
      *
@@ -83,47 +61,30 @@ class ConnectionCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function setPageConnection(Cookie $cookie, $full = true)
+    public static function set_page_connection(Cookie $cookie, $full = true)
     {
-        $idPage = false;
+        $id_page = false;
         // The connection is created if it does not exist yet and we get the current page id
-        if (!isset($cookie->id_connections) || !strstr(Tools::getHttpReferer(), (string) Tools::getHttpHost(false, false))) {
-            $idPage = Connection::setNewConnection($cookie);
+        if (!isset($cookie->id_connections) || !strstr(Tools::get_http_referer(), (string) Tools::get_http_host(false, false))) {
+            $id_page = Connection::set_new_connection($cookie);
         }
         // If we do not track the pages, no need to get the page id
         if (!Configuration::get('PS_STATSDATA_PAGESVIEWS') && !Configuration::get('PS_STATSDATA_CUSTOMER_PAGESVIEWS')) {
             return [];
         }
-        if (!$idPage) {
-            $idPage = Page::getCurrentId();
+        if (!$id_page) {
+            $id_page = Page::get_current_id();
         }
         // If we do not track the page views by customer, the id_page is the only information needed
         if (!Configuration::get('PS_STATSDATA_CUSTOMER_PAGESVIEWS')) {
-            return ['id_page' => $idPage];
+            return ['id_page' => $id_page];
         }
-
         // The ending time will be updated by an ajax request when the guest will close the page
-        $timeStart = date('Y-m-d H:i:s');
-        Db::getInstance()->insert(
-            'connections_page',
-            [
-                'id_connections' => (int) $cookie->id_connections,
-                'id_page'        => (int) $idPage,
-                'time_start'     => $timeStart,
-            ],
-            false,
-            true,
-            Db::INSERT_IGNORE
-        );
-
+        $time_start = date('Y-m-d H:i:s');
+        Db::get_instance()->insert('connections_page', ['id_connections' => (int) $cookie->id_connections, 'id_page' => (int) $id_page, 'time_start' => $time_start], false, true, Db::INSERT_IGNORE);
         // This array is serialized and used by the ajax request to identify the page
-        return [
-            'id_connections' => (int) $cookie->id_connections,
-            'id_page'        => (int) $idPage,
-            'time_start'     => $timeStart,
-        ];
+        return ['id_connections' => (int) $cookie->id_connections, 'id_page' => (int) $id_page, 'time_start' => $time_start];
     }
-
     /**
      * @param Cookie $cookie
      *
@@ -131,58 +92,46 @@ class ConnectionCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function setNewConnection($cookie)
+    public static function set_new_connection($cookie)
     {
-        if (Tools::isCrawler()) {
+        if (Tools::is_crawler()) {
             return false;
         }
-
-        $guestId = (int) $cookie->id_guest;
-        if ($guestId) {
-
-            $sql = (new DbQuery())
-                ->select('1')
-                ->from('connections', 'c')
-                ->addCurrentShopRestriction('c')
-                ->where('`c`.`id_guest` = ' . $guestId)
-                ->where('`c`.`date_add` > \'' . pSQL(date('Y-m-d H:i:00', time() - 1800)) . '\'');
-            $exists = Db::readOnly()->getRow($sql);
-
+        $guest_id = (int) $cookie->id_guest;
+        if ($guest_id) {
+            $sql = (new Db_Query())->select('1')->from('connections', 'c')->add_current_shop_restriction('c')->where('`c`.`id_guest` = ' . $guest_id)->where('`c`.`date_add` > \'' . p_sql(date('Y-m-d H:i:00', time() - 1800)) . '\'');
+            $exists = Db::read_only()->get_row($sql);
             if (!$exists) {
                 // The old connections details are removed from the database in order to spare some memory
-                Connection::cleanConnectionsPages();
-
-                $referer = Tools::getHttpReferer();
-                $arrayUrl = parse_url($referer);
-                if (!isset($arrayUrl['host']) || preg_replace('/^www./', '', $arrayUrl['host']) == preg_replace('/^www./', '', Tools::getHttpHost(false, false))) {
+                Connection::clean_connections_pages();
+                $referer = Tools::get_http_referer();
+                $array_url = parse_url($referer);
+                if (!isset($array_url['host']) || preg_replace('/^www./', '', $array_url['host']) == preg_replace('/^www./', '', Tools::get_http_host(false, false))) {
                     $referer = '';
                 }
                 $connection = new Connection();
-                $connection->id_guest = $guestId;
-                $connection->id_page = Page::getCurrentId();
-                $connection->ip_address = Tools::getRemoteAddr() ? (int)ip2long(Tools::getRemoteAddr()) : '';
-                $connection->id_shop = Context::getContext()->shop->id;
-                $connection->id_shop_group = Context::getContext()->shop->id_shop_group;
+                $connection->id_guest = $guest_id;
+                $connection->id_page = Page::get_current_id();
+                $connection->ip_address = Tools::get_remote_addr() ? (int) ip2long(Tools::get_remote_addr()) : '';
+                $connection->id_shop = Context::get_context()->shop->id;
+                $connection->id_shop_group = Context::get_context()->shop->id_shop_group;
                 $connection->date_add = $cookie->date_add;
-                if (Validate::isAbsoluteUrl($referer)) {
+                if (Validate::is_absolute_url($referer)) {
                     $connection->http_referer = substr($referer, 0, 254);
                 }
                 $connection->add();
                 $cookie->id_connections = $connection->id;
-
-                return (int)$connection->id_page;
+                return (int) $connection->id_page;
             }
         }
         return false;
     }
-
     /**
      * @throws PrestaShopException
      */
-    public static function cleanConnectionsPages(): void
+    public static function clean_connections_pages(): void
     {
         $period = Configuration::get('PS_STATS_OLD_CONNECT_AUTO_CLEAN');
-
         if ($period === 'week') {
             $interval = '1 WEEK';
         } elseif ($period === 'month') {
@@ -192,15 +141,11 @@ class ConnectionCore extends ObjectModel
         } else {
             return;
         }
-
         // Records of connections details older than the beginning of the  specified interval are deleted
-        Db::getInstance()->execute(
-            '
-        DELETE FROM `'._DB_PREFIX_.'connections_page`
-        WHERE time_start < LAST_DAY(DATE_SUB(NOW(), INTERVAL '.$interval.'))'
-        );
+        Db::get_instance()->execute('
+        DELETE FROM `' . _DB_PREFIX_ . 'connections_page`
+        WHERE time_start < LAST_DAY(DATE_SUB(NOW(), INTERVAL ' . $interval . '))');
     }
-
     /**
      * @param int $idConnections
      * @param int $idPage
@@ -209,40 +154,32 @@ class ConnectionCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function setPageTime($idConnections, $idPage, $timeStart, $time): void
+    public static function set_page_time($id_connections, $id_page, $time_start, $time): void
     {
-        if (!Validate::isUnsignedId($idConnections)
-            || !Validate::isUnsignedId($idPage)
-            || !Validate::isDate($timeStart)
-        ) {
+        if (!Validate::is_unsigned_id($id_connections) || !Validate::is_unsigned_id($id_page) || !Validate::is_date($time_start)) {
             return;
         }
-
         // Limited to 5 minutes because more than 5 minutes is considered as an error
         if ($time > 300000) {
             $time = 300000;
         }
-        Db::getInstance()->execute(
-            '
-		UPDATE `'._DB_PREFIX_.'connections_page`
-		SET `time_end` = `time_start` + INTERVAL '.(int) ($time / 1000).' SECOND
-		WHERE `id_connections` = '.(int) $idConnections.'
-		AND `id_page` = '.(int) $idPage.'
-		AND `time_start` = \''.pSQL($timeStart).'\''
-        );
+        Db::get_instance()->execute('
+		UPDATE `' . _DB_PREFIX_ . 'connections_page`
+		SET `time_end` = `time_start` + INTERVAL ' . (int) ($time / 1000) . ' SECOND
+		WHERE `id_connections` = ' . (int) $id_connections . '
+		AND `id_page` = ' . (int) $id_page . '
+		AND `time_start` = \'' . p_sql($time_start) . '\'');
     }
-
     /**
      * @return array
      *
      * @throws PrestaShopException
      */
-    public function getFields()
+    public function get_fields()
     {
         if (!$this->id_shop_group) {
-            $this->id_shop_group = Context::getContext()->shop->id_shop_group;
+            $this->id_shop_group = Context::get_context()->shop->id_shop_group;
         }
-
-        return parent::getFields();
+        return parent::get_fields();
     }
 }

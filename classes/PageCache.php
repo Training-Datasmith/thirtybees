@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,38 +30,31 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class PageCache
  */
-class PageCacheCore
+class Page_Cache_Core
 {
     /**
      * How many seconds should the page remain in cache
      */
     public const CACHE_ENTRY_TTL = 86400;
-
     /**
      * @var PageCacheEntry|null holds current page cache entry
      */
     protected static $entry;
-
     /**
      * @return bool true if full page cache is enabled and user user is not
      *              logged in, else false.
      *
      * @throws PrestaShopException
      */
-    public static function isEnabled(): bool
+    public static function is_enabled(): bool
     {
-        $pageCacheEnabled = Cache::isEnabled()
-            && Configuration::get('TB_PAGE_CACHE_ENABLED');
-        $userLoggedIn = ! is_null(Context::getContext()->customer)
-            && Context::getContext()->customer->isLogged();
-
-        return $pageCacheEnabled && ! $userLoggedIn;
+        $page_cache_enabled = Cache::is_enabled() && Configuration::get('TB_PAGE_CACHE_ENABLED');
+        $user_logged_in = !is_null(Context::get_context()->customer) && Context::get_context()->customer->is_logged();
+        return $page_cache_enabled && !$user_logged_in;
     }
-
     /**
      * Insert new entry for current request into full page cache
      *
@@ -70,21 +63,20 @@ class PageCacheCore
      */
     public static function set($template): void
     {
-        if (static::isEnabled()) {
-            $key = PageCacheKey::get();
+        if (static::is_enabled()) {
+            $key = Page_Cache_Key::get();
             if ($key) {
-                $cacheEntry = static::get();
-                $cacheEntry->setContent($template);
-                if ($cacheEntry->isValid()) {
-                    $hash = $key->getHash();
-                    $cache = Cache::getInstance();
-                    $cache->set($hash, $cacheEntry->serialize(), static::CACHE_ENTRY_TTL);
-                    static::cacheKey($hash, $key->idCurrency, $key->idLanguage, $key->idCountry, $key->idShop, $key->entityType, $key->entityId);
+                $cache_entry = static::get();
+                $cache_entry->set_content($template);
+                if ($cache_entry->is_valid()) {
+                    $hash = $key->get_hash();
+                    $cache = Cache::get_instance();
+                    $cache->set($hash, $cache_entry->serialize(), static::CACHE_ENTRY_TTL);
+                    static::cache_key($hash, $key->id_currency, $key->id_language, $key->id_country, $key->id_shop, $key->entity_type, $key->entity_id);
                 }
             }
         }
     }
-
     /**
      * Returns full page cache entry for current request
      *
@@ -96,22 +88,21 @@ class PageCacheCore
     public static function get()
     {
         if (is_null(static::$entry)) {
-            static::$entry = new PageCacheEntry();
-            if (static::isEnabled()) {
-
+            static::$entry = new Page_Cache_Entry();
+            if (static::is_enabled()) {
                 // check that there were no changes to hook list
-                $hookListHash = static::getHookListFingerprint();
-                if ($hookListHash != Configuration::get('TB_HOOK_LIST_HASH')) {
+                $hook_list_hash = static::get_hook_list_fingerprint();
+                if ($hook_list_hash != Configuration::get('TB_HOOK_LIST_HASH')) {
                     // drain the cache if the hook list changed
-                    Configuration::updateValue('TB_HOOK_LIST_HASH', $hookListHash);
+                    Configuration::update_value('TB_HOOK_LIST_HASH', $hook_list_hash);
                     static::flush();
                 } else {
-                    $key = PageCacheKey::get();
+                    $key = Page_Cache_Key::get();
                     if ($key) {
-                        $cache = Cache::getInstance();
-                        $serialized = $cache->get($key->getHash());
+                        $cache = Cache::get_instance();
+                        $serialized = $cache->get($key->get_hash());
                         if ($serialized) {
-                            static::$entry->setFromCache($serialized);
+                            static::$entry->set_from_cache($serialized);
                         }
                     }
                 }
@@ -119,7 +110,6 @@ class PageCacheCore
         }
         return static::$entry;
     }
-
     /**
      * Register cache key and set its metadata
      *
@@ -131,29 +121,14 @@ class PageCacheCore
      * @param string $entityType
      * @param int $idEntity
      */
-    public static function cacheKey($key, $idCurrency, $idLanguage, $idCountry, $idShop, $entityType, $idEntity): void
+    public static function cache_key($key, $id_currency, $id_language, $id_country, $id_shop, $entity_type, $id_entity): void
     {
         try {
-            Db::getInstance()->insert(
-                'page_cache',
-                [
-                    'cache_hash'  => pSQL($key),
-                    'id_currency' => (int) $idCurrency,
-                    'id_language' => (int) $idLanguage,
-                    'id_country'  => (int) $idCountry,
-                    'id_shop'     => (int) $idShop,
-                    'entity_type' => pSQL($entityType),
-                    'id_entity'   => (int) $idEntity,
-                ],
-                false,
-                true,
-                Db::ON_DUPLICATE_KEY
-            );
+            Db::get_instance()->insert('page_cache', ['cache_hash' => p_sql($key), 'id_currency' => (int) $id_currency, 'id_language' => (int) $id_language, 'id_country' => (int) $id_country, 'id_shop' => (int) $id_shop, 'entity_type' => p_sql($entity_type), 'id_entity' => (int) $id_entity], false, true, Db::ON_DUPLICATE_KEY);
         } catch (Exception) {
             // Hash already inserted
         }
     }
-
     /**
      * Invalidate an entity from the cache
      *
@@ -163,66 +138,37 @@ class PageCacheCore
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function invalidateEntity($entityType, $idEntity = null): void
+    public static function invalidate_entity($entity_type, $id_entity = null): void
     {
-        $keysToInvalidate = [];
-
-        $conn = Db::getInstance();
-        if ($entityType === 'product') {
+        $keys_to_invalidate = [];
+        $conn = Db::get_instance();
+        if ($entity_type === 'product') {
             // Refresh the homepage
-            $keysToInvalidate = array_merge(
-                $keysToInvalidate,
-                static::getKeysToInvalidate('index')
-            );
-
-            $conn->delete(
-                'page_cache',
-                '`entity_type` = \'index\''
-            );
-            if ($idEntity) {
+            $keys_to_invalidate = array_merge($keys_to_invalidate, static::get_keys_to_invalidate('index'));
+            $conn->delete('page_cache', '`entity_type` = \'index\'');
+            if ($id_entity) {
                 // Invalidate product's categories only
-                $product = new Product((int) $idEntity);
-                if (Validate::isLoadedObject($product)) {
-                    $categories = $product->getCategories();
-                    foreach ($categories as $idCategory) {
-                        $keysToInvalidate = array_merge(
-                            $keysToInvalidate,
-                            static::getKeysToInvalidate('category', $idCategory)
-                        );
-                        $conn->delete(
-                            'page_cache',
-                            '`entity_type` = \'category\' AND `id_entity` = '.(int) $idCategory
-                        );
+                $product = new Product((int) $id_entity);
+                if (Validate::is_loaded_object($product)) {
+                    $categories = $product->get_categories();
+                    foreach ($categories as $id_category) {
+                        $keys_to_invalidate = array_merge($keys_to_invalidate, static::get_keys_to_invalidate('category', $id_category));
+                        $conn->delete('page_cache', '`entity_type` = \'category\' AND `id_entity` = ' . (int) $id_category);
                     }
                 }
             } else {
                 // Invalidate all parent categories
-                $keysToInvalidate = array_merge(
-                    $keysToInvalidate,
-                    static::getKeysToInvalidate('category')
-                );
-                $conn->delete(
-                    'page_cache',
-                    '`entity_type` = \'category\''
-                );
+                $keys_to_invalidate = array_merge($keys_to_invalidate, static::get_keys_to_invalidate('category'));
+                $conn->delete('page_cache', '`entity_type` = \'category\'');
             }
         }
-
-        $keysToInvalidate = array_merge(
-            $keysToInvalidate,
-            static::getKeysToInvalidate($entityType, $idEntity)
-        );
-        $conn->delete(
-            'page_cache',
-            '`entity_type` = \''.pSQL($entityType).'\''.($idEntity ? ' AND `id_entity` = '.(int) $idEntity : '')
-        );
-
-        $cache = Cache::getInstance();
-        foreach ($keysToInvalidate as $item) {
+        $keys_to_invalidate = array_merge($keys_to_invalidate, static::get_keys_to_invalidate($entity_type, $id_entity));
+        $conn->delete('page_cache', '`entity_type` = \'' . p_sql($entity_type) . '\'' . ($id_entity ? ' AND `id_entity` = ' . (int) $id_entity : ''));
+        $cache = Cache::get_instance();
+        foreach ($keys_to_invalidate as $item) {
             $cache->delete($item);
         }
     }
-
     /**
      * Flush all data
      *
@@ -231,13 +177,11 @@ class PageCacheCore
      */
     public static function flush(): void
     {
-        if (static::isEnabled()) {
-            Cache::getInstance()->flush();
+        if (static::is_enabled()) {
+            Cache::get_instance()->flush();
         }
-
-        Db::getInstance()->delete('page_cache');
+        Db::get_instance()->delete('page_cache');
     }
-
     /**
      * Get keys to invalidate
      *
@@ -248,53 +192,47 @@ class PageCacheCore
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    protected static function getKeysToInvalidate($entityType, $idEntity = null): array
+    protected static function get_keys_to_invalidate($entity_type, $id_entity = null): array
     {
-        $sql = new DbQuery();
+        $sql = new Db_Query();
         $sql->select('`cache_hash`');
         $sql->from('page_cache');
-        $sql->where('`entity_type` = \''.pSQL($entityType).'\'');
-        if ($idEntity) {
-            $sql->where('`id_entity` = '.(int) $idEntity);
+        $sql->where('`entity_type` = \'' . p_sql($entity_type) . '\'');
+        if ($id_entity) {
+            $sql->where('`id_entity` = ' . (int) $id_entity);
         }
-
-        $results = Db::readOnly()->getArray($sql);
-
+        $results = Db::read_only()->get_array($sql);
         return array_column($results, 'cache_hash');
     }
-
     /**
      * Return normalized list of all hooks that should be cached
      * @throws PrestaShopException
      * @return mixed[]|array<int, non-empty-array<(int<min, -1> | int<1, max>), 1>>
      */
-    public static function getCachedHooks(): array
+    public static function get_cached_hooks(): array
     {
-        $hookSettings = json_decode(Configuration::get('TB_PAGE_CACHE_HOOKS'), true);
-        if (! is_array($hookSettings)) {
+        $hook_settings = json_decode(Configuration::get('TB_PAGE_CACHE_HOOKS'), true);
+        if (!is_array($hook_settings)) {
             return [];
         }
-
-        $cachedHooks = [];
-        foreach ($hookSettings as $idModule => $hookArr) {
-            $idModule = (int) $idModule;
-            if ($idModule) {
-                $moduleHooks = [];
-                foreach ($hookArr as $idHook => $bool) {
-                    $idHook = (int) $idHook;
-                    if ($idHook && $bool) {
-                        $moduleHooks[$idHook] = 1;
+        $cached_hooks = [];
+        foreach ($hook_settings as $id_module => $hook_arr) {
+            $id_module = (int) $id_module;
+            if ($id_module) {
+                $module_hooks = [];
+                foreach ($hook_arr as $id_hook => $bool) {
+                    $id_hook = (int) $id_hook;
+                    if ($id_hook && $bool) {
+                        $module_hooks[$id_hook] = 1;
                     }
                 }
-                if ($moduleHooks) {
-                    $cachedHooks[$idModule] = $moduleHooks;
+                if ($module_hooks) {
+                    $cached_hooks[$id_module] = $module_hooks;
                 }
             }
         }
-
-        return $cachedHooks;
+        return $cached_hooks;
     }
-
     /**
      * Modify hook cached status
      *
@@ -307,32 +245,28 @@ class PageCacheCore
      *
      * @throws PrestaShopException
      */
-    public static function setHookCacheStatus($idModule, $idHook, $status): bool
+    public static function set_hook_cache_status($id_module, $id_hook, $status): bool
     {
-        $hookSettings = static::getCachedHooks();
-        $idModule = (int) $idModule;
-        $idHook = (int) $idHook;
-        if (!isset($hookSettings[$idModule])) {
-            $hookSettings[$idModule] = [];
+        $hook_settings = static::get_cached_hooks();
+        $id_module = (int) $id_module;
+        $id_hook = (int) $id_hook;
+        if (!isset($hook_settings[$id_module])) {
+            $hook_settings[$id_module] = [];
         }
         if ($status) {
-            $hookSettings[$idModule][$idHook] = 1;
+            $hook_settings[$id_module][$id_hook] = 1;
         } else {
-            unset($hookSettings[$idModule][$idHook]);
-            if (empty($hookSettings[$idModule])) {
-                unset($hookSettings[$idModule]);
+            unset($hook_settings[$id_module][$id_hook]);
+            if (empty($hook_settings[$id_module])) {
+                unset($hook_settings[$id_module]);
             }
         }
-
-        if (Configuration::updateGlobalValue('TB_PAGE_CACHE_HOOKS', json_encode($hookSettings))) {
+        if (Configuration::update_global_value('TB_PAGE_CACHE_HOOKS', json_encode($hook_settings))) {
             static::flush();
-
             return true;
         }
-
         return false;
     }
-
     /**
      * Calculates md5 hash of hook list
      *
@@ -345,15 +279,15 @@ class PageCacheCore
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getHookListFingerprint(): string
+    public static function get_hook_list_fingerprint(): string
     {
-        $hookList = Hook::getHookModuleList();
+        $hook_list = Hook::get_hook_module_list();
         $ctx = hash_init('md5');
-        foreach ($hookList as $idHook => $moduleList) {
-            hash_update($ctx, $idHook);
-            foreach ($moduleList as $idModule => $moduleInfo) {
-                hash_update($ctx, $idModule);
-                hash_update($ctx, (string) $moduleInfo['active']);
+        foreach ($hook_list as $id_hook => $module_list) {
+            hash_update($ctx, $id_hook);
+            foreach ($module_list as $id_module => $module_info) {
+                hash_update($ctx, $id_module);
+                hash_update($ctx, (string) $module_info['active']);
             }
         }
         return hash_final($ctx);

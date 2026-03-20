@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,28 +30,25 @@ declare(strict_types=1);
  *  @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class Core_Business_Email_EmailLister
  */
-class Core_Business_Email_EmailLister
+class Core_business_email_email_Lister
 {
     /**
      * @var Core_Foundation_FileSystem_FileSystem
      */
     protected $filesystem;
-
     /**
      * Core_Business_Email_EmailLister constructor.
      *
      * @param Core_Foundation_FileSystem_FileSystem $fs
      */
-    public function __construct(Core_Foundation_FileSystem_FileSystem $fs)
+    public function __construct(Core_foundation_file_System_file_System $fs)
     {
         // Register dependencies
         $this->filesystem = $fs;
     }
-
     /**
      * Return the list of available mails
      *
@@ -61,35 +58,29 @@ class Core_Business_Email_EmailLister
      *
      * @throws Core_Foundation_FileSystem_Exception
      */
-    public function getAvailableMails($dir)
+    public function get_available_mails($dir)
     {
         if (!is_dir($dir)) {
             return null;
         }
-
-        $mailDirectory = $this->filesystem->listEntriesRecursively($dir);
-        $mailList = [];
-
+        $mail_directory = $this->filesystem->list_entries_recursively($dir);
+        $mail_list = [];
         // Remove unwanted .html / .txt / .tpl / .php / . / ..
-        foreach ($mailDirectory as $mail) {
-            if (strpos($mail->getFilename(), '.') !== false) {
-                $tmp = explode('.', $mail->getFilename());
-
+        foreach ($mail_directory as $mail) {
+            if (strpos($mail->get_filename(), '.') !== false) {
+                $tmp = explode('.', $mail->get_filename());
                 // Check for filename existence (left part) and if extension is html (right part)
-                if (($tmp === false || !isset($tmp[0])) || (isset($tmp[1]) && $tmp[1] !== 'html')) {
+                if ($tmp === false || !isset($tmp[0]) || isset($tmp[1]) && $tmp[1] !== 'html') {
                     continue;
                 }
-
-                $mailNameNoExt = $tmp[0];
-                if (!in_array($mailNameNoExt, $mailList)) {
-                    $mailList[] = $mailNameNoExt;
+                $mail_name_no_ext = $tmp[0];
+                if (!in_array($mail_name_no_ext, $mail_list)) {
+                    $mail_list[] = $mail_name_no_ext;
                 }
             }
         }
-
-        return $mailList;
+        return $mail_list;
     }
-
     /**
      * Give in input getAvailableMails(), will output a human readable and proper string name
      *
@@ -97,18 +88,15 @@ class Core_Business_Email_EmailLister
      *
      * @return string
      */
-    public function getCleanedMailName($mailName)
+    public function get_cleaned_mail_name($mail_name)
     {
-        if (strpos($mailName, '.') !== false) {
-            $tmp = explode('.', $mailName);
-
+        if (strpos($mail_name, '.') !== false) {
+            $tmp = explode('.', $mail_name);
             if ($tmp === false || !isset($tmp[0])) {
-                return $mailName;
+                return $mail_name;
             }
-
-            $mailName = $tmp[0];
+            $mail_name = $tmp[0];
         }
-
-        return ucfirst(str_replace(['_', '-'], ' ', $mailName));
+        return ucfirst(str_replace(['_', '-'], ' ', $mail_name));
     }
 }

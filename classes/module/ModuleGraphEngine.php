@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,37 +30,31 @@ declare(strict_types=1);
  *  @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class ModuleGraphEngineCore
  */
-class ModuleGraphEngineCore extends Module
+class Module_Graph_Engine_Core extends Module
 {
     /**
      * @var int
      */
     protected $_width;
-
     /**
      * @var int
      */
     protected $_height;
-
     /**
      * @var array
      */
     protected $_values;
-
     /**
      * @var string[]
      */
     protected $_legend;
-
     /**
      * @var string[]
      */
     protected $_titles;
-
     /**
      * ModuleGraphEngineCore constructor.
      *
@@ -71,7 +65,6 @@ class ModuleGraphEngineCore extends Module
     public function __construct(protected $_type = null)
     {
     }
-
     /**
      * @return bool
      *
@@ -82,85 +75,67 @@ class ModuleGraphEngineCore extends Module
         if (!parent::install()) {
             return false;
         }
-
-        return Configuration::updateValue('PS_STATS_RENDER', $this->name);
+        return Configuration::update_value('PS_STATS_RENDER', $this->name);
     }
-
     /**
      * @return array
      *
      * @throws PrestaShopException
      */
-    public static function getGraphEngines()
+    public static function get_graph_engines()
     {
-        $result = Db::readOnly()->getArray(
-            (new DbQuery())
-                ->select('m.`name`')
-                ->from('module', 'm')
-                ->leftJoin('hook_module', 'hm', 'hm.`id_module` = m.`id_module`')
-                ->leftJoin('hook', 'h', 'hm.`id_hook` = h.`id_hook`')
-                ->where('h.`name` = \'displayAdminStatsGraphEngine\'')
-        );
-
-        $arrayEngines = [];
+        $result = Db::read_only()->get_array((new Db_Query())->select('m.`name`')->from('module', 'm')->left_join('hook_module', 'hm', 'hm.`id_module` = m.`id_module`')->left_join('hook', 'h', 'hm.`id_hook` = h.`id_hook`')->where('h.`name` = \'displayAdminStatsGraphEngine\''));
+        $array_engines = [];
         foreach ($result as $module) {
-            $instance = Module::getInstanceByName($module['name']);
+            $instance = Module::get_instance_by_name($module['name']);
             if (!$instance) {
                 continue;
             }
-            $arrayEngines[$module['name']] = [$instance->displayName, $instance->description];
+            $array_engines[$module['name']] = [$instance->display_name, $instance->description];
         }
-
-        return $arrayEngines;
+        return $array_engines;
     }
-
     /**
      * @param array $params
      * @param string $drawer
      * @return string
      */
-    public static function hookGraphEngine($params, $drawer)
+    public static function hook_graph_engine($params, $drawer)
     {
         static $divid = 1;
-
         if (str_contains((string) $params['width'], '%')) {
-            $params['width'] = (int) preg_replace('/\s*%\s*/', '', (string) $params['width']).'%';
+            $params['width'] = (int) preg_replace('/\s*%\s*/', '', (string) $params['width']) . '%';
         } else {
-            $params['width'] = (int) $params['width'].'px';
+            $params['width'] = (int) $params['width'] . 'px';
         }
-
-        $nvd3Func = [
-            'line' => '
-				nv.models.lineChart()',
-            'pie' => '
+        $nvd3Func = ['line' => '
+				nv.models.lineChart()', 'pie' => '
 				nv.models.pieChart()
 					.x(function(d) { return d.label; })
 					.y(function(d) { return d.value; })
 					.showLabels(true)
-					.showLegend(false)',
-        ];
-
+					.showLegend(false)'];
         return '
-		<div id="nvd3_chart_'.$divid.'" class="chart with-transitions">
-			<svg style="width:'.$params['width'].';height:'.(int)$params['height'].'px"></svg>
+		<div id="nvd3_chart_' . $divid . '" class="chart with-transitions">
+			<svg style="width:' . $params['width'] . ';height:' . (int) $params['height'] . 'px"></svg>
 		</div>
 		<script>
 			$.ajax({
-			url: "'.addslashes($drawer).'",
+			url: "' . addslashes($drawer) . '",
 			dataType: "json",
 			type: "GET",
 			cache: false,
 			headers: {"cache-control": "no-cache"},
 			success: function(jsonData){
 				nv.addGraph(function(){
-					var chart = '.$nvd3Func[$params['type']].';
+					var chart = ' . $nvd3Func[$params['type']] . ';
 
 					if (jsonData.axisLabels.xAxis != null)
 						chart.xAxis.axisLabel(jsonData.axisLabels.xAxis);
 					if (jsonData.axisLabels.yAxis != null)
 						chart.yAxis.axisLabel(jsonData.axisLabels.yAxis);
 
-					d3.select("#nvd3_chart_'.($divid++).' svg")
+					d3.select("#nvd3_chart_' . $divid++ . ' svg")
 						.datum(jsonData.data)
 						.transition().duration(500)
 						.call(chart);
@@ -173,54 +148,42 @@ class ModuleGraphEngineCore extends Module
 		});
 		</script>';
     }
-
     /**
      * @param array $values
      */
-    public function createValues($values): void
+    public function create_values($values): void
     {
         $this->_values = $values;
     }
-
     /**
      * @param int $width
      * @param int $height
      */
-    public function setSize($width, $height): void
+    public function set_size($width, $height): void
     {
-        $this->_width = (int)$width;
-        $this->_height = (int)$height;
+        $this->_width = (int) $width;
+        $this->_height = (int) $height;
     }
-
     /**
      * @param string[] $legend
      */
-    public function setLegend($legend): void
+    public function set_legend($legend): void
     {
         $this->_legend = $legend;
     }
-
     /**
      * @param string[] $titles
      */
-    public function setTitles($titles): void
+    public function set_titles($titles): void
     {
         $this->_titles = $titles;
     }
-
     public function draw(): void
     {
-        $array = [
-            'axisLabels' => [
-                'xAxis' => $this->_titles['x'] ?? null,
-                'yAxis' => $this->_titles['y'] ?? null,
-            ],
-            'data'       => [],
-        ];
-
+        $array = ['axisLabels' => ['xAxis' => $this->_titles['x'] ?? null, 'yAxis' => $this->_titles['y'] ?? null], 'data' => []];
         if (!isset($this->_values[0]) || !is_array($this->_values[0])) {
             $nvd3Values = [];
-            if (Tools::getValue('type') == 'pie') {
+            if (Tools::get_value('type') == 'pie') {
                 foreach ($this->_values as $x => $y) {
                     $nvd3Values[] = ['label' => $this->_legend[$x], 'value' => $y];
                 }
@@ -232,9 +195,9 @@ class ModuleGraphEngineCore extends Module
                 $array['data'][] = ['values' => $nvd3Values, 'key' => $this->_titles['main']];
             }
         } else {
-            foreach ($this->_values as $layer => $grossValues) {
+            foreach ($this->_values as $layer => $gross_values) {
                 $nvd3Values = [];
-                foreach ($grossValues as $x => $y) {
+                foreach ($gross_values as $x => $y) {
                     $nvd3Values[] = ['x' => $x, 'y' => $y];
                 }
                 $array['data'][] = ['values' => $nvd3Values, 'key' => $this->_titles['main'][$layer]];

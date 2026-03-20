@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -18,80 +18,67 @@ declare(strict_types=1);
  * @copyright 2017-2024 thirty bees
  * @license   Open Software License (OSL 3.0)
  */
+namespace Thirtybees\Core\Work_Queue;
 
-namespace Thirtybees\Core\WorkQueue;
-
-use PrestaShopException;
-
+use Presta_Shop_Exception;
 /**
  * Class WorkQueueImmediateExecutorCore
  */
-class WorkQueueImmediateExecutorCore implements WorkQueueExecutor
+class Work_Queue_Immediate_Executor_Core implements Work_Queue_Executor
 {
     /**
      * Executor identifier
      */
     public const INSTANT_EXECUTOR = 'instant';
-
     /**
      * @var static
      */
     protected static $instance;
-
     /**
      * Immediately runs work queue task
      *
      * @return WorkQueueFuture work queue future descriptor
      * @throws PrestaShopException
      */
-    public function enqueue(WorkQueueTask $task)
+    public function enqueue(Work_Queue_Task $task)
     {
         return $this->run($task);
     }
-
     /**
      * Immediately runs work queue task
      *
      * @return WorkQueueFuture work queue future descriptor
      * @throws PrestaShopException
      */
-    public function run(WorkQueueTask $task)
+    public function run(Work_Queue_Task $task)
     {
-        return new WorkQueueFuture(
-            $this,
-            $this->getId($task),
-            $task->run()
-        );
+        return new Work_Queue_Future($this, $this->get_id($task), $task->run());
     }
-
     /**
      * @return string
      */
-    public function getExecutorIdentifier()
+    public function get_executor_identifier()
     {
         return static::INSTANT_EXECUTOR;
     }
-
-    public function supportsImmediateExecution(): bool
+    public function supports_immediate_execution(): bool
     {
         return true;
     }
-
     /**
      * Generates id for task
      */
-    protected function getId(WorkQueueTask $task): string
+    protected function get_id(Work_Queue_Task $task): string
     {
         if ($task->id) {
-            return WorkQueueTask::class . '::' . $task->id;
+            return Work_Queue_Task::class . '::' . $task->id;
         }
         return $task->task . '::' . microtime(true);
     }
-
     /**
      * @return static
      */
-    public static function getInstance()
+    public static function get_instance()
     {
         if (is_null(static::$instance)) {
             static::$instance = new static();

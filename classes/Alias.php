@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,11 +30,10 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class AliasCore
  */
-class AliasCore extends ObjectModel
+class Alias_Core extends Object_Model
 {
     /** @var string $alias */
     public $alias;
@@ -42,20 +41,10 @@ class AliasCore extends ObjectModel
     public $search;
     /** @var bool $active */
     public $active = true;
-
     /**
      * @var array Object model definition
      */
-    public static $definition = [
-        'table'   => 'alias',
-        'primary' => 'id_alias',
-        'fields'  => [
-            'alias'  => ['type' => self::TYPE_STRING, 'validate' => 'isValidSearch', 'required' => true, 'unique' => true, 'size' => 64],
-            'search' => ['type' => self::TYPE_STRING, 'validate' => 'isValidSearch', 'required' => true, 'size' => 255],
-            'active' => ['type' => self::TYPE_BOOL,   'validate' => 'isBool', 'dbType' => 'tinyint(1)', 'dbDefault' => '1'],
-        ],
-    ];
-
+    public static $definition = ['table' => 'alias', 'primary' => 'id_alias', 'fields' => ['alias' => ['type' => self::TYPE_STRING, 'validate' => 'isValidSearch', 'required' => true, 'unique' => true, 'size' => 64], 'search' => ['type' => self::TYPE_STRING, 'validate' => 'isValidSearch', 'required' => true, 'size' => 255], 'active' => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbType' => 'tinyint(1)', 'dbDefault' => '1']]];
     /**
      * AliasCore constructor.
      *
@@ -68,26 +57,18 @@ class AliasCore extends ObjectModel
      */
     public function __construct($id = null, $alias = null, $search = null)
     {
-        $this->def = static::getDefinition($this);
-        $this->setDefinitionRetrocompatibility();
-
+        $this->def = static::get_definition($this);
+        $this->set_definition_retrocompatibility();
         if ($id) {
             parent::__construct($id);
-        } elseif ($alias && Validate::isValidSearch($alias)) {
+        } elseif ($alias && Validate::is_valid_search($alias)) {
             $alias = trim($alias);
             $search = trim($search ?? '');
-            if (!Alias::isFeatureActive()) {
+            if (!Alias::is_feature_active()) {
                 $this->alias = $alias;
                 $this->search = $search;
             } else {
-                $row = Db::readOnly()->getRow(
-                    (new DbQuery())
-                        ->select('a.`id_alias`, a.`search`, a.`alias`')
-                        ->from('alias', 'a')
-                        ->where('`alias` = \''.pSQL($alias).'\'')
-                        ->where('`active` = 1')
-                );
-
+                $row = Db::read_only()->get_row((new Db_Query())->select('a.`id_alias`, a.`search`, a.`alias`')->from('alias', 'a')->where('`alias` = \'' . p_sql($alias) . '\'')->where('`active` = 1'));
                 if ($row) {
                     $this->id = (int) $row['id_alias'];
                     $this->search = $search ?: $row['search'];
@@ -99,7 +80,6 @@ class AliasCore extends ObjectModel
             }
         }
     }
-
     /**
      * @param bool $autoDate
      * @param bool $nullValues
@@ -108,21 +88,17 @@ class AliasCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public function add($autoDate = true, $nullValues = false)
+    public function add($auto_date = true, $null_values = false)
     {
-        $this->alias = Tools::replaceAccentedChars($this->alias);
-        $this->search = Tools::replaceAccentedChars($this->search);
-
-        if (parent::add($autoDate, $nullValues)) {
+        $this->alias = Tools::replace_accented_chars($this->alias);
+        $this->search = Tools::replace_accented_chars($this->search);
+        if (parent::add($auto_date, $null_values)) {
             // Set cache of feature detachable to true
-            Configuration::updateGlobalValue('PS_ALIAS_FEATURE_ACTIVE', '1');
-
+            Configuration::update_global_value('PS_ALIAS_FEATURE_ACTIVE', '1');
             return true;
         }
-
         return false;
     }
-
     /**
      * @return bool
      *
@@ -132,38 +108,26 @@ class AliasCore extends ObjectModel
     {
         if (parent::delete()) {
             // Refresh cache of feature detachable
-            Configuration::updateGlobalValue('PS_ALIAS_FEATURE_ACTIVE', Alias::isCurrentlyUsed($this->def['table'], true));
-
+            Configuration::update_global_value('PS_ALIAS_FEATURE_ACTIVE', Alias::is_currently_used($this->def['table'], true));
             return true;
         }
-
         return false;
     }
-
     /**
      * @return string
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function getAliases()
+    public function get_aliases()
     {
-        if (!Alias::isFeatureActive()) {
+        if (!Alias::is_feature_active()) {
             return '';
         }
-
-        $aliases = Db::readOnly()->getArray(
-            (new DbQuery())
-                ->select('a.`alias`')
-                ->from('alias', 'a')
-                ->where('a.`search` = \''.pSQL($this->search).'\'')
-        );
-
+        $aliases = Db::read_only()->get_array((new Db_Query())->select('a.`alias`')->from('alias', 'a')->where('a.`search` = \'' . p_sql($this->search) . '\''));
         $aliases = array_map(implode(...), $aliases);
-
         return implode(', ', $aliases);
     }
-
     /**
      * This method is allow to know if a feature is used or active
      *
@@ -171,11 +135,10 @@ class AliasCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function isFeatureActive()
+    public static function is_feature_active()
     {
         return Configuration::get('PS_ALIAS_FEATURE_ACTIVE');
     }
-
     /**
      * This method is allow to know if a alias exist for AdminImportController
      *
@@ -185,19 +148,12 @@ class AliasCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function aliasExists($idAlias)
+    public static function alias_exists($id_alias)
     {
-        if (!Alias::isFeatureActive()) {
+        if (!Alias::is_feature_active()) {
             return false;
         }
-
-        $row = Db::readOnly()->getRow(
-            (new DbQuery())
-                ->select('`id_alias`')
-                ->from('alias', 'a')
-                ->where('a.`id_alias` = '.(int) $idAlias)
-        );
-
+        $row = Db::read_only()->get_row((new Db_Query())->select('`id_alias`')->from('alias', 'a')->where('a.`id_alias` = ' . (int) $id_alias));
         return isset($row['id_alias']);
     }
 }

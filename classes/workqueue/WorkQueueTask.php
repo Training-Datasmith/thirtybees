@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -18,142 +18,113 @@ declare(strict_types=1);
  * @copyright 2017-2024 thirty bees
  * @license   Open Software License (OSL 3.0)
  */
+namespace Thirtybees\Core\Work_Queue;
 
-namespace Thirtybees\Core\WorkQueue;
-
-use ObjectModel;
-use PrestaShopException;
+use Object_Model;
+use Presta_Shop_Exception;
 use ReflectionClass;
-use ReflectionException;
-use Thirtybees\Core\DependencyInjection\ServiceLocator;
+use Reflection_Exception;
+use Thirtybees\Core\Dependency_Injection\Service_Locator;
 use Throwable;
-
 /**
  * Class WorkQueueTaskCore
  */
-class WorkQueueTaskCore extends ObjectModel
+class Work_Queue_Task_Core extends Object_Model
 {
     public const STATUS_PENDING = 'pending';
     public const STATUS_RUNNING = 'running';
     public const STATUS_FAILURE = 'failure';
     public const STATUS_SUCCESS = 'success';
-
     /**
      * @var array Object model definition
      */
-    public static $definition = [
-        'table'   => 'workqueue_task',
-        'primary' => 'id_workqueue_task',
-        'multishop' => false,
-        'fields'  => [
-            // task definition
-            'task'                 => ['type' => self::TYPE_STRING, 'size' => 200, 'required' => true],
-            'payload'              => ['type' => self::TYPE_STRING, 'size' => self::SIZE_MEDIUM_TEXT],
-
-            // information about running
-            'status'               => ['type' => self::TYPE_STRING, 'required' => true, 'values' => [ self::STATUS_PENDING, self::STATUS_RUNNING, self::STATUS_SUCCESS, self::STATUS_FAILURE ]],
-            'date_start'           => ['type' => self::TYPE_DATE, 'validate' => 'isDate', 'required' => false],
-            'duration'             => ['type' => self::TYPE_FLOAT, 'validate' => 'isUnsignedFloat', 'required' => false],
-            'result'               => ['type' => self::TYPE_STRING, 'size' => self::SIZE_MEDIUM_TEXT],
-            'error'                => ['type' => self::TYPE_STRING, 'size' => self::SIZE_MEDIUM_TEXT],
-
-            // context fields
-            'id_employee_context'  => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedInt', 'required' => false],
-            'id_shop_context'      => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedInt', 'required' => false],
-            'id_customer_context'  => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedInt', 'required' => false],
-            'id_language_context'  => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedInt', 'required' => false],
-
-            // record information
-            'date_add'             => ['type' => self::TYPE_DATE, 'validate' => 'isDate', 'dbNullable' => false],
-            'date_upd'             => ['type' => self::TYPE_DATE, 'validate' => 'isDate', 'dbNullable' => false],
-        ],
-    ];
-
+    public static $definition = ['table' => 'workqueue_task', 'primary' => 'id_workqueue_task', 'multishop' => false, 'fields' => [
+        // task definition
+        'task' => ['type' => self::TYPE_STRING, 'size' => 200, 'required' => true],
+        'payload' => ['type' => self::TYPE_STRING, 'size' => self::SIZE_MEDIUM_TEXT],
+        // information about running
+        'status' => ['type' => self::TYPE_STRING, 'required' => true, 'values' => [self::STATUS_PENDING, self::STATUS_RUNNING, self::STATUS_SUCCESS, self::STATUS_FAILURE]],
+        'date_start' => ['type' => self::TYPE_DATE, 'validate' => 'isDate', 'required' => false],
+        'duration' => ['type' => self::TYPE_FLOAT, 'validate' => 'isUnsignedFloat', 'required' => false],
+        'result' => ['type' => self::TYPE_STRING, 'size' => self::SIZE_MEDIUM_TEXT],
+        'error' => ['type' => self::TYPE_STRING, 'size' => self::SIZE_MEDIUM_TEXT],
+        // context fields
+        'id_employee_context' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedInt', 'required' => false],
+        'id_shop_context' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedInt', 'required' => false],
+        'id_customer_context' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedInt', 'required' => false],
+        'id_language_context' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedInt', 'required' => false],
+        // record information
+        'date_add' => ['type' => self::TYPE_DATE, 'validate' => 'isDate', 'dbNullable' => false],
+        'date_upd' => ['type' => self::TYPE_DATE, 'validate' => 'isDate', 'dbNullable' => false],
+    ]];
     /**
      * @var string Work queue task identifier, matches classname of WorkQueueTaskCallable
      */
     public $task;
-
     /**
      * @var string json serialized task parameters
      */
     public $payload;
-
     /**
      * @var string current task status
      */
     public $status;
-
     /**
      * @var string datetime of task execution start
      */
     public $date_start;
-
     /**
      * @var float task duration in seconds
      */
     public $duration;
-
     /**
      * @var string result
      */
     public $result;
-
     /**
      * @var string error description
      */
     public $error;
-
     /**
      * @var int Context value: employee id
      */
     public $id_employee_context;
-
     /**
      * @var int Context value: shop id
      */
     public $id_shop_context;
-
     /**
      * @var int Context value: customer id
      */
     public $id_customer_context;
-
     /**
      * @var int Context value: language id
      */
     public $id_language_context;
-
     /**
      * @var string datetime when record has been created
      */
     public $date_add;
-
     /**
      * @var string datetime when record has been updated
      */
     public $date_upd;
-
     /**
      * @var WorkQueueContext transient object containing execution context
      */
     protected $context;
-
     /**
      * @var array transient object containing deserialized parameters
      */
     protected $parameters;
-
     /**
      * @var float transient object, containing timestamp of execution start
      */
     protected $start;
-
     /**
      * @var array WorkQueueTaskCallable cache map
      */
-    protected static $callableMap = [];
-
+    protected static $callable_map = [];
     /**
      * Creates new task
      *
@@ -161,7 +132,7 @@ class WorkQueueTaskCore extends ObjectModel
      *
      * @return static
      */
-    public static function createTask($task, array $parameters, WorkQueueContext $context)
+    public static function create_task($task, array $parameters, Work_Queue_Context $context)
     {
         $instance = new static();
         $instance->task = $task;
@@ -169,13 +140,12 @@ class WorkQueueTaskCore extends ObjectModel
         $instance->parameters = $parameters;
         $instance->status = self::STATUS_PENDING;
         $instance->context = $context;
-        $instance->id_employee_context = $context->getEmployeeId();
-        $instance->id_shop_context = $context->getShopId();
-        $instance->id_customer_context = $context->getCustomerId();
-        $instance->id_language_context = $context->getLanguageId();
+        $instance->id_employee_context = $context->get_employee_id();
+        $instance->id_shop_context = $context->get_shop_id();
+        $instance->id_customer_context = $context->get_customer_id();
+        $instance->id_language_context = $context->get_language_id();
         return $instance;
     }
-
     /**
      * WorkQueueTaskCore constructor.
      *
@@ -186,18 +156,10 @@ class WorkQueueTaskCore extends ObjectModel
     {
         parent::__construct($id);
         if ($this->id) {
-            $this->context = new WorkQueueContext(
-                $this->id_shop_context,
-                $this->id_employee_context,
-                $this->id_customer_context,
-                $this->id_language_context
-            );
-            $this->parameters = $this->payload
-                ? json_decode($this->payload, true)
-                : [];
+            $this->context = new Work_Queue_Context($this->id_shop_context, $this->id_employee_context, $this->id_customer_context, $this->id_language_context);
+            $this->parameters = $this->payload ? json_decode($this->payload, true) : [];
         }
     }
-
     /**
      * Runs task
      *
@@ -207,49 +169,45 @@ class WorkQueueTaskCore extends ObjectModel
      */
     public function run()
     {
-        $errorHandler = ServiceLocator::getInstance()->getErrorHandler();
-        $previousFatalErrorHandler = $errorHandler->setFatalErrorHandler($this->fatalErrorHandler(...));
-
+        $error_handler = Service_Locator::get_instance()->get_error_handler();
+        $previous_fatal_error_handler = $error_handler->set_fatal_error_handler($this->fatal_error_handler(...));
         $this->start = microtime(true);
         $this->status = static::STATUS_RUNNING;
         $this->date_start = date('Y-m-d H:i:s');
-        $this->saveRecord(false);
-
+        $this->save_record(false);
         try {
             $this->result = $this->execute();
             $this->status = static::STATUS_SUCCESS;
             $this->error = null;
             $this->duration = microtime(true) - $this->start;
-            $this->saveRecord(false);
+            $this->save_record(false);
         } catch (Throwable $e) {
             $this->status = static::STATUS_FAILURE;
             $this->duration = date('Y-m-d H:i:s');
             $this->result = null;
             $this->error = $e->__toString();
             $this->duration = microtime(true) - $this->start;
-            $this->saveRecord(true);
+            $this->save_record(true);
         } finally {
-            $errorHandler->setFatalErrorHandler($previousFatalErrorHandler);
+            $error_handler->set_fatal_error_handler($previous_fatal_error_handler);
         }
         return $this->status;
     }
-
     /**
      * Executes task, does not handle and task persistence
      * @throws Throwable
      */
     public function execute()
     {
-        $callable = static::getTaskCallable($this->task);
+        $callable = static::get_task_callable($this->task);
         return $callable->execute($this->context, $this->parameters);
     }
-
     /**
      * Called when unrecoverable error during execution has been encountered
      *
      * @param array $error
      */
-    public function fatalErrorHandler($error): void
+    public function fatal_error_handler($error): void
     {
         $this->status = static::STATUS_FAILURE;
         $this->result = null;
@@ -266,9 +224,8 @@ class WorkQueueTaskCore extends ObjectModel
             $this->error .= ' at line ' . $error['line'];
         }
         $this->duration = microtime(true) - $this->start;
-        $this->saveRecord(true);
+        $this->save_record(true);
     }
-
     /**
      * Saves this record to the database, if
      *  - it already exists ($this->id is set)
@@ -276,7 +233,7 @@ class WorkQueueTaskCore extends ObjectModel
      *
      * @param bool $force if true, then record will be saved even if not exists yet
      */
-    protected function saveRecord($force)
+    protected function save_record($force)
     {
         if ($force || $this->id) {
             try {
@@ -286,7 +243,6 @@ class WorkQueueTaskCore extends ObjectModel
             }
         }
     }
-
     /**
      * Resolves callable to handle the task execution
      *
@@ -295,28 +251,27 @@ class WorkQueueTaskCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    protected static function getTaskCallable($task)
+    protected static function get_task_callable($task)
     {
-        if (! isset(static::$callableMap[$task])) {
+        if (!isset(static::$callable_map[$task])) {
             if (class_exists($task)) {
                 try {
                     $reflection = new ReflectionClass($task);
-                    if (!$reflection->isInstantiable()) {
-                        throw new PrestaShopException("Can't instantiate class $task");
+                    if (!$reflection->is_instantiable()) {
+                        throw new Presta_Shop_Exception("Can't instantiate class {$task}");
                     }
-                    if (!$reflection->implementsInterface(WorkQueueTaskCallable::class)) {
-                        throw new PrestaShopException("Class $task does not implements WorkQueueTaskCallable interface");
+                    if (!$reflection->implements_interface(Work_Queue_Task_Callable::class)) {
+                        throw new Presta_Shop_Exception("Class {$task} does not implements WorkQueueTaskCallable interface");
                     }
-                    $instance = $reflection->newInstance();
-                    static::$callableMap[$task] = $instance;
-                } catch (ReflectionException $e) {
-                    throw new PrestaShopException('Failed to instantiate WorkQueueTaskCallable class ' . $task, 0, $e);
+                    $instance = $reflection->new_instance();
+                    static::$callable_map[$task] = $instance;
+                } catch (Reflection_Exception $e) {
+                    throw new Presta_Shop_Exception('Failed to instantiate WorkQueueTaskCallable class ' . $task, 0, $e);
                 }
             } else {
-                throw new PrestaShopException('Failed to resolve WorkQueueTaskCallable class ' . $task);
+                throw new Presta_Shop_Exception('Failed to resolve WorkQueueTaskCallable class ' . $task);
             }
         }
-        return static::$callableMap[$task];
+        return static::$callable_map[$task];
     }
-
 }

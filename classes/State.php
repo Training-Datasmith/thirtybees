@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,75 +30,43 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class StateCore
  */
-class StateCore extends ObjectModel
+class State_Core extends Object_Model
 {
     /**
      * @var int Country id which state belongs
      */
     public $id_country;
-
     /**
      * @var int Zone id which state belongs
      */
     public $id_zone;
-
     /**
      * @var string 2 letters iso code
      */
     public $iso_code;
-
     /**
      * @var string Name
      */
     public $name;
-
     /**
      * @var bool Status for delivery
      */
     public $active = true;
-
     /**
      * @var int
      */
     public $tax_behavior;
-
     /**
      * @var array Object model definition
      */
-    public static $definition = [
-        'table'   => 'state',
-        'primary' => 'id_state',
-        'fields'  => [
-            'id_country'   => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true],
-            'id_zone'      => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true],
-            'name'         => ['type' => self::TYPE_STRING, 'validate' => 'isGenericName', 'required' => true, 'size' => 64],
-            'iso_code'     => ['type' => self::TYPE_STRING, 'validate' => 'isStateIsoCode', 'required' => true, 'size' => 7],
-            'tax_behavior' => ['type' => self::TYPE_INT, 'dbType' => 'smallint(1)', 'dbDefault' => '0'],
-            'active'       => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbType' => 'tinyint(1)', 'dbDefault' => '0'],
-        ],
-        'keys' => [
-            'state' => [
-                'id_country' => ['type' => ObjectModel::KEY, 'columns' => ['id_country']],
-                'id_zone'    => ['type' => ObjectModel::KEY, 'columns' => ['id_zone']],
-                'name'       => ['type' => ObjectModel::KEY, 'columns' => ['name']],
-            ],
-        ],
-    ];
-
+    public static $definition = ['table' => 'state', 'primary' => 'id_state', 'fields' => ['id_country' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true], 'id_zone' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true], 'name' => ['type' => self::TYPE_STRING, 'validate' => 'isGenericName', 'required' => true, 'size' => 64], 'iso_code' => ['type' => self::TYPE_STRING, 'validate' => 'isStateIsoCode', 'required' => true, 'size' => 7], 'tax_behavior' => ['type' => self::TYPE_INT, 'dbType' => 'smallint(1)', 'dbDefault' => '0'], 'active' => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbType' => 'tinyint(1)', 'dbDefault' => '0']], 'keys' => ['state' => ['id_country' => ['type' => Object_Model::KEY, 'columns' => ['id_country']], 'id_zone' => ['type' => Object_Model::KEY, 'columns' => ['id_zone']], 'name' => ['type' => Object_Model::KEY, 'columns' => ['name']]]]];
     /**
      * @var array Webservice parameters
      */
-    protected $webserviceParameters = [
-        'fields' => [
-            'id_zone'    => ['xlink_resource' => 'zones'],
-            'id_country' => ['xlink_resource' => 'countries'],
-        ],
-    ];
-
+    protected $webservice_parameters = ['fields' => ['id_zone' => ['xlink_resource' => 'zones'], 'id_country' => ['xlink_resource' => 'countries']]];
     /**
      * @param bool $idLang
      * @param bool $active
@@ -108,17 +76,10 @@ class StateCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getStates($idLang = false, $active = false)
+    public static function get_states($id_lang = false, $active = false)
     {
-        return Db::readOnly()->getArray(
-            (new DbQuery())
-                ->select('`id_state`, `id_country`, `id_zone`, `iso_code`, `name`, `active`')
-                ->from('state', 's')
-                ->where($active ? '`active` = 1' : '')
-                ->orderBy('`name` ASC')
-        );
+        return Db::read_only()->get_array((new Db_Query())->select('`id_state`, `id_country`, `id_zone`, `iso_code`, `name`, `active`')->from('state', 's')->where($active ? '`active` = 1' : '')->order_by('`name` ASC'));
     }
-
     /**
      * Get a state name with its ID
      *
@@ -128,27 +89,19 @@ class StateCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function getNameById($idState)
+    public static function get_name_by_id($id_state)
     {
-        if (!$idState) {
+        if (!$id_state) {
             return false;
         }
-        $cacheId = 'State::getNameById_'.(int) $idState;
-        if (!Cache::isStored($cacheId)) {
-            $result = Db::readOnly()->getValue(
-                (new DbQuery())
-                    ->select('`name`')
-                    ->from('state')
-                    ->where('`id_state` = '.(int) $idState)
-            );
-            Cache::store($cacheId, $result);
-
+        $cache_id = 'State::getNameById_' . (int) $id_state;
+        if (!Cache::is_stored($cache_id)) {
+            $result = Db::read_only()->get_value((new Db_Query())->select('`name`')->from('state')->where('`id_state` = ' . (int) $id_state));
+            Cache::store($cache_id, $result);
             return $result;
         }
-
-        return Cache::retrieve($cacheId);
+        return Cache::retrieve($cache_id);
     }
-
     /**
      * Get a state id with its name
      *
@@ -158,27 +111,19 @@ class StateCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function getIdByName($state)
+    public static function get_id_by_name($state)
     {
         if (empty($state)) {
             return false;
         }
-        $cacheId = 'State::getIdByName_'.pSQL($state);
-        if (!Cache::isStored($cacheId)) {
-            $result = (int) Db::readOnly()->getValue(
-                (new DbQuery())
-                    ->select('`id_state`')
-                    ->from('state')
-                    ->where('`name` = \''.pSQL($state).'\'')
-            );
-            Cache::store($cacheId, $result);
-
+        $cache_id = 'State::getIdByName_' . p_sql($state);
+        if (!Cache::is_stored($cache_id)) {
+            $result = (int) Db::read_only()->get_value((new Db_Query())->select('`id_state`')->from('state')->where('`name` = \'' . p_sql($state) . '\''));
+            Cache::store($cache_id, $result);
             return $result;
         }
-
-        return Cache::retrieve($cacheId);
+        return Cache::retrieve($cache_id);
     }
-
     /**
      * Get a state id with its iso code
      *
@@ -189,17 +134,10 @@ class StateCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function getIdByIso($isoCode, $idCountry = null)
+    public static function get_id_by_iso($iso_code, $id_country = null)
     {
-        return Db::readOnly()->getValue(
-            (new DbQuery())
-                ->select('`id_state`')
-                ->from('state')
-                ->where('`iso_code` = \''.pSQL($isoCode).'\'')
-                ->where($idCountry ? '`id_country` = '.(int) $idCountry : '')
-        );
+        return Db::read_only()->get_value((new Db_Query())->select('`id_state`')->from('state')->where('`iso_code` = \'' . p_sql($iso_code) . '\'')->where($id_country ? '`id_country` = ' . (int) $id_country : ''));
     }
-
     /**
      * @param int $idCountry
      *
@@ -208,16 +146,10 @@ class StateCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getStatesByIdCountry($idCountry)
+    public static function get_states_by_id_country($id_country)
     {
-        return Db::readOnly()->getArray(
-            (new DbQuery())
-                ->select('*')
-                ->from('state', 's')
-                ->where('s.`id_country` = '.(int) $idCountry)
-        );
+        return Db::read_only()->get_array((new Db_Query())->select('*')->from('state', 's')->where('s.`id_country` = ' . (int) $id_country));
     }
-
     /**
      * @param int $idState
      *
@@ -225,12 +157,11 @@ class StateCore extends ObjectModel
      *
      * @deprecated 1.1.0 counties not supported anymore
      */
-    public static function hasCounties($idState)
+    public static function has_counties($id_state)
     {
-        Tools::displayAsDeprecated();
+        Tools::display_as_deprecated();
         return 0;
     }
-
     /**
      * @param int $idState
      *
@@ -238,16 +169,10 @@ class StateCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function getIdZone($idState)
+    public static function get_id_zone($id_state)
     {
-        return (int)Db::readOnly()->getValue(
-            (new DbQuery())
-                ->select('`id_zone`')
-                ->from('state')
-                ->where('`id_state` = '.(int) $idState)
-        );
+        return (int) Db::read_only()->get_value((new Db_Query())->select('`id_zone`')->from('state')->where('`id_state` = ' . (int) $id_state));
     }
-
     /**
      * Delete a state only if is not in use
      *
@@ -258,24 +183,21 @@ class StateCore extends ObjectModel
      */
     public function delete()
     {
-        if (!$this->isUsed()) {
+        if (!$this->is_used()) {
             // Database deletion
-            $conn = Db::getInstance();
-            $result = $conn->delete($this->def['table'], '`'.$this->def['primary'].'` = '.(int) $this->id);
+            $conn = Db::get_instance();
+            $result = $conn->delete($this->def['table'], '`' . $this->def['primary'] . '` = ' . (int) $this->id);
             if (!$result) {
                 return false;
             }
-
             // Database deletion for multilingual fields related to the object
             if (!empty($this->def['multilang'])) {
-                $conn->delete(bqSQL($this->def['table']).'_lang', '`'.$this->def['primary'].'` = '.(int) $this->id);
+                $conn->delete(bq_sql($this->def['table']) . '_lang', '`' . $this->def['primary'] . '` = ' . (int) $this->id);
             }
-
             return $result;
         }
         return false;
     }
-
     /**
      * Check if a state is used
      *
@@ -283,11 +205,10 @@ class StateCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public function isUsed()
+    public function is_used()
     {
-        return ($this->countUsed() > 0);
+        return $this->count_used() > 0;
     }
-
     /**
      * Returns the number of utilisation of a state
      *
@@ -295,16 +216,10 @@ class StateCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public function countUsed()
+    public function count_used()
     {
-        return Db::readOnly()->getValue(
-            (new DbQuery())
-                ->select('COUNT(*)')
-                ->from('address')
-                ->where('`'.bqSQL(static::$definition['primary']).'` = '.(int) $this->id)
-        );
+        return Db::read_only()->get_value((new Db_Query())->select('COUNT(*)')->from('address')->where('`' . bq_sql(static::$definition['primary']) . '` = ' . (int) $this->id));
     }
-
     /**
      * @param array $idsStates
      * @param int $idZone
@@ -314,17 +229,10 @@ class StateCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function affectZoneToSelection($idsStates, $idZone)
+    public function affect_zone_to_selection($ids_states, $id_zone)
     {
         // cast every array values to int (security)
-        $idsStates = array_map(intval(...), $idsStates);
-
-        return Db::getInstance()->update(
-            'state',
-            [
-                'id_zone' => (int) $idZone,
-            ],
-            '`id_state` IN ('.implode(',', $idsStates).')'
-        );
+        $ids_states = array_map(intval(...), $ids_states);
+        return Db::get_instance()->update('state', ['id_zone' => (int) $id_zone], '`id_state` IN (' . implode(',', $ids_states) . ')');
     }
 }

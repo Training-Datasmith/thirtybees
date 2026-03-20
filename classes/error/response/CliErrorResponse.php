@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -18,36 +18,33 @@ declare(strict_types=1);
  * @copyright 2017-2024 thirty bees
  * @license   Open Software License (OSL 3.0)
  */
-
 namespace Thirtybees\Core\Error\Response;
 
-use Thirtybees\Core\Error\ErrorDescription;
-
+use Thirtybees\Core\Error\Error_Description;
 /**
  * Class JSendErrorResponse
  */
-class CliErrorResponseCore extends AbstractErrorPage
+class Cli_Error_Response_Core extends Abstract_Error_Page
 {
     /**
      * Return content type
      * @return string
      */
-    protected function getContentType()
+    protected function get_content_type()
     {
         return 'text/plain';
     }
-
     /**
      * @return string
      */
-    protected function renderError(ErrorDescription $errorDescription)
+    protected function render_error(Error_Description $error_description)
     {
-        $message = $errorDescription->getExtendedMessage() . "\n";
-        $message .= "Stacktrace:\n" . $errorDescription->getTraceAsString() . "\n";
-        $cause = $errorDescription->getCause();
+        $message = $error_description->get_extended_message() . "\n";
+        $message .= "Stacktrace:\n" . $error_description->get_trace_as_string() . "\n";
+        $cause = $error_description->get_cause();
         while ($cause) {
-            $message .= 'Cause by ' . $cause->getExtendedMessage() . "\n";
-            $cause = $cause->getCause();
+            $message .= 'Cause by ' . $cause->get_extended_message() . "\n";
+            $cause = $cause->get_cause();
         }
         return $message;
     }

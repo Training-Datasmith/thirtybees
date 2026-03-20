@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,55 +30,47 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
-use Thirtybees\Core\DependencyInjection\ServiceLocator;
-use Thirtybees\Core\Error\ErrorUtils;
-
+use Thirtybees\Core\Dependency_Injection\Service_Locator;
+use Thirtybees\Core\Error\Error_Utils;
 /**
  * This class require Redis server to be installed
  */
-class CacheRedisCore extends Cache
+class Cache_Redis_Core extends Cache
 {
     public const KEYS_PREFIX_CONFIG_KEY = 'TB_REDIS_KEYS_PREFIX';
-
     /**
      * @var bool Connection status
      */
     public $is_connected = false;
-
     /**
      * @var Redis|RedisArray $redis
      */
     protected $redis;
-
     /**
      * @var string
      */
-    protected $keysPrefix;
-
+    protected $keys_prefix;
     /**
      * CacheRedisCore constructor.
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function __construct($keysPrefix = null)
+    public function __construct($keys_prefix = null)
     {
         $this->is_connected = $this->connect();
-        $this->keysPrefix = $keysPrefix ?? static::resolveKeysPrefix();
-        if (! $this->is_connected) {
+        $this->keys_prefix = $keys_prefix ?? static::resolve_keys_prefix();
+        if (!$this->is_connected) {
             trigger_error('Failed to connect to redis', E_USER_WARNING);
         }
     }
-
     /**
      * @return bool
      */
-    public static function checkEnvironment()
+    public static function check_environment()
     {
         return extension_loaded('redis');
     }
-
     /**
      * Connect to redis server or cluster
      *
@@ -89,26 +81,20 @@ class CacheRedisCore extends Cache
      */
     public function connect()
     {
-        if (! static::checkEnvironment()) {
+        if (!static::check_environment()) {
             return false;
         }
         try {
-            $servers = static::getRedisServers();
-
+            $servers = static::get_redis_servers();
             // no servers defined
             if (!$servers) {
                 return false;
             }
-
-            return (count($servers) === 1)
-                ? $this->connectSingleServer($servers[0])
-                : $this->connectCluster($servers);
-
-        } catch (RedisException) {
+            return count($servers) === 1 ? $this->connect_single_server($servers[0]) : $this->connect_cluster($servers);
+        } catch (Redis_Exception) {
             return false;
         }
     }
-
     /**
      * Connect to single redis server
      *
@@ -117,16 +103,15 @@ class CacheRedisCore extends Cache
      * @return bool
      * @throws RedisException
      */
-    protected function connectSingleServer($serverConfig)
+    protected function connect_single_server($server_config)
     {
         $this->redis = new Redis();
-        if ($this->redis->pconnect($serverConfig['ip'], $serverConfig['port'])) {
-            $this->redis->setOption(Redis::OPT_SERIALIZER, Redis::SERIALIZER_PHP);
-            return $this->authConnection($serverConfig);
+        if ($this->redis->pconnect($server_config['ip'], $server_config['port'])) {
+            $this->redis->set_option(Redis::OPT_SERIALIZER, Redis::SERIALIZER_PHP);
+            return $this->auth_connection($server_config);
         }
         return false;
     }
-
     /**
      * Connects to redis cluster
      *
@@ -135,22 +120,20 @@ class CacheRedisCore extends Cache
      * @return bool
      * @throws RedisException
      */
-    protected function connectCluster($servers)
+    protected function connect_cluster($servers)
     {
         $hosts = [];
         foreach ($servers as $server) {
             $hosts[] = $server['ip'] . ':' . $server['port'];
         }
-        $this->redis = new RedisArray($hosts, ['pconnect' => true]);
-        $this->redis->setOption(Redis::OPT_SERIALIZER, Redis::SERIALIZER_PHP);
-
+        $this->redis = new Redis_Array($hosts, ['pconnect' => true]);
+        $this->redis->set_option(Redis::OPT_SERIALIZER, Redis::SERIALIZER_PHP);
         $connected = true;
-        foreach ($servers as $serverConfig) {
-            $connected = $connected && $this->authConnection($serverConfig);
+        foreach ($servers as $server_config) {
+            $connected = $connected && $this->auth_connection($server_config);
         }
         return $connected;
     }
-
     /**
      * Authenticate redis connection. Returns true, if connection to redis server(s) is established
      *
@@ -159,25 +142,23 @@ class CacheRedisCore extends Cache
      * @return bool
      * @throws RedisException
      */
-    protected function authConnection($serverConfig)
+    protected function auth_connection($server_config)
     {
-        if ($serverConfig['auth']) {
-            return $this->redis->auth($serverConfig['auth']) === true;
+        if ($server_config['auth']) {
+            return $this->redis->auth($server_config['auth']) === true;
         }
-        $this->redis->select($serverConfig['db']);
-        return (bool)$this->redis->ping();
+        $this->redis->select($server_config['db']);
+        return (bool) $this->redis->ping();
     }
-
     /***
      * Returns true, if we are connected to redis cluster
      *
      * @return bool
      */
-    public function isAvailable()
+    public function is_available()
     {
         return $this->is_connected;
     }
-
     /**
      *Add a redis server
      *
@@ -190,32 +171,20 @@ class CacheRedisCore extends Cache
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function addServer($ip, $port, $auth, $db)
+    public static function add_server($ip, $port, $auth, $db)
     {
-        $sql = new DbQuery();
+        $sql = new Db_Query();
         $sql->select('count(*)');
         $sql->from('redis_servers');
-        $sql->where('`ip` = \''.pSQL($ip).'\'');
-        $sql->where('`port` = '.(int) $port);
-        $sql->where('`auth` = \''.pSQL($auth).'\'');
-        $sql->where('`db` = '.(int) $db);
-        if (Db::readOnly()->getValue($sql)) {
+        $sql->where('`ip` = \'' . p_sql($ip) . '\'');
+        $sql->where('`port` = ' . (int) $port);
+        $sql->where('`auth` = \'' . p_sql($auth) . '\'');
+        $sql->where('`db` = ' . (int) $db);
+        if (Db::read_only()->get_value($sql)) {
             return false;
         }
-
-        return Db::getInstance()->insert(
-            'redis_servers',
-            [
-                'ip'   => pSQL($ip),
-                'port' => (int) $port,
-                'auth' => pSQL($auth),
-                'db'   => (int) $db,
-            ],
-            false,
-            false
-        );
+        return Db::get_instance()->insert('redis_servers', ['ip' => p_sql($ip), 'port' => (int) $port, 'auth' => p_sql($auth), 'db' => (int) $db], false, false);
     }
-
     /**
      * Get list of redis server information
      *
@@ -223,15 +192,13 @@ class CacheRedisCore extends Cache
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getRedisServers()
+    public static function get_redis_servers()
     {
-        $sql = new DbQuery();
+        $sql = new Db_Query();
         $sql->select('*');
         $sql->from('redis_servers');
-
-        return Db::readOnly()->getArray($sql);
+        return Db::read_only()->get_array($sql);
     }
-
     /**
      * Delete a redis server
      *
@@ -241,16 +208,10 @@ class CacheRedisCore extends Cache
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function deleteServer($idServer)
+    public static function delete_server($id_server)
     {
-        return Db::getInstance()->delete(
-            'redis_servers',
-            '`id_redis_server` = '.(int) $idServer,
-            0,
-            false
-        );
+        return Db::get_instance()->delete('redis_servers', '`id_redis_server` = ' . (int) $id_server, 0, false);
     }
-
     /**
      * Returns redis key to store all existing keys
      *
@@ -258,19 +219,18 @@ class CacheRedisCore extends Cache
      *
      * @throws PrestaShopException
      */
-    protected static function resolveKeysPrefix()
+    protected static function resolve_keys_prefix()
     {
         if (defined(static::KEYS_PREFIX_CONFIG_KEY)) {
             return constant(static::KEYS_PREFIX_CONFIG_KEY);
         }
-        $value = Configuration::getGlobalValue(static::KEYS_PREFIX_CONFIG_KEY);
-        if (! $value) {
-            $value = Tools::passwdGen(6);
-            Configuration::updateGlobalValue(static::KEYS_PREFIX_CONFIG_KEY, $value);
+        $value = Configuration::get_global_value(static::KEYS_PREFIX_CONFIG_KEY);
+        if (!$value) {
+            $value = Tools::passwd_gen(6);
+            Configuration::update_global_value(static::KEYS_PREFIX_CONFIG_KEY, $value);
         }
         return $value;
     }
-
     /**
      * Clean all cached data
      *
@@ -281,15 +241,13 @@ class CacheRedisCore extends Cache
         if (!$this->is_connected) {
             return false;
         }
-
         try {
-            return (bool)$this->redis->flushDB();
-        } catch (RedisException $e) {
-            $this->logException($e);
+            return (bool) $this->redis->flush_db();
+        } catch (Redis_Exception $e) {
+            $this->log_exception($e);
             return false;
         }
     }
-
     /**
      * Store a data in cache
      *
@@ -303,7 +261,6 @@ class CacheRedisCore extends Cache
     {
         return $this->_set($key, $value, $ttl);
     }
-
     /**
      * Retrieve a data from cache
      *
@@ -315,7 +272,6 @@ class CacheRedisCore extends Cache
     {
         return $this->_get($key);
     }
-
     /**
      * Check if a data is cached
      *
@@ -327,7 +283,6 @@ class CacheRedisCore extends Cache
     {
         return $this->_exists($key);
     }
-
     /**
      * Delete one or several data from cache (* joker can be used, but avoid it !)
      *    E.g.: delete('*'); delete('my_prefix_*'); delete('my_key_name');
@@ -338,31 +293,27 @@ class CacheRedisCore extends Cache
      */
     public function delete($key)
     {
-        if (! $this->is_connected) {
+        if (!$this->is_connected) {
             return false;
         }
         if ($key == '*') {
             return $this->flush();
-
         }
-
         if (!str_contains($key, '*')) {
             return $this->_delete($key);
         }
-
         try {
-            $keys = $this->redis->keys($this->mapKey($key));
+            $keys = $this->redis->keys($this->map_key($key));
             $res = true;
             if (is_array($keys) && $keys) {
                 return $this->redis->del($keys) && $res;
             }
             return $res;
-        } catch (RedisException $e) {
-            $this->logException($e);
+        } catch (Redis_Exception $e) {
+            $this->log_exception($e);
             return false;
         }
     }
-
     /**
      * Cache a data
      *
@@ -377,17 +328,15 @@ class CacheRedisCore extends Cache
         if (!$this->is_connected) {
             return false;
         }
-
-        $timeout = ($ttl > 0) ? $ttl : null;
-        $mappedKey = $this->mapKey($key);
+        $timeout = $ttl > 0 ? $ttl : null;
+        $mapped_key = $this->map_key($key);
         try {
-            return $this->redis->set($mappedKey, $value, $timeout);
-        } catch (RedisException $e) {
-            $this->logException($e);
+            return $this->redis->set($mapped_key, $value, $timeout);
+        } catch (Redis_Exception $e) {
+            $this->log_exception($e);
             return false;
         }
     }
-
     /**
      * @param string $key
      *
@@ -398,10 +347,8 @@ class CacheRedisCore extends Cache
         if (!$this->is_connected) {
             return false;
         }
-
-        return (bool)$this->_get($key);
+        return (bool) $this->_get($key);
     }
-
     /**
      * @param string $key
      *
@@ -412,16 +359,14 @@ class CacheRedisCore extends Cache
         if (!$this->is_connected) {
             return false;
         }
-
-        $mappedKey = $this->mapKey($key);
+        $mapped_key = $this->map_key($key);
         try {
-            return $this->redis->get($mappedKey);
-        } catch (RedisException $e) {
-            $this->logException($e);
+            return $this->redis->get($mapped_key);
+        } catch (Redis_Exception $e) {
+            $this->log_exception($e);
             return false;
         }
     }
-
     /**
      * @param string $key
      *
@@ -432,41 +377,37 @@ class CacheRedisCore extends Cache
         if (!$this->is_connected) {
             return false;
         }
-
-        $mappedKey = $this->mapKey($key);
+        $mapped_key = $this->map_key($key);
         try {
-            return $this->redis->del($mappedKey);
-        } catch (RedisException $e) {
-            $this->logException($e);
+            return $this->redis->del($mapped_key);
+        } catch (Redis_Exception $e) {
+            $this->log_exception($e);
             return false;
         }
     }
-
     /**
      * Write keys index
      */
-    protected function _writeKeys()
+    protected function _write_keys()
     {
         // this implementation do not use keys
     }
-
     /**
      * @param string $key
      *
      * @return string
      */
-    protected function mapKey($key)
+    protected function map_key($key)
     {
-        return $this->keysPrefix . ':' . $key;
+        return $this->keys_prefix . ':' . $key;
     }
-
     /**
      * @return void
      */
-    protected function logException(RedisException $e)
+    protected function log_exception(Redis_Exception $e)
     {
-        $errorHandler = ServiceLocator::getInstance()->getErrorHandler();
-        $description = ErrorUtils::describeException($e);
-        $errorHandler->logFatalError($description);
+        $error_handler = Service_Locator::get_instance()->get_error_handler();
+        $description = Error_Utils::describe_exception($e);
+        $error_handler->log_fatal_error($description);
     }
 }

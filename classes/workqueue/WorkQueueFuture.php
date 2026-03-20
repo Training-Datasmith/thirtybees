@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -18,68 +18,55 @@ declare(strict_types=1);
  * @copyright 2017-2024 thirty bees
  * @license   Open Software License (OSL 3.0)
  */
+namespace Thirtybees\Core\Work_Queue;
 
-namespace Thirtybees\Core\WorkQueue;
-
-use PrestaShopException;
-
+use Presta_Shop_Exception;
 /**
  * Class WorkQueueFutureCore
  */
-class WorkQueueFutureCore
+class Work_Queue_Future_Core
 {
     /**
      * @var string work queue implementation
      */
     protected $implementation;
-
     /**
      * @var string task status
      */
     protected string $status;
-
     /**
      * WorkQueueFutureCore constructor.
      *
      * @param string $id
      * @throws PrestaShopException
      */
-    public function __construct(WorkQueueExecutor $executor, protected $id, string $status)
+    public function __construct(Work_Queue_Executor $executor, protected $id, string $status)
     {
-        if (! in_array($status, [
-            WorkQueueTask::STATUS_PENDING,
-            WorkQueueTask::STATUS_RUNNING,
-            WorkQueueTask::STATUS_SUCCESS,
-            WorkQueueTask::STATUS_FAILURE,
-        ])) {
-            throw new PrestaShopException('Invalid work queue status: ' . $status);
+        if (!in_array($status, [Work_Queue_Task::STATUS_PENDING, Work_Queue_Task::STATUS_RUNNING, Work_Queue_Task::STATUS_SUCCESS, Work_Queue_Task::STATUS_FAILURE])) {
+            throw new Presta_Shop_Exception('Invalid work queue status: ' . $status);
         }
-        $this->implementation = $executor->getExecutorIdentifier();
+        $this->implementation = $executor->get_executor_identifier();
         $this->status = $status;
     }
-
     /**
      * @return string
      */
-    public function getId()
+    public function get_id()
     {
         return $this->id;
     }
-
     /**
      * @return string
      */
-    public function getImplementation()
+    public function get_implementation()
     {
         return $this->implementation;
     }
-
     /**
      * @return string
      */
-    public function getStatus()
+    public function get_status()
     {
         return $this->status;
     }
-
 }

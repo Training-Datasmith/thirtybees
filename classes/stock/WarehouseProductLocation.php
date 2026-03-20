@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,64 +30,35 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class WarehouseProductLocationCore
  */
-class WarehouseProductLocationCore extends ObjectModel
+class Warehouse_Product_Location_Core extends Object_Model
 {
     /**
      * @var int product ID
      */
     public $id_product;
-
     /**
      * @var int product attribute ID
      */
     public $id_product_attribute;
-
     /**
      * @var int warehouse ID
      */
     public $id_warehouse;
-
     /**
      * @var string location of the product
      */
     public $location;
-
     /**
      * @var array Object model definition
      */
-    public static $definition = [
-        'table'   => 'warehouse_product_location',
-        'primary' => 'id_warehouse_product_location',
-        'fields'  => [
-            'id_product'           => ['type' => self::TYPE_INT,    'validate' => 'isUnsignedId',                'required' => true],
-            'id_product_attribute' => ['type' => self::TYPE_INT,    'validate' => 'isUnsignedId',                'required' => true],
-            'id_warehouse'         => ['type' => self::TYPE_INT,    'validate' => 'isUnsignedId',                'required' => true],
-            'location'             => ['type' => self::TYPE_STRING, 'validate' => 'isReference',  'size' => 64                     ],
-        ],
-        'keys' => [
-            'warehouse_product_location' => [
-                'id_product' => ['type' => ObjectModel::UNIQUE_KEY, 'columns' => ['id_product', 'id_product_attribute', 'id_warehouse']],
-            ],
-        ],
-
-    ];
-
+    public static $definition = ['table' => 'warehouse_product_location', 'primary' => 'id_warehouse_product_location', 'fields' => ['id_product' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true], 'id_product_attribute' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true], 'id_warehouse' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true], 'location' => ['type' => self::TYPE_STRING, 'validate' => 'isReference', 'size' => 64]], 'keys' => ['warehouse_product_location' => ['id_product' => ['type' => Object_Model::UNIQUE_KEY, 'columns' => ['id_product', 'id_product_attribute', 'id_warehouse']]]]];
     /**
      * @var array Webservice Parameters
      */
-    protected $webserviceParameters = [
-        'fields'        => [
-            'id_product'           => ['xlink_resource' => 'products'],
-            'id_product_attribute' => ['xlink_resource' => 'combinations'],
-            'id_warehouse'         => ['xlink_resource' => 'warehouses'],
-        ],
-        'hidden_fields' => [],
-    ];
-
+    protected $webservice_parameters = ['fields' => ['id_product' => ['xlink_resource' => 'products'], 'id_product_attribute' => ['xlink_resource' => 'combinations'], 'id_warehouse' => ['xlink_resource' => 'warehouses']], 'hidden_fields' => []];
     /**
      * For a given product and warehouse, gets the location
      *
@@ -99,21 +70,17 @@ class WarehouseProductLocationCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function getProductLocation($idProduct, $idProductAttribute, $idWarehouse)
+    public static function get_product_location($id_product, $id_product_attribute, $id_warehouse)
     {
         // build query
-        $query = new DbQuery();
+        $query = new Db_Query();
         $query->select('wpl.location');
         $query->from('warehouse_product_location', 'wpl');
-        $query->where(
-            'wpl.id_product = '.(int) $idProduct.'
-			AND wpl.id_product_attribute = '.(int) $idProductAttribute.'
-			AND wpl.id_warehouse = '.(int) $idWarehouse
-        );
-
-        return Db::readOnly()->getValue($query);
+        $query->where('wpl.id_product = ' . (int) $id_product . '
+			AND wpl.id_product_attribute = ' . (int) $id_product_attribute . '
+			AND wpl.id_warehouse = ' . (int) $id_warehouse);
+        return Db::read_only()->get_value($query);
     }
-
     /**
      * For a given product and warehouse, gets the WarehouseProductLocation corresponding ID
      *
@@ -125,21 +92,17 @@ class WarehouseProductLocationCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function getIdByProductAndWarehouse($idProduct, $idProductAttribute, $idWarehouse)
+    public static function get_id_by_product_and_warehouse($id_product, $id_product_attribute, $id_warehouse)
     {
         // build query
-        $query = new DbQuery();
+        $query = new Db_Query();
         $query->select('wpl.id_warehouse_product_location');
         $query->from('warehouse_product_location', 'wpl');
-        $query->where(
-            'wpl.id_product = '.(int) $idProduct.'
-			AND wpl.id_product_attribute = '.(int) $idProductAttribute.'
-			AND wpl.id_warehouse = '.(int) $idWarehouse
-        );
-
-        return Db::readOnly()->getValue($query);
+        $query->where('wpl.id_product = ' . (int) $id_product . '
+			AND wpl.id_product_attribute = ' . (int) $id_product_attribute . '
+			AND wpl.id_warehouse = ' . (int) $id_warehouse);
+        return Db::read_only()->get_value($query);
     }
-
     /**
      * For a given product, gets its warehouses
      *
@@ -149,14 +112,12 @@ class WarehouseProductLocationCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function getCollection($idProduct)
+    public static function get_collection($id_product)
     {
-        $collection = new PrestaShopCollection('WarehouseProductLocation');
-        $collection->where('id_product', '=', (int) $idProduct);
-
+        $collection = new Presta_Shop_Collection('WarehouseProductLocation');
+        $collection->where('id_product', '=', (int) $id_product);
         return $collection;
     }
-
     /**
      * @param int $idWarehouse
      *
@@ -165,8 +126,8 @@ class WarehouseProductLocationCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getProducts($idWarehouse)
+    public static function get_products($id_warehouse)
     {
-        return Db::readOnly()->getArray('SELECT DISTINCT id_product FROM '._DB_PREFIX_.'warehouse_product_location WHERE id_warehouse='.(int) $idWarehouse);
+        return Db::read_only()->get_array('SELECT DISTINCT id_product FROM ' . _DB_PREFIX_ . 'warehouse_product_location WHERE id_warehouse=' . (int) $id_warehouse);
     }
 }

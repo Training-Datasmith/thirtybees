@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -18,14 +18,12 @@ declare(strict_types=1);
  * @copyright 2017-2024 thirty bees
  * @license   Open Software License (OSL 3.0)
  */
-
 namespace Thirtybees\Core\Database;
 
-use DbQuery;
-use PrestaShopDatabaseException;
-use PrestaShopException;
-
-interface ReadOnlyConnection
+use Db_Query;
+use Presta_Shop_Database_Exception;
+use Presta_Shop_Exception;
+interface Read_Only_Connection
 {
     /**
      * Executes sql and returns the result of $sql as an array
@@ -37,8 +35,7 @@ interface ReadOnlyConnection
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function getArray($sql): array;
-
+    public function get_array($sql): array;
     /**
      * Returns a value from the first row, first column of a SELECT query
      *
@@ -47,8 +44,7 @@ interface ReadOnlyConnection
      * @return mixed|false
      * @throws PrestaShopException
      */
-    public function getValue($sql);
-
+    public function get_value($sql);
     /**
      * Returns an associative array containing the first row of the query
      * This function automatically adds "LIMIT 1" to the query
@@ -60,6 +56,5 @@ interface ReadOnlyConnection
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function getRow($sql);
-
+    public function get_row($sql);
 }

@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,96 +30,67 @@ declare(strict_types=1);
  *  @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  *
  * @deprecated 1.5.0.1 use OrderPaymentCore
  */
-class PaymentCCCore extends OrderPayment
+class Payment_Cc_Core extends Order_Payment
 {
     /**
      * @var int $id_order
      */
     public $id_order;
-
     /**
      * @var int $id_currency
      */
     public $id_currency;
-
     /**
      * @var float $amount
      */
     public $amount;
-
     /**
      * @var string $transaction_id
      */
     public $transaction_id;
-
     /**
      * @var string $card_number
      */
     public $card_number;
-
     /**
      * @var string $card_brand
      */
     public $card_brand;
-
     /**
      * @var string $card_expiration
      */
     public $card_expiration;
-
     /**
      * @var string $card_holder
      */
     public $card_holder;
-
     /**
      * @var string $date_add
      */
     public $date_add;
-
     /**
      * @deprecated 1.0.0 Define property using $definition['table'] property instead.
      * @var array
      */
-    protected $fieldsRequired = ['id_currency', 'amount'];
-
+    protected $fields_required = ['id_currency', 'amount'];
     /**
      * @deprecated 1.0.0 Define property using $definition['table'] property instead.
      * @var array
      */
-    protected $fieldsSize = [
-        'transaction_id' => 254,
-        'card_number' => 254,
-        'card_brand' => 254,
-        'card_expiration' => 254,
-        'card_holder' => 254,
-    ];
-
+    protected $fields_size = ['transaction_id' => 254, 'card_number' => 254, 'card_brand' => 254, 'card_expiration' => 254, 'card_holder' => 254];
     /**
      * @deprecated 1.0.0 Define property using $definition['table'] property instead.
      * @var array
      */
-    protected $fieldsValidate = [
-        'id_order' => 'isUnsignedId',
-        'id_currency' => 'isUnsignedId',
-        'amount' => 'isPrice',
-        'transaction_id' => 'isAnything',
-        'card_number' => 'isAnything',
-        'card_brand' => 'isAnything',
-        'card_expiration' => 'isAnything',
-        'card_holder' => 'isAnything',
-    ];
-
+    protected $fields_validate = ['id_order' => 'isUnsignedId', 'id_currency' => 'isUnsignedId', 'amount' => 'isPrice', 'transaction_id' => 'isAnything', 'card_number' => 'isAnything', 'card_brand' => 'isAnything', 'card_expiration' => 'isAnything', 'card_holder' => 'isAnything'];
     /**
      * @var array ObjectModel::$definition
      */
     public static $definition = [];
-
     /**
      * @param bool $autoDate
      * @param bool $nullValues
@@ -130,13 +101,11 @@ class PaymentCCCore extends OrderPayment
      *
      * @deprecated 1.5.0.2
      */
-    public function add($autoDate = true, $nullValues = false)
+    public function add($auto_date = true, $null_values = false)
     {
-        Tools::displayAsDeprecated();
-
-        return parent::add($autoDate, $nullValues);
+        Tools::display_as_deprecated();
+        return parent::add($auto_date, $null_values);
     }
-
     /**
      * Get the detailed payment of an order
      *
@@ -148,11 +117,10 @@ class PaymentCCCore extends OrderPayment
      * @throws PrestaShopException
      * @deprecated 1.5.0.1 use OrderPaymentCore
      */
-    public static function getByOrderId($idOrder)
+    public static function get_by_order_id($id_order)
     {
-        Tools::displayAsDeprecated();
-        $order = new Order($idOrder);
-
-        return OrderPayment::getByOrderReference($order->reference);
+        Tools::display_as_deprecated();
+        $order = new Order($id_order);
+        return Order_Payment::get_by_order_reference($order->reference);
     }
 }

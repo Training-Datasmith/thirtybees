@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,47 +30,25 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class RangePriceCore
  */
-class RangePriceCore extends ObjectModel
+class Range_Price_Core extends Object_Model
 {
     /**
      * @var array Object model definition
      */
-    public static $definition = [
-        'table'   => 'range_price',
-        'primary' => 'id_range_price',
-        'fields'  => [
-            'id_carrier' => ['type' => self::TYPE_INT,   'validate' => 'isInt',   'required' => true],
-            'delimiter1' => ['type' => self::TYPE_PRICE, 'validate' => 'isPrice', 'required' => true],
-            'delimiter2' => ['type' => self::TYPE_PRICE, 'validate' => 'isPrice', 'required' => true],
-        ],
-        'keys' => [
-            'range_price' => [
-                'id_carrier' => ['type' => ObjectModel::UNIQUE_KEY, 'columns' => ['id_carrier', 'delimiter1', 'delimiter2']],
-            ],
-        ],
-    ];
+    public static $definition = ['table' => 'range_price', 'primary' => 'id_range_price', 'fields' => ['id_carrier' => ['type' => self::TYPE_INT, 'validate' => 'isInt', 'required' => true], 'delimiter1' => ['type' => self::TYPE_PRICE, 'validate' => 'isPrice', 'required' => true], 'delimiter2' => ['type' => self::TYPE_PRICE, 'validate' => 'isPrice', 'required' => true]], 'keys' => ['range_price' => ['id_carrier' => ['type' => Object_Model::UNIQUE_KEY, 'columns' => ['id_carrier', 'delimiter1', 'delimiter2']]]]];
     /** @var int $id_carrier */
     public $id_carrier;
     /** @var float $delimiter1 */
     public $delimiter1;
     /** @var float $delimiter2 */
     public $delimiter2;
-
     /**
      * @var array Webservice parameters
      */
-    protected $webserviceParameters = [
-        'objectsNodeName' => 'price_ranges',
-        'objectNodeName'  => 'price_range',
-        'fields'          => [
-            'id_carrier' => ['xlink_resource' => 'carriers'],
-        ],
-    ];
-
+    protected $webservice_parameters = ['objectsNodeName' => 'price_ranges', 'objectNodeName' => 'price_range', 'fields' => ['id_carrier' => ['xlink_resource' => 'carriers']]];
     /**
      * Get all available price ranges
      *
@@ -81,17 +59,10 @@ class RangePriceCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getRanges($idCarrier)
+    public static function get_ranges($id_carrier)
     {
-        return Db::readOnly()->getArray(
-            (new DbQuery())
-                ->select('*')
-                ->from('range_price')
-                ->where('`id_carrier` = '.(int) $idCarrier)
-                ->orderBy('`delimiter1` ASC')
-        );
+        return Db::read_only()->get_array((new Db_Query())->select('*')->from('range_price')->where('`id_carrier` = ' . (int) $id_carrier)->order_by('`delimiter1` ASC'));
     }
-
     /**
      * @param int $idCarrier
      * @param float $delimiter1
@@ -102,20 +73,10 @@ class RangePriceCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function rangeExist($idCarrier, $delimiter1, $delimiter2, $idReference = null)
+    public static function range_exist($id_carrier, $delimiter1, $delimiter2, $id_reference = null)
     {
-        return Db::readOnly()->getValue(
-            (new DbQuery())
-                ->select('COUNT(*)')
-                ->from('range_price', 'rp')
-                ->join((is_null($idCarrier) && $idReference) ? 'INNER JOIN `'._DB_PREFIX_.'carrier` c on (rp.`id_carrier` = c.`id_carrier`)' : '')
-                ->where($idCarrier ? ' `id_carrier` = '.(int) $idCarrier : '')
-                ->where(is_null($idCarrier) && $idReference ? ' c.`id_reference` = '.(int) $idReference : '')
-                ->where('`delimiter1` = '.(float) $delimiter1)
-                ->where('`delimiter2` = '.(float) $delimiter2)
-        );
+        return Db::read_only()->get_value((new Db_Query())->select('COUNT(*)')->from('range_price', 'rp')->join(is_null($id_carrier) && $id_reference ? 'INNER JOIN `' . _DB_PREFIX_ . 'carrier` c on (rp.`id_carrier` = c.`id_carrier`)' : '')->where($id_carrier ? ' `id_carrier` = ' . (int) $id_carrier : '')->where(is_null($id_carrier) && $id_reference ? ' c.`id_reference` = ' . (int) $id_reference : '')->where('`delimiter1` = ' . (float) $delimiter1)->where('`delimiter2` = ' . (float) $delimiter2));
     }
-
     /**
      * @param int $idCarrier
      * @param int $delimiter1
@@ -126,16 +87,8 @@ class RangePriceCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function isOverlapping($idCarrier, $delimiter1, $delimiter2, $idRang = null)
+    public static function is_overlapping($id_carrier, $delimiter1, $delimiter2, $id_rang = null)
     {
-        return Db::readOnly()->getValue(
-            (new DbQuery())
-                ->select('COUNT(*)')
-                ->from('range_price')
-                ->where('`id_carrier` = '.(int) $idCarrier)
-                ->where('(`delimiter1` >= '.(float) $delimiter1.' AND `delimiter1` < '.(float) $delimiter2.') OR (`delimiter2` > '.(float) $delimiter1.' AND `delimiter2` < '.(float) $delimiter2.') OR ('.(float) $delimiter1.' > `delimiter1` AND '.(float) $delimiter1.' < `delimiter2`) OR ('.(float) $delimiter2.' < `delimiter1` AND '.(float) $delimiter2.' > `delimiter2`)')
-                ->where(!is_null($idRang) ? '`id_range_price` != '.(int) $idRang : '')
-        );
+        return Db::read_only()->get_value((new Db_Query())->select('COUNT(*)')->from('range_price')->where('`id_carrier` = ' . (int) $id_carrier)->where('(`delimiter1` >= ' . (float) $delimiter1 . ' AND `delimiter1` < ' . (float) $delimiter2 . ') OR (`delimiter2` > ' . (float) $delimiter1 . ' AND `delimiter2` < ' . (float) $delimiter2 . ') OR (' . (float) $delimiter1 . ' > `delimiter1` AND ' . (float) $delimiter1 . ' < `delimiter2`) OR (' . (float) $delimiter2 . ' < `delimiter1` AND ' . (float) $delimiter2 . ' > `delimiter2`)')->where(!is_null($id_rang) ? '`id_range_price` != ' . (int) $id_rang : ''));
     }
-
 }

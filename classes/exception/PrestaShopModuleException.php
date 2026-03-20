@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,10 +30,9 @@ declare(strict_types=1);
  *  @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class PrestaShopModuleExceptionCore
  */
-class PrestaShopModuleExceptionCore extends PrestaShopException
+class Presta_Shop_Module_Exception_Core extends Presta_Shop_Exception
 {
 }

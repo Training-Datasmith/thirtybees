@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -18,28 +18,25 @@ declare(strict_types=1);
  * @copyright 2017-2024 thirty bees
  * @license   Open Software License (OSL 3.0)
  */
-
-namespace Thirtybees\Core\WorkQueue;
+namespace Thirtybees\Core\Work_Queue;
 
 /**
  * Class WorkQueueExecutor
  */
-interface WorkQueueExecutor
+interface Work_Queue_Executor
 {
     /**
      * Returns unique identifier of executor
      *
      * @return string
      */
-    public function getExecutorIdentifier();
-
+    public function get_executor_identifier();
     /**
      * Enqueues work queue task
      *
      * @return WorkQueueFuture
      */
-    public function enqueue(WorkQueueTask $task);
-
+    public function enqueue(Work_Queue_Task $task);
     /**
      * Immediately runs work queue task, if supported
      *
@@ -48,8 +45,7 @@ interface WorkQueueExecutor
      *
      * @return WorkQueueFuture
      */
-    public function run(WorkQueueTask $task);
-
+    public function run(Work_Queue_Task $task);
     /**
      * Returns true, if immediate execution is supported by this work queue
      * implementation.
@@ -58,5 +54,5 @@ interface WorkQueueExecutor
      *
      * @return boolean
      */
-    public function supportsImmediateExecution();
+    public function supports_immediate_execution();
 }

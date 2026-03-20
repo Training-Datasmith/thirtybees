@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,49 +30,42 @@ declare(strict_types=1);
  *  @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
-class HTMLTemplateDeliverySlipCore extends HTMLTemplate
+class Html_Template_Delivery_Slip_Core extends Html_Template
 {
     /**
      * @var Order $order
      */
     public $order;
-
     /**
      * @var OrderInvoice $order_invoice
      */
     public $order_invoice;
-
     /**
      * @param bool $bulkMode
      *
      * @throws PrestaShopException
      */
-    public function __construct(OrderInvoice $orderInvoice, Smarty $smarty, $bulkMode = false)
+    public function __construct(Order_Invoice $order_invoice, Smarty $smarty, $bulk_mode = false)
     {
-        $this->order_invoice = $orderInvoice;
+        $this->order_invoice = $order_invoice;
         $this->order = new Order($this->order_invoice->id_order);
         $this->smarty = $smarty;
-
         // If shop_address is null, then update it with current one.
         // But no DB save required here to avoid massive updates for bulk PDF generation case.
         // (DB: bug fixed in 1.6.1.1 with upgrade SQL script to avoid null shop_address in old orderInvoices)
         if (!isset($this->order_invoice->shop_address) || !$this->order_invoice->shop_address) {
-            $this->order_invoice->shop_address = OrderInvoice::getCurrentFormattedShopAddress((int) $this->order->id_shop);
-            if (!$bulkMode) {
-                OrderInvoice::fixAllShopAddresses();
+            $this->order_invoice->shop_address = Order_Invoice::get_current_formatted_shop_address((int) $this->order->id_shop);
+            if (!$bulk_mode) {
+                Order_Invoice::fix_all_shop_addresses();
             }
         }
-
         // header informations
-        $this->date = Tools::displayDate($orderInvoice->date_add);
-        $prefix = Configuration::get('PS_DELIVERY_PREFIX', Context::getContext()->language->id);
+        $this->date = Tools::display_date($order_invoice->date_add);
+        $prefix = Configuration::get('PS_DELIVERY_PREFIX', Context::get_context()->language->id);
         $this->title = sprintf(static::l('%1$s%2$06d'), $prefix, $this->order_invoice->delivery_number);
-
         // footer informations
         $this->shop = new Shop((int) $this->order->id_shop);
     }
-
     /**
      * Returns the template's HTML header
      *
@@ -81,14 +74,12 @@ class HTMLTemplateDeliverySlipCore extends HTMLTemplate
      * @throws PrestaShopException
      * @throws SmartyException
      */
-    public function getHeader()
+    public function get_header()
     {
-        $this->assignCommonHeaderData();
+        $this->assign_common_header_data();
         $this->smarty->assign(['header' => static::l('Delivery')]);
-
-        return $this->smarty->fetch($this->getTemplate('header'));
+        return $this->smarty->fetch($this->get_template('header'));
     }
-
     /**
      * Returns the template's HTML content
      *
@@ -98,86 +89,57 @@ class HTMLTemplateDeliverySlipCore extends HTMLTemplate
      * @throws PrestaShopException
      * @throws SmartyException
      */
-    public function getContent()
+    public function get_content()
     {
-        $deliveryAddress = new Address((int) $this->order->id_address_delivery);
-        $formattedDeliveryAddress = AddressFormat::generateAddress($deliveryAddress, [], '<br />', ' ');
-        $formattedInvoiceAddress = '';
-
+        $delivery_address = new Address((int) $this->order->id_address_delivery);
+        $formatted_delivery_address = Address_Format::generate_address($delivery_address, [], '<br />', ' ');
+        $formatted_invoice_address = '';
         if ($this->order->id_address_delivery != $this->order->id_address_invoice) {
-            $invoiceAddress = new Address((int) $this->order->id_address_invoice);
-            $formattedInvoiceAddress = AddressFormat::generateAddress($invoiceAddress, [], '<br />', ' ');
+            $invoice_address = new Address((int) $this->order->id_address_invoice);
+            $formatted_invoice_address = Address_Format::generate_address($invoice_address, [], '<br />', ' ');
         }
-
         $carrier = new Carrier($this->order->id_carrier);
-
-        $orderDetails = $this->order_invoice->getProducts();
-        foreach ($orderDetails as &$orderDetail) {
-            if (OrderDetailPack::isPack((int) $orderDetail['id_order_detail'])) {
-                $packItems = OrderDetailPack::getItems((int) $orderDetail['id_order_detail'], Context::getContext()->language->id);
-                $namePackItems = '';
-                foreach ($packItems as $packItem) {
-                    $namePackItems .= $packItem->pack_quantity.' x <b>'.$packItem->reference.'</b> '.$packItem->name.', ';
+        $order_details = $this->order_invoice->get_products();
+        foreach ($order_details as &$order_detail) {
+            if (Order_Detail_Pack::is_pack((int) $order_detail['id_order_detail'])) {
+                $pack_items = Order_Detail_Pack::get_items((int) $order_detail['id_order_detail'], Context::get_context()->language->id);
+                $name_pack_items = '';
+                foreach ($pack_items as $pack_item) {
+                    $name_pack_items .= $pack_item->pack_quantity . ' x <b>' . $pack_item->reference . '</b> ' . $pack_item->name . ', ';
                 }
-                $orderDetail['pack_items'] = $namePackItems;
+                $order_detail['pack_items'] = $name_pack_items;
             }
         }
         if (Configuration::get('PS_PDF_IMG_DELIVERY')) {
-            foreach ($orderDetails as &$orderDetail) {
-                if ($orderDetail['image'] instanceof Image) {
-                    $imageId = (int)$orderDetail['image']->id;
-                    $orderDetail['image_tag'] = preg_replace(
-                        '/\.*'.preg_quote(__PS_BASE_URI__, '/').'/',
-                        _PS_ROOT_DIR_.DIRECTORY_SEPARATOR,
-                        ImageManager::getProductImageThumbnailTag($imageId, false),
-                        1
-                    );
-
-                    $imagePath = ImageManager::getProductImageThumbnailFilePath($imageId);
-                    if (file_exists($imagePath)) {
-                        $orderDetail['image_size'] = getimagesize($imagePath);
+            foreach ($order_details as &$order_detail) {
+                if ($order_detail['image'] instanceof Image) {
+                    $image_id = (int) $order_detail['image']->id;
+                    $order_detail['image_tag'] = preg_replace('/\.*' . preg_quote(__PS_BASE_URI__, '/') . '/', _PS_ROOT_DIR_ . DIRECTORY_SEPARATOR, Image_Manager::get_product_image_thumbnail_tag($image_id, false), 1);
+                    $image_path = Image_Manager::get_product_image_thumbnail_file_path($image_id);
+                    if (file_exists($image_path)) {
+                        $order_detail['image_size'] = getimagesize($image_path);
                     } else {
-                        $orderDetail['image_size'] = false;
+                        $order_detail['image_size'] = false;
                     }
                 }
             }
-            unset($orderDetail); // don't overwrite the last order_detail later
+            unset($order_detail);
+            // don't overwrite the last order_detail later
         }
-
-        $this->smarty->assign(
-            [
-                'order'                  => $this->order,
-                'order_details'          => $orderDetails,
-                'delivery_address'       => $formattedDeliveryAddress,
-                'invoice_address'        => $formattedInvoiceAddress,
-                'order_invoice'          => $this->order_invoice,
-                'carrier'                => $carrier,
-                'display_product_images' => Configuration::get('PS_PDF_IMG_DELIVERY'),
-            ]
-        );
-
-        $tpls = [
-            'style_tab'     => $this->smarty->fetch($this->getTemplate('delivery-slip.style-tab')),
-            'addresses_tab' => $this->smarty->fetch($this->getTemplate('delivery-slip.addresses-tab')),
-            'summary_tab'   => $this->smarty->fetch($this->getTemplate('delivery-slip.summary-tab')),
-            'product_tab'   => $this->smarty->fetch($this->getTemplate('delivery-slip.product-tab')),
-            'payment_tab'   => $this->smarty->fetch($this->getTemplate('delivery-slip.payment-tab')),
-        ];
+        $this->smarty->assign(['order' => $this->order, 'order_details' => $order_details, 'delivery_address' => $formatted_delivery_address, 'invoice_address' => $formatted_invoice_address, 'order_invoice' => $this->order_invoice, 'carrier' => $carrier, 'display_product_images' => Configuration::get('PS_PDF_IMG_DELIVERY')]);
+        $tpls = ['style_tab' => $this->smarty->fetch($this->get_template('delivery-slip.style-tab')), 'addresses_tab' => $this->smarty->fetch($this->get_template('delivery-slip.addresses-tab')), 'summary_tab' => $this->smarty->fetch($this->get_template('delivery-slip.summary-tab')), 'product_tab' => $this->smarty->fetch($this->get_template('delivery-slip.product-tab')), 'payment_tab' => $this->smarty->fetch($this->get_template('delivery-slip.payment-tab'))];
         $this->smarty->assign($tpls);
-
-        return $this->smarty->fetch($this->getTemplate('delivery-slip'));
+        return $this->smarty->fetch($this->get_template('delivery-slip'));
     }
-
     /**
      * Returns the template filename when using bulk rendering
      *
      * @return string filename
      */
-    public function getBulkFilename()
+    public function get_bulk_filename()
     {
         return 'deliveries.pdf';
     }
-
     /**
      * Returns the template filename
      *
@@ -185,8 +147,8 @@ class HTMLTemplateDeliverySlipCore extends HTMLTemplate
      *
      * @throws PrestaShopException
      */
-    public function getFilename()
+    public function get_filename()
     {
-        return Configuration::get('PS_DELIVERY_PREFIX', Context::getContext()->language->id, null, $this->order->id_shop).sprintf('%06d', $this->order->delivery_number).'.pdf';
+        return Configuration::get('PS_DELIVERY_PREFIX', Context::get_context()->language->id, null, $this->order->id_shop) . sprintf('%06d', $this->order->delivery_number) . '.pdf';
     }
 }

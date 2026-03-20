@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,11 +30,10 @@ declare(strict_types=1);
  *  @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class Core_Business_CMS_CMSRepository
  */
-class Core_Business_CMS_CMSRepository extends Core_Foundation_Database_EntityRepository
+class Core_business_cms_cms_Repository extends Core_foundation_database_entity_Repository
 {
     /**
      * Return all CMSRepositories depending on $id_lang/$id_shop tuple
@@ -44,20 +43,18 @@ class Core_Business_CMS_CMSRepository extends Core_Foundation_Database_EntityRep
      *
      * @return array|null
      */
-    public function i10nFindAll($idLang, $idShop)
+    public function i10n_find_all($id_lang, $id_shop)
     {
         $sql = '
 			SELECT *
-			FROM `'.$this->getTableNameWithPrefix().'` c
-			JOIN `'.$this->getPrefix().'cms_lang` cl ON c.`id_cms`= cl.`id_cms`
-			WHERE cl.`id_lang` = '.(int) $idLang.'
-			AND cl.`id_shop` = '.(int) $idShop.'
+			FROM `' . $this->get_table_name_with_prefix() . '` c
+			JOIN `' . $this->get_prefix() . 'cms_lang` cl ON c.`id_cms`= cl.`id_cms`
+			WHERE cl.`id_lang` = ' . (int) $id_lang . '
+			AND cl.`id_shop` = ' . (int) $id_shop . '
 
 		';
-
-        return $this->hydrateMany($this->db->select($sql));
+        return $this->hydrate_many($this->db->select($sql));
     }
-
     /**
      * Return all CMSRepositories depending on $id_lang/$id_shop tuple
      *
@@ -68,28 +65,26 @@ class Core_Business_CMS_CMSRepository extends Core_Foundation_Database_EntityRep
      * @return CMS|null
      * @throws Core_Foundation_Database_Exception
      */
-    public function i10nFindOneById($idCms, $idLang, $idShop)
+    public function i10n_find_one_by_id($id_cms, $id_lang, $id_shop)
     {
         $sql = '
 			SELECT *
-			FROM `'.$this->getTableNameWithPrefix().'` c
-			JOIN `'.$this->getPrefix().'cms_lang` cl ON c.`id_cms`= cl.`id_cms`
-			WHERE c.`id_cms` = '.(int) $idCms.'
-			AND cl.`id_lang` = '.(int) $idLang.'
-			AND cl.`id_shop` = '.(int) $idShop.'
+			FROM `' . $this->get_table_name_with_prefix() . '` c
+			JOIN `' . $this->get_prefix() . 'cms_lang` cl ON c.`id_cms`= cl.`id_cms`
+			WHERE c.`id_cms` = ' . (int) $id_cms . '
+			AND cl.`id_lang` = ' . (int) $id_lang . '
+			AND cl.`id_shop` = ' . (int) $id_shop . '
 			LIMIT 0 , 1
 		';
-
-        return $this->hydrateOne($this->db->select($sql));
+        return $this->hydrate_one($this->db->select($sql));
     }
-
     /**
      * Return CMSRepository lang associative table name
      *
      * @return string
      */
-    protected function getLanguageTableNameWithPrefix()
+    protected function get_language_table_name_with_prefix()
     {
-        return $this->getTableNameWithPrefix().'_lang';
+        return $this->get_table_name_with_prefix() . '_lang';
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,11 +30,10 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class DeliveryCore
  */
-class DeliveryCore extends ObjectModel
+class Delivery_Core extends Object_Model
 {
     /** @var int */
     public $id_delivery;
@@ -52,67 +51,33 @@ class DeliveryCore extends ObjectModel
     public $id_zone;
     /** @var float */
     public $price;
-
     /**
      * @var array Object model definition
      */
-    public static $definition = [
-        'table'   => 'delivery',
-        'primary' => 'id_delivery',
-        'fields'  => [
-            'id_shop'         => ['type' => self::TYPE_INT, 'size' => 10],
-            'id_shop_group'   => ['type' => self::TYPE_INT, 'size' => 10],
-            'id_carrier'      => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true],
-            'id_range_price'  => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true, 'dbNullable' => true],
-            'id_range_weight' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true, 'dbNullable' => true],
-            'id_zone'         => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true],
-            'price'           => ['type' => self::TYPE_PRICE, 'validate' => 'isPrice', 'required' => true],
-        ],
-        'keys' => [
-            'delivery' => [
-                'id_carrier'      => ['type' => ObjectModel::KEY, 'columns' => ['id_carrier', 'id_zone']],
-                'id_range_price'  => ['type' => ObjectModel::KEY, 'columns' => ['id_range_price']],
-                'id_range_weight' => ['type' => ObjectModel::KEY, 'columns' => ['id_range_weight']],
-                'id_zone'         => ['type' => ObjectModel::KEY, 'columns' => ['id_zone']],
-            ],
-        ],
-    ];
-
+    public static $definition = ['table' => 'delivery', 'primary' => 'id_delivery', 'fields' => ['id_shop' => ['type' => self::TYPE_INT, 'size' => 10], 'id_shop_group' => ['type' => self::TYPE_INT, 'size' => 10], 'id_carrier' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true], 'id_range_price' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true, 'dbNullable' => true], 'id_range_weight' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true, 'dbNullable' => true], 'id_zone' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true], 'price' => ['type' => self::TYPE_PRICE, 'validate' => 'isPrice', 'required' => true]], 'keys' => ['delivery' => ['id_carrier' => ['type' => Object_Model::KEY, 'columns' => ['id_carrier', 'id_zone']], 'id_range_price' => ['type' => Object_Model::KEY, 'columns' => ['id_range_price']], 'id_range_weight' => ['type' => Object_Model::KEY, 'columns' => ['id_range_weight']], 'id_zone' => ['type' => Object_Model::KEY, 'columns' => ['id_zone']]]]];
     /**
      * @var array Webservice parameters
      */
-    protected $webserviceParameters = [
-        'objectsNodeName' => 'deliveries',
-        'fields'          => [
-            'id_carrier'      => ['xlink_resource' => 'carriers'],
-            'id_range_price'  => ['xlink_resource' => 'price_ranges'],
-            'id_range_weight' => ['xlink_resource' => 'weight_ranges'],
-            'id_zone'         => ['xlink_resource' => 'zones'],
-        ],
-    ];
-
+    protected $webservice_parameters = ['objectsNodeName' => 'deliveries', 'fields' => ['id_carrier' => ['xlink_resource' => 'carriers'], 'id_range_price' => ['xlink_resource' => 'price_ranges'], 'id_range_weight' => ['xlink_resource' => 'weight_ranges'], 'id_zone' => ['xlink_resource' => 'zones']]];
     /**
      * @return array
      *
      * @throws PrestaShopException
      */
-    public function getFields()
+    public function get_fields()
     {
-        $fields = parent::getFields();
-
+        $fields = parent::get_fields();
         // @todo add null management in definitions
         if ($this->id_shop) {
             $fields['id_shop'] = (int) $this->id_shop;
         } else {
             $fields['id_shop'] = null;
         }
-
         if ($this->id_shop_group) {
             $fields['id_shop_group'] = (int) $this->id_shop_group;
         } else {
             $fields['id_shop_group'] = null;
         }
-
         return $fields;
     }
 }

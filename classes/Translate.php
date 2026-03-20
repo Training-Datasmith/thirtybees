@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,11 +30,10 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class TranslateCore
  */
-class TranslateCore
+class Translate_Core
 {
     /**
      * Get a translation for an admin controller
@@ -44,65 +43,56 @@ class TranslateCore
      * @param bool $htmlentities
      * @return string
      */
-    public static function getAdminTranslation($string, string $class = 'AdminTab', $addslashes = false, $htmlentities = true, $sprintf = null)
+    public static function get_admin_translation($string, string $class = 'AdminTab', $addslashes = false, $htmlentities = true, $sprintf = null)
     {
-        static $modulesTabs = null;
-
+        static $modules_tabs = null;
         global $_LANGADM;
-
-        if ($modulesTabs === null) {
+        if ($modules_tabs === null) {
             try {
-                $modulesTabs = Tab::getModuleTabList();
-            } catch (PrestaShopException) {
-                $modulesTabs = [];
+                $modules_tabs = Tab::get_module_tab_list();
+            } catch (Presta_Shop_Exception) {
+                $modules_tabs = [];
             }
         }
-
         if ($_LANGADM == null) {
-            $iso = Context::getContext()->language->iso_code;
+            $iso = Context::get_context()->language->iso_code;
             if (empty($iso)) {
                 try {
-                    $iso = Language::getIsoById((int) Configuration::get('PS_LANG_DEFAULT'));
-                } catch (PrestaShopException) {
+                    $iso = Language::get_iso_by_id((int) Configuration::get('PS_LANG_DEFAULT'));
+                } catch (Presta_Shop_Exception) {
                     $iso = 'en';
                 }
             }
-            if (file_exists(_PS_TRANSLATIONS_DIR_.$iso.'/admin.php')) {
-                include_once(_PS_TRANSLATIONS_DIR_.$iso.'/admin.php');
+            if (file_exists(_PS_TRANSLATIONS_DIR_ . $iso . '/admin.php')) {
+                include_once _PS_TRANSLATIONS_DIR_ . $iso . '/admin.php';
             }
         }
-
-        if (isset($modulesTabs[strtolower($class)])) {
-            $classNameController = $class . 'Controller';
+        if (isset($modules_tabs[strtolower($class)])) {
+            $class_name_controller = $class . 'Controller';
             // if this is module admin controller, use module translation
-            if (class_exists($classNameController)) {
-                $moduleName = Module::getModuleNameFromClass($classNameController);
-                if ($moduleName) {
-                    return static::getModuleTranslation($moduleName, $string, $classNameController, $sprintf, $addslashes);
+            if (class_exists($class_name_controller)) {
+                $module_name = Module::get_module_name_from_class($class_name_controller);
+                if ($module_name) {
+                    return static::get_module_translation($module_name, $string, $class_name_controller, $sprintf, $addslashes);
                 }
             }
         }
-
-        $string = preg_replace("/\\\*'/", "\'", $string);
+        $string = preg_replace("/\\\\*'/", "\\'", $string);
         $key = md5((string) $string);
-        if (isset($_LANGADM[$class.$key]) && $_LANGADM[$class.$key] !== '') {
-            $str = $_LANGADM[$class.$key];
+        if (isset($_LANGADM[$class . $key]) && $_LANGADM[$class . $key] !== '') {
+            $str = $_LANGADM[$class . $key];
         } else {
-            $str = static::getGenericAdminTranslation($string, $key, $_LANGADM);
+            $str = static::get_generic_admin_translation($string, $key, $_LANGADM);
         }
-
         if ($htmlentities) {
             $str = htmlspecialchars((string) $str, ENT_QUOTES, 'utf-8');
         }
         $str = str_replace('"', '&quot;', $str);
-
         if ($sprintf !== null) {
-            $str = static::checkAndReplaceArgs($str, $sprintf);
+            $str = static::check_and_replace_args($str, $sprintf);
         }
-
-        return ($addslashes ? addslashes($str) : stripslashes($str));
+        return $addslashes ? addslashes($str) : stripslashes($str);
     }
-
     /**
      * Get a translation for a module
      *
@@ -112,88 +102,76 @@ class TranslateCore
      * @param bool $js
      * @return string
      */
-    public static function getModuleTranslation($module, $string, string $source, $sprintf = null, $js = false)
+    public static function get_module_translation($module, $string, string $source, $sprintf = null, $js = false)
     {
         global $_MODULES, $_MODULE, $_LANGADM;
-
-        static $langCache = [];
+        static $lang_cache = [];
         // $_MODULES is a cache of translations for all module.
         // $translations_merged is a cache of wether a specific module's translations have already been added to $_MODULES
-        static $translationsMerged = [];
-
+        static $translations_merged = [];
         $name = $module instanceof Module ? $module->name : $module;
-
-        $language = Context::getContext()->language;
-
-        if (!isset($translationsMerged[$name]) && isset(Context::getContext()->language)) {
-            $filesByPriority = [
+        $language = Context::get_context()->language;
+        if (!isset($translations_merged[$name]) && isset(Context::get_context()->language)) {
+            $files_by_priority = [
                 // Translations in theme
-                _PS_THEME_DIR_.'modules/'.$name.'/translations/'.$language->iso_code.'.php',
-                _PS_THEME_DIR_.'modules/'.$name.'/'.$language->iso_code.'.php',
+                _PS_THEME_DIR_ . 'modules/' . $name . '/translations/' . $language->iso_code . '.php',
+                _PS_THEME_DIR_ . 'modules/' . $name . '/' . $language->iso_code . '.php',
                 // PrestaShop 1.5 translations
-                _PS_MODULE_DIR_.$name.'/translations/'.$language->iso_code.'.php',
+                _PS_MODULE_DIR_ . $name . '/translations/' . $language->iso_code . '.php',
                 // PrestaShop 1.4 translations
-                _PS_MODULE_DIR_.$name.'/'.$language->iso_code.'.php',
+                _PS_MODULE_DIR_ . $name . '/' . $language->iso_code . '.php',
             ];
-            foreach ($filesByPriority as $file) {
+            foreach ($files_by_priority as $file) {
                 if (file_exists($file)) {
-                    include_once($file);
-                    $_MODULES = !empty($_MODULES) ? $_MODULES + $_MODULE : $_MODULE; //we use "+" instead of array_merge() because array merge erase existing values.
-                    $translationsMerged[$name] = true;
+                    include_once $file;
+                    $_MODULES = !empty($_MODULES) ? $_MODULES + $_MODULE : $_MODULE;
+                    //we use "+" instead of array_merge() because array merge erase existing values.
+                    $translations_merged[$name] = true;
                 }
             }
         }
-        $string = preg_replace("/\\\*'/", "\'", $string);
+        $string = preg_replace("/\\\\*'/", "\\'", $string);
         $key = md5((string) $string);
-
-        $cacheKey = $name.'|'.$string.'|'.$source.'|'.(int) $js;
-
-        if (!isset($langCache[$cacheKey])) {
+        $cache_key = $name . '|' . $string . '|' . $source . '|' . (int) $js;
+        if (!isset($lang_cache[$cache_key])) {
             if ($_MODULES == null) {
-                return static::escapeModuleTranslation($string, $sprintf, $js);
+                return static::escape_module_translation($string, $sprintf, $js);
             }
-
-            $currentKey = strtolower('<{'.$name.'}'._THEME_NAME_.'>'.$source).'_'.$key;
-            $defaultKey = strtolower('<{'.$name.'}thirtybees>'.$source).'_'.$key;
-            $prestaShopKey = strtolower('<{'.$name.'}prestashop>'.$source).'_'.$key;
-
+            $current_key = strtolower('<{' . $name . '}' . _THEME_NAME_ . '>' . $source) . '_' . $key;
+            $default_key = strtolower('<{' . $name . '}thirtybees>' . $source) . '_' . $key;
+            $presta_shop_key = strtolower('<{' . $name . '}prestashop>' . $source) . '_' . $key;
             if (str_ends_with($source, 'controller')) {
                 $file = substr($source, 0, -10);
-                $currentKeyFile = strtolower('<{'.$name.'}'._THEME_NAME_.'>'.$file).'_'.$key;
-                $defaultKeyFile = strtolower('<{'.$name.'}thirtybees>'.$file).'_'.$key;
-                $prestaShopKeyFile = strtolower('<{'.$name.'}prestashop>'.$file).'_'.$key;
+                $current_key_file = strtolower('<{' . $name . '}' . _THEME_NAME_ . '>' . $file) . '_' . $key;
+                $default_key_file = strtolower('<{' . $name . '}thirtybees>' . $file) . '_' . $key;
+                $presta_shop_key_file = strtolower('<{' . $name . '}prestashop>' . $file) . '_' . $key;
             }
-
-            if (isset($currentKeyFile) && !empty($_MODULES[$currentKeyFile])) {
-                $ret = $_MODULES[$currentKeyFile];
-            } elseif (isset($defaultKeyFile) && !empty($_MODULES[$defaultKeyFile])) {
-                $ret = $_MODULES[$defaultKeyFile];
-            } elseif (isset($prestaShopKeyFile) && !empty($_MODULES[$prestaShopKeyFile])) {
-                $ret = $_MODULES[$prestaShopKeyFile];
-            } elseif (!empty($_MODULES[$currentKey])) {
-                $ret = $_MODULES[$currentKey];
-            } elseif (!empty($_MODULES[$defaultKey])) {
-                $ret = $_MODULES[$defaultKey];
-            } elseif (!empty($_MODULES[$prestaShopKey])) {
-                $ret = $_MODULES[$prestaShopKey];
+            if (isset($current_key_file) && !empty($_MODULES[$current_key_file])) {
+                $ret = $_MODULES[$current_key_file];
+            } elseif (isset($default_key_file) && !empty($_MODULES[$default_key_file])) {
+                $ret = $_MODULES[$default_key_file];
+            } elseif (isset($presta_shop_key_file) && !empty($_MODULES[$presta_shop_key_file])) {
+                $ret = $_MODULES[$presta_shop_key_file];
+            } elseif (!empty($_MODULES[$current_key])) {
+                $ret = $_MODULES[$current_key];
+            } elseif (!empty($_MODULES[$default_key])) {
+                $ret = $_MODULES[$default_key];
+            } elseif (!empty($_MODULES[$presta_shop_key])) {
+                $ret = $_MODULES[$presta_shop_key];
             } elseif (!empty($_LANGADM)) {
-                $ret = static::getGenericAdminTranslation($string, $key, $_LANGADM);
+                $ret = static::get_generic_admin_translation($string, $key, $_LANGADM);
             } else {
                 $ret = $string;
             }
-
-            $ret = static::escapeModuleTranslation($ret, $sprintf, $js);
-
+            $ret = static::escape_module_translation($ret, $sprintf, $js);
             if ($sprintf === null) {
-                $langCache[$cacheKey] = $ret;
+                $lang_cache[$cache_key] = $ret;
             } else {
                 return $ret;
             }
         }
-
-        return $langCache[$cacheKey];
+        return $lang_cache[$cache_key];
     }
-
     /**
      * Helper method to escape return value for getModuleTranslation
      *
@@ -201,21 +179,17 @@ class TranslateCore
      * @param array $sprintf
      * @param bool $js
      */
-    protected static function escapeModuleTranslation($input, $sprintf, $js): string
+    protected static function escape_module_translation($input, $sprintf, $js): string
     {
-        if (! $input) {
+        if (!$input) {
             return '';
         }
-
         $ret = stripslashes($input);
-
         if ($sprintf !== null) {
-            $ret = static::checkAndReplaceArgs($ret, $sprintf);
+            $ret = static::check_and_replace_args($ret, $sprintf);
         }
-
         return $js ? addslashes($ret) : htmlspecialchars($ret, ENT_COMPAT, 'UTF-8');
     }
-
     /**
      * Check if string use a specif syntax for sprintf and replace arguments if use it
      *
@@ -224,19 +198,16 @@ class TranslateCore
      *
      * @return string
      */
-    public static function checkAndReplaceArgs($string, $args)
+    public static function check_and_replace_args($string, $args)
     {
         if (preg_match_all('#(?:%%|%(?:[0-9]+\$)?[+-]?(?:[ 0]|\'.)?-?[0-9]*(?:\.[0-9]+)?[bcdeufFosxX])#', $string) && !is_null($args)) {
             if (!is_array($args)) {
                 $args = [$args];
             }
-
             return vsprintf($string, $args);
         }
-
         return $string;
     }
-
     /**
      * Return the translation for a string if it exists for the base AdminController or for helpers
      *
@@ -246,27 +217,24 @@ class TranslateCore
      *
      * @return string translation
      */
-    public static function getGenericAdminTranslation($string, $key, array &$langArray)
+    public static function get_generic_admin_translation($string, $key, array &$lang_array)
     {
-        $string = preg_replace("/\\\*'/", "\'", $string);
+        $string = preg_replace("/\\\\*'/", "\\'", $string);
         if (is_null($key)) {
             $key = md5((string) $string);
         }
-
-        if (isset($langArray['AdminController'.$key])) {
-            $str = $langArray['AdminController'.$key];
-        } elseif (isset($langArray['Helper'.$key])) {
-            $str = $langArray['Helper'.$key];
-        } elseif (isset($langArray['AdminTab'.$key])) {
-            $str = $langArray['AdminTab'.$key];
+        if (isset($lang_array['AdminController' . $key])) {
+            $str = $lang_array['AdminController' . $key];
+        } elseif (isset($lang_array['Helper' . $key])) {
+            $str = $lang_array['Helper' . $key];
+        } elseif (isset($lang_array['AdminTab' . $key])) {
+            $str = $lang_array['AdminTab' . $key];
         } else {
             // note in 1.5, some translations has moved from AdminXX to helper/*.tpl
             $str = $string;
         }
-
         return $str !== '' ? $str : $string;
     }
-
     /**
      * Get a translation for a PDF
      *
@@ -275,52 +243,41 @@ class TranslateCore
      *
      * @return string
      */
-    public static function getPdfTranslation($string, $sprintf = null)
+    public static function get_pdf_translation($string, $sprintf = null)
     {
         global $_LANGPDF;
-
-        $iso = Context::getContext()->language->iso_code;
-
-        if (!Validate::isLangIsoCode($iso)) {
-            Tools::displayError(sprintf('Invalid iso lang (%s)', Tools::safeOutput($iso)));
+        $iso = Context::get_context()->language->iso_code;
+        if (!Validate::is_lang_iso_code($iso)) {
+            Tools::display_error(sprintf('Invalid iso lang (%s)', Tools::safe_output($iso)));
         }
-
-        $overrideI18NFile = _PS_THEME_DIR_.'pdf/lang/'.$iso.'.php';
-        $i18NFile = _PS_TRANSLATIONS_DIR_.$iso.'/pdf.php';
-        if (file_exists($overrideI18NFile)) {
-            $i18NFile = $overrideI18NFile;
+        $override_i18n_file = _PS_THEME_DIR_ . 'pdf/lang/' . $iso . '.php';
+        $i18n_file = _PS_TRANSLATIONS_DIR_ . $iso . '/pdf.php';
+        if (file_exists($override_i18n_file)) {
+            $i18n_file = $override_i18n_file;
         }
-
-        if (!include($i18NFile)) {
-            Tools::displayError(sprintf('Cannot include PDF translation language file : %s', $i18NFile));
+        if (!include $i18n_file) {
+            Tools::display_error(sprintf('Cannot include PDF translation language file : %s', $i18n_file));
         }
-
         if (!isset($_LANGPDF) || !is_array($_LANGPDF)) {
             return str_replace('"', '&quot;', $string);
         }
-
-        $string = preg_replace("/\\\*'/", "\'", $string);
+        $string = preg_replace("/\\\\*'/", "\\'", $string);
         $key = 'PDF' . md5((string) $string);
-
         $str = array_key_exists($key, $_LANGPDF) && $_LANGPDF[$key] !== '' ? $_LANGPDF[$key] : $string;
-
         if ($sprintf !== null) {
-            return static::checkAndReplaceArgs($str, $sprintf);
+            return static::check_and_replace_args($str, $sprintf);
         }
-
         return $str;
     }
-
     /**
      * Compatibility method that just calls postProcessTranslation.
      *
      * @deprecated 1.0.0 renamed this to postProcessTranslation, since it is not only used in relation to smarty.
      */
-    public static function smartyPostProcessTranslation($string, $params)
+    public static function smarty_post_process_translation($string, $params)
     {
-        return static::postProcessTranslation($string, $params);
+        return static::post_process_translation($string, $params);
     }
-
     /**
      * Perform operations on translations after everything is escaped and before displaying it
      *
@@ -328,7 +285,7 @@ class TranslateCore
      *
      * @return string
      */
-    public static function postProcessTranslation($string, array $params)
+    public static function post_process_translation($string, array $params)
     {
         // If tags were explicitely provided, we want to use them *after* the translation string is escaped.
         if (!empty($params['tags'])) {
@@ -339,18 +296,15 @@ class TranslateCore
                 $match = [];
                 if (preg_match('/^\s*<\s*(\w+)/', (string) $tag, $match)) {
                     $opener = $tag;
-                    $closer = '</'.$match[1].'>';
-
-                    $string = str_replace('['.$position.']', $opener, $string);
-                    $string = str_replace('[/'.$position.']', $closer, $string);
-                    $string = str_replace('['.$position.'/]', $opener.$closer, $string);
+                    $closer = '</' . $match[1] . '>';
+                    $string = str_replace('[' . $position . ']', $opener, $string);
+                    $string = str_replace('[/' . $position . ']', $closer, $string);
+                    $string = str_replace('[' . $position . '/]', $opener . $closer, $string);
                 }
             }
         }
-
         return $string;
     }
-
     /**
      * Helper function to make calls to postProcessTranslation more readable.
      *
@@ -359,11 +313,10 @@ class TranslateCore
      *
      * @return string
      */
-    public static function ppTags($string, $tags)
+    public static function pp_tags($string, $tags)
     {
-        return static::postProcessTranslation($string, ['tags' => $tags]);
+        return static::post_process_translation($string, ['tags' => $tags]);
     }
-
     /**
      * Get a translation for a front office
      *
@@ -374,13 +327,11 @@ class TranslateCore
      *
      * @return string
      */
-    public static function getFrontTranslation($input, string $source, $sprintf = null, $js = false)
+    public static function get_front_translation($input, string $source, $sprintf = null, $js = false)
     {
         global $_LANG;
-
         $string = str_replace('\'', '\\\'', $input);
-        $key = $source.'_'.md5($string);
-
+        $key = $source . '_' . md5($string);
         if ($_LANG != null && isset($_LANG[$key]) && $_LANG[$key] !== '') {
             $msg = $_LANG[$key];
         } elseif ($_LANG != null && isset($_LANG[mb_strtolower($key)]) && $_LANG[mb_strtolower($key)] !== '') {
@@ -388,16 +339,12 @@ class TranslateCore
         } else {
             $msg = $input;
         }
-
         $msg = $js ? addslashes((string) $msg) : stripslashes((string) $msg);
-
         if ($sprintf !== null) {
-            $msg = static::checkAndReplaceArgs($msg, $sprintf);
+            $msg = static::check_and_replace_args($msg, $sprintf);
         }
-
-        return $js ? $msg : Tools::safeOutput($msg);
+        return $js ? $msg : Tools::safe_output($msg);
     }
-
     /**
      * Performs front office template translations
      *
@@ -406,7 +353,7 @@ class TranslateCore
      * @param Smarty_Internal_Template $smarty
      * @return string
      */
-    public static function smartyFrontTranslate(array $params, $smarty)
+    public static function smarty_front_translate(array $params, $smarty)
     {
         if (!isset($params['js'])) {
             $params['js'] = false;
@@ -420,23 +367,19 @@ class TranslateCore
         if (!isset($params['sprintf'])) {
             $params['sprintf'] = null;
         }
-
         $filename = $smarty->template_resource;
         $basename = basename((string) $filename, '.tpl');
         if ($params['mod']) {
-            return static::postProcessTranslation(static::getModuleTranslation($params['mod'], $params['s'], $basename, $params['sprintf'], $params['js']), $params);
+            return static::post_process_translation(static::get_module_translation($params['mod'], $params['s'], $basename, $params['sprintf'], $params['js']), $params);
         }
-
         if ($params['pdf']) {
-            return static::postProcessTranslation(static::getPdfTranslation($params['s'], $params['sprintf']), $params);
+            return static::post_process_translation(static::get_pdf_translation($params['s'], $params['sprintf']), $params);
         }
-
-        if (isset($smarty->source) && (str_contains((string) $smarty->source->filepath, DIRECTORY_SEPARATOR.'override'.DIRECTORY_SEPARATOR))) {
+        if (isset($smarty->source) && str_contains((string) $smarty->source->filepath, DIRECTORY_SEPARATOR . 'override' . DIRECTORY_SEPARATOR)) {
             $basename = 'override_' . $basename;
         }
-        return static::postProcessTranslation(static::getFrontTranslation($params['s'], $basename, $params['sprintf'], $params['js']), $params);
+        return static::post_process_translation(static::get_front_translation($params['s'], $basename, $params['sprintf'], $params['js']), $params);
     }
-
     /**
      * Performs back office template translations
      *
@@ -445,48 +388,41 @@ class TranslateCore
      * @param Smarty_Internal_Template $smarty
      * @return string
      */
-    public static function smartyAdminTranslate(array $params, $smarty)
+    public static function smarty_admin_translate(array $params, $smarty)
     {
         $htmlentities = !isset($params['js']);
         $pdf = isset($params['pdf']);
-        $addslashes = (isset($params['slashes']) || isset($params['js']));
+        $addslashes = isset($params['slashes']) || isset($params['js']);
         $sprintf = $params['sprintf'] ?? null;
-
         if ($pdf) {
-            return static::postProcessTranslation(Translate::getPdfTranslation($params['s'], $sprintf), $params);
+            return static::post_process_translation(Translate::get_pdf_translation($params['s'], $sprintf), $params);
         }
-
         $filename = $smarty->template_resource;
-
         // If the template is part of a module
         if (!empty($params['mod'])) {
-            return static::postProcessTranslation(static::getModuleTranslation($params['mod'], $params['s'], basename((string) $filename, '.tpl'), $sprintf, isset($params['js'])), $params);
+            return static::post_process_translation(static::get_module_translation($params['mod'], $params['s'], basename((string) $filename, '.tpl'), $sprintf, isset($params['js'])), $params);
         }
-
         // If the tpl is at the root of the template folder
         if (dirname((string) $filename) == '.') {
             $class = 'index';
         }
-
-        if (!empty(Context::getContext()->override_controller_name_for_translations)) {
-            $class = Context::getContext()->override_controller_name_for_translations;
-        } elseif (isset(Context::getContext()->controller)) {
-            $className = Context::getContext()->controller::class;
-            $class = substr($className, 0, strpos(strtolower($className), 'controller'));
+        if (!empty(Context::get_context()->override_controller_name_for_translations)) {
+            $class = Context::get_context()->override_controller_name_for_translations;
+        } elseif (isset(Context::get_context()->controller)) {
+            $class_name = Context::get_context()->controller::class;
+            $class = substr($class_name, 0, strpos(strtolower($class_name), 'controller'));
         } else {
             // Split by \ and / to get the folder tree for the file
-            $folderTree = preg_split('#[/\\\]#', (string) $filename);
-            $key = array_search('controllers', $folderTree);
-
+            $folder_tree = preg_split('#[/\\\\]#', (string) $filename);
+            $key = array_search('controllers', $folder_tree);
             // If there was a match, construct the class name using the child folder name
             // Eg. xxx/controllers/customers/xxx => AdminCustomers
             if ($key !== false) {
-                $class = 'Admin'.Tools::toCamelCase($folderTree[$key + 1], true);
-            } elseif (isset($folderTree[0])) {
-                $class = 'Admin'.Tools::toCamelCase($folderTree[0], true);
+                $class = 'Admin' . Tools::to_camel_case($folder_tree[$key + 1], true);
+            } elseif (isset($folder_tree[0])) {
+                $class = 'Admin' . Tools::to_camel_case($folder_tree[0], true);
             }
         }
-
-        return static::postProcessTranslation(Translate::getAdminTranslation($params['s'], $class, $addslashes, $htmlentities, $sprintf), $params);
+        return static::post_process_translation(Translate::get_admin_translation($params['s'], $class, $addslashes, $htmlentities, $sprintf), $params);
     }
 }

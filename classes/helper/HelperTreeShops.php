@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,26 +30,22 @@ declare(strict_types=1);
  *  @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class HelperTreeShopsCore
  */
-class HelperTreeShopsCore extends TreeCore
+class Helper_Tree_Shops_Core extends Tree_Core
 {
-    public const DEFAULT_TEMPLATE             = 'tree_shops.tpl';
+    public const DEFAULT_TEMPLATE = 'tree_shops.tpl';
     public const DEFAULT_NODE_FOLDER_TEMPLATE = 'tree_node_folder_checkbox_shops.tpl';
-    public const DEFAULT_NODE_ITEM_TEMPLATE   = 'tree_node_item_checkbox_shops.tpl';
-
+    public const DEFAULT_NODE_ITEM_TEMPLATE = 'tree_node_item_checkbox_shops.tpl';
     /**
      * @var int|null
      */
     protected $_lang;
-
     /**
      * @var array
      */
     protected $_selected_shops;
-
     /**
      * HelperTreeShopsCore constructor.
      *
@@ -62,111 +58,92 @@ class HelperTreeShopsCore extends TreeCore
     public function __construct($id, $title = null, $lang = null)
     {
         parent::__construct($id);
-
-        $this->setTitle($title);
-        $this->setLang($lang);
+        $this->set_title($title);
+        $this->set_lang($lang);
     }
-
     /**
      * @return array
      *
      * @throws PrestaShopException
      */
-    public function getData()
+    public function get_data()
     {
         if (!isset($this->_data)) {
-            $this->setData(Shop::getTree());
+            $this->set_data(Shop::get_tree());
         }
-
         return $this->_data;
     }
-
     /**
      * @param int $value
      */
-    public function setLang($value): static
+    public function set_lang($value): static
     {
         $this->_lang = $value;
-
         return $this;
     }
-
     /**
      * @return int
      */
-    public function getLang()
+    public function get_lang()
     {
         if (!isset($this->_lang)) {
-            $this->setLang($this->getContext()->employee->id_lang);
+            $this->set_lang($this->get_context()->employee->id_lang);
         }
-
         return $this->_lang;
     }
-
     /**
      * @return string
      */
-    public function getNodeFolderTemplate()
+    public function get_node_folder_template()
     {
         if (!isset($this->_node_folder_template)) {
-            $this->setNodeFolderTemplate(static::DEFAULT_NODE_FOLDER_TEMPLATE);
+            $this->set_node_folder_template(static::DEFAULT_NODE_FOLDER_TEMPLATE);
         }
-
         return $this->_node_folder_template;
     }
-
     /**
      * @return string
      */
-    public function getNodeItemTemplate()
+    public function get_node_item_template()
     {
         if (!isset($this->_node_item_template)) {
-            $this->setNodeItemTemplate(static::DEFAULT_NODE_ITEM_TEMPLATE);
+            $this->set_node_item_template(static::DEFAULT_NODE_ITEM_TEMPLATE);
         }
-
         return $this->_node_item_template;
     }
-
     /**
      * @param int[] $value
      *
      * @throws PrestaShopException
      */
-    public function setSelectedShops($value): static
+    public function set_selected_shops($value): static
     {
         if (!is_array($value)) {
-            throw new PrestaShopException('Selected shops value must be an array');
+            throw new Presta_Shop_Exception('Selected shops value must be an array');
         }
-
         $this->_selected_shops = $value;
-
         return $this;
     }
-
     /**
      * @return int[]
      */
-    public function getSelectedShops()
+    public function get_selected_shops()
     {
         if (!isset($this->_selected_shops)) {
             $this->_selected_shops = [];
         }
-
         return $this->_selected_shops;
     }
-
     /**
      * @return string
      */
-    public function getTemplate()
+    public function get_template()
     {
         if (!isset($this->_template)) {
-            $this->setTemplate(static::DEFAULT_TEMPLATE);
+            $this->set_template(static::DEFAULT_TEMPLATE);
         }
-
         return $this->_template;
     }
-
     /**
      * @param array|null $data
      * @param bool $useDefaultActions
@@ -177,92 +154,41 @@ class HelperTreeShopsCore extends TreeCore
      * @throws PrestaShopException
      * @throws SmartyException
      */
-    public function render($data = null, $useDefaultActions = true, $useSelectedShop = true)
+    public function render($data = null, $use_default_actions = true, $use_selected_shop = true)
     {
         if (!isset($data)) {
-            $data = $this->getData();
+            $data = $this->get_data();
         }
-
-        if ($useDefaultActions) {
-            $this->setActions(
-                [
-                    new TreeToolbarLink(
-                        'Collapse All',
-                        '#',
-                        '$(\'#'.$this->getId().'\').tree(\'collapseAll\'); return false;',
-                        'icon-collapse-alt'
-                    ),
-                    new TreeToolbarLink(
-                        'Expand All',
-                        '#',
-                        '$(\'#'.$this->getId().'\').tree(\'expandAll\'); return false;',
-                        'icon-expand-alt'
-                    ),
-                    new TreeToolbarLink(
-                        'Check All',
-                        '#',
-                        'checkAllAssociatedShops($(\'#'.$this->getId().'\')); return false;',
-                        'icon-check-sign'
-                    ),
-                    new TreeToolbarLink(
-                        'Uncheck All',
-                        '#',
-                        'uncheckAllAssociatedShops($(\'#'.$this->getId().'\')); return false;',
-                        'icon-check-empty'
-                    ),
-                ]
-            );
+        if ($use_default_actions) {
+            $this->set_actions([new Tree_Toolbar_Link('Collapse All', '#', '$(\'#' . $this->get_id() . '\').tree(\'collapseAll\'); return false;', 'icon-collapse-alt'), new Tree_Toolbar_Link('Expand All', '#', '$(\'#' . $this->get_id() . '\').tree(\'expandAll\'); return false;', 'icon-expand-alt'), new Tree_Toolbar_Link('Check All', '#', 'checkAllAssociatedShops($(\'#' . $this->get_id() . '\')); return false;', 'icon-check-sign'), new Tree_Toolbar_Link('Uncheck All', '#', 'uncheckAllAssociatedShops($(\'#' . $this->get_id() . '\')); return false;', 'icon-check-empty')]);
         }
-
-        if ($useSelectedShop) {
-            $this->setAttribute('selected_shops', $this->getSelectedShops());
+        if ($use_selected_shop) {
+            $this->set_attribute('selected_shops', $this->get_selected_shops());
         }
-
         return parent::render($data);
     }
-
     /**
      * @param array|null $data
      *
      * @throws PrestaShopException
      * @throws SmartyException
      */
-    public function renderNodes($data = null): string
+    public function render_nodes($data = null): string
     {
         if (!isset($data)) {
-            $data = $this->getData();
+            $data = $this->get_data();
         }
-
         if (!is_array($data) && !$data instanceof Traversable) {
-            throw new PrestaShopException('Data value must be an traversable array');
+            throw new Presta_Shop_Exception('Data value must be an traversable array');
         }
-
         $html = '';
-
         foreach ($data as $item) {
-            if (array_key_exists('shops', $item)
-                && !empty($item['shops'])) {
-                $html .= $this->getContext()->smarty->createTemplate(
-                    $this->getTemplateFile($this->getNodeFolderTemplate()),
-                    $this->getContext()->smarty
-                )->assign($this->getAttributes())->assign(
-                    [
-                        'children' => $this->renderNodes($item['shops']),
-                        'node'     => $item,
-                    ]
-                )->fetch();
+            if (array_key_exists('shops', $item) && !empty($item['shops'])) {
+                $html .= $this->get_context()->smarty->create_template($this->get_template_file($this->get_node_folder_template()), $this->get_context()->smarty)->assign($this->get_attributes())->assign(['children' => $this->render_nodes($item['shops']), 'node' => $item])->fetch();
             } else {
-                $html .= $this->getContext()->smarty->createTemplate(
-                    $this->getTemplateFile($this->getNodeItemTemplate()),
-                    $this->getContext()->smarty
-                )->assign($this->getAttributes())->assign(
-                    [
-                        'node' => $item,
-                    ]
-                )->fetch();
+                $html .= $this->get_context()->smarty->create_template($this->get_template_file($this->get_node_item_template()), $this->get_context()->smarty)->assign($this->get_attributes())->assign(['node' => $item])->fetch();
             }
         }
-
         return $html;
     }
 }

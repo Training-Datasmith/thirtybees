@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -18,61 +18,51 @@ declare(strict_types=1);
  * @copyright 2017-2024 thirty bees
  * @license   Open Software License (OSL 3.0)
  */
-
-namespace Thirtybees\Core\WorkQueue;
+namespace Thirtybees\Core\Work_Queue;
 
 use Context;
 use Customer;
 use Employee;
 use Language;
-use PrestaShopException;
+use Presta_Shop_Exception;
 use Shop;
-
 /**
  * Class WorkQueueTaskCore
  */
-class WorkQueueContextCore
+class Work_Queue_Context_Core
 {
     /**
      * @var int | null
      */
-    protected $shopId;
-
+    protected $shop_id;
     /**
      * @var Shop
      */
     protected $shop;
-
     /**
      * @var int | null
      */
-    protected $employeeId;
-
+    protected $employee_id;
     /**
      * @var Employee
      */
     protected $employee;
-
     /**
      * @var int | null
      */
-    protected $customerId;
-
+    protected $customer_id;
     /**
      * @var Customer
      */
     protected $customer;
-
     /**
      * @var int | null
      */
-    protected $languageId;
-
+    protected $language_id;
     /**
      * @var Language
      */
     protected $language;
-
     /**
      * WorkQueueContextCore constructor.
      * @param int $shopId
@@ -80,131 +70,112 @@ class WorkQueueContextCore
      * @param int $customerId
      * @param int $languageId
      */
-    public function __construct($shopId, $employeeId, $customerId, $languageId)
+    public function __construct($shop_id, $employee_id, $customer_id, $language_id)
     {
-        $this->shopId = static::idOrNull($shopId);
-        $this->employeeId = static::idOrNull($employeeId);
-        $this->customerId = static::idOrNull($customerId);
-        $this->languageId = static::idOrNull($languageId);
+        $this->shop_id = static::id_or_null($shop_id);
+        $this->employee_id = static::id_or_null($employee_id);
+        $this->customer_id = static::id_or_null($customer_id);
+        $this->language_id = static::id_or_null($language_id);
     }
-
     /**
      * Creates workqueue context from shop context
      */
-    public static function fromContext(Context $context): static
+    public static function from_context(Context $context): static
     {
         $shop = $context->shop;
         $employee = $context->employee;
         $customer = $context->customer;
         $language = $context->language;
-
-        $workQueueContext = new static(
-            is_null($shop) ? 0 : $shop->id,
-            is_null($employee) ? 0 : $employee->id,
-            is_null($customer) ? 0 : $customer->id,
-            is_null($language) ? 0 : $language->id
-        );
-
-        $workQueueContext->shop = $shop;
-        $workQueueContext->employee = $employee;
-        $workQueueContext->customer = $customer;
-        $workQueueContext->language = $language;
-
-        return $workQueueContext;
+        $work_queue_context = new static(is_null($shop) ? 0 : $shop->id, is_null($employee) ? 0 : $employee->id, is_null($customer) ? 0 : $customer->id, is_null($language) ? 0 : $language->id);
+        $work_queue_context->shop = $shop;
+        $work_queue_context->employee = $employee;
+        $work_queue_context->customer = $customer;
+        $work_queue_context->language = $language;
+        return $work_queue_context;
     }
-
     /**
      * @return int
      */
-    public function getShopId()
+    public function get_shop_id()
     {
-        return $this->shopId;
+        return $this->shop_id;
     }
-
     /**
      * @return int
      */
-    public function getEmployeeId()
+    public function get_employee_id()
     {
-        return $this->employeeId;
+        return $this->employee_id;
     }
-
     /**
      * @return int
      */
-    public function getCustomerId()
+    public function get_customer_id()
     {
-        return $this->customerId;
+        return $this->customer_id;
     }
-
     /**
      * @return int
      */
-    public function getLanguageId()
+    public function get_language_id()
     {
-        return $this->languageId;
+        return $this->language_id;
     }
-
     /**
      * @return Shop
      * @throws PrestaShopException
      */
-    public function getShop()
+    public function get_shop()
     {
-        if ($this->shopId && is_null($this->shop)) {
-            $this->shop = new Shop($this->shopId, $this->languageId);
+        if ($this->shop_id && is_null($this->shop)) {
+            $this->shop = new Shop($this->shop_id, $this->language_id);
         }
         return $this->shop;
     }
-
     /**
      * @return Employee
      * @throws PrestaShopException
      */
-    public function getEmployee()
+    public function get_employee()
     {
-        if ($this->employeeId && is_null($this->employee)) {
-            $this->shop = new Employee($this->employeeId);
+        if ($this->employee_id && is_null($this->employee)) {
+            $this->shop = new Employee($this->employee_id);
         }
         return $this->employee;
     }
-
     /**
      * @return Customer
      * @throws PrestaShopException
      */
-    public function getCustomer()
+    public function get_customer()
     {
-        if ($this->customerId && is_null($this->customer)) {
-            $this->customer = new Customer($this->customerId);
+        if ($this->customer_id && is_null($this->customer)) {
+            $this->customer = new Customer($this->customer_id);
         }
         return $this->customer;
     }
-
     /**
      * @return Language
      * @throws PrestaShopException
      */
-    public function getLanguage()
+    public function get_language()
     {
-        if ($this->languageId && is_null($this->language)) {
-            $this->language = new Language($this->languageId);
+        if ($this->language_id && is_null($this->language)) {
+            $this->language = new Language($this->language_id);
         }
         return $this->language;
     }
-
     /**
      * If input is positive integer (valid ID), then return it, otherwise returns null
      *
      * @param mixed $input
      */
-    protected static function idOrNull($input): ?int
+    protected static function id_or_null($input): ?int
     {
-        $value = (int)$input;
+        $value = (int) $input;
         if ($value) {
             return $value;
         }
         return null;
     }
-
 }

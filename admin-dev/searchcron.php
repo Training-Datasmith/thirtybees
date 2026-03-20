@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,26 +30,21 @@ declare(strict_types=1);
  *  @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /** @noinspection PhpUnhandledExceptionInspection */
-
 if (!defined('_PS_ADMIN_DIR_')) {
     define('_PS_ADMIN_DIR_', getcwd());
 }
-include(_PS_ADMIN_DIR_.'/../config/config.inc.php');
-
-if (!Tools::getIntValue('id_shop')) {
-    Context::getContext()->shop->setContext(Shop::CONTEXT_ALL);
+include _PS_ADMIN_DIR_ . '/../config/config.inc.php';
+if (!Tools::get_int_value('id_shop')) {
+    Context::get_context()->shop->set_context(Shop::CONTEXT_ALL);
 } else {
-    Context::getContext()->shop->setContext(Shop::CONTEXT_SHOP, Tools::getIntValue('id_shop'));
+    Context::get_context()->shop->set_context(Shop::CONTEXT_SHOP, Tools::get_int_value('id_shop'));
 }
-
-if (substr(_COOKIE_KEY_, 34, 8) != Tools::getValue('token')) {
+if (substr(_COOKIE_KEY_, 34, 8) != Tools::get_value('token')) {
     die;
 }
-
 ini_set('max_execution_time', 7200);
-Search::indexation(Tools::getBoolValue('full'));
-if (Tools::getValue('redirect') && Tools::getHttpReferer()) {
-    Tools::redirectAdmin(Tools::getHttpReferer().'&conf=4');
+Search::indexation(Tools::get_bool_value('full'));
+if (Tools::get_value('redirect') && Tools::get_http_referer()) {
+    Tools::redirect_admin(Tools::get_http_referer() . '&conf=4');
 }

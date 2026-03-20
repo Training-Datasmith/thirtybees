@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,11 +30,10 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class AddressCore
  */
-class AddressCore extends ObjectModel
+class Address_Core extends Object_Model
 {
     /** @var int Customer id which address belongs to */
     public $id_customer;
@@ -86,78 +85,26 @@ class AddressCore extends ObjectModel
     public $deleted = 0;
     /** @var bool True if address is active */
     public $active = 1;
-
     /**
      * @var array
      */
-    protected static $_idZones = [];
+    protected static $_id_zones = [];
     /**
      * @var array
      */
-    protected static $_idCountries = [];
+    protected static $_id_countries = [];
     /**
      * @var bool
      */
-    protected $_includeContainer = false;
-
+    protected $_include_container = false;
     /**
      * @var array Object model definition
      */
-    public static $definition = [
-        'table'   => 'address',
-        'primary' => 'id_address',
-        'fields'  => [
-            'id_country'      => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true],
-            'id_state'        => ['type' => self::TYPE_INT, 'validate' => 'isNullOrUnsignedId'],
-            'id_customer'     => ['type' => self::TYPE_INT, 'validate' => 'isNullOrUnsignedId', 'copy_post' => false, 'dbDefault' => '0'],
-            'id_manufacturer' => ['type' => self::TYPE_INT, 'validate' => 'isNullOrUnsignedId', 'copy_post' => false, 'dbDefault' => '0'],
-            'id_supplier'     => ['type' => self::TYPE_INT, 'validate' => 'isNullOrUnsignedId', 'copy_post' => false, 'dbDefault' => '0'],
-            'id_warehouse'    => ['type' => self::TYPE_INT, 'validate' => 'isNullOrUnsignedId', 'copy_post' => false, 'dbDefault' => '0'],
-            'alias'           => ['type' => self::TYPE_STRING, 'validate' => 'isGenericName', 'required' => true, 'size' => 32 ],
-            'company'         => ['type' => self::TYPE_STRING, 'validate' => 'isGenericName', 'size' => 64 ],
-            'lastname'        => ['type' => self::TYPE_STRING, 'validate' => 'isName', 'required' => true, 'size' => 32 ],
-            'firstname'       => ['type' => self::TYPE_STRING, 'validate' => 'isName', 'required' => true, 'size' => 32 ],
-            'address1'        => ['type' => self::TYPE_STRING, 'validate' => 'isAddress', 'required' => true, 'size' => 128],
-            'address2'        => ['type' => self::TYPE_STRING, 'validate' => 'isAddress', 'size' => 128],
-            'postcode'        => ['type' => self::TYPE_STRING, 'validate' => 'isPostCode', 'size' => 12 ],
-            'city'            => ['type' => self::TYPE_STRING, 'validate' => 'isCityName', 'required' => true, 'size' => 64 ],
-            'other'           => ['type' => self::TYPE_STRING, 'validate' => 'isMessage', 'size' => 300],
-            'phone'           => ['type' => self::TYPE_STRING, 'validate' => 'isPhoneNumber', 'size' => 32 ],
-            'phone_mobile'    => ['type' => self::TYPE_STRING, 'validate' => 'isPhoneNumber', 'size' => 32 ],
-            'vat_number'      => ['type' => self::TYPE_STRING, 'validate' => 'isGenericName', 'size' => 32],
-            'dni'             => ['type' => self::TYPE_STRING, 'validate' => 'isDniLite', 'size' => 16 ],
-            'date_add'        => ['type' => self::TYPE_DATE, 'validate' => 'isDate', 'copy_post' => false, 'dbNullable' => false],
-            'date_upd'        => ['type' => self::TYPE_DATE, 'validate' => 'isDate', 'copy_post' => false, 'dbNullable' => false],
-            'active'          => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'copy_post' => false, 'dbDefault' => '1'],
-            'deleted'         => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'copy_post' => false, 'dbDefault' => '0'],
-        ],
-        'keys' => [
-            'address' => [
-                'address_customer' => ['type' => ObjectModel::KEY, 'columns' => ['id_customer']],
-                'id_country'       => ['type' => ObjectModel::KEY, 'columns' => ['id_country']],
-                'id_manufacturer'  => ['type' => ObjectModel::KEY, 'columns' => ['id_manufacturer']],
-                'id_state'         => ['type' => ObjectModel::KEY, 'columns' => ['id_state']],
-                'id_supplier'      => ['type' => ObjectModel::KEY, 'columns' => ['id_supplier']],
-                'id_warehouse'     => ['type' => ObjectModel::KEY, 'columns' => ['id_warehouse']],
-            ],
-        ],
-    ];
-
+    public static $definition = ['table' => 'address', 'primary' => 'id_address', 'fields' => ['id_country' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true], 'id_state' => ['type' => self::TYPE_INT, 'validate' => 'isNullOrUnsignedId'], 'id_customer' => ['type' => self::TYPE_INT, 'validate' => 'isNullOrUnsignedId', 'copy_post' => false, 'dbDefault' => '0'], 'id_manufacturer' => ['type' => self::TYPE_INT, 'validate' => 'isNullOrUnsignedId', 'copy_post' => false, 'dbDefault' => '0'], 'id_supplier' => ['type' => self::TYPE_INT, 'validate' => 'isNullOrUnsignedId', 'copy_post' => false, 'dbDefault' => '0'], 'id_warehouse' => ['type' => self::TYPE_INT, 'validate' => 'isNullOrUnsignedId', 'copy_post' => false, 'dbDefault' => '0'], 'alias' => ['type' => self::TYPE_STRING, 'validate' => 'isGenericName', 'required' => true, 'size' => 32], 'company' => ['type' => self::TYPE_STRING, 'validate' => 'isGenericName', 'size' => 64], 'lastname' => ['type' => self::TYPE_STRING, 'validate' => 'isName', 'required' => true, 'size' => 32], 'firstname' => ['type' => self::TYPE_STRING, 'validate' => 'isName', 'required' => true, 'size' => 32], 'address1' => ['type' => self::TYPE_STRING, 'validate' => 'isAddress', 'required' => true, 'size' => 128], 'address2' => ['type' => self::TYPE_STRING, 'validate' => 'isAddress', 'size' => 128], 'postcode' => ['type' => self::TYPE_STRING, 'validate' => 'isPostCode', 'size' => 12], 'city' => ['type' => self::TYPE_STRING, 'validate' => 'isCityName', 'required' => true, 'size' => 64], 'other' => ['type' => self::TYPE_STRING, 'validate' => 'isMessage', 'size' => 300], 'phone' => ['type' => self::TYPE_STRING, 'validate' => 'isPhoneNumber', 'size' => 32], 'phone_mobile' => ['type' => self::TYPE_STRING, 'validate' => 'isPhoneNumber', 'size' => 32], 'vat_number' => ['type' => self::TYPE_STRING, 'validate' => 'isGenericName', 'size' => 32], 'dni' => ['type' => self::TYPE_STRING, 'validate' => 'isDniLite', 'size' => 16], 'date_add' => ['type' => self::TYPE_DATE, 'validate' => 'isDate', 'copy_post' => false, 'dbNullable' => false], 'date_upd' => ['type' => self::TYPE_DATE, 'validate' => 'isDate', 'copy_post' => false, 'dbNullable' => false], 'active' => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'copy_post' => false, 'dbDefault' => '1'], 'deleted' => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'copy_post' => false, 'dbDefault' => '0']], 'keys' => ['address' => ['address_customer' => ['type' => Object_Model::KEY, 'columns' => ['id_customer']], 'id_country' => ['type' => Object_Model::KEY, 'columns' => ['id_country']], 'id_manufacturer' => ['type' => Object_Model::KEY, 'columns' => ['id_manufacturer']], 'id_state' => ['type' => Object_Model::KEY, 'columns' => ['id_state']], 'id_supplier' => ['type' => Object_Model::KEY, 'columns' => ['id_supplier']], 'id_warehouse' => ['type' => Object_Model::KEY, 'columns' => ['id_warehouse']]]]];
     /**
      * @var array
      */
-    protected $webserviceParameters = [
-        'objectsNodeName' => 'addresses',
-        'fields'          => [
-            'id_customer'     => ['xlink_resource' => 'customers'],
-            'id_manufacturer' => ['xlink_resource' => 'manufacturers'],
-            'id_supplier'     => ['xlink_resource' => 'suppliers'],
-            'id_warehouse'    => ['xlink_resource' => 'warehouse'],
-            'id_country'      => ['xlink_resource' => 'countries'],
-            'id_state'        => ['xlink_resource' => 'states'],
-        ],
-    ];
-
+    protected $webservice_parameters = ['objectsNodeName' => 'addresses', 'fields' => ['id_customer' => ['xlink_resource' => 'customers'], 'id_manufacturer' => ['xlink_resource' => 'manufacturers'], 'id_supplier' => ['xlink_resource' => 'suppliers'], 'id_warehouse' => ['xlink_resource' => 'warehouse'], 'id_country' => ['xlink_resource' => 'countries'], 'id_state' => ['xlink_resource' => 'states']]];
     /**
      * Build an address
      *
@@ -166,16 +113,14 @@ class AddressCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public function __construct($idAddress = null, $idLang = null)
+    public function __construct($id_address = null, $id_lang = null)
     {
-        parent::__construct($idAddress);
-
+        parent::__construct($id_address);
         /* Get and cache address country name */
         if ($this->id) {
-            $this->country = Country::getNameById($idLang ?: Configuration::get('PS_LANG_DEFAULT'), $this->id_country);
+            $this->country = Country::get_name_by_id($id_lang ?: Configuration::get('PS_LANG_DEFAULT'), $this->id_country);
         }
     }
-
     /**
      * @param bool $autoDate
      * @param bool $nullValues
@@ -184,19 +129,16 @@ class AddressCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function add($autoDate = true, $nullValues = false)
+    public function add($auto_date = true, $null_values = false)
     {
-        if (!parent::add($autoDate, $nullValues)) {
+        if (!parent::add($auto_date, $null_values)) {
             return false;
         }
-
-        if (Validate::isUnsignedId($this->id_customer)) {
-            Customer::resetAddressCache($this->id_customer, $this->id);
+        if (Validate::is_unsigned_id($this->id_customer)) {
+            Customer::reset_address_cache($this->id_customer, $this->id);
         }
-
         return true;
     }
-
     /**
      * @param bool $nullValues
      *
@@ -205,50 +147,44 @@ class AddressCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function update($nullValues = false)
+    public function update($null_values = false)
     {
         // Empty related caches
-        if (isset(static::$_idCountries[$this->id])) {
-            unset(static::$_idCountries[$this->id]);
+        if (isset(static::$_id_countries[$this->id])) {
+            unset(static::$_id_countries[$this->id]);
         }
-        if (isset(static::$_idZones[$this->id])) {
-            unset(static::$_idZones[$this->id]);
+        if (isset(static::$_id_zones[$this->id])) {
+            unset(static::$_id_zones[$this->id]);
         }
-
-        if (Validate::isUnsignedId($this->id_customer)) {
-            Customer::resetAddressCache($this->id_customer, $this->id);
+        if (Validate::is_unsigned_id($this->id_customer)) {
+            Customer::reset_address_cache($this->id_customer, $this->id);
         }
-
-        return parent::update($nullValues);
+        return parent::update($null_values);
     }
-
     /**
      * @return bool
      * @throws PrestaShopException
      */
     public function delete()
     {
-        if (Validate::isUnsignedId($this->id_customer)) {
-            Customer::resetAddressCache($this->id_customer, $this->id);
+        if (Validate::is_unsigned_id($this->id_customer)) {
+            Customer::reset_address_cache($this->id_customer, $this->id);
         }
-
-        if (!$this->isUsed()) {
+        if (!$this->is_used()) {
             return parent::delete();
         }
         $this->deleted = true;
         return $this->update();
     }
-
     /**
      * Returns fields required for an address in an array hash
      *
      * @return array
      */
-    public static function getFieldsValidate()
+    public static function get_fields_validate()
     {
-        return array_filter(array_map(fn (array $field) => $field['validate'] ?? null, static::$definition['fields']));
+        return array_filter(array_map(fn(array $field) => $field['validate'] ?? null, static::$definition['fields']));
     }
-
     /**
      * Get zone id for a given address
      *
@@ -259,47 +195,31 @@ class AddressCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getZoneById($idAddress)
+    public static function get_zone_by_id($id_address)
     {
-        if (empty($idAddress)) {
+        if (empty($id_address)) {
             return false;
         }
-
-        $idAddress = (int)$idAddress;
-
-        if (isset(static::$_idZones[$idAddress])) {
-            return static::$_idZones[$idAddress];
+        $id_address = (int) $id_address;
+        if (isset(static::$_id_zones[$id_address])) {
+            return static::$_id_zones[$id_address];
         }
-
-        $idZone = Hook::getFirstResponse('actionGetIDZoneByAddressID', ['id_address' => $idAddress]);
-
-        if (is_numeric($idZone)) {
-            static::$_idZones[$idAddress] = (int) $idZone;
-
-            return static::$_idZones[$idAddress];
+        $id_zone = Hook::get_first_response('actionGetIDZoneByAddressID', ['id_address' => $id_address]);
+        if (is_numeric($id_zone)) {
+            static::$_id_zones[$id_address] = (int) $id_zone;
+            return static::$_id_zones[$id_address];
         }
-
-        $result = Db::readOnly()->getRow(
-            (new DbQuery())
-                ->select('s.`id_zone` AS `id_zone_state`, c.`id_zone`')
-                ->from('address', 'a')
-                ->leftJoin('country', 'c', 'c.`id_country` = a.`id_country`')
-                ->leftJoin('state', 's', 's.`id_state` = a.`id_state` AND c.`contains_states` = 1')
-                ->where('a.`id_address` = '.$idAddress)
-        );
-
-        $zoneId = false;
+        $result = Db::read_only()->get_row((new Db_Query())->select('s.`id_zone` AS `id_zone_state`, c.`id_zone`')->from('address', 'a')->left_join('country', 'c', 'c.`id_country` = a.`id_country`')->left_join('state', 's', 's.`id_state` = a.`id_state` AND c.`contains_states` = 1')->where('a.`id_address` = ' . $id_address));
+        $zone_id = false;
         if ($result) {
-            $zoneId = (int)$result['id_zone_state'];
-            if (! $zoneId) {
-                $zoneId = (int)$result['id_zone'];
+            $zone_id = (int) $result['id_zone_state'];
+            if (!$zone_id) {
+                $zone_id = (int) $result['id_zone'];
             }
         }
-
-        static::$_idZones[$idAddress] = $zoneId;
-        return $zoneId;
+        static::$_id_zones[$id_address] = $zone_id;
+        return $zone_id;
     }
-
     /**
      * Check if zone, country, and state of an address are active
      *
@@ -309,31 +229,19 @@ class AddressCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function isCountryActiveById($idAddress)
+    public static function is_country_active_by_id($id_address)
     {
-        if (empty($idAddress)) {
+        if (empty($id_address)) {
             return false;
         }
-
-        $cacheId = 'Address::isCountryActiveById_'.(int) $idAddress;
-        if (!Cache::isStored($cacheId)) {
-            $result = (bool) Db::readOnly()->getvalue(
-                (new DbQuery())
-                    ->select('(IFNULL(c.`active`, 0) AND IFNULL(z.`active`, 0) AND IFNULL(s.`active`, 1)) AS `active`')
-                    ->from('address', 'a')
-                    ->leftJoin('country', 'c', 'c.`id_country` = a.`id_country`')
-                    ->leftJoin('state', 's', 's.id_country = c.id_country AND s.id_state = a.id_state')
-                    ->leftJoin('zone', 'z', 'z.id_zone = c.id_zone')
-                    ->where('a.`id_address` = '.(int) $idAddress)
-            );
-            Cache::store($cacheId, $result);
-
+        $cache_id = 'Address::isCountryActiveById_' . (int) $id_address;
+        if (!Cache::is_stored($cache_id)) {
+            $result = (bool) Db::read_only()->getvalue((new Db_Query())->select('(IFNULL(c.`active`, 0) AND IFNULL(z.`active`, 0) AND IFNULL(s.`active`, 1)) AS `active`')->from('address', 'a')->left_join('country', 'c', 'c.`id_country` = a.`id_country`')->left_join('state', 's', 's.id_country = c.id_country AND s.id_state = a.id_state')->left_join('zone', 'z', 'z.id_zone = c.id_zone')->where('a.`id_address` = ' . (int) $id_address));
+            Cache::store($cache_id, $result);
             return $result;
         }
-
-        return Cache::retrieve($cacheId);
+        return Cache::retrieve($cache_id);
     }
-
     /**
      * Check if the address is deleted in the database
      *
@@ -343,21 +251,14 @@ class AddressCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function isDeleted($idAddress)
+    public static function is_deleted($id_address)
     {
-        $row = Db::readOnly()->getRow(
-            (new DbQuery())
-                ->select('a.`deleted`')
-                ->from(bqSQL(Address::$definition['table']), 'a')
-                ->where('`id_address` = '.(int) $idAddress)
-        );
+        $row = Db::read_only()->get_row((new Db_Query())->select('a.`deleted`')->from(bq_sql(Address::$definition['table']), 'a')->where('`id_address` = ' . (int) $id_address));
         if (!is_array($row) || !isset($row['deleted'])) {
             return true;
         }
-
         return (bool) $row['deleted'];
     }
-
     /**
      * Check if address is used (at least one order placed)
      *
@@ -365,18 +266,11 @@ class AddressCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public function isUsed()
+    public function is_used()
     {
-        $result = (int) Db::readOnly()->getValue(
-            (new DbQuery())
-                ->select('COUNT(*)')
-                ->from('orders')
-                ->where('`id_address_delivery` = '.(int) $this->id.' OR `id_address_invoice` = '.(int) $this->id)
-        );
-
+        $result = (int) Db::read_only()->get_value((new Db_Query())->select('COUNT(*)')->from('orders')->where('`id_address_delivery` = ' . (int) $this->id . ' OR `id_address_invoice` = ' . (int) $this->id));
         return $result > 0 ? $result : false;
     }
-
     /**
      * @param int $idAddress
      *
@@ -385,27 +279,20 @@ class AddressCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getCountryAndState($idAddress)
+    public static function get_country_and_state($id_address)
     {
-        $idAddress = (int)$idAddress;
-        if (isset(static::$_idCountries[$idAddress])) {
-            return static::$_idCountries[$idAddress];
+        $id_address = (int) $id_address;
+        if (isset(static::$_id_countries[$id_address])) {
+            return static::$_id_countries[$id_address];
         }
-        if ($idAddress) {
-            $result = Db::readOnly()->getRow(
-                (new DbQuery())
-                    ->select('`id_country`, `id_state`, `vat_number`, `postcode`')
-                    ->from('address')
-                    ->where('`id_address` = '.$idAddress)
-            );
+        if ($id_address) {
+            $result = Db::read_only()->get_row((new Db_Query())->select('`id_country`, `id_state`, `vat_number`, `postcode`')->from('address')->where('`id_address` = ' . $id_address));
         } else {
             $result = false;
         }
-        static::$_idCountries[$idAddress] = $result;
-
+        static::$_id_countries[$id_address] = $result;
         return $result;
     }
-
     /**
      * Specify if an address is already in base
      *
@@ -415,24 +302,16 @@ class AddressCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function addressExists($idAddress)
+    public static function address_exists($id_address)
     {
-        $key = 'address_exists_'.(int) $idAddress;
-        if (!Cache::isStored($key)) {
-            $idAddress = Db::readOnly()->getValue(
-                (new DbQuery())
-                    ->select('a.`id_address`')
-                    ->from('address', 'a')
-                    ->where('a.`id_address` = '.(int) $idAddress)
-            );
-            Cache::store($key, (bool) $idAddress);
-
-            return (bool) $idAddress;
+        $key = 'address_exists_' . (int) $id_address;
+        if (!Cache::is_stored($key)) {
+            $id_address = Db::read_only()->get_value((new Db_Query())->select('a.`id_address`')->from('address', 'a')->where('a.`id_address` = ' . (int) $id_address));
+            Cache::store($key, (bool) $id_address);
+            return (bool) $id_address;
         }
-
         return Cache::retrieve($key);
     }
-
     /**
      * @param int $idCustomer
      * @param bool $active
@@ -441,29 +320,19 @@ class AddressCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function getFirstCustomerAddressId($idCustomer, $active = true)
+    public static function get_first_customer_address_id($id_customer, $active = true)
     {
-        if (!$idCustomer) {
+        if (!$id_customer) {
             return false;
         }
-        $cacheId = 'Address::getFirstCustomerAddressId_'.(int) $idCustomer.'-'.(bool) $active;
-        if (!Cache::isStored($cacheId)) {
-            $result = (int) Db::readOnly()->getValue(
-                (new DbQuery())
-                    ->select('`id_address`')
-                    ->from('address')
-                    ->where('`id_customer` = '.(int) $idCustomer)
-                    ->where('`deleted` = 0')
-                    ->where($active ? '`active` = 1' : '')
-            );
-            Cache::store($cacheId, $result);
-
+        $cache_id = 'Address::getFirstCustomerAddressId_' . (int) $id_customer . '-' . (bool) $active;
+        if (!Cache::is_stored($cache_id)) {
+            $result = (int) Db::read_only()->get_value((new Db_Query())->select('`id_address`')->from('address')->where('`id_customer` = ' . (int) $id_customer)->where('`deleted` = 0')->where($active ? '`active` = 1' : ''));
+            Cache::store($cache_id, $result);
             return $result;
         }
-
-        return Cache::retrieve($cacheId);
+        return Cache::retrieve($cache_id);
     }
-
     /**
      * Initiliaze an address corresponding to the specified id address or if empty to the
      * default shop configuration
@@ -475,25 +344,22 @@ class AddressCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function initialize($idAddress = null, $withGeoLocation = false)
+    public static function initialize($id_address = null, $with_geo_location = false)
     {
-        $context = Context::getContext();
-        $exists = (int) $idAddress && Address::addressExists($idAddress);
+        $context = Context::get_context();
+        $exists = (int) $id_address && Address::address_exists($id_address);
         if ($exists) {
-            $contextHash = (int) $idAddress;
+            $context_hash = (int) $id_address;
         } else {
-            $contextHash = md5((int) $context->country->id);
+            $context_hash = md5((int) $context->country->id);
         }
-
-        $cacheId = 'Address::initialize_'.$contextHash;
-
-        if (!Cache::isStored($cacheId)) {
+        $cache_id = 'Address::initialize_' . $context_hash;
+        if (!Cache::is_stored($cache_id)) {
             // if an id_address has been specified retrieve the address
             if ($exists) {
-                $address = new Address((int) $idAddress);
-
-                if (!Validate::isLoadedObject($address)) {
-                    throw new PrestaShopException('Invalid address #'.(int) $idAddress);
+                $address = new Address((int) $id_address);
+                if (!Validate::is_loaded_object($address)) {
+                    throw new Presta_Shop_Exception('Invalid address #' . (int) $id_address);
                 }
             } else {
                 // set the default address
@@ -502,14 +368,11 @@ class AddressCore extends ObjectModel
                 $address->id_state = 0;
                 $address->postcode = 0;
             }
-            Cache::store($cacheId, $address);
-
+            Cache::store($cache_id, $address);
             return $address;
         }
-
-        return Cache::retrieve($cacheId);
+        return Cache::retrieve($cache_id);
     }
-
     /**
      * Returns id_address for a given id_supplier
      *
@@ -519,20 +382,10 @@ class AddressCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function getAddressIdBySupplierId($idSupplier)
+    public static function get_address_id_by_supplier_id($id_supplier)
     {
-        return Db::readOnly()->getValue(
-            (new DbQuery())
-                ->select('id_address')
-                ->from('address')
-                ->where('id_supplier = '.(int) $idSupplier)
-                ->where('deleted = 0')
-                ->where('id_customer = 0')
-                ->where('id_manufacturer = 0')
-                ->where('id_warehouse = 0')
-        );
+        return Db::read_only()->get_value((new Db_Query())->select('id_address')->from('address')->where('id_supplier = ' . (int) $id_supplier)->where('deleted = 0')->where('id_customer = 0')->where('id_manufacturer = 0')->where('id_warehouse = 0'));
     }
-
     /**
      * @param string $alias
      * @param int $idAddress
@@ -542,29 +395,19 @@ class AddressCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function aliasExist($alias, $idAddress, $idCustomer)
+    public static function alias_exist($alias, $id_address, $id_customer)
     {
-        return Db::readOnly()->getValue(
-            (new DbQuery())
-                ->select('count(*)')
-                ->from('address')
-                ->where('alias = \''.pSQL($alias).'\'')
-                ->where('id_address != '.(int) $idAddress)
-                ->where('id_customer = '.(int) $idCustomer)
-                ->where('deleted = 0')
-        );
+        return Db::read_only()->get_value((new Db_Query())->select('count(*)')->from('address')->where('alias = \'' . p_sql($alias) . '\'')->where('id_address != ' . (int) $id_address)->where('id_customer = ' . (int) $id_customer)->where('deleted = 0'));
     }
-
     /**
      * @return array
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function getFieldsRequiredDB()
+    public function get_fields_required_db()
     {
-        $this->cacheFieldsRequiredDatabase(false);
-
-        return static::$fieldsRequiredDatabase['Address'] ?? [];
+        $this->cache_fields_required_database(false);
+        return static::$fields_required_database['Address'] ?? [];
     }
 }

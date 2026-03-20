@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,15 +30,13 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class ProductDownloadCore
  */
-class ProductDownloadCore extends ObjectModel
+class Product_Download_Core extends Object_Model
 {
     /** @deprecated 1.0.2 This cache is no longer used. */
-    protected static $_productIds = [];
-
+    protected static $_product_ids = [];
     /** @var int Product id which download belongs */
     public $id_product = 0;
     /** @var string DisplayFilename the name which appear */
@@ -57,31 +55,10 @@ class ProductDownloadCore extends ObjectModel
     public $active = 1;
     /** @var bool is_shareable indicates whether the product can be shared */
     public $is_shareable = 0;
-
     /**
      * @var array Object model definition
      */
-    public static $definition = [
-        'table'   => 'product_download',
-        'primary' => 'id_product_download',
-        'fields'  => [
-            'id_product'         => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true, 'unique' => true],
-            'display_filename'   => ['type' => self::TYPE_STRING, 'validate' => 'isGenericName', 'size' => 255],
-            'filename'           => ['type' => self::TYPE_STRING, 'validate' => 'isSha1', 'size' => 255],
-            'date_add'           => ['type' => self::TYPE_DATE, 'validate' => 'isDate', 'dbNullable' => false],
-            'date_expiration'    => ['type' => self::TYPE_DATE, 'validate' => 'isDate'],
-            'nb_days_accessible' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedInt'],
-            'nb_downloadable'    => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedInt', 'dbDefault' => '1', 'dbNullable' => true],
-            'active'             => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbDefault' => '1'],
-            'is_shareable'       => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbDefault' => '0'],
-        ],
-        'keys' => [
-            'product_download' => [
-                'product_active' => ['type' => ObjectModel::KEY, 'columns' => ['id_product', 'active']],
-            ],
-        ],
-    ];
-
+    public static $definition = ['table' => 'product_download', 'primary' => 'id_product_download', 'fields' => ['id_product' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true, 'unique' => true], 'display_filename' => ['type' => self::TYPE_STRING, 'validate' => 'isGenericName', 'size' => 255], 'filename' => ['type' => self::TYPE_STRING, 'validate' => 'isSha1', 'size' => 255], 'date_add' => ['type' => self::TYPE_DATE, 'validate' => 'isDate', 'dbNullable' => false], 'date_expiration' => ['type' => self::TYPE_DATE, 'validate' => 'isDate'], 'nb_days_accessible' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedInt'], 'nb_downloadable' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedInt', 'dbDefault' => '1', 'dbNullable' => true], 'active' => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbDefault' => '1'], 'is_shareable' => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbDefault' => '0']], 'keys' => ['product_download' => ['product_active' => ['type' => Object_Model::KEY, 'columns' => ['id_product', 'active']]]]];
     /**
      * Build a virtual product
      *
@@ -90,22 +67,20 @@ class ProductDownloadCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function __construct($idProductDownload = null)
+    public function __construct($id_product_download = null)
     {
-        parent::__construct($idProductDownload);
+        parent::__construct($id_product_download);
         // @TODO check if the file is present on hard drive
     }
-
     /**
      * Check if download repository is writable
      *
      * @return bool
      */
-    public static function checkWritableDir()
+    public static function check_writable_dir()
     {
         return is_writable(_PS_DOWNLOAD_DIR_);
     }
-
     /**
      * Find a product's download. As class Product doesn't maintain it's
      * download, that's the way to find out wether there's a download and
@@ -118,23 +93,13 @@ class ProductDownloadCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function getIdFromIdProduct($idProduct, $active = true)
+    public static function get_id_from_id_product($id_product, $active = true)
     {
-        $id = (int) Db::readOnly()->getValue(
-            (new DbQuery())
-                ->select('`id_product_download`')
-                ->from('product_download')
-                ->where('`id_product` = '.(int) $idProduct)
-                ->where($active ? '`active` = 1' : '')
-                ->orderBy('`id_product_download` DESC')
-        );
-
+        $id = (int) Db::read_only()->get_value((new Db_Query())->select('`id_product_download`')->from('product_download')->where('`id_product` = ' . (int) $id_product)->where($active ? '`active` = 1' : '')->order_by('`id_product_download` DESC'));
         // @deprecated 1.0.2
-        static::$_productIds[$idProduct] = $id;
-
+        static::$_product_ids[$id_product] = $id;
         return $id;
     }
-
     /**
      * This method is allow to know if a feature is used or active
      *
@@ -142,11 +107,10 @@ class ProductDownloadCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function isFeatureActive()
+    public static function is_feature_active()
     {
         return Configuration::get('PS_VIRTUAL_PROD_FEATURE_ACTIVE');
     }
-
     /**
      * Return the display filename from a physical filename
      *
@@ -156,16 +120,10 @@ class ProductDownloadCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function getIdFromFilename($filename)
+    public static function get_id_from_filename($filename)
     {
-        return Db::readOnly()->getValue(
-            (new DbQuery())
-                ->select('`id_product_download`')
-                ->from('product_download')
-                ->where('`filename` = \''.pSQL($filename).'\'')
-        );
+        return Db::read_only()->get_value((new Db_Query())->select('`id_product_download`')->from('product_download')->where('`filename` = \'' . p_sql($filename) . '\''));
     }
-
     /**
      * Return the filename from an id_product
      *
@@ -175,17 +133,10 @@ class ProductDownloadCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function getFilenameFromIdProduct($idProduct)
+    public static function get_filename_from_id_product($id_product)
     {
-        return Db::readOnly()->getValue(
-            (new DbQuery())
-                ->select('`filename`')
-                ->from('product_download')
-                ->where('`id_product` = '.(int) $idProduct)
-                ->where('`active` = 1')
-        );
+        return Db::read_only()->get_value((new Db_Query())->select('`filename`')->from('product_download')->where('`id_product` = ' . (int) $id_product)->where('`active` = 1'));
     }
-
     /**
      * Return the display filename from a physical filename
      *
@@ -195,30 +146,22 @@ class ProductDownloadCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function getFilenameFromFilename($filename)
+    public static function get_filename_from_filename($filename)
     {
-        return Db::readOnly()->getValue(
-            (new DbQuery())
-                ->select('`display_filename`')
-                ->from('product_download')
-                ->where('`filename` = \''.pSQL($filename).'\'')
-        );
+        return Db::read_only()->get_value((new Db_Query())->select('`display_filename`')->from('product_download')->where('`filename` = \'' . p_sql($filename) . '\''));
     }
-
     /**
      * Return a sha1 filename
      *
      * @return string Sha1 unique filename
      */
-    public static function getNewFilename()
+    public static function get_new_filename()
     {
         do {
             $filename = sha1(microtime());
-        } while (file_exists(_PS_DOWNLOAD_DIR_.$filename));
-
+        } while (file_exists(_PS_DOWNLOAD_DIR_ . $filename));
         return $filename;
     }
-
     /**
      * @param bool $nullValues
      *
@@ -226,18 +169,15 @@ class ProductDownloadCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public function update($nullValues = false)
+    public function update($null_values = false)
     {
-        if (parent::update($nullValues)) {
+        if (parent::update($null_values)) {
             // Refresh cache of feature detachable because the row can be deactive
-            Configuration::updateGlobalValue('PS_VIRTUAL_PROD_FEATURE_ACTIVE', ProductDownload::isCurrentlyUsed($this->def['table'], true));
-
+            Configuration::update_global_value('PS_VIRTUAL_PROD_FEATURE_ACTIVE', Product_Download::is_currently_used($this->def['table'], true));
             return true;
         }
-
         return false;
     }
-
     /**
      * @param bool $deleteFile Deprecated. File gets always deleted.
      *
@@ -246,15 +186,13 @@ class ProductDownloadCore extends ObjectModel
      *                file without matching DB entry means just a leaked file.
      * @throws PrestaShopException
      */
-    public function delete($deleteFile = 999)
+    public function delete($delete_file = 999)
     {
-        if ($deleteFile !== 999) {
-            Tools::displayParameterAsDeprecated('deleteFile');
+        if ($delete_file !== 999) {
+            Tools::display_parameter_as_deprecated('deleteFile');
         }
-
-        return $this->deleteFile() && parent::delete();
+        return $this->delete_file() && parent::delete();
     }
-
     /**
      * Delete the file
      *
@@ -266,46 +204,39 @@ class ProductDownloadCore extends ObjectModel
      *                wanting to also delete the DB entry should use delete().
      * @throws PrestaShopException
      */
-    public function deleteFile($idProductDownload = 999)
+    public function delete_file($id_product_download = 999)
     {
-        if ($idProductDownload !== 999) {
-            Tools::displayParameterAsDeprecated('idProductDownload');
-
+        if ($id_product_download !== 999) {
+            Tools::display_parameter_as_deprecated('idProductDownload');
             // Retrocompatibility.
-            if ($idProductDownload) {
-                $download = new ProductDownload($idProductDownload);
+            if ($id_product_download) {
+                $download = new Product_Download($id_product_download);
                 return $download->delete();
             }
         }
-
-        $result = !$this->checkFile();
-
+        $result = !$this->check_file();
         if (!$result) {
-            $result = @unlink(_PS_DOWNLOAD_DIR_.$this->filename);
+            $result = @unlink(_PS_DOWNLOAD_DIR_ . $this->filename);
             if ($result) {
                 $this->filename = '';
                 $this->display_filename = '';
                 $this->update();
             }
         }
-
         return $result;
     }
-
     /**
      * Check if file exists
      *
      * @return bool
      */
-    public function checkFile()
+    public function check_file()
     {
         if (!$this->filename) {
             return false;
         }
-
-        return file_exists(_PS_DOWNLOAD_DIR_.$this->filename);
+        return file_exists(_PS_DOWNLOAD_DIR_ . $this->filename);
     }
-
     /**
      * Return html link
      *
@@ -317,19 +248,16 @@ class ProductDownloadCore extends ObjectModel
      * @throws PrestaShopException
      * @deprecated 1.6.0
      */
-    public function getHtmlLink($class = false, $admin = true, $hash = false)
+    public function get_html_link($class = false, $admin = true, $hash = false)
     {
-        Tools::displayAsDeprecated();
-
-        $link = $this->getTextLink($admin, $hash);
-        $html = '<a href="'.$link.'" title=""';
+        Tools::display_as_deprecated();
+        $link = $this->get_text_link($admin, $hash);
+        $html = '<a href="' . $link . '" title=""';
         if ($class) {
-            $html .= ' class="'.$class.'"';
+            $html .= ' class="' . $class . '"';
         }
-
         return $html . ('>' . $this->display_filename . '</a>');
     }
-
     /**
      * Return html link
      *
@@ -340,39 +268,35 @@ class ProductDownloadCore extends ObjectModel
      * @return string Html all the code for print a link to the file
      * @throws PrestaShopException
      */
-    public function getTextLink($admin = true, $hash = false, $params = [])
+    public function get_text_link($admin = true, $hash = false, $params = [])
     {
         if ($admin) {
-            return 'get-file-admin.php?file='.$this->filename;
+            return 'get-file-admin.php?file=' . $this->filename;
         }
-        $params['key'] = $this->filename.'-'.($hash ?: 'orderdetail');
-
-        return Context::getContext()->link->getPageLink('get-file', null, null, $params);
+        $params['key'] = $this->filename . '-' . ($hash ?: 'orderdetail');
+        return Context::get_context()->link->get_page_link('get-file', null, null, $params);
     }
-
     /**
      * Return a deadline
      *
      * @return string Datetime in SQL format
      */
-    public function getDeadline()
+    public function get_deadline()
     {
         if (!(int) $this->nb_days_accessible) {
             return '0000-00-00 00:00:00';
         }
-        $timestamp = strtotime('+'.(int) $this->nb_days_accessible.' day');
-
+        $timestamp = strtotime('+' . (int) $this->nb_days_accessible . ' day');
         return date('Y-m-d H:i:s', $timestamp);
     }
-
     /**
      * Return a hash for control download access
      *
      * @return string Hash ready to insert in database
      */
-    public function getHash()
+    public function get_hash()
     {
         // TODO check if this hash not already in database
-        return sha1(microtime().$this->id);
+        return sha1(microtime() . $this->id);
     }
 }

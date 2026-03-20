@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,99 +30,40 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
-use CoreUpdater\TableSchema;
-
+use Core_Updater\Table_Schema;
 /**
  * Class WarehouseCore
  */
-class WarehouseCore extends ObjectModel
+class Warehouse_Core extends Object_Model
 {
     /** @var int identifier of the warehouse */
     public $id;
-
     /** @var int Id of the address associated to the warehouse */
     public $id_address;
-
     /** @var string Reference of the warehouse */
     public $reference;
-
     /** @var string Name of the warehouse */
     public $name;
-
     /** @var int Id of the employee who manages the warehouse */
     public $id_employee;
-
     /** @var int Id of the valuation currency of the warehouse */
     public $id_currency;
-
     /** @var bool True if warehouse has been deleted (hence, no deletion in DB) */
     public $deleted = 0;
-
     /**
      * Describes the way a Warehouse is managed
      *
      * @var string enum WA|LIFO|FIFO
      */
     public $management_type;
-
     /**
      * @see ObjectModel::$definition
      */
-    public static $definition = [
-        'table'   => 'warehouse',
-        'primary' => 'id_warehouse',
-        'fields'  => [
-            'id_currency'     => ['type' => self::TYPE_INT,    'validate' => 'isUnsignedId',      'required' => true              ],
-            'id_address'      => ['type' => self::TYPE_INT,    'validate' => 'isUnsignedId',      'required' => true              ],
-            'id_employee'     => ['type' => self::TYPE_INT,    'validate' => 'isUnsignedId',      'required' => true              ],
-            'reference'       => ['type' => self::TYPE_STRING, 'validate' => 'isString',          'required' => true, 'size' => 32, 'dbDefault' => ObjectModel::DEFAULT_NULL, 'dbNullable' => true],
-            'name'            => ['type' => self::TYPE_STRING, 'validate' => 'isString',          'required' => true, 'size' => 45],
-            'management_type' => ['type' => self::TYPE_STRING, 'validate' => 'isStockManagement', 'required' => true, 'values' => ['WA', 'FIFO', 'LIFO'], 'dbDefault' => 'WA'],
-            'deleted'         => ['type' => self::TYPE_BOOL, 'dbDefault' => '0'],
-        ],
-        'keys' => [
-            'warehouse_shop' => [
-                'id_shop'      => ['type' => ObjectModel::KEY, 'columns' => ['id_shop']],
-                'id_warehouse' => ['type' => ObjectModel::KEY, 'columns' => ['id_warehouse']],
-            ],
-        ],
-    ];
-
+    public static $definition = ['table' => 'warehouse', 'primary' => 'id_warehouse', 'fields' => ['id_currency' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true], 'id_address' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true], 'id_employee' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true], 'reference' => ['type' => self::TYPE_STRING, 'validate' => 'isString', 'required' => true, 'size' => 32, 'dbDefault' => Object_Model::DEFAULT_NULL, 'dbNullable' => true], 'name' => ['type' => self::TYPE_STRING, 'validate' => 'isString', 'required' => true, 'size' => 45], 'management_type' => ['type' => self::TYPE_STRING, 'validate' => 'isStockManagement', 'required' => true, 'values' => ['WA', 'FIFO', 'LIFO'], 'dbDefault' => 'WA'], 'deleted' => ['type' => self::TYPE_BOOL, 'dbDefault' => '0']], 'keys' => ['warehouse_shop' => ['id_shop' => ['type' => Object_Model::KEY, 'columns' => ['id_shop']], 'id_warehouse' => ['type' => Object_Model::KEY, 'columns' => ['id_warehouse']]]]];
     /**
      * @var array Webservice Parameters
      */
-    protected $webserviceParameters = [
-        'fields'       => [
-            'id_address'  => ['xlink_resource' => 'addresses'],
-            'id_employee' => ['xlink_resource' => 'employees'],
-            'id_currency' => ['xlink_resource' => 'currencies'],
-            'valuation'   => ['getter' => 'getWsStockValue', 'setter' => false],
-            'deleted'     => [],
-        ],
-        'associations' => [
-            'stocks'   => [
-                'resource' => 'stock',
-                'fields'   => [
-                    'id' => [],
-                ],
-            ],
-            'carriers' => [
-                'resource' => 'carrier',
-                'fields'   => [
-                    'id' => [],
-                ],
-            ],
-            'shops'    => [
-                'resource' => 'shop',
-                'fields'   => [
-                    'id'   => [],
-                    'name' => [],
-                ],
-            ],
-        ],
-    ];
-
+    protected $webservice_parameters = ['fields' => ['id_address' => ['xlink_resource' => 'addresses'], 'id_employee' => ['xlink_resource' => 'employees'], 'id_currency' => ['xlink_resource' => 'currencies'], 'valuation' => ['getter' => 'getWsStockValue', 'setter' => false], 'deleted' => []], 'associations' => ['stocks' => ['resource' => 'stock', 'fields' => ['id' => []]], 'carriers' => ['resource' => 'carrier', 'fields' => ['id' => []]], 'shops' => ['resource' => 'shop', 'fields' => ['id' => [], 'name' => []]]]];
     /**
      * Gets the shops associated to the current warehouse
      *
@@ -131,17 +72,15 @@ class WarehouseCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function getShops()
+    public function get_shops()
     {
-        $query = new DbQuery();
+        $query = new Db_Query();
         $query->select('ws.id_shop, s.name');
         $query->from('warehouse_shop', 'ws');
-        $query->leftJoin('shop', 's', 's.id_shop = ws.id_shop');
-        $query->where($this->def['primary'].' = '.(int) $this->id);
-
-        return Db::readOnly()->getArray($query);
+        $query->left_join('shop', 's', 's.id_shop = ws.id_shop');
+        $query->where($this->def['primary'] . ' = ' . (int) $this->id);
+        return Db::read_only()->get_array($query);
     }
-
     /**
      * Gets the carriers associated to the current warehouse
      *
@@ -151,31 +90,27 @@ class WarehouseCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function getCarriers($returnReference = false)
+    public function get_carriers($return_reference = false)
     {
-        $idsCarrier = [];
-
-        $query = new DbQuery();
-        if ($returnReference) {
+        $ids_carrier = [];
+        $query = new Db_Query();
+        if ($return_reference) {
             $query->select('wc.id_carrier');
         } else {
             $query->select('c.id_carrier');
         }
         $query->from('warehouse_carrier', 'wc');
-        $query->innerJoin('carrier', 'c', 'c.id_reference = wc.id_carrier');
-        $query->where($this->def['primary'].' = '.(int) $this->id);
+        $query->inner_join('carrier', 'c', 'c.id_reference = wc.id_carrier');
+        $query->where($this->def['primary'] . ' = ' . (int) $this->id);
         $query->where('c.deleted = 0');
-        $res = Db::readOnly()->getArray($query);
-
+        $res = Db::read_only()->get_array($query);
         foreach ($res as $carriers) {
             foreach ($carriers as $carrier) {
-                $idsCarrier[$carrier] = $carrier;
+                $ids_carrier[$carrier] = $carrier;
             }
         }
-
-        return $idsCarrier;
+        return $ids_carrier;
     }
-
     /**
      * Sets the carriers associated to the current warehouse
      *
@@ -184,29 +119,23 @@ class WarehouseCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function setCarriers($idsCarriers): void
+    public function set_carriers($ids_carriers): void
     {
-        if (!is_array($idsCarriers)) {
-            $idsCarriers = [];
+        if (!is_array($ids_carriers)) {
+            $ids_carriers = [];
         }
-
-        $rowToInsert = [];
-        foreach ($idsCarriers as $idCarrier) {
-            $rowToInsert[] = [$this->def['primary'] => $this->id, 'id_carrier' => (int) $idCarrier];
+        $row_to_insert = [];
+        foreach ($ids_carriers as $id_carrier) {
+            $row_to_insert[] = [$this->def['primary'] => $this->id, 'id_carrier' => (int) $id_carrier];
         }
-
-        $conn = Db::getInstance();
-        $conn->execute(
-            '
-			DELETE FROM '._DB_PREFIX_.'warehouse_carrier
-			WHERE '.$this->def['primary'].' = '.(int) $this->id
-        );
-
-        if ($rowToInsert) {
-            $conn->insert('warehouse_carrier', $rowToInsert);
+        $conn = Db::get_instance();
+        $conn->execute('
+			DELETE FROM ' . _DB_PREFIX_ . 'warehouse_carrier
+			WHERE ' . $this->def['primary'] . ' = ' . (int) $this->id);
+        if ($row_to_insert) {
+            $conn->insert('warehouse_carrier', $row_to_insert);
         }
     }
-
     /**
      * For a given carrier, removes it from the warehouse/carrier association
      * If $id_warehouse is set, it only removes the carrier for this warehouse
@@ -216,16 +145,12 @@ class WarehouseCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function removeCarrier($idCarrier, $idWarehouse = null): void
+    public static function remove_carrier($id_carrier, $id_warehouse = null): void
     {
-        Db::getInstance()->execute(
-            '
-			DELETE FROM '._DB_PREFIX_.'warehouse_carrier
-			WHERE id_carrier = '.(int) $idCarrier.
-            ($idWarehouse ? ' AND id_warehouse = '.(int) $idWarehouse : '')
-        );
+        Db::get_instance()->execute('
+			DELETE FROM ' . _DB_PREFIX_ . 'warehouse_carrier
+			WHERE id_carrier = ' . (int) $id_carrier . ($id_warehouse ? ' AND id_warehouse = ' . (int) $id_warehouse : ''));
     }
-
     /**
      * Checks if a warehouse is empty - i.e. has no stock
      *
@@ -233,16 +158,14 @@ class WarehouseCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public function isEmpty()
+    public function is_empty()
     {
-        $query = new DbQuery();
+        $query = new Db_Query();
         $query->select('SUM(s.physical_quantity)');
         $query->from('stock', 's');
-        $query->where($this->def['primary'].' = '.(int) $this->id);
-
-        return (Db::readOnly()->getValue($query) == 0);
+        $query->where($this->def['primary'] . ' = ' . (int) $this->id);
+        return Db::read_only()->get_value($query) == 0;
     }
-
     /**
      * Checks if the given warehouse exists
      *
@@ -252,17 +175,15 @@ class WarehouseCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function exists($idWarehouse)
+    public static function exists($id_warehouse)
     {
-        $query = new DbQuery();
+        $query = new Db_Query();
         $query->select('id_warehouse');
         $query->from('warehouse');
-        $query->where('id_warehouse = '.(int) $idWarehouse);
+        $query->where('id_warehouse = ' . (int) $id_warehouse);
         $query->where('deleted = 0');
-
-        return (Db::readOnly()->getValue($query));
+        return Db::read_only()->get_value($query);
     }
-
     /**
      * For a given {product, product attribute} sets its location in the given warehouse
      * First, for the given parameters, it cleans the database before updating
@@ -277,41 +198,28 @@ class WarehouseCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function setProductLocation($idProduct, $idProductAttribute, $idWarehouse, $location)
+    public static function set_product_location($id_product, $id_product_attribute, $id_warehouse, $location)
     {
-        $conn = Db::getInstance();
-        $conn->execute(
-            '
-			DELETE FROM `'._DB_PREFIX_.'warehouse_product_location`
-			WHERE `id_product` = '.(int) $idProduct.'
-			AND `id_product_attribute` = '.(int) $idProductAttribute.'
-			AND `id_warehouse` = '.(int) $idWarehouse
-        );
-
-        $rowToInsert = [
-            'id_product'           => (int) $idProduct,
-            'id_product_attribute' => (int) $idProductAttribute,
-            'id_warehouse'         => (int) $idWarehouse,
-            'location'             => pSQL($location),
-        ];
-
-        return $conn->insert('warehouse_product_location', $rowToInsert);
+        $conn = Db::get_instance();
+        $conn->execute('
+			DELETE FROM `' . _DB_PREFIX_ . 'warehouse_product_location`
+			WHERE `id_product` = ' . (int) $id_product . '
+			AND `id_product_attribute` = ' . (int) $id_product_attribute . '
+			AND `id_warehouse` = ' . (int) $id_warehouse);
+        $row_to_insert = ['id_product' => (int) $id_product, 'id_product_attribute' => (int) $id_product_attribute, 'id_warehouse' => (int) $id_warehouse, 'location' => p_sql($location)];
+        return $conn->insert('warehouse_product_location', $row_to_insert);
     }
-
     /**
      * Resets all product locations for this warehouse
      *
      * @throws PrestaShopException
      */
-    public function resetProductsLocations(): void
+    public function reset_products_locations(): void
     {
-        Db::getInstance()->execute(
-            '
-			DELETE FROM `'._DB_PREFIX_.'warehouse_product_location`
-			WHERE `id_warehouse` = '.(int) $this->id
-        );
+        Db::get_instance()->execute('
+			DELETE FROM `' . _DB_PREFIX_ . 'warehouse_product_location`
+			WHERE `id_warehouse` = ' . (int) $this->id);
     }
-
     /**
      * For a given {product, product attribute} gets its location in the given warehouse
      *
@@ -323,18 +231,16 @@ class WarehouseCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function getProductLocation($idProduct, $idProductAttribute, $idWarehouse)
+    public static function get_product_location($id_product, $id_product_attribute, $id_warehouse)
     {
-        $query = new DbQuery();
+        $query = new Db_Query();
         $query->select('location');
         $query->from('warehouse_product_location');
-        $query->where('id_warehouse = '.(int) $idWarehouse);
-        $query->where('id_product = '.(int) $idProduct);
-        $query->where('id_product_attribute = '.(int) $idProductAttribute);
-
-        return (Db::readOnly()->getValue($query));
+        $query->where('id_warehouse = ' . (int) $id_warehouse);
+        $query->where('id_product = ' . (int) $id_product);
+        $query->where('id_product_attribute = ' . (int) $id_product_attribute);
+        return Db::read_only()->get_value($query);
     }
-
     /**
      * For a given {product, product attribute} gets warehouse list
      *
@@ -347,43 +253,39 @@ class WarehouseCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getProductWarehouseList($idProduct, $idProductAttribute = 0, $idShop = null)
+    public static function get_product_warehouse_list($id_product, $id_product_attribute = 0, $id_shop = null)
     {
         // if it's a pack, returns warehouses if and only if some products use the advanced stock management
-        if ($idShop === null) {
-            if (Shop::getContext() == Shop::CONTEXT_GROUP) {
-                $shopGroup = Shop::getContextShopGroup();
+        if ($id_shop === null) {
+            if (Shop::get_context() == Shop::CONTEXT_GROUP) {
+                $shop_group = Shop::get_context_shop_group();
             } else {
-                $shopGroup = Context::getContext()->shop->getGroup();
+                $shop_group = Context::get_context()->shop->get_group();
             }
-            $idShop = (int) Context::getContext()->shop->id;
-            $shareStock = $shopGroup->share_stock;
-            $shopGroupId = (int)$shopGroup->id;
+            $id_shop = (int) Context::get_context()->shop->id;
+            $share_stock = $shop_group->share_stock;
+            $shop_group_id = (int) $shop_group->id;
         } else {
-            $shopGroup = Shop::getGroupFromShop($idShop, false);
-            $shopGroupId = (int)$shopGroup['id'];
-            $shareStock = (bool)$shopGroup['share_stock'];
+            $shop_group = Shop::get_group_from_shop($id_shop, false);
+            $shop_group_id = (int) $shop_group['id'];
+            $share_stock = (bool) $shop_group['share_stock'];
         }
-
-        if ($shareStock) {
-            $idsShop = Shop::getShops(true, $shopGroupId, true);
+        if ($share_stock) {
+            $ids_shop = Shop::get_shops(true, $shop_group_id, true);
         } else {
-            $idsShop = [(int) $idShop];
+            $ids_shop = [(int) $id_shop];
         }
-
-        $query = new DbQuery();
+        $query = new Db_Query();
         $query->select('wpl.id_warehouse, CONCAT(w.reference, " - ", w.name) as name');
         $query->from('warehouse_product_location', 'wpl');
-        $query->innerJoin('warehouse_shop', 'ws', 'ws.id_warehouse = wpl.id_warehouse AND id_shop IN ('.implode(',', array_map(intval(...), $idsShop)).')');
-        $query->innerJoin('warehouse', 'w', 'ws.id_warehouse = w.id_warehouse');
-        $query->where('id_product = '.(int) $idProduct);
-        $query->where('id_product_attribute = '.(int) $idProductAttribute);
+        $query->inner_join('warehouse_shop', 'ws', 'ws.id_warehouse = wpl.id_warehouse AND id_shop IN (' . implode(',', array_map(intval(...), $ids_shop)) . ')');
+        $query->inner_join('warehouse', 'w', 'ws.id_warehouse = w.id_warehouse');
+        $query->where('id_product = ' . (int) $id_product);
+        $query->where('id_product_attribute = ' . (int) $id_product_attribute);
         $query->where('w.deleted = 0');
-        $query->groupBy('wpl.id_warehouse');
-
-        return Db::readOnly()->getArray($query);
+        $query->group_by('wpl.id_warehouse');
+        return Db::read_only()->get_array($query);
     }
-
     /**
      * Gets available warehouses
      * It is possible via ignore_shop and id_shop to filter the list with shop id
@@ -396,26 +298,23 @@ class WarehouseCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getWarehouses($ignoreShop = false, $idShop = null)
+    public static function get_warehouses($ignore_shop = false, $id_shop = null)
     {
-        if (!$ignoreShop) {
-            if (is_null($idShop)) {
-                $idShop = Context::getContext()->shop->id;
+        if (!$ignore_shop) {
+            if (is_null($id_shop)) {
+                $id_shop = Context::get_context()->shop->id;
             }
         }
-
-        $query = new DbQuery();
+        $query = new Db_Query();
         $query->select('w.id_warehouse, CONCAT(reference, \' - \', name) as name');
         $query->from('warehouse', 'w');
         $query->where('deleted = 0');
-        $query->orderBy('reference ASC');
-        if (!$ignoreShop) {
-            $query->innerJoin('warehouse_shop', 'ws', 'ws.id_warehouse = w.id_warehouse AND ws.id_shop = '.(int) $idShop);
+        $query->order_by('reference ASC');
+        if (!$ignore_shop) {
+            $query->inner_join('warehouse_shop', 'ws', 'ws.id_warehouse = w.id_warehouse AND ws.id_shop = ' . (int) $id_shop);
         }
-
-        return Db::readOnly()->getArray($query);
+        return Db::read_only()->get_array($query);
     }
-
     /**
      * Gets warehouses grouped by shops
      *
@@ -424,22 +323,19 @@ class WarehouseCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getWarehousesGroupedByShops()
+    public static function get_warehouses_grouped_by_shops()
     {
-        $idsWarehouse = [];
-        $query = new DbQuery();
+        $ids_warehouse = [];
+        $query = new Db_Query();
         $query->select('id_warehouse, id_shop');
         $query->from('warehouse_shop');
-        $query->orderBy('id_shop');
-
+        $query->order_by('id_shop');
         // queries to get warehouse ids grouped by shops
-        foreach (Db::readOnly()->getArray($query) as $row) {
-            $idsWarehouse[$row['id_shop']][] = $row['id_warehouse'];
+        foreach (Db::read_only()->get_array($query) as $row) {
+            $ids_warehouse[$row['id_shop']][] = $row['id_warehouse'];
         }
-
-        return $idsWarehouse;
+        return $ids_warehouse;
     }
-
     /**
      * Gets the number of products in the current warehouse
      *
@@ -447,21 +343,19 @@ class WarehouseCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public function getNumberOfProducts()
+    public function get_number_of_products()
     {
         $query = '
 			SELECT COUNT(t.id_stock)
 			FROM
 				(
 					SELECT s.id_stock
-				 	FROM '._DB_PREFIX_.'stock s
-				 	WHERE s.id_warehouse = '.(int) $this->id.'
+				 	FROM ' . _DB_PREFIX_ . 'stock s
+				 	WHERE s.id_warehouse = ' . (int) $this->id . '
 				 	GROUP BY s.id_product, s.id_product_attribute
 				 ) as t';
-
-        return Db::readOnly()->getValue($query);
+        return Db::read_only()->get_value($query);
     }
-
     /**
      * Gets the number of quantities - for all products - in the current warehouse
      *
@@ -469,18 +363,15 @@ class WarehouseCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public function getQuantitiesOfProducts()
+    public function get_quantities_of_products()
     {
         $query = '
 			SELECT SUM(s.physical_quantity)
-			FROM '._DB_PREFIX_.'stock s
-			WHERE s.id_warehouse = '.(int) $this->id;
-
-        $res = Db::readOnly()->getValue($query);
-
-        return ($res ?: 0);
+			FROM ' . _DB_PREFIX_ . 'stock s
+			WHERE s.id_warehouse = ' . (int) $this->id;
+        $res = Db::read_only()->get_value($query);
+        return $res ?: 0;
     }
-
     /**
      * Gets the value of the stock in the current warehouse
      *
@@ -488,16 +379,14 @@ class WarehouseCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public function getStockValue()
+    public function get_stock_value()
     {
-        $query = new DbQuery();
+        $query = new Db_Query();
         $query->select('SUM(s.`price_te` * s.`physical_quantity`)');
         $query->from('stock', 's');
-        $query->where('s.`id_warehouse` = '.(int) $this->id);
-
-        return Db::readOnly()->getValue($query);
+        $query->where('s.`id_warehouse` = ' . (int) $this->id);
+        return Db::read_only()->get_value($query);
     }
-
     /**
      * For a given employee, gets the warehouse(s) he/she manages
      *
@@ -508,16 +397,14 @@ class WarehouseCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getWarehousesByEmployee($idEmployee)
+    public static function get_warehouses_by_employee($id_employee)
     {
-        $query = new DbQuery();
+        $query = new Db_Query();
         $query->select('w.id_warehouse');
         $query->from('warehouse', 'w');
-        $query->where('w.id_employee = '.(int) $idEmployee);
-
-        return Db::readOnly()->getArray($query);
+        $query->where('w.id_employee = ' . (int) $id_employee);
+        return Db::read_only()->get_array($query);
     }
-
     /**
      * For a given product, returns the warehouses it is stored in
      *
@@ -529,27 +416,24 @@ class WarehouseCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getWarehousesByProductId($idProduct, $idProductAttribute = 0)
+    public static function get_warehouses_by_product_id($id_product, $id_product_attribute = 0)
     {
-        if (!$idProduct && !$idProductAttribute) {
+        if (!$id_product && !$id_product_attribute) {
             return [];
         }
-
-        $query = new DbQuery();
+        $query = new Db_Query();
         $query->select('DISTINCT w.id_warehouse, CONCAT(w.reference, " - ", w.name) as name');
         $query->from('warehouse', 'w');
-        $query->leftJoin('warehouse_product_location', 'wpl', 'wpl.id_warehouse = w.id_warehouse');
-        if ($idProduct) {
-            $query->where('wpl.id_product = '.(int) $idProduct);
+        $query->left_join('warehouse_product_location', 'wpl', 'wpl.id_warehouse = w.id_warehouse');
+        if ($id_product) {
+            $query->where('wpl.id_product = ' . (int) $id_product);
         }
-        if ($idProductAttribute) {
-            $query->where('wpl.id_product_attribute = '.(int) $idProductAttribute);
+        if ($id_product_attribute) {
+            $query->where('wpl.id_product_attribute = ' . (int) $id_product_attribute);
         }
-        $query->orderBy('w.reference ASC');
-
-        return Db::readOnly()->getArray($query);
+        $query->order_by('w.reference ASC');
+        return Db::read_only()->get_array($query);
     }
-
     /**
      * For a given $id_warehouse, returns its name
      *
@@ -559,16 +443,14 @@ class WarehouseCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function getWarehouseNameById($idWarehouse)
+    public static function get_warehouse_name_by_id($id_warehouse)
     {
-        $query = new DbQuery();
+        $query = new Db_Query();
         $query->select('name');
         $query->from('warehouse');
-        $query->where('id_warehouse = '.(int) $idWarehouse);
-
-        return Db::readOnly()->getValue($query);
+        $query->where('id_warehouse = ' . (int) $id_warehouse);
+        return Db::read_only()->get_value($query);
     }
-
     /**
      * For a given pack, returns the warehouse it can be shipped from
      *
@@ -581,64 +463,53 @@ class WarehouseCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getPackWarehouses($idProduct, $idShop = null)
+    public static function get_pack_warehouses($id_product, $id_shop = null)
     {
-        if (!Pack::isPack($idProduct)) {
+        if (!Pack::is_pack($id_product)) {
             return [];
         }
-
-        if (is_null($idShop)) {
-            $idShop = Context::getContext()->shop->id;
+        if (is_null($id_shop)) {
+            $id_shop = Context::get_context()->shop->id;
         }
-
         // warehouses of the pack
-        $packWarehouses = WarehouseProductLocation::getCollection((int) $idProduct);
+        $pack_warehouses = Warehouse_Product_Location::get_collection((int) $id_product);
         // products in the pack
-        $products = Pack::getItems((int) $idProduct, Configuration::get('PS_LANG_DEFAULT'));
-
+        $products = Pack::get_items((int) $id_product, Configuration::get('PS_LANG_DEFAULT'));
         // array with all warehouses id to check
-        $list = [
-            'pack_warehouses' => [],
-        ];
-
+        $list = ['pack_warehouses' => []];
         // fills $list
-        foreach ($packWarehouses as $pack_warehouse) {
+        foreach ($pack_warehouses as $pack_warehouse) {
             /** @var WarehouseProductLocation $pack_warehouse */
             $list['pack_warehouses'][] = (int) $pack_warehouse->id_warehouse;
         }
-
         // for each products in the pack
         foreach ($products as $product) {
             if ($product->advanced_stock_management) {
                 // gets the warehouses of one product
-                $productWarehouses = Warehouse::getProductWarehouseList((int) $product->id, (int) $product->cache_default_attribute, (int) $idShop);
+                $product_warehouses = Warehouse::get_product_warehouse_list((int) $product->id, (int) $product->cache_default_attribute, (int) $id_shop);
                 $list[(int) $product->id] = [];
                 // fills array with warehouses for this product
-                foreach ($productWarehouses as $productWarehouse) {
-                    $list[(int) $product->id][] = $productWarehouse['id_warehouse'];
+                foreach ($product_warehouses as $product_warehouse) {
+                    $list[(int) $product->id][] = $product_warehouse['id_warehouse'];
                 }
             }
         }
-
         // returns final list
         if (count($list) > 1) {
             return call_user_func_array(array_intersect(...), array_values($list));
         }
-
         return [];
     }
-
     /**
      * @throws PrestaShopException
      */
-    public function resetStockAvailable(): void
+    public function reset_stock_available(): void
     {
-        $products = WarehouseProductLocation::getProducts((int) $this->id);
+        $products = Warehouse_Product_Location::get_products((int) $this->id);
         foreach ($products as $product) {
-            StockAvailable::synchronize((int) $product['id_product']);
+            Stock_Available::synchronize((int) $product['id_product']);
         }
     }
-
     /**
      * Webservice : gets the value of the warehouse
      *
@@ -646,11 +517,10 @@ class WarehouseCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public function getWsStockValue()
+    public function get_ws_stock_value()
     {
-        return $this->getStockValue();
+        return $this->get_stock_value();
     }
-
     /**
      * Webservice : gets the ids stock associated to this warehouse
      *
@@ -659,16 +529,14 @@ class WarehouseCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function getWsStocks()
+    public function get_ws_stocks()
     {
-        $query = new DbQuery();
+        $query = new Db_Query();
         $query->select('s.id_stock as id');
         $query->from('stock', 's');
-        $query->where('s.id_warehouse ='.(int) $this->id);
-
-        return Db::readOnly()->getArray($query);
+        $query->where('s.id_warehouse =' . (int) $this->id);
+        return Db::read_only()->get_array($query);
     }
-
     /**
      * Webservice : gets the ids shops associated to this warehouse
      *
@@ -677,17 +545,15 @@ class WarehouseCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function getWsShops()
+    public function get_ws_shops()
     {
-        $query = new DbQuery();
+        $query = new Db_Query();
         $query->select('ws.id_shop as id, s.name');
         $query->from('warehouse_shop', 'ws');
-        $query->leftJoin('shop', 's', 's.id_shop = ws.id_shop');
-        $query->where($this->def['primary'].' = '.(int) $this->id);
-
-        return Db::readOnly()->getArray($query);
+        $query->left_join('shop', 's', 's.id_shop = ws.id_shop');
+        $query->where($this->def['primary'] . ' = ' . (int) $this->id);
+        return Db::read_only()->get_array($query);
     }
-
     /**
      * Webservice : gets the ids carriers associated to this warehouse
      *
@@ -696,33 +562,28 @@ class WarehouseCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function getWsCarriers()
+    public function get_ws_carriers()
     {
-        $idsCarrier = [];
-
-        $query = new DbQuery();
+        $ids_carrier = [];
+        $query = new Db_Query();
         $query->select('wc.id_carrier as id');
         $query->from('warehouse_carrier', 'wc');
-        $query->where($this->def['primary'].' = '.(int) $this->id);
-
-        $res = Db::readOnly()->getArray($query);
-
+        $query->where($this->def['primary'] . ' = ' . (int) $this->id);
+        $res = Db::read_only()->get_array($query);
         foreach ($res as $carriers) {
             foreach ($carriers as $carrier) {
-                $idsCarrier[] = $carrier;
+                $ids_carrier[] = $carrier;
             }
         }
-
-        return $idsCarrier;
+        return $ids_carrier;
     }
-
     /**
      * @param TableSchema $table
      */
-    public static function processTableSchema($table): void
+    public static function process_table_schema($table): void
     {
-        if ($table->getNameWithoutPrefix() === 'warehouse_shop') {
-            $table->reorderColumns(['id_shop', 'id_warehouse']);
+        if ($table->get_name_without_prefix() === 'warehouse_shop') {
+            $table->reorder_columns(['id_shop', 'id_warehouse']);
         }
     }
 }

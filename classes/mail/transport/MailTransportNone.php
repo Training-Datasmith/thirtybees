@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -18,35 +18,30 @@ declare(strict_types=1);
  * @copyright 2017-2024 thirty bees
  * @license   Open Software License (OSL 3.0)
  */
-
 namespace Thirtybees\Core\Mail\Transport;
 
-use Thirtybees\Core\Mail\MailAddress;
-use Thirtybees\Core\Mail\MailAttachement;
-use Thirtybees\Core\Mail\MailTemplate;
-use Thirtybees\Core\Mail\MailTransport;
+use Thirtybees\Core\Mail\Mail_Address;
+use Thirtybees\Core\Mail\Mail_Attachement;
+use Thirtybees\Core\Mail\Mail_Template;
+use Thirtybees\Core\Mail\Mail_Transport;
 use Translate;
-
 /**
  * Class EMailTransportNoneCore
  */
-class MailTransportNoneCore implements MailTransport
+class Mail_Transport_None_Core implements Mail_Transport
 {
-    public function getName(): string
+    public function get_name(): string
     {
-        return Translate::getAdminTranslation('None', 'Mail');
+        return Translate::get_admin_translation('None', 'Mail');
     }
-
-    public function getConfigUrl(): null
+    public function get_config_url(): null
     {
         return null;
     }
-
-    public function getDescription(): string
+    public function get_description(): string
     {
-        return Translate::getAdminTranslation('Never send emails (may be useful for testing purposes)', 'Mail');
+        return Translate::get_admin_translation('Never send emails (may be useful for testing purposes)', 'Mail');
     }
-
     /**
      * @param MailAddress[] $toAddresses
      * @param MailAddress[] $bccAddresses
@@ -54,18 +49,8 @@ class MailTransportNoneCore implements MailTransport
      * @param MailAttachement[] $attachements
      *
      */
-    public function sendMail(
-        int         $idShop,
-        int         $idLang,
-        MailAddress $fromAddress,
-        array       $toAddresses,
-        array       $bccAddresses,
-        MailAddress $replyTo,
-        string      $subject,
-        array       $templates,
-        array       $templateVars,
-        array       $attachements
-    ): bool {
+    public function send_mail(int $id_shop, int $id_lang, Mail_Address $from_address, array $to_addresses, array $bcc_addresses, Mail_Address $reply_to, string $subject, array $templates, array $template_vars, array $attachements): bool
+    {
         return true;
     }
 }

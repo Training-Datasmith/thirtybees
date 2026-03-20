@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -18,49 +18,41 @@ declare(strict_types=1);
  * @copyright 2017-2024 thirty bees
  * @license   Open Software License (OSL 3.0)
  */
-
 namespace Thirtybees\Core\Error\Response;
 
-use Thirtybees\Core\Error\ErrorDescription;
+use Thirtybees\Core\Error\Error_Description;
 use Tools;
-
 /**
  * Class JSendErrorResponse
  */
-class JSendErrorResponseCore extends AbstractErrorPage
+class J_Send_Error_Response_Core extends Abstract_Error_Page
 {
-    public function __construct(protected bool $sendErrorMessage)
+    public function __construct(protected bool $send_error_message)
     {
     }
-
     /**
      * Return content type
      * @return string
      */
-    protected function getContentType()
+    protected function get_content_type()
     {
         return 'application/json';
     }
-
     /**
      * @return string
      */
-    protected function renderError(ErrorDescription $errorDescription)
+    protected function render_error(Error_Description $error_description)
     {
-        return json_encode([
-            'status' => 'error',
-            'message' => $this->getResponseMessage($errorDescription),
-        ], JSON_PRETTY_PRINT);
+        return json_encode(['status' => 'error', 'message' => $this->get_response_message($error_description)], JSON_PRETTY_PRINT);
     }
-
     /**
      * @return string
      */
-    protected function getResponseMessage(ErrorDescription $errorDescription)
+    protected function get_response_message(Error_Description $error_description)
     {
-        if ($this->sendErrorMessage) {
-            return $errorDescription->getExtendedMessage();
+        if ($this->send_error_message) {
+            return $error_description->get_extended_message();
         }
-        return Tools::displayError('Internal server error');
+        return Tools::display_error('Internal server error');
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,11 +30,10 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class CustomizationFieldCore
  */
-class CustomizationFieldCore extends ObjectModel
+class Customization_Field_Core extends Object_Model
 {
     /** @var int */
     public $id_product;
@@ -44,41 +43,19 @@ class CustomizationFieldCore extends ObjectModel
     public $required;
     /** @var string|string[] Label for customized field */
     public $name;
-
     /**
      * @var array Object model definition
      */
-    public static $definition = [
-        'table'          => 'customization_field',
-        'primary'        => 'id_customization_field',
-        'multilang'      => true,
-        'multilang_shop' => true,
-        'fields'         => [
-            /* Classic fields */
-            'id_product' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true],
-            'type'       => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true, 'dbType' => 'tinyint(1)'],
-            'required'   => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'required' => true, 'dbType' => 'tinyint(1)'],
-
-            /* Lang fields */
-            'name'       => ['type' => self::TYPE_STRING, 'lang' => true, 'required' => true, 'size' => 255],
-        ],
-        'keys' => [
-            'customization_field' => [
-                'id_product' => ['type' => ObjectModel::KEY, 'columns' => ['id_product']],
-            ],
-        ],
-    ];
-
+    public static $definition = ['table' => 'customization_field', 'primary' => 'id_customization_field', 'multilang' => true, 'multilang_shop' => true, 'fields' => [
+        /* Classic fields */
+        'id_product' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true],
+        'type' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true, 'dbType' => 'tinyint(1)'],
+        'required' => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'required' => true, 'dbType' => 'tinyint(1)'],
+        /* Lang fields */
+        'name' => ['type' => self::TYPE_STRING, 'lang' => true, 'required' => true, 'size' => 255],
+    ], 'keys' => ['customization_field' => ['id_product' => ['type' => Object_Model::KEY, 'columns' => ['id_product']]]]];
     /**
      * @var array Webservice parameters
      */
-    protected $webserviceParameters = [
-        'fields' => [
-            'id_product' => [
-                'xlink_resource' => [
-                    'resourceName' => 'products',
-                ],
-            ],
-        ],
-    ];
+    protected $webservice_parameters = ['fields' => ['id_product' => ['xlink_resource' => ['resourceName' => 'products']]]];
 }

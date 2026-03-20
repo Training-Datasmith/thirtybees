@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -18,40 +18,36 @@ declare(strict_types=1);
  * @copyright 2017-2024 thirty bees
  * @license   Open Software License (OSL 3.0)
  */
-
 namespace Thirtybees\Core\Tracking\Extractor;
 
 use Db;
 use Exception;
-use PrestaShopDatabaseException;
-use PrestaShopException;
-use Thirtybees\Core\Tracking\DataExtractor;
-
+use Presta_Shop_Database_Exception;
+use Presta_Shop_Exception;
+use Thirtybees\Core\Tracking\Data_Extractor;
 /**
  * Class DbExtractorCore
  */
-class DbExtractorCore extends DataExtractor
+class Db_Extractor_Core extends Data_Extractor
 {
     /**
      * Returns data name
      *
      * @return string
      */
-    public function getName()
+    public function get_name()
     {
         return $this->l('Database version');
     }
-
     /**
      * Returns detailed information about this data
      *
      * @return string
      */
-    public function getDescription()
+    public function get_description()
     {
         return $this->l('Information about your database server version');
     }
-
     /**
      * Extracts value
      *
@@ -59,23 +55,19 @@ class DbExtractorCore extends DataExtractor
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function extractValue()
+    public function extract_value()
     {
-        $connection = Db::getInstance();
-        return [
-            'version' => $connection->getVersion(),
-            'comment' => $this->getVersionComment($connection),
-        ];
+        $connection = Db::get_instance();
+        return ['version' => $connection->get_version(), 'comment' => $this->get_version_comment($connection)];
     }
-
     /**
      * @param Db $connection
      * @return string
      */
-    protected function getVersionComment($connection)
+    protected function get_version_comment($connection)
     {
         try {
-            $result = $connection->getArray("SHOW VARIABLES LIKE 'version_comment'");
+            $result = $connection->get_array("SHOW VARIABLES LIKE 'version_comment'");
             if (isset($result[0]['Value'])) {
                 return $result[0]['Value'];
             }

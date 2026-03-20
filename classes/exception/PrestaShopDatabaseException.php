@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,17 +30,15 @@ declare(strict_types=1);
  *  @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class PrestaShopDatabaseExceptionCore
  */
-class PrestaShopDatabaseExceptionCore extends PrestaShopException implements \Stringable
+class Presta_Shop_Database_Exception_Core extends Presta_Shop_Exception implements \Stringable
 {
     /**
      * @var string|null contains sql statement associated with error
      */
     private $sql;
-
     /**
      * PrestaShopDatabaseExceptionCore constructor.
      *
@@ -50,21 +48,16 @@ class PrestaShopDatabaseExceptionCore extends PrestaShopException implements \St
     public function __construct($message = '', $sql = null)
     {
         parent::__construct($message);
-
-        if ($sql instanceof DbQuery) {
-            $this->sql = $sql->buildSql();
+        if ($sql instanceof Db_Query) {
+            $this->sql = $sql->build_sql();
         } else {
             $this->sql = $sql;
         }
-
         if ($this->trace) {
             // we want to report on different
             foreach ($this->trace as $row) {
                 if (!str_contains((string) $row['file'], 'classes/db/Db.php')) {
-                    array_unshift($this->trace, [
-                        'file' => $this->file,
-                        'line' => $this->line,
-                    ]);
+                    array_unshift($this->trace, ['file' => $this->file, 'line' => $this->line]);
                     $this->file = $row['file'];
                     $this->line = $row['line'];
                     return;
@@ -72,27 +65,21 @@ class PrestaShopDatabaseExceptionCore extends PrestaShopException implements \St
             }
         }
     }
-
     public function __toString(): string
     {
         return (string) $this->message;
     }
-
     /**
      * Display additional SQL section on error message page
      *
      * @return array describing sections
      */
-    public function getExtraSections()
+    public function get_extra_sections()
     {
-        $sections = parent::getExtraSections();
+        $sections = parent::get_extra_sections();
         if ($this->sql) {
-            $sections[] = [
-                'label' => 'SQL',
-                'content' => $this->sql,
-            ];
+            $sections[] = ['label' => 'SQL', 'content' => $this->sql];
         }
         return $sections;
-
     }
 }

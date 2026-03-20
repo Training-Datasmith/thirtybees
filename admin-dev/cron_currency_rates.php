@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -31,19 +31,17 @@ declare(strict_types=1);
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
 /** @noinspection PhpUnhandledExceptionInspection */
-
 if (!defined('_PS_ADMIN_DIR_')) {
     define('_PS_ADMIN_DIR_', getcwd());
 }
-include(_PS_ADMIN_DIR_.'/../config/config.inc.php');
-
+include _PS_ADMIN_DIR_ . '/../config/config.inc.php';
 if (isset($_GET['secure_key'])) {
-    $secureKey = md5(_COOKIE_KEY_.Configuration::get('PS_SHOP_NAME'));
-    if (!empty($secureKey) && $secureKey === $_GET['secure_key']) {
-        $shopIds = Shop::getCompleteListOfShopsID();
-        foreach ($shopIds as $idShop) {
-            Shop::setContext(Shop::CONTEXT_SHOP, (int) $idShop);
-            Currency::refreshCurrencies();
+    $secure_key = md5(_COOKIE_KEY_ . Configuration::get('PS_SHOP_NAME'));
+    if (!empty($secure_key) && $secure_key === $_GET['secure_key']) {
+        $shop_ids = Shop::get_complete_list_of_shops_id();
+        foreach ($shop_ids as $id_shop) {
+            Shop::set_context(Shop::CONTEXT_SHOP, (int) $id_shop);
+            Currency::refresh_currencies();
         }
     }
 }

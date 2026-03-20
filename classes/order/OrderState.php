@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,11 +30,10 @@ declare(strict_types=1);
  *  @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class OrderStateCore
  */
-class OrderStateCore extends ObjectModel
+class Order_State_Core extends Object_Model
 {
     /** @var string|string[] Name */
     public $name;
@@ -70,59 +69,43 @@ class OrderStateCore extends ObjectModel
     public $deleted = 0;
     /** @var bool Active */
     public $active = 1;
-
     /**
      * @var array Object model definition
      */
-    public static $definition = [
-        'table'     => 'order_state',
-        'primary'   => 'id_order_state',
-        'multilang' => true,
-        'fields'    => [
-            'invoice'      => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbDefault' => '0', 'dbNullable' => true],
-            'send_email'   => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbDefault' => '0'],
-            'module_name'  => ['type' => self::TYPE_STRING, 'validate' => 'isModuleName', 'size' => 64],
-            'color'        => ['type' => self::TYPE_STRING, 'validate' => 'isColor', 'size' => 32],
-            'unremovable'  => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbNullable' => false],
-            'hidden'       => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbDefault' => '0'],
-            'logable'      => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbType' => 'tinyint(1)', 'dbDefault' => '0'],
-            'delivery'     => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbDefault' => '0'],
-            'shipped'      => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbDefault' => '0'],
-            'paid'         => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbDefault' => '0'],
-            'pdf_invoice'  => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbDefault' => '0'],
-            'pdf_delivery' => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbDefault' => '0'],
-            'deleted'      => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbDefault' => '0'],
-            'active'       => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbDefault' => '1'],
-
-            /* Lang fields */
-            'name'         => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isGenericName', 'required' => true, 'size' => 64],
-            'template'     => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isTplName', 'size' => 64, 'dbNullable' => false],
-            'email_subject' => ['type' => self::TYPE_STRING, 'lang' => true, 'size' => 128, 'dbNullable' => true],
-        ],
-        'keys' => [
-            'order_state' => [
-                'module_name' => ['type' => ObjectModel::KEY, 'columns' => ['module_name']],
-            ],
-        ],
-    ];
-
+    public static $definition = ['table' => 'order_state', 'primary' => 'id_order_state', 'multilang' => true, 'fields' => [
+        'invoice' => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbDefault' => '0', 'dbNullable' => true],
+        'send_email' => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbDefault' => '0'],
+        'module_name' => ['type' => self::TYPE_STRING, 'validate' => 'isModuleName', 'size' => 64],
+        'color' => ['type' => self::TYPE_STRING, 'validate' => 'isColor', 'size' => 32],
+        'unremovable' => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbNullable' => false],
+        'hidden' => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbDefault' => '0'],
+        'logable' => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbType' => 'tinyint(1)', 'dbDefault' => '0'],
+        'delivery' => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbDefault' => '0'],
+        'shipped' => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbDefault' => '0'],
+        'paid' => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbDefault' => '0'],
+        'pdf_invoice' => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbDefault' => '0'],
+        'pdf_delivery' => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbDefault' => '0'],
+        'deleted' => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbDefault' => '0'],
+        'active' => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbDefault' => '1'],
+        /* Lang fields */
+        'name' => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isGenericName', 'required' => true, 'size' => 64],
+        'template' => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isTplName', 'size' => 64, 'dbNullable' => false],
+        'email_subject' => ['type' => self::TYPE_STRING, 'lang' => true, 'size' => 128, 'dbNullable' => true],
+    ], 'keys' => ['order_state' => ['module_name' => ['type' => Object_Model::KEY, 'columns' => ['module_name']]]]];
     /**
      * @var array Webservice parameters
      */
-    protected $webserviceParameters = [
-        'fields' => [
-            'unremovable' => [],
-            'delivery'    => [],
-            'hidden'      => [],
-        ],
-    ];
-
-    public const FLAG_NO_HIDDEN    = 1;  /* 00001 */
-    public const FLAG_LOGABLE        = 2;  /* 00010 */
-    public const FLAG_DELIVERY        = 4;  /* 00100 */
-    public const FLAG_SHIPPED        = 8;  /* 01000 */
-    public const FLAG_PAID        = 16; /* 10000 */
-
+    protected $webservice_parameters = ['fields' => ['unremovable' => [], 'delivery' => [], 'hidden' => []]];
+    public const FLAG_NO_HIDDEN = 1;
+    /* 00001 */
+    public const FLAG_LOGABLE = 2;
+    /* 00010 */
+    public const FLAG_DELIVERY = 4;
+    /* 00100 */
+    public const FLAG_SHIPPED = 8;
+    /* 01000 */
+    public const FLAG_PAID = 16;
+    /* 10000 */
     /**
      * @param int $id
      * @param int $idLang
@@ -130,11 +113,10 @@ class OrderStateCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function __construct($id = null, $idLang = null, $idShop = null)
+    public function __construct($id = null, $id_lang = null, $id_shop = null)
     {
-        parent::__construct($id, $idLang, $idShop);
+        parent::__construct($id, $id_lang, $id_shop);
     }
-
     /**
      * Get all available order statuses
      *
@@ -145,28 +127,16 @@ class OrderStateCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getOrderStates($idLang)
+    public static function get_order_states($id_lang)
     {
-        $cacheId = 'OrderState::getOrderStates_'.(int) $idLang;
-        if (!Cache::isStored($cacheId)) {
-            $result = Db::readOnly()->getArray(
-                (new DbQuery())
-                    ->select('*')
-                    ->from('order_state', 'os')
-                    ->leftJoin('order_state_lang', 'osl', 'os.`id_order_state` = osl.`id_order_state`')
-                    ->where('osl.`id_lang` = '.(int) $idLang)
-                    ->where('`deleted` = 0')
-                    ->where('`active` = 1')
-                    ->orderBy('`name` ASC')
-            );
-            Cache::store($cacheId, $result);
-
+        $cache_id = 'OrderState::getOrderStates_' . (int) $id_lang;
+        if (!Cache::is_stored($cache_id)) {
+            $result = Db::read_only()->get_array((new Db_Query())->select('*')->from('order_state', 'os')->left_join('order_state_lang', 'osl', 'os.`id_order_state` = osl.`id_order_state`')->where('osl.`id_lang` = ' . (int) $id_lang)->where('`deleted` = 0')->where('`active` = 1')->order_by('`name` ASC'));
+            Cache::store($cache_id, $result);
             return $result;
         }
-
-        return Cache::retrieve($cacheId);
+        return Cache::retrieve($cache_id);
     }
-
     /**
      * Check if we can make a invoice when order is in this state
      *
@@ -176,26 +146,19 @@ class OrderStateCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function invoiceAvailable($idOrderState)
+    public static function invoice_available($id_order_state)
     {
         $result = false;
         if (Configuration::get('PS_INVOICE')) {
-            $result = Db::readOnly()->getValue(
-                (new DbQuery())
-                    ->select('`invoice`')
-                    ->from('order_state')
-                    ->where('`id_order_state` = '.(int) $idOrderState)
-            );
+            $result = Db::read_only()->get_value((new Db_Query())->select('`invoice`')->from('order_state')->where('`id_order_state` = ' . (int) $id_order_state));
         }
-
         return (bool) $result;
     }
-
     /**
      * @return bool
      */
-    public function isRemovable()
+    public function is_removable()
     {
-        return !($this->unremovable);
+        return !$this->unremovable;
     }
 }

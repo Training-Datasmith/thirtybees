@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,42 +30,28 @@ declare(strict_types=1);
  *  @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * SQL query builder
  */
-class DbQueryCore implements \Stringable
+class Db_Query_Core implements \Stringable
 {
     /**
      * @var string
      */
-    protected $dbPrefix;
-
+    protected $db_prefix;
     /**
      * List of data to build the query
      *
      * @var array
      */
-    protected $query = [
-        'type'   => 'SELECT',
-        'select' => [],
-        'from'   => [],
-        'join'   => [],
-        'where'  => [],
-        'group'  => [],
-        'having' => [],
-        'order'  => [],
-        'limit'  => ['offset' => 0, 'limit' => 0],
-    ];
-
+    protected $query = ['type' => 'SELECT', 'select' => [], 'from' => [], 'join' => [], 'where' => [], 'group' => [], 'having' => [], 'order' => [], 'limit' => ['offset' => 0, 'limit' => 0]];
     /**
      * @param string|null $dbPrefix
      */
-    public function __construct($dbPrefix = null)
+    public function __construct($db_prefix = null)
     {
-        $this->dbPrefix = $dbPrefix ?? _DB_PREFIX_;
+        $this->db_prefix = $db_prefix ?? _DB_PREFIX_;
     }
-
     /**
      * Sets type of the query
      *
@@ -74,14 +60,11 @@ class DbQueryCore implements \Stringable
     public function type($type): static
     {
         $types = ['SELECT', 'DELETE'];
-
         if (!empty($type) && in_array($type, $types)) {
             $this->query['type'] = $type;
         }
-
         return $this;
     }
-
     /**
      * Adds fields to SELECT clause
      *
@@ -92,10 +75,8 @@ class DbQueryCore implements \Stringable
         if (!empty($fields)) {
             $this->query['select'][] = $fields;
         }
-
         return $this;
     }
-
     /**
      * Sets table for FROM clause
      *
@@ -109,19 +90,16 @@ class DbQueryCore implements \Stringable
     public function from($table, $alias = null): static
     {
         if (!empty($table)) {
-            if (strncmp($this->dbPrefix, $table, strlen($this->dbPrefix)) !== 0) {
-                $table = $this->dbPrefix.$table;
+            if (strncmp($this->db_prefix, $table, strlen($this->db_prefix)) !== 0) {
+                $table = $this->db_prefix . $table;
             }
-
             if (empty($this->query['from'])) {
                 $this->query['from'] = [];
             }
-            $this->query['from'][] = '`'.bqSQL($table).'`'.($alias ? ' '.$alias : '');
+            $this->query['from'][] = '`' . bq_sql($table) . '`' . ($alias ? ' ' . $alias : '');
         }
-
         return $this;
     }
-
     /**
      * Adds JOIN clause
      * E.g. $this->join('RIGHT JOIN '.$this->dbPrefix.'product p ON ...');
@@ -133,10 +111,8 @@ class DbQueryCore implements \Stringable
         if (!empty($join)) {
             $this->query['join'][] = $join;
         }
-
         return $this;
     }
-
     /**
      * Adds a LEFT JOIN clause
      *
@@ -149,15 +125,13 @@ class DbQueryCore implements \Stringable
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function leftJoin($table, $alias = null, $on = null)
+    public function left_join($table, $alias = null, $on = null)
     {
-        if (strncmp($this->dbPrefix, $table, strlen($this->dbPrefix)) !== 0) {
-            $table = $this->dbPrefix.$table;
+        if (strncmp($this->db_prefix, $table, strlen($this->db_prefix)) !== 0) {
+            $table = $this->db_prefix . $table;
         }
-
-        return $this->join('LEFT JOIN `'.bqSQL($table).'`'.($alias ? ' `'.pSQL($alias).'`' : '').($on ? ' ON '.$on : ''));
+        return $this->join('LEFT JOIN `' . bq_sql($table) . '`' . ($alias ? ' `' . p_sql($alias) . '`' : '') . ($on ? ' ON ' . $on : ''));
     }
-
     /**
      * Adds an INNER JOIN clause
      * E.g. $this->innerJoin('product p ON ...')
@@ -171,15 +145,13 @@ class DbQueryCore implements \Stringable
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function innerJoin($table, $alias = null, $on = null)
+    public function inner_join($table, $alias = null, $on = null)
     {
-        if (strncmp($this->dbPrefix, $table, strlen($this->dbPrefix)) !== 0) {
-            $table = $this->dbPrefix.$table;
+        if (strncmp($this->db_prefix, $table, strlen($this->db_prefix)) !== 0) {
+            $table = $this->db_prefix . $table;
         }
-
-        return $this->join('INNER JOIN `'.bqSQL($table).'`'.($alias ? ' '.pSQL($alias) : '').($on ? ' ON '.$on : ''));
+        return $this->join('INNER JOIN `' . bq_sql($table) . '`' . ($alias ? ' ' . p_sql($alias) : '') . ($on ? ' ON ' . $on : ''));
     }
-
     /**
      * Include primary and shop tables into the query using INNER JOIN
      *
@@ -200,32 +172,27 @@ class DbQueryCore implements \Stringable
      *
      * @throws PrestaShopException
      */
-    public function innerJoinMultishop(string $table, string $alias, string $aliasShop, $on, $shopOnExtra = null)
+    public function inner_join_multishop(string $table, string $alias, string $alias_shop, $on, $shop_on_extra = null)
     {
-        if (! Shop::isTableAssociated($table)) {
-            throw new PrestaShopException("Table `$table` is not multistore enabled`");
+        if (!Shop::is_table_associated($table)) {
+            throw new Presta_Shop_Exception("Table `{$table}` is not multistore enabled`");
         }
-
         // expose primary table
-        $this->innerJoin($table, $alias, $on);
-
+        $this->inner_join($table, $alias, $on);
         // expose shop table
-        $shopOn = '`' . pSQL($aliasShop) . '`.`id_' . $table . '` = `' . pSQL($alias). '`.`id_' . $table . '`';
-        if ((int) Shop::getContextShopID()) {
-            $shopOn .= ' AND `'.$aliasShop.'`.`id_shop` = ' . (int) Shop::getContextShopID();
-        } elseif (Shop::checkIdShopDefault($table)) {
-            $shopOn .= ' AND `'.$aliasShop.'`.`id_shop` = `'.$alias.'`.`id_shop_default`';
+        $shop_on = '`' . p_sql($alias_shop) . '`.`id_' . $table . '` = `' . p_sql($alias) . '`.`id_' . $table . '`';
+        if ((int) Shop::get_context_shop_id()) {
+            $shop_on .= ' AND `' . $alias_shop . '`.`id_shop` = ' . (int) Shop::get_context_shop_id();
+        } elseif (Shop::check_id_shop_default($table)) {
+            $shop_on .= ' AND `' . $alias_shop . '`.`id_shop` = `' . $alias . '`.`id_shop_default`';
         } else {
-            $shopOn .= ' AND `'.$aliasShop.'`.`id_shop` IN ('.implode(', ', Shop::getContextListShopID()).')';
+            $shop_on .= ' AND `' . $alias_shop . '`.`id_shop` IN (' . implode(', ', Shop::get_context_list_shop_id()) . ')';
         }
-
-        if ($shopOnExtra) {
-            $shopOn .= ' ' . trim($shopOnExtra);
+        if ($shop_on_extra) {
+            $shop_on .= ' ' . trim($shop_on_extra);
         }
-
-        return $this->innerJoin($table . '_shop', $aliasShop, $shopOn);
+        return $this->inner_join($table . '_shop', $alias_shop, $shop_on);
     }
-
     /**
      * Adds a LEFT OUTER JOIN clause
      *
@@ -238,15 +205,13 @@ class DbQueryCore implements \Stringable
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function leftOuterJoin($table, $alias = null, $on = null)
+    public function left_outer_join($table, $alias = null, $on = null)
     {
-        if (strncmp($this->dbPrefix, $table, strlen($this->dbPrefix)) !== 0) {
-            $table = $this->dbPrefix.$table;
+        if (strncmp($this->db_prefix, $table, strlen($this->db_prefix)) !== 0) {
+            $table = $this->db_prefix . $table;
         }
-
-        return $this->join('LEFT OUTER JOIN `'.bqSQL($table).'`'.($alias ? ' '.pSQL($alias) : '').($on ? ' ON '.$on : ''));
+        return $this->join('LEFT OUTER JOIN `' . bq_sql($table) . '`' . ($alias ? ' ' . p_sql($alias) : '') . ($on ? ' ON ' . $on : ''));
     }
-
     /**
      * Adds a NATURAL JOIN clause
      *
@@ -258,15 +223,13 @@ class DbQueryCore implements \Stringable
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function naturalJoin($table, $alias = null)
+    public function natural_join($table, $alias = null)
     {
-        if (strncmp($this->dbPrefix, $table, strlen($this->dbPrefix)) !== 0) {
-            $table = $this->dbPrefix.$table;
+        if (strncmp($this->db_prefix, $table, strlen($this->db_prefix)) !== 0) {
+            $table = $this->db_prefix . $table;
         }
-
-        return $this->join('NATURAL JOIN `'.bqSQL($table).'`'.($alias ? ' '.pSQL($alias) : ''));
+        return $this->join('NATURAL JOIN `' . bq_sql($table) . '`' . ($alias ? ' ' . p_sql($alias) : ''));
     }
-
     /**
      * Adds a RIGHT JOIN clause
      *
@@ -279,15 +242,13 @@ class DbQueryCore implements \Stringable
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function rightJoin($table, $alias = null, $on = null)
+    public function right_join($table, $alias = null, $on = null)
     {
-        if (strncmp($this->dbPrefix, $table, strlen($this->dbPrefix)) !== 0) {
-            $table = $this->dbPrefix.$table;
+        if (strncmp($this->db_prefix, $table, strlen($this->db_prefix)) !== 0) {
+            $table = $this->db_prefix . $table;
         }
-
-        return $this->join('RIGHT JOIN `'.bqSQL($table).'`'.($alias ? ' `'.pSQL($alias).'`' : '').($on ? ' ON '.$on : ''));
+        return $this->join('RIGHT JOIN `' . bq_sql($table) . '`' . ($alias ? ' `' . p_sql($alias) . '`' : '') . ($on ? ' ON ' . $on : ''));
     }
-
     /**
      * Adds a restriction in WHERE clause (each restriction will be separated by AND statement)
      *
@@ -298,10 +259,8 @@ class DbQueryCore implements \Stringable
         if (!empty($restriction)) {
             $this->query['where'][] = $restriction;
         }
-
         return $this;
     }
-
     /**
      * Adds shop restriction for a specific table alias.
      *
@@ -312,11 +271,10 @@ class DbQueryCore implements \Stringable
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function addCurrentShopRestriction(string $tableAlias, $share = false)
+    public function add_current_shop_restriction(string $table_alias, $share = false)
     {
-        return $this->where(Shop::getSqlRestriction($share, '`' . $tableAlias. '`'));
+        return $this->where(Shop::get_sql_restriction($share, '`' . $table_alias . '`'));
     }
-
     /**
      * Adds a restriction in HAVING clause (each restriction will be separated by AND statement)
      *
@@ -327,38 +285,32 @@ class DbQueryCore implements \Stringable
         if (!empty($restriction)) {
             $this->query['having'][] = $restriction;
         }
-
         return $this;
     }
-
     /**
      * Adds an ORDER BY restriction
      *
      * @param string $fields List of fields to sort. E.g. $this->order('myField, b.mySecondField DESC')
      */
-    public function orderBy($fields): static
+    public function order_by($fields): static
     {
         if (!empty($fields)) {
             $this->query['order'][] = $fields;
         }
-
         return $this;
     }
-
     /**
      * Adds a GROUP BY restriction
      *
      * @param string $fields List of fields to group. E.g. $this->group('myField1, myField2')
      */
-    public function groupBy($fields): static
+    public function group_by($fields): static
     {
         if (!empty($fields)) {
             $this->query['group'][] = $fields;
         }
-
         return $this;
     }
-
     /**
      * Sets query offset and limit
      *
@@ -367,19 +319,13 @@ class DbQueryCore implements \Stringable
      */
     public function limit($limit, $offset = 0): static
     {
-        $offset = (int)$offset;
+        $offset = (int) $offset;
         if ($offset < 0) {
             $offset = 0;
         }
-
-        $this->query['limit'] = [
-            'offset' => $offset,
-            'limit'  => (int)$limit,
-        ];
-
+        $this->query['limit'] = ['offset' => $offset, 'limit' => (int) $limit];
         return $this;
     }
-
     /**
      * Generates query and return SQL string
      *
@@ -389,9 +335,8 @@ class DbQueryCore implements \Stringable
     public function build()
     {
         $this->validate();
-        return $this->buildSql();
+        return $this->build_sql();
     }
-
     /**
      * Validates current DbQuery object, throws exception if it's not valid
      *
@@ -400,58 +345,48 @@ class DbQueryCore implements \Stringable
     public function validate(): void
     {
         if (!$this->query['from']) {
-            throw new PrestaShopException('Table name not set in DbQuery object. Cannot build a valid SQL query.');
+            throw new Presta_Shop_Exception('Table name not set in DbQuery object. Cannot build a valid SQL query.');
         }
     }
-
     /**
      * Generates query and return SQL
      */
-    public function buildSql(): string
+    public function build_sql(): string
     {
         if ($this->query['type'] == 'SELECT') {
-            $sql = 'SELECT '.((($this->query['select'])) ? implode(",\n", $this->query['select']) : '*')."\n";
+            $sql = 'SELECT ' . ($this->query['select'] ? implode(",\n", $this->query['select']) : '*') . "\n";
         } else {
-            $sql = $this->query['type'].' ';
+            $sql = $this->query['type'] . ' ';
         }
-
         if ($this->query['from']) {
             $sql .= 'FROM ' . implode(', ', $this->query['from']) . "\n";
         }
-
         if ($this->query['join']) {
-            $sql .= implode("\n", $this->query['join'])."\n";
+            $sql .= implode("\n", $this->query['join']) . "\n";
         }
-
         if ($this->query['where']) {
-            $sql .= 'WHERE ('.implode(') AND (', $this->query['where']).")\n";
+            $sql .= 'WHERE (' . implode(') AND (', $this->query['where']) . ")\n";
         }
-
         if ($this->query['group']) {
-            $sql .= 'GROUP BY '.implode(', ', $this->query['group'])."\n";
+            $sql .= 'GROUP BY ' . implode(', ', $this->query['group']) . "\n";
         }
-
         if ($this->query['having']) {
-            $sql .= 'HAVING ('.implode(') AND (', $this->query['having']).")\n";
+            $sql .= 'HAVING (' . implode(') AND (', $this->query['having']) . ")\n";
         }
-
         if ($this->query['order']) {
-            $sql .= 'ORDER BY '.implode(', ', $this->query['order'])."\n";
+            $sql .= 'ORDER BY ' . implode(', ', $this->query['order']) . "\n";
         }
-
         if ($this->query['limit']['limit']) {
             $limit = $this->query['limit'];
-            $sql .= 'LIMIT '.($limit['offset'] ? $limit['offset'].', ' : '').$limit['limit'];
+            $sql .= 'LIMIT ' . ($limit['offset'] ? $limit['offset'] . ', ' : '') . $limit['limit'];
         }
-
         return $sql;
     }
-
     /**
      * Converts object to string
      */
     public function __toString(): string
     {
-        return $this->buildSql();
+        return $this->build_sql();
     }
 }

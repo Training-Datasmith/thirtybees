@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,34 +30,22 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class AttributeGroupCore
  */
-class AttributeGroupCore extends ObjectModel
+class Attribute_Group_Core extends Object_Model
 {
     /**
      * @var array Object model definition
      */
-    public static $definition = [
-        'table'     => 'attribute_group',
-        'primary'   => 'id_attribute_group',
-        'multilang' => true,
-        'fields'    => [
-            'is_color_group' => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbType' => 'tinyint(1)', 'dbDefault' => '0'],
-            'group_type'     => ['type' => self::TYPE_STRING, 'required' => true, 'values' => ['select', 'radio', 'color'], 'dbDefault' => 'select'],
-            'position'       => ['type' => self::TYPE_INT, 'validate' => 'isInt', 'dbDefault' => '0'],
-
-            /* Lang fields */
-            'name'           => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isGenericName', 'required' => true, 'size' => 128],
-            'public_name'    => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isGenericName', 'required' => true, 'size' => 64],
-        ],
-        'keys' => [
-            'attribute_group_shop' => [
-                'id_shop' => ['type' => ObjectModel::KEY, 'columns' => ['id_shop']],
-            ],
-        ],
-    ];
+    public static $definition = ['table' => 'attribute_group', 'primary' => 'id_attribute_group', 'multilang' => true, 'fields' => [
+        'is_color_group' => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbType' => 'tinyint(1)', 'dbDefault' => '0'],
+        'group_type' => ['type' => self::TYPE_STRING, 'required' => true, 'values' => ['select', 'radio', 'color'], 'dbDefault' => 'select'],
+        'position' => ['type' => self::TYPE_INT, 'validate' => 'isInt', 'dbDefault' => '0'],
+        /* Lang fields */
+        'name' => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isGenericName', 'required' => true, 'size' => 128],
+        'public_name' => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isGenericName', 'required' => true, 'size' => 64],
+    ], 'keys' => ['attribute_group_shop' => ['id_shop' => ['type' => Object_Model::KEY, 'columns' => ['id_shop']]]]];
     /** @var string|string[] Name */
     public $name;
     /** @var bool $is_color_group */
@@ -71,20 +59,7 @@ class AttributeGroupCore extends ObjectModel
     /**
      * @var array Webservice parameters
      */
-    protected $webserviceParameters = [
-        'objectsNodeName' => 'product_options',
-        'objectNodeName'  => 'product_option',
-        'fields'          => [],
-        'associations'    => [
-            'product_option_values' => [
-                'resource' => 'product_option_value',
-                'fields'   => [
-                    'id' => [],
-                ],
-            ],
-        ],
-    ];
-
+    protected $webservice_parameters = ['objectsNodeName' => 'product_options', 'objectNodeName' => 'product_option', 'fields' => [], 'associations' => ['product_option_values' => ['resource' => 'product_option_value', 'fields' => ['id' => []]]]];
     /**
      * Get all attributes for a given language / group
      *
@@ -95,23 +70,13 @@ class AttributeGroupCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getAttributes($idLang, $idAttributeGroup)
+    public static function get_attributes($id_lang, $id_attribute_group)
     {
-        if (!Combination::isFeatureActive()) {
+        if (!Combination::is_feature_active()) {
             return [];
         }
-
-        return Db::readOnly()->getArray(
-            (new DbQuery())
-                ->select('*')
-                ->from('attribute', 'a')
-                ->join(Shop::addSqlAssociation('attribute', 'a'))
-                ->leftJoin('attribute_lang', 'al', 'a.`id_attribute` = al.`id_attribute` AND al.`id_lang` = '.(int) $idLang)
-                ->where('a.`id_attribute_group` = '.(int) $idAttributeGroup)
-                ->orderBy('`position` ASC')
-        );
+        return Db::read_only()->get_array((new Db_Query())->select('*')->from('attribute', 'a')->join(Shop::add_sql_association('attribute', 'a'))->left_join('attribute_lang', 'al', 'a.`id_attribute` = al.`id_attribute` AND al.`id_lang` = ' . (int) $id_lang)->where('a.`id_attribute_group` = ' . (int) $id_attribute_group)->order_by('`position` ASC'));
     }
-
     /**
      * Get all attributes groups for a given language
      *
@@ -121,22 +86,13 @@ class AttributeGroupCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getAttributesGroups($idLang)
+    public static function get_attributes_groups($id_lang)
     {
-        if (!Combination::isFeatureActive()) {
+        if (!Combination::is_feature_active()) {
             return [];
         }
-
-        return Db::readOnly()->getArray(
-            (new DbQuery())
-                ->select('DISTINCT agl.`name`, ag.*, agl.*')
-                ->from('attribute_group', 'ag')
-                ->join(Shop::addSqlAssociation('attribute_group', 'ag'))
-                ->leftJoin('attribute_group_lang', 'agl', 'ag.`id_attribute_group` = agl.`id_attribute_group` AND agl.`id_lang` = '.(int) $idLang)
-                ->orderBy('agl.`name` ASC')
-        );
+        return Db::read_only()->get_array((new Db_Query())->select('DISTINCT agl.`name`, ag.*, agl.*')->from('attribute_group', 'ag')->join(Shop::add_sql_association('attribute_group', 'ag'))->left_join('attribute_group_lang', 'agl', 'ag.`id_attribute_group` = agl.`id_attribute_group` AND agl.`id_lang` = ' . (int) $id_lang)->order_by('agl.`name` ASC'));
     }
-
     /**
      * @param bool $autoDate
      * @param bool $nullValues
@@ -145,24 +101,20 @@ class AttributeGroupCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public function add($autoDate = true, $nullValues = false)
+    public function add($auto_date = true, $null_values = false)
     {
         if ($this->group_type == 'color') {
             $this->is_color_group = 1;
         } else {
             $this->is_color_group = 0;
         }
-
         if ($this->position <= 0) {
-            $this->position = AttributeGroup::getHigherPosition() + 1;
+            $this->position = Attribute_Group::get_higher_position() + 1;
         }
-
-        $return = parent::add($autoDate, true);
-        Hook::triggerEvent('actionAttributeGroupSave', ['id_attribute_group' => $this->id]);
-
+        $return = parent::add($auto_date, true);
+        Hook::trigger_event('actionAttributeGroupSave', ['id_attribute_group' => $this->id]);
         return $return;
     }
-
     /**
      * getHigherPosition
      *
@@ -171,21 +123,14 @@ class AttributeGroupCore extends ObjectModel
      * @return int $position
      * @throws PrestaShopException
      */
-    public static function getHigherPosition()
+    public static function get_higher_position()
     {
-        $position = (int) Db::readOnly()->getValue(
-            (new DbQuery())
-                ->select('MAX(`position`)')
-                ->from('attribute_group')
-        );
-
+        $position = (int) Db::read_only()->get_value((new Db_Query())->select('MAX(`position`)')->from('attribute_group'));
         if (!$position) {
             return -1;
         }
-
         return $position;
     }
-
     /**
      * @param bool $nullValues
      *
@@ -194,20 +139,17 @@ class AttributeGroupCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function update($nullValues = false)
+    public function update($null_values = false)
     {
         if ($this->group_type == 'color') {
             $this->is_color_group = 1;
         } else {
             $this->is_color_group = 0;
         }
-
-        $return = parent::update($nullValues);
-        Hook::triggerEvent('actionAttributeGroupSave', ['id_attribute_group' => $this->id]);
-
+        $return = parent::update($null_values);
+        Hook::trigger_event('actionAttributeGroupSave', ['id_attribute_group' => $this->id]);
         return $return;
     }
-
     /**
      * Delete several objects from database
      *
@@ -219,19 +161,17 @@ class AttributeGroupCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function deleteSelection($selection)
+    public function delete_selection($selection)
     {
         /* Also delete Attributes */
         foreach ($selection as $value) {
-            $obj = new AttributeGroup($value);
+            $obj = new Attribute_Group($value);
             if (!$obj->delete()) {
                 return false;
             }
         }
-
         return true;
     }
-
     /**
      * @return bool
      *
@@ -240,77 +180,58 @@ class AttributeGroupCore extends ObjectModel
      */
     public function delete()
     {
-        if (!$this->hasMultishopEntries() || Shop::getContext() == Shop::CONTEXT_ALL) {
+        if (!$this->has_multishop_entries() || Shop::get_context() == Shop::CONTEXT_ALL) {
             /* Select children in order to find linked combinations */
-            $attributeIds = Db::readOnly()->getArray(
-                (new DbQuery())
-                    ->select('`id_attribute`')
-                    ->from('attribute')
-                    ->where('`id_attribute_group` = '.(int) $this->id)
-            );
+            $attribute_ids = Db::read_only()->get_array((new Db_Query())->select('`id_attribute`')->from('attribute')->where('`id_attribute_group` = ' . (int) $this->id));
             /* Removing attributes to the found combinations */
-            $toRemove = [];
-            foreach ($attributeIds as $attribute) {
-                $toRemove[] = (int) $attribute['id_attribute'];
+            $to_remove = [];
+            foreach ($attribute_ids as $attribute) {
+                $to_remove[] = (int) $attribute['id_attribute'];
             }
-            $conn = Db::getInstance();
-            if (!empty($toRemove)
-                && $conn->delete('product_attribute_combination', '`id_attribute` IN ('.implode(',', $toRemove).')') === false
-            ) {
+            $conn = Db::get_instance();
+            if (!empty($to_remove) && $conn->delete('product_attribute_combination', '`id_attribute` IN (' . implode(',', $to_remove) . ')') === false) {
                 return false;
             }
             /* Remove combinations if they do not possess attributes anymore */
-            if (!AttributeGroup::cleanDeadCombinations()) {
+            if (!Attribute_Group::clean_dead_combinations()) {
                 return false;
             }
             /* Also delete related attributes */
-            if (count($toRemove)) {
-                if (!$conn->delete('attribute_lang', '`id_attribute` IN ('.implode(',', $toRemove).')')
-                    || !$conn->delete('attribute_shop', '`id_attribute` IN ('.implode(',', $toRemove).')')
-                    || !$conn->delete('attribute', '`id_attribute_group` = '.(int) $this->id)
-                ) {
+            if (count($to_remove)) {
+                if (!$conn->delete('attribute_lang', '`id_attribute` IN (' . implode(',', $to_remove) . ')') || !$conn->delete('attribute_shop', '`id_attribute` IN (' . implode(',', $to_remove) . ')') || !$conn->delete('attribute', '`id_attribute_group` = ' . (int) $this->id)) {
                     return false;
                 }
             }
-            static::cleanPositions();
+            static::clean_positions();
         }
         $return = parent::delete();
         if ($return) {
-            Hook::triggerEvent('actionAttributeGroupDelete', ['id_attribute_group' => $this->id]);
+            Hook::trigger_event('actionAttributeGroupDelete', ['id_attribute_group' => $this->id]);
         }
-
         return $return;
     }
-
     /**
      * @return bool
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function cleanDeadCombinations()
+    public static function clean_dead_combinations()
     {
-        $attributeCombinations = Db::readOnly()->getArray(
-            (new DbQuery())
-                ->select('pac.`id_attribute`, pa.`id_product_attribute`')
-                ->from('product_attribute', 'pa')
-                ->leftJoin('product_attribute_combination', 'pac', 'pa.`id_product_attribute` = pac.`id_product_attribute`')
-        );
-        $toRemove = [];
-        foreach ($attributeCombinations as $attributeCombination) {
-            if ((int) $attributeCombination['id_attribute'] == 0) {
-                $toRemove[] = (int) $attributeCombination['id_product_attribute'];
+        $attribute_combinations = Db::read_only()->get_array((new Db_Query())->select('pac.`id_attribute`, pa.`id_product_attribute`')->from('product_attribute', 'pa')->left_join('product_attribute_combination', 'pac', 'pa.`id_product_attribute` = pac.`id_product_attribute`'));
+        $to_remove = [];
+        foreach ($attribute_combinations as $attribute_combination) {
+            if ((int) $attribute_combination['id_attribute'] == 0) {
+                $to_remove[] = (int) $attribute_combination['id_product_attribute'];
             }
         }
         $return = true;
-        foreach ($toRemove as $remove) {
+        foreach ($to_remove as $remove) {
             $combination = new Combination($remove);
             $return = $combination->delete() && $return;
         }
-
         return $return;
     }
-
     /**
      * Reorder group attribute position
      * Call it after deleting a group attribute.
@@ -320,30 +241,16 @@ class AttributeGroupCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function cleanPositions()
+    public static function clean_positions()
     {
         $return = true;
-        $result = Db::readOnly()->getArray(
-            (new DbQuery())
-                ->select('`id_attribute_group`')
-                ->from('attribute_group')
-                ->orderBy('`position`')
-        );
-
+        $result = Db::read_only()->get_array((new Db_Query())->select('`id_attribute_group`')->from('attribute_group')->order_by('`position`'));
         $i = 0;
         foreach ($result as $value) {
-            $return = Db::getInstance()->update(
-                'attribute_group',
-                [
-                    'position' => $i++,
-                ],
-                '`id_attribute_group` = '.(int) $value['id_attribute_group']
-            );
+            $return = Db::get_instance()->update('attribute_group', ['position' => $i++], '`id_attribute_group` = ' . (int) $value['id_attribute_group']);
         }
-
         return $return;
     }
-
     /**
      * @param array $values
      *
@@ -352,51 +259,33 @@ class AttributeGroupCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function setWsProductOptionValues($values)
+    public function set_ws_product_option_values($values)
     {
         $ids = [];
         foreach ($values as $value) {
             $ids[] = intval($value['id']);
         }
-        $conn = Db::getInstance();
-        $conn->delete(
-            'attribute',
-            '`id_attribute_group` = '.(int) $this->id.' AND `id_attribute` NOT IN ('.implode(',', $ids).')'
-        );
+        $conn = Db::get_instance();
+        $conn->delete('attribute', '`id_attribute_group` = ' . (int) $this->id . ' AND `id_attribute` NOT IN (' . implode(',', $ids) . ')');
         $ok = true;
         foreach ($values as $value) {
-            $result = $conn->update(
-                'attribute',
-                [
-                    'id_attribute_group' => (int) $this->id,
-                ],
-                '`id_attribute` = '.(int) $value['id']
-            );
+            $result = $conn->update('attribute', ['id_attribute_group' => (int) $this->id], '`id_attribute` = ' . (int) $value['id']);
             if ($result === false) {
                 $ok = false;
             }
         }
-
         return $ok;
     }
-
     /**
      * @return array
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function getWsProductOptionValues()
+    public function get_ws_product_option_values()
     {
-        return Db::readOnly()->getArray(
-            (new DbQuery())
-                ->select('a.`id_attribute` AS `id`')
-                ->from('attribute', 'a')
-                ->join(Shop::addSqlAssociation('attribute', 'a'))
-                ->where('a.`id_attribute_group` = '.(int) $this->id)
-        );
+        return Db::read_only()->get_array((new Db_Query())->select('a.`id_attribute` AS `id`')->from('attribute', 'a')->join(Shop::add_sql_association('attribute', 'a'))->where('a.`id_attribute_group` = ' . (int) $this->id));
     }
-
     /**
      * Move a group attribute
      *
@@ -408,44 +297,22 @@ class AttributeGroupCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function updatePosition($way, $position)
+    public function update_position($way, $position)
     {
-        if (!$res = Db::readOnly()->getArray(
-            (new DbQuery())
-                ->select('ag.`position`, ag.`id_attribute_group`')
-                ->from('attribute_group', 'ag')
-                ->where('ag.`id_attribute_group` = '.Tools::getIntValue('id_attribute_group', 1))
-                ->orderBy('ag.`position` ASC')
-        )
-        ) {
+        if (!$res = Db::read_only()->get_array((new Db_Query())->select('ag.`position`, ag.`id_attribute_group`')->from('attribute_group', 'ag')->where('ag.`id_attribute_group` = ' . Tools::get_int_value('id_attribute_group', 1))->order_by('ag.`position` ASC'))) {
             return false;
         }
-
-        foreach ($res as $groupAttribute) {
-            if ((int) $groupAttribute['id_attribute_group'] == (int) $this->id) {
-                $movedGroupAttribute = $groupAttribute;
+        foreach ($res as $group_attribute) {
+            if ((int) $group_attribute['id_attribute_group'] == (int) $this->id) {
+                $moved_group_attribute = $group_attribute;
             }
         }
-
-        if (!isset($movedGroupAttribute) || !isset($position)) {
+        if (!isset($moved_group_attribute) || !isset($position)) {
             return false;
         }
-
         // < and > statements rather than BETWEEN operator
         // since BETWEEN is treated differently according to databases
-        $conn = Db::getInstance();
-        return $conn->update(
-            'attribute_group',
-            [
-                'position' => ['type' => 'sql', 'value' => '`position` '.($way ? '- 1' : '+ 1')],
-            ],
-            '`position` '.($way ? '> '.(int) $movedGroupAttribute['position'].' AND `position` <= '.(int) $position : '< '.(int) $movedGroupAttribute['position'].' AND `position` >= '.(int) $position)
-        ) && $conn->update(
-            'attribute_group',
-            [
-                'position' => (int) $position,
-            ],
-            '`id_attribute_group` = '.(int) $movedGroupAttribute['id_attribute_group']
-        );
+        $conn = Db::get_instance();
+        return $conn->update('attribute_group', ['position' => ['type' => 'sql', 'value' => '`position` ' . ($way ? '- 1' : '+ 1')]], '`position` ' . ($way ? '> ' . (int) $moved_group_attribute['position'] . ' AND `position` <= ' . (int) $position : '< ' . (int) $moved_group_attribute['position'] . ' AND `position` >= ' . (int) $position)) && $conn->update('attribute_group', ['position' => (int) $position], '`id_attribute_group` = ' . (int) $moved_group_attribute['id_attribute_group']);
     }
 }

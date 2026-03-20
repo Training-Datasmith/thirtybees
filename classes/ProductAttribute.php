@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,64 +30,33 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class ProductAttributeCore
  */
-class ProductAttributeCore extends ObjectModel
+class Product_Attribute_Core extends Object_Model
 {
     /** @var int Group id which attribute belongs */
     public $id_attribute_group;
-
     /** @var string|string[] Name */
     public $name;
-
     /** @var string $color */
     public $color;
-
     /** @var int $position */
     public $position;
-
     /**
      * @var array Object model definition
      */
-    public static $definition = [
-        'table'     => 'attribute',
-        'primary'   => 'id_attribute',
-        'multilang' => true,
-        'fields'    => [
-            'id_attribute_group' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true],
-            'color'              => ['type' => self::TYPE_STRING, 'validate' => 'isColor', 'size' => 32],
-            'position'           => ['type' => self::TYPE_INT, 'validate' => 'isInt', 'dbDefault' => '0'],
-
-            /* Lang fields */
-            'name'               => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isGenericName', 'required' => true, 'size' => 128],
-        ],
-        'keys' => [
-            'attribute' => [
-                'attribute_group' => ['type' => ObjectModel::KEY, 'columns' => ['id_attribute_group']],
-            ],
-            'attribute_lang' => [
-                'id_lang' => ['type' => ObjectModel::KEY, 'columns' => ['id_lang', 'name']],
-            ],
-            'attribute_shop' => [
-                'id_shop' => ['type' => ObjectModel::KEY, 'columns' => ['id_shop']],
-            ],
-        ],
-    ];
-
+    public static $definition = ['table' => 'attribute', 'primary' => 'id_attribute', 'multilang' => true, 'fields' => [
+        'id_attribute_group' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true],
+        'color' => ['type' => self::TYPE_STRING, 'validate' => 'isColor', 'size' => 32],
+        'position' => ['type' => self::TYPE_INT, 'validate' => 'isInt', 'dbDefault' => '0'],
+        /* Lang fields */
+        'name' => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isGenericName', 'required' => true, 'size' => 128],
+    ], 'keys' => ['attribute' => ['attribute_group' => ['type' => Object_Model::KEY, 'columns' => ['id_attribute_group']]], 'attribute_lang' => ['id_lang' => ['type' => Object_Model::KEY, 'columns' => ['id_lang', 'name']]], 'attribute_shop' => ['id_shop' => ['type' => Object_Model::KEY, 'columns' => ['id_shop']]]]];
     /** @var string Path to image directory. Used for image deletion. */
     protected $image_dir = _PS_COL_IMG_DIR_;
-
     /** @var array WebService parameters */
-    protected $webserviceParameters = [
-        'objectsNodeName' => 'product_option_values',
-        'objectNodeName'  => 'product_option_value',
-        'fields'          => [
-            'id_attribute_group' => ['xlink_resource' => 'product_options'],
-        ],
-    ];
-
+    protected $webservice_parameters = ['objectsNodeName' => 'product_option_values', 'objectNodeName' => 'product_option_value', 'fields' => ['id_attribute_group' => ['xlink_resource' => 'product_options']]];
     /**
      * ProductAttributeCore constructor.
      *
@@ -98,13 +67,11 @@ class ProductAttributeCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function __construct($id = null, $idLang = null, $idShop = null)
+    public function __construct($id = null, $id_lang = null, $id_shop = null)
     {
         $this->image_dir = _PS_COL_IMG_DIR_;
-
-        parent::__construct($id, $idLang, $idShop);
+        parent::__construct($id, $id_lang, $id_shop);
     }
-
     /**
      * @return bool
      *
@@ -113,61 +80,38 @@ class ProductAttributeCore extends ObjectModel
      */
     public function delete()
     {
-        if (!$this->hasMultishopEntries() || Shop::getContext() == Shop::CONTEXT_ALL) {
-            $conn = Db::readOnly();
-            $result = $conn->getArray(
-                (new DbQuery())
-                    ->select('`id_product_attribute`')
-                    ->from('product_attribute_combination')
-                    ->where('`id_attribute` = '.(int) $this->id)
-            );
+        if (!$this->has_multishop_entries() || Shop::get_context() == Shop::CONTEXT_ALL) {
+            $conn = Db::read_only();
+            $result = $conn->get_array((new Db_Query())->select('`id_product_attribute`')->from('product_attribute_combination')->where('`id_attribute` = ' . (int) $this->id));
             $products = [];
-
             foreach ($result as $row) {
                 $combination = new Combination($row['id_product_attribute']);
-                $newRequest = $conn->getArray(
-                    (new DbQuery())
-                        ->select('`id_product`, `default_on`')
-                        ->from('product_attribute')
-                        ->where('`id_product_attribute` = '.(int) $row['id_product_attribute'])
-                );
-                foreach ($newRequest as $value) {
+                $new_request = $conn->get_array((new Db_Query())->select('`id_product`, `default_on`')->from('product_attribute')->where('`id_product_attribute` = ' . (int) $row['id_product_attribute']));
+                foreach ($new_request as $value) {
                     if ($value['default_on'] == 1) {
                         $products[] = $value['id_product'];
                     }
                 }
                 $combination->delete();
             }
-
             foreach ($products as $product) {
-                $idProductAttribute = (int) $conn->getValue(
-                    (new DbQuery())
-                        ->select('`id_product_attribute`')
-                        ->from('product_attribute')
-                        ->where('`id_product` = '.(int) $product)
-                );
-
-                if (Validate::isLoadedObject($product = new Product((int) $product))) {
-                    $product->deleteDefaultAttributes();
-                    $product->setDefaultAttribute($idProductAttribute);
+                $id_product_attribute = (int) $conn->get_value((new Db_Query())->select('`id_product_attribute`')->from('product_attribute')->where('`id_product` = ' . (int) $product));
+                if (Validate::is_loaded_object($product = new Product((int) $product))) {
+                    $product->delete_default_attributes();
+                    $product->set_default_attribute($id_product_attribute);
                 }
-
             }
-
             // Delete associated restrictions on cart rules
-            CartRule::cleanProductRuleIntegrity('attributes', $this->id);
-
+            Cart_Rule::clean_product_rule_integrity('attributes', $this->id);
             /* Reinitializing position */
-            $this->cleanPositions((int) $this->id_attribute_group);
+            $this->clean_positions((int) $this->id_attribute_group);
         }
         $return = parent::delete();
         if ($return) {
-            Hook::triggerEvent('actionAttributeDelete', ['id_attribute' => $this->id]);
+            Hook::trigger_event('actionAttributeDelete', ['id_attribute' => $this->id]);
         }
-
         return $return;
     }
-
     /**
      * @param bool $nullValues
      *
@@ -176,17 +120,14 @@ class ProductAttributeCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function update($nullValues = false)
+    public function update($null_values = false)
     {
-        $return = parent::update($nullValues);
-
+        $return = parent::update($null_values);
         if ($return) {
-            Hook::triggerEvent('actionAttributeSave', ['id_attribute' => $this->id]);
+            Hook::trigger_event('actionAttributeSave', ['id_attribute' => $this->id]);
         }
-
         return $return;
     }
-
     /**
      * @param bool $autoDate
      * @param bool $nullValues
@@ -195,21 +136,17 @@ class ProductAttributeCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public function add($autoDate = true, $nullValues = false)
+    public function add($auto_date = true, $null_values = false)
     {
         if ($this->position <= 0) {
-            $this->position = static::getHigherPosition($this->id_attribute_group) + 1;
+            $this->position = static::get_higher_position($this->id_attribute_group) + 1;
         }
-
-        $return = parent::add($autoDate, $nullValues);
-
+        $return = parent::add($auto_date, $null_values);
         if ($return) {
-            Hook::triggerEvent('actionAttributeSave', ['id_attribute' => $this->id]);
+            Hook::trigger_event('actionAttributeSave', ['id_attribute' => $this->id]);
         }
-
         return $return;
     }
-
     /**
      * Get all attributes for a given language
      *
@@ -221,26 +158,13 @@ class ProductAttributeCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getAttributes($idLang, $notNull = false)
+    public static function get_attributes($id_lang, $not_null = false)
     {
-        if (!Combination::isFeatureActive()) {
+        if (!Combination::is_feature_active()) {
             return [];
         }
-
-        return Db::readOnly()->getArray(
-            (new DbQuery())
-                ->select('DISTINCT ag.*, agl.*, a.`id_attribute`, al.`name`, agl.`name` AS `attribute_group`')
-                ->from('attribute_group', 'ag')
-                ->leftJoin('attribute_group_lang', 'agl', 'ag.`id_attribute_group` = agl.`id_attribute_group` AND agl.`id_lang` = '.(int) $idLang)
-                ->leftJoin('attribute', 'a', 'a.`id_attribute_group` = ag.`id_attribute_group`')
-                ->leftJoin('attribute_lang', 'al', 'al.`id_attribute` = a.`id_attribute` AND al.`id_lang` = '.(int) $idLang)
-                ->join(Shop::addSqlAssociation('attribute_group', 'ag'))
-                ->join(Shop::addSqlAssociation('attribute', 'a'))
-                ->where($notNull ? 'a.`id_attribute` IS NOT NULL AND al.`name` IS NOT NULL AND agl.`id_attribute_group` IS NOT NULL' : '')
-                ->orderBy('agl.`name` ASC, a.`position` ASC')
-        );
+        return Db::read_only()->get_array((new Db_Query())->select('DISTINCT ag.*, agl.*, a.`id_attribute`, al.`name`, agl.`name` AS `attribute_group`')->from('attribute_group', 'ag')->left_join('attribute_group_lang', 'agl', 'ag.`id_attribute_group` = agl.`id_attribute_group` AND agl.`id_lang` = ' . (int) $id_lang)->left_join('attribute', 'a', 'a.`id_attribute_group` = ag.`id_attribute_group`')->left_join('attribute_lang', 'al', 'al.`id_attribute` = a.`id_attribute` AND al.`id_lang` = ' . (int) $id_lang)->join(Shop::add_sql_association('attribute_group', 'ag'))->join(Shop::add_sql_association('attribute', 'a'))->where($not_null ? 'a.`id_attribute` IS NOT NULL AND al.`name` IS NOT NULL AND agl.`id_attribute_group` IS NOT NULL' : '')->order_by('agl.`name` ASC, a.`position` ASC'));
     }
-
     /**
      * @param int $idAttributeGroup
      * @param string $name
@@ -250,29 +174,14 @@ class ProductAttributeCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function isAttribute($idAttributeGroup, $name, $idLang)
+    public static function is_attribute($id_attribute_group, $name, $id_lang)
     {
-        if (!Combination::isFeatureActive()) {
+        if (!Combination::is_feature_active()) {
             return false;
         }
-
-        $result = Db::readOnly()->getValue(
-            (new DbQuery())
-                ->select('COUNT(*)')
-                ->from('attribute_group', 'ag')
-                ->leftJoin('attribute_group_lang', 'agl', 'ag.`id_attribute_group` = agl.`id_attribute_group` AND agl.`id_lang` = '.(int) $idLang)
-                ->leftJoin('attribute', 'a', 'a.`id_attribute_group` = ag.`id_attribute_group`')
-                ->leftJoin('attribute_lang', 'al', 'a.`id_attribute` = al.`id_attribute` AND al.`id_lang` = '.(int) $idLang)
-                ->join(Shop::addSqlAssociation('attribute_group', 'ag'))
-                ->join(Shop::addSqlAssociation('attribute', 'a'))
-                ->where('al.`name` = \''.pSQL($name).'\'')
-                ->where('ag.`id_attribute_group` = '.(int) $idAttributeGroup)
-                ->orderBy('agl.`name` ASC, a.`position` ASC')
-        );
-
-        return ((int) $result > 0);
+        $result = Db::read_only()->get_value((new Db_Query())->select('COUNT(*)')->from('attribute_group', 'ag')->left_join('attribute_group_lang', 'agl', 'ag.`id_attribute_group` = agl.`id_attribute_group` AND agl.`id_lang` = ' . (int) $id_lang)->left_join('attribute', 'a', 'a.`id_attribute_group` = ag.`id_attribute_group`')->left_join('attribute_lang', 'al', 'a.`id_attribute` = al.`id_attribute` AND al.`id_lang` = ' . (int) $id_lang)->join(Shop::add_sql_association('attribute_group', 'ag'))->join(Shop::add_sql_association('attribute', 'a'))->where('al.`name` = \'' . p_sql($name) . '\'')->where('ag.`id_attribute_group` = ' . (int) $id_attribute_group)->order_by('agl.`name` ASC, a.`position` ASC'));
+        return (int) $result > 0;
     }
-
     /**
      * Get quantity for a given attribute combination
      * Check if quantity is enough to deserve customer
@@ -284,17 +193,14 @@ class ProductAttributeCore extends ObjectModel
      * @return bool Quantity is available or not
      * @throws PrestaShopException
      */
-    public static function checkAttributeQty($idProductAttribute, $qty, ?Shop $shop = null)
+    public static function check_attribute_qty($id_product_attribute, $qty, ?Shop $shop = null)
     {
         if (!$shop) {
-            $shop = Context::getContext()->shop;
+            $shop = Context::get_context()->shop;
         }
-
-        $result = StockAvailable::getQuantityAvailableByProduct(null, (int) $idProductAttribute, $shop->id);
-
-        return ($result && $qty <= $result);
+        $result = Stock_Available::get_quantity_available_by_product(null, (int) $id_product_attribute, $shop->id);
+        return $result && $qty <= $result;
     }
-
     /**
      * @param int $idProduct Product ID
      * @return int Quantity
@@ -302,13 +208,11 @@ class ProductAttributeCore extends ObjectModel
      *
      * @deprecated 1.0.0, use StockAvailable::getQuantityAvailableByProduct()
      */
-    public static function getAttributeQty($idProduct)
+    public static function get_attribute_qty($id_product)
     {
-        Tools::displayAsDeprecated();
-
-        return StockAvailable::getQuantityAvailableByProduct($idProduct);
+        Tools::display_as_deprecated();
+        return Stock_Available::get_quantity_available_by_product($id_product);
     }
-
     /**
      * Update array with veritable quantity
      *
@@ -319,16 +223,14 @@ class ProductAttributeCore extends ObjectModel
      * @return bool
      * @throws PrestaShopException
      */
-    public static function updateQtyProduct(&$arr)
+    public static function update_qty_product(&$arr)
     {
-        Tools::displayAsDeprecated();
-
-        $idProduct = (int) $arr['id_product'];
-        $qty = StockAvailable::getQuantityAvailableByProduct($idProduct);
+        Tools::display_as_deprecated();
+        $id_product = (int) $arr['id_product'];
+        $qty = Stock_Available::get_quantity_available_by_product($id_product);
         $arr['quantity'] = (int) $qty;
         return true;
     }
-
     /**
      * Return true if attribute is color type
      *
@@ -336,17 +238,10 @@ class ProductAttributeCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public function isColorAttribute()
+    public function is_color_attribute()
     {
-        return (bool) Db::readOnly()->getValue(
-            (new DbQuery())
-                ->select('ag.`group_type`')
-                ->from('attribute_group', 'ag')
-                ->innerJoin('attribute', 'a', 'a.`id_attribute_group` = ag.`id_attribute_group`')
-                ->where('`group_type` = \'color\'')
-        );
+        return (bool) Db::read_only()->get_value((new Db_Query())->select('ag.`group_type`')->from('attribute_group', 'ag')->inner_join('attribute', 'a', 'a.`id_attribute_group` = ag.`id_attribute_group`')->where('`group_type` = \'color\''));
     }
-
     /**
      * Get minimal quantity for product with attributes quantity
      *
@@ -356,23 +251,14 @@ class ProductAttributeCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function getAttributeMinimalQty($idProductAttribute)
+    public static function get_attribute_minimal_qty($id_product_attribute)
     {
-        $minimalQuantity = Db::readOnly()->getValue(
-            (new DbQuery())
-                ->select('`minimal_quantity`')
-                ->from('product_attribute_shop', 'pas')
-                ->where('`id_shop` = ' . (int)Context::getContext()->shop->id)
-                ->where('`id_product_attribute` = ' . (int)$idProductAttribute)
-        );
-
-        if ($minimalQuantity > 1) {
-            return (int) $minimalQuantity;
+        $minimal_quantity = Db::read_only()->get_value((new Db_Query())->select('`minimal_quantity`')->from('product_attribute_shop', 'pas')->where('`id_shop` = ' . (int) Context::get_context()->shop->id)->where('`id_product_attribute` = ' . (int) $id_product_attribute));
+        if ($minimal_quantity > 1) {
+            return (int) $minimal_quantity;
         }
-
         return false;
     }
-
     /**
      * Move an attribute inside its group
      *
@@ -384,55 +270,29 @@ class ProductAttributeCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function updatePosition($way, $position)
+    public function update_position($way, $position)
     {
-        if (!$idAttributeGroup = Tools::getIntValue('id_attribute_group')) {
-            $idAttributeGroup = (int) $this->id_attribute_group;
+        if (!$id_attribute_group = Tools::get_int_value('id_attribute_group')) {
+            $id_attribute_group = (int) $this->id_attribute_group;
         }
-
-        if (!$res = Db::readOnly()->getArray(
-            (new DbQuery())
-                ->select('a.`id_attribute`, a.`position`, a.`id_attribute_group`')
-                ->from('attribute', 'a')
-                ->where('a.`id_attribute_group` = ' . (int)$idAttributeGroup)
-                ->orderBy('a.`position` ASC')
-        )) {
+        if (!$res = Db::read_only()->get_array((new Db_Query())->select('a.`id_attribute`, a.`position`, a.`id_attribute_group`')->from('attribute', 'a')->where('a.`id_attribute_group` = ' . (int) $id_attribute_group)->order_by('a.`position` ASC'))) {
             return false;
         }
-
         foreach ($res as $attribute) {
             if ((int) $attribute['id_attribute'] == (int) $this->id) {
-                $movedAttribute = $attribute;
+                $moved_attribute = $attribute;
             }
         }
-
-        if (!isset($movedAttribute) || !isset($position)) {
+        if (!isset($moved_attribute) || !isset($position)) {
             return false;
         }
-
         // < and > statements rather than BETWEEN operator
         // since BETWEEN is treated differently according to databases
-
-        $conn = Db::getInstance();
-        $res1 = $conn->update(
-            'attribute',
-            [
-                'position' => ['type' => 'sql', 'value' => '`position` '.($way ? '- 1' : '+ 1')],
-            ],
-            '`position`'.($way ? '> '.(int) $movedAttribute['position'].' AND `position` <= '.(int) $position : '< '.(int) $movedAttribute['position'].' AND `position` >= '.(int) $position).' AND `id_attribute_group`='.(int) $movedAttribute['id_attribute_group']
-        );
-
-        $res2 = $conn->update(
-            'attribute',
-            [
-                'position' => (int) $position,
-            ],
-            '`id_attribute` = '.(int) $movedAttribute['id_attribute'].' AND `id_attribute_group`='.(int) $movedAttribute['id_attribute_group']
-        );
-
-        return ($res1 && $res2);
+        $conn = Db::get_instance();
+        $res1 = $conn->update('attribute', ['position' => ['type' => 'sql', 'value' => '`position` ' . ($way ? '- 1' : '+ 1')]], '`position`' . ($way ? '> ' . (int) $moved_attribute['position'] . ' AND `position` <= ' . (int) $position : '< ' . (int) $moved_attribute['position'] . ' AND `position` >= ' . (int) $position) . ' AND `id_attribute_group`=' . (int) $moved_attribute['id_attribute_group']);
+        $res2 = $conn->update('attribute', ['position' => (int) $position], '`id_attribute` = ' . (int) $moved_attribute['id_attribute'] . ' AND `id_attribute_group`=' . (int) $moved_attribute['id_attribute_group']);
+        return $res1 && $res2;
     }
-
     /**
      * Reorder attribute position in group $id_attribute_group.
      * Call it after deleting an attribute from a group.
@@ -444,21 +304,17 @@ class ProductAttributeCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public function cleanPositions($idAttributeGroup, $useLastAttribute = true)
+    public function clean_positions($id_attribute_group, $use_last_attribute = true)
     {
-        $conn = Db::getInstance();
+        $conn = Db::get_instance();
         $conn->execute('SET @i = -1', false);
-        $sql = 'UPDATE `'._DB_PREFIX_.'attribute` SET `position` = @i:=@i+1 WHERE';
-
-        if ($useLastAttribute) {
-            $sql .= ' `id_attribute` != '.(int) $this->id.' AND';
+        $sql = 'UPDATE `' . _DB_PREFIX_ . 'attribute` SET `position` = @i:=@i+1 WHERE';
+        if ($use_last_attribute) {
+            $sql .= ' `id_attribute` != ' . (int) $this->id . ' AND';
         }
-
-        $sql .= ' `id_attribute_group` = '.(int) $idAttributeGroup.' ORDER BY `position` ASC';
-
+        $sql .= ' `id_attribute_group` = ' . (int) $id_attribute_group . ' ORDER BY `position` ASC';
         return $conn->execute($sql);
     }
-
     /**
      * getHigherPosition
      *
@@ -470,18 +326,11 @@ class ProductAttributeCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function getHigherPosition($idAttributeGroup)
+    public static function get_higher_position($id_attribute_group)
     {
-        $position = Db::readOnly()->getValue(
-            (new DbQuery())
-                ->select('MAX(`position`)')
-                ->from('attribute')
-                ->where('`id_attribute_group` = ' . (int)$idAttributeGroup)
-        );
-
-        return (is_numeric($position)) ? $position : -1;
+        $position = Db::read_only()->get_value((new Db_Query())->select('MAX(`position`)')->from('attribute')->where('`id_attribute_group` = ' . (int) $id_attribute_group));
+        return is_numeric($position) ? $position : -1;
     }
-
     /**
      * Returns file path to attribute texture file, if exists
      *
@@ -489,8 +338,8 @@ class ProductAttributeCore extends ObjectModel
      * @return string|false
      * @throws PrestaShopException
      */
-    public static function getTextureFilePath(int $attributeId)
+    public static function get_texture_file_path(int $attribute_id)
     {
-        return ImageManager::getSourceImage(_PS_COL_IMG_DIR_, $attributeId);
+        return Image_Manager::get_source_image(_PS_COL_IMG_DIR_, $attribute_id);
     }
 }

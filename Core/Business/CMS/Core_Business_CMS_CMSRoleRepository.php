@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,7 +30,6 @@ declare(strict_types=1);
  *  @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class Core_Business_CMS_CMSRoleRepository
  *
@@ -38,20 +37,19 @@ declare(strict_types=1);
  * @method CMSRole[]|null findByIdCmsRole(int|int[] $idCmsRole)
  * @method CMSRole[]|null findByName(string|string[] $name)
  */
-class Core_Business_CMS_CMSRoleRepository extends Core_Foundation_Database_EntityRepository
+class Core_business_cms_cms_Role_Repository extends Core_foundation_database_entity_Repository
 {
     /**
      * Return all CMSRoles which are already associated
      *
      * @return CMSRole[]|null
      */
-    public function getCMSRolesAssociated()
+    public function get_cms_roles_associated()
     {
         $sql = '
 			SELECT *
-			FROM `'.$this->getTableNameWithPrefix().'`
+			FROM `' . $this->get_table_name_with_prefix() . '`
 			WHERE `id_cms` != 0';
-
-        return $this->hydrateMany($this->db->select($sql));
+        return $this->hydrate_many($this->db->select($sql));
     }
 }

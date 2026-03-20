@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,13 +30,11 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
-use Thirtybees\Core\Database\ReadOnlyConnection;
-
+use Thirtybees\Core\Database\Read_Only_Connection;
 /**
  * Class ConfigurationCore
  */
-class ConfigurationCore extends ObjectModel
+class Configuration_Core extends Object_Model
 {
     // Default configuration consts
     // @since 1.0.1
@@ -280,124 +278,73 @@ class ConfigurationCore extends ObjectModel
     public const CONNECT_CODE = 'TB_CONNECT_CODE';
     public const MAINTENANCE_IP_ADDRESSES = 'PS_MAINTENANCE_IP';
     public const LANGUAGE_CODE_IN_URL = 'TB_LANGUAGE_CODE_IN_URL';
-
     /**
      * List of configuration keys that will raise warnings
      */
-    public const DEPRECATED_CONFIG_KEYS = [
-        self::PRICE_DISPLAY_PRECISION => 'Use Currency::getDisplayPrecision() method instead',
-    ];
+    public const DEPRECATED_CONFIG_KEYS = [self::PRICE_DISPLAY_PRECISION => 'Use Currency::getDisplayPrecision() method instead'];
     public const LAST_SEEN_NOTIFICATION_UUID = 'TB_LAST_SEEN_NOTIFICATION_UUID';
-
     public const CCC_ASSETS_RETENTION_PERIOD = 'TB_CCC_ASSETS_RETENTION_PERIOD';
-
     public const LOGS_RETENTION_PERIOD = 'TB_LOGS_RETENTION_PERIOD';
-
     /**
      * @var array Object model definition
      */
-    public static $definition = [
-        'table'     => 'configuration',
-        'primary'   => 'id_configuration',
-        'multilang' => true,
-        'fields'    => [
-            'id_shop_group' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'dbType' => 'int(11) unsigned'],
-            'id_shop'       => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'dbType' => 'int(11) unsigned'],
-            'name'          => ['type' => self::TYPE_STRING, 'validate' => 'isConfigName', 'required' => true, 'size' => 254],
-            'value'         => ['type' => self::TYPE_STRING, 'size' => ObjectModel::SIZE_TEXT],
-            'date_add'      => ['type' => self::TYPE_DATE, 'validate' => 'isDate', 'dbNullable' => false],
-            'date_upd'      => ['type' => self::TYPE_DATE, 'validate' => 'isDate', 'dbNullable' => false],
-        ],
-        'keys' => [
-            'configuration' => [
-                'id_shop'       => ['type' => ObjectModel::KEY, 'columns' => ['id_shop']],
-                'id_shop_group' => ['type' => ObjectModel::KEY, 'columns' => ['id_shop_group']],
-            ],
-            'configuration_kpi' => [
-                'id_shop'       => ['type' => ObjectModel::KEY, 'columns' => ['id_shop']],
-                'id_shop_group' => ['type' => ObjectModel::KEY, 'columns' => ['id_shop_group']],
-                'name'          => ['type' => ObjectModel::KEY, 'columns' => ['name']],
-            ],
-            'configuration_kpi_lang' => [
-                'primary' => ['type' => ObjectModel::PRIMARY_KEY, 'columns' => ['id_configuration_kpi', 'id_lang']],
-            ],
-        ],
-    ];
-
+    public static $definition = ['table' => 'configuration', 'primary' => 'id_configuration', 'multilang' => true, 'fields' => ['id_shop_group' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'dbType' => 'int(11) unsigned'], 'id_shop' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'dbType' => 'int(11) unsigned'], 'name' => ['type' => self::TYPE_STRING, 'validate' => 'isConfigName', 'required' => true, 'size' => 254], 'value' => ['type' => self::TYPE_STRING, 'size' => Object_Model::SIZE_TEXT], 'date_add' => ['type' => self::TYPE_DATE, 'validate' => 'isDate', 'dbNullable' => false], 'date_upd' => ['type' => self::TYPE_DATE, 'validate' => 'isDate', 'dbNullable' => false]], 'keys' => ['configuration' => ['id_shop' => ['type' => Object_Model::KEY, 'columns' => ['id_shop']], 'id_shop_group' => ['type' => Object_Model::KEY, 'columns' => ['id_shop_group']]], 'configuration_kpi' => ['id_shop' => ['type' => Object_Model::KEY, 'columns' => ['id_shop']], 'id_shop_group' => ['type' => Object_Model::KEY, 'columns' => ['id_shop_group']], 'name' => ['type' => Object_Model::KEY, 'columns' => ['name']]], 'configuration_kpi_lang' => ['primary' => ['type' => Object_Model::PRIMARY_KEY, 'columns' => ['id_configuration_kpi', 'id_lang']]]]];
     /**
      * @var array Configuration cache
      */
     protected static $_cache = [];
-
     /**
      * @var array Vars types
      */
     protected static $types = [];
-
     /**
      * @var mixed
      */
-    protected static $checkDeprecatedKeys = true;
-
+    protected static $check_deprecated_keys = true;
     /**
      * @var string Key
      */
     public $name;
-
     /**
      * @var int
      */
     public $id_shop_group;
-
     /**
      * @var int
      */
     public $id_shop;
-
     /**
      * @var string Value
      */
     public $value;
-
     /**
      * @var string Object creation date
      */
     public $date_add;
-
     /**
      * @var string Object last modification date
      */
     public $date_upd;
-
     /**
      * @var array Webservice parameters
      */
-    protected $webserviceParameters = [
-        'fields' => [
-            'value' => [],
-        ],
-    ];
-
+    protected $webservice_parameters = ['fields' => ['value' => []]];
     /**
      * @return bool|null
      */
-    public static function configurationIsLoaded()
+    public static function configuration_is_loaded()
     {
-        return isset(static::$_cache[static::$definition['table']])
-               && is_array(static::$_cache[static::$definition['table']])
-               && count(static::$_cache[static::$definition['table']]);
+        return isset(static::$_cache[static::$definition['table']]) && is_array(static::$_cache[static::$definition['table']]) && count(static::$_cache[static::$definition['table']]);
     }
-
     /**
      * WARNING: For testing only. Do NOT rely on this method, it may be removed at any time.
      *
      * @todo    Delegate static calls from Configuration to an instance of a class to be created.
      */
-    public static function clearConfigurationCacheForTesting(): void
+    public static function clear_configuration_cache_for_testing(): void
     {
         static::$_cache = [];
     }
-
     /**
      * @param string $key
      * @param int|null $idLang
@@ -406,11 +353,10 @@ class ConfigurationCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function getGlobalValue($key, $idLang = null)
+    public static function get_global_value($key, $id_lang = null)
     {
-        return Configuration::get($key, $idLang, 0, 0);
+        return Configuration::get($key, $id_lang, 0, 0);
     }
-
     /**
      * Get a single configuration value (in one language only)
      *
@@ -423,42 +369,36 @@ class ConfigurationCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function get($key, $idLang = null, $idShopGroup = null, $idShop = null)
+    public static function get($key, $id_lang = null, $id_shop_group = null, $id_shop = null)
     {
         if (defined('_PS_DO_NOT_LOAD_CONFIGURATION_') && _PS_DO_NOT_LOAD_CONFIGURATION_) {
             return false;
         }
-        static::validateKey($key);
-
-        if (! static::configurationIsLoaded()) {
-            Configuration::loadConfiguration();
+        static::validate_key($key);
+        if (!static::configuration_is_loaded()) {
+            Configuration::load_configuration();
         }
-
-        $idLang = (int) $idLang;
-        if ($idShop === null || !Shop::isFeatureActive()) {
-            $idShop = Shop::getContextShopID(true);
+        $id_lang = (int) $id_lang;
+        if ($id_shop === null || !Shop::is_feature_active()) {
+            $id_shop = Shop::get_context_shop_id(true);
         }
-        if ($idShopGroup === null || !Shop::isFeatureActive()) {
-            $idShopGroup = Shop::getContextShopGroupID(true);
+        if ($id_shop_group === null || !Shop::is_feature_active()) {
+            $id_shop_group = Shop::get_context_shop_group_id(true);
         }
-
-        if (!isset(static::$_cache[static::$definition['table']][$idLang])) {
-            $idLang = 0;
+        if (!isset(static::$_cache[static::$definition['table']][$id_lang])) {
+            $id_lang = 0;
         }
-        if ($idShop && Configuration::hasKey($key, $idLang, null, $idShop)) {
-            return static::$_cache[static::$definition['table']][$idLang]['shop'][$idShop][$key];
+        if ($id_shop && Configuration::has_key($key, $id_lang, null, $id_shop)) {
+            return static::$_cache[static::$definition['table']][$id_lang]['shop'][$id_shop][$key];
         }
-        if ($idShopGroup && Configuration::hasKey($key, $idLang, $idShopGroup)) {
-            return static::$_cache[static::$definition['table']][$idLang]['group'][$idShopGroup][$key];
+        if ($id_shop_group && Configuration::has_key($key, $id_lang, $id_shop_group)) {
+            return static::$_cache[static::$definition['table']][$id_lang]['group'][$id_shop_group][$key];
         }
-
-        if (Configuration::hasKey($key, $idLang)) {
-            return static::$_cache[static::$definition['table']][$idLang]['global'][$key];
+        if (Configuration::has_key($key, $id_lang)) {
+            return static::$_cache[static::$definition['table']][$id_lang]['global'][$key];
         }
-
         return false;
     }
-
     /**
      * Get a single configuration value for a get that has been deprecated.
      *
@@ -471,17 +411,16 @@ class ConfigurationCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function getDeprecatedKey($key, $idLang = null, $idShopGroup = null, $idShop = null)
+    public static function get_deprecated_key($key, $id_lang = null, $id_shop_group = null, $id_shop = null)
     {
-        $save = static::$checkDeprecatedKeys;
-        static::$checkDeprecatedKeys = false;
+        $save = static::$check_deprecated_keys;
+        static::$check_deprecated_keys = false;
         try {
             return static::get($key);
         } finally {
-            static::$checkDeprecatedKeys = $save;
+            static::$check_deprecated_keys = $save;
         }
     }
-
     /**
      * Update deprecated configuration key and value into database
      *
@@ -495,28 +434,26 @@ class ConfigurationCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function updateDeprecatedKey($key, $values, $html = false, $idShopGroup = null, $idShop = null)
+    public static function update_deprecated_key($key, $values, $html = false, $id_shop_group = null, $id_shop = null)
     {
-        $save = static::$checkDeprecatedKeys;
-        static::$checkDeprecatedKeys = false;
+        $save = static::$check_deprecated_keys;
+        static::$check_deprecated_keys = false;
         try {
-            return static::updateValue($key, $values, $html, $idShopGroup, $idShop);
+            return static::update_value($key, $values, $html, $id_shop_group, $id_shop);
         } finally {
-            static::$checkDeprecatedKeys = $save;
+            static::$check_deprecated_keys = $save;
         }
     }
-
     /**
      * Load all configuration data
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function loadConfiguration(): void
+    public static function load_configuration(): void
     {
-        static::loadConfigurationFromDB(Db::readOnly());
+        static::load_configuration_from_db(Db::read_only());
     }
-
     /**
      * Load all configuration data, using an existing database connection.
      *
@@ -525,28 +462,16 @@ class ConfigurationCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function loadConfigurationFromDB($connection): void
+    public static function load_configuration_from_db($connection): void
     {
         static::$_cache[static::$definition['table']] = [];
-
-        $rows = $connection->getArray(
-            (new DbQuery())
-                ->select('c.`name`, cl.`id_lang`, IFNULL(cl.`value`, c.`value`) AS `value`, c.`id_shop_group`, c.`id_shop`')
-                ->from(static::$definition['table'], 'c')
-                ->leftJoin(static::$definition['table'].'_lang', 'cl', 'c.`'.static::$definition['primary'].'` = cl.`'.static::$definition['primary'].'`')
-        );
-
+        $rows = $connection->get_array((new Db_Query())->select('c.`name`, cl.`id_lang`, IFNULL(cl.`value`, c.`value`) AS `value`, c.`id_shop_group`, c.`id_shop`')->from(static::$definition['table'], 'c')->left_join(static::$definition['table'] . '_lang', 'cl', 'c.`' . static::$definition['primary'] . '` = cl.`' . static::$definition['primary'] . '`'));
         foreach ($rows as $row) {
             $lang = $row['id_lang'] ?: 0;
-            static::$types[$row['name']] = ($lang) ? 'lang' : 'normal';
+            static::$types[$row['name']] = $lang ? 'lang' : 'normal';
             if (!isset(static::$_cache[static::$definition['table']][$lang])) {
-                static::$_cache[static::$definition['table']][$lang] = [
-                    'global' => [],
-                    'group'  => [],
-                    'shop'   => [],
-                ];
+                static::$_cache[static::$definition['table']][$lang] = ['global' => [], 'group' => [], 'shop' => []];
             }
-
             if ($row['id_shop']) {
                 static::$_cache[static::$definition['table']][$lang]['shop'][$row['id_shop']][$row['name']] = $row['value'];
             } elseif ($row['id_shop_group']) {
@@ -556,7 +481,6 @@ class ConfigurationCore extends ObjectModel
             }
         }
     }
-
     /**
      * Check if key exists in configuration
      *
@@ -570,32 +494,21 @@ class ConfigurationCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function hasKey($key, $idLang = null, $idShopGroup = null, $idShop = null)
+    public static function has_key($key, $id_lang = null, $id_shop_group = null, $id_shop = null)
     {
-        static::validateKey($key);
-
-        if (! static::configurationIsLoaded()) {
-            Configuration::loadConfiguration();
+        static::validate_key($key);
+        if (!static::configuration_is_loaded()) {
+            Configuration::load_configuration();
         }
-
-        $idLang = (int) $idLang;
-        if ($idShop) {
-            return isset(static::$_cache[static::$definition['table']][$idLang]['shop'][$idShop])
-                && (isset(static::$_cache[static::$definition['table']][$idLang]['shop'][$idShop][$key])
-                    || array_key_exists($key, static::$_cache[static::$definition['table']][$idLang]['shop'][$idShop]));
+        $id_lang = (int) $id_lang;
+        if ($id_shop) {
+            return isset(static::$_cache[static::$definition['table']][$id_lang]['shop'][$id_shop]) && (isset(static::$_cache[static::$definition['table']][$id_lang]['shop'][$id_shop][$key]) || array_key_exists($key, static::$_cache[static::$definition['table']][$id_lang]['shop'][$id_shop]));
         }
-
-        if ($idShopGroup) {
-            return isset(static::$_cache[static::$definition['table']][$idLang]['group'][$idShopGroup])
-                && (isset(static::$_cache[static::$definition['table']][$idLang]['group'][$idShopGroup][$key])
-                    || array_key_exists($key, static::$_cache[static::$definition['table']][$idLang]['group'][$idShopGroup]));
+        if ($id_shop_group) {
+            return isset(static::$_cache[static::$definition['table']][$id_lang]['group'][$id_shop_group]) && (isset(static::$_cache[static::$definition['table']][$id_lang]['group'][$id_shop_group][$key]) || array_key_exists($key, static::$_cache[static::$definition['table']][$id_lang]['group'][$id_shop_group]));
         }
-
-        return isset(static::$_cache[static::$definition['table']][$idLang]['global'])
-            && (isset(static::$_cache[static::$definition['table']][$idLang]['global'][$key])
-                || array_key_exists($key, static::$_cache[static::$definition['table']][$idLang]['global']));
+        return isset(static::$_cache[static::$definition['table']][$id_lang]['global']) && (isset(static::$_cache[static::$definition['table']][$id_lang]['global'][$key]) || array_key_exists($key, static::$_cache[static::$definition['table']][$id_lang]['global']));
     }
-
     /**
      * Get a single configuration value (in multiple languages)
      *
@@ -607,16 +520,14 @@ class ConfigurationCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function getInt($key, $idShopGroup = null, $idShop = null)
+    public static function get_int($key, $id_shop_group = null, $id_shop = null)
     {
-        $resultsArray = [];
-        foreach (Language::getIDs() as $idLang) {
-            $resultsArray[$idLang] = Configuration::get($key, $idLang, $idShopGroup, $idShop);
+        $results_array = [];
+        foreach (Language::get_i_ds() as $id_lang) {
+            $results_array[$id_lang] = Configuration::get($key, $id_lang, $id_shop_group, $id_shop);
         }
-
-        return $resultsArray;
+        return $results_array;
     }
-
     /**
      * Get a single configuration value for all shops
      *
@@ -627,17 +538,15 @@ class ConfigurationCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function getMultiShopValues($key, $idLang = null)
+    public static function get_multi_shop_values($key, $id_lang = null)
     {
-        $shops = Shop::getShops(false, null, true);
-        $resultsArray = [];
-        foreach ($shops as $idShop) {
-            $resultsArray[$idShop] = Configuration::get($key, $idLang, null, $idShop);
+        $shops = Shop::get_shops(false, null, true);
+        $results_array = [];
+        foreach ($shops as $id_shop) {
+            $results_array[$id_shop] = Configuration::get($key, $id_lang, null, $id_shop);
         }
-
-        return $resultsArray;
+        return $results_array;
     }
-
     /**
      * Get several configuration values (in one language only)
      *
@@ -650,28 +559,24 @@ class ConfigurationCore extends ObjectModel
      *
      * @return array Values
      */
-    public static function getMultiple($keys, $idLang = null, $idShopGroup = null, $idShop = null)
+    public static function get_multiple($keys, $id_lang = null, $id_shop_group = null, $id_shop = null)
     {
         if (!is_array($keys)) {
-            throw new PrestaShopException('keys var is not an array');
+            throw new Presta_Shop_Exception('keys var is not an array');
         }
-
-        $idLang = (int) $idLang;
-        if ($idShop === null) {
-            $idShop = Shop::getContextShopID(true);
+        $id_lang = (int) $id_lang;
+        if ($id_shop === null) {
+            $id_shop = Shop::get_context_shop_id(true);
         }
-        if ($idShopGroup === null) {
-            $idShopGroup = Shop::getContextShopGroupID(true);
+        if ($id_shop_group === null) {
+            $id_shop_group = Shop::get_context_shop_group_id(true);
         }
-
         $results = [];
         foreach ($keys as $key) {
-            $results[$key] = Configuration::get($key, $idLang, $idShopGroup, $idShop);
+            $results[$key] = Configuration::get($key, $id_lang, $id_shop_group, $id_shop);
         }
-
         return $results;
     }
-
     /**
      * Update configuration key for global context only
      *
@@ -685,11 +590,10 @@ class ConfigurationCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function updateGlobalValue($key, $values, $html = false)
+    public static function update_global_value($key, $values, $html = false)
     {
-        return Configuration::updateValue($key, $values, $html, 0, 0);
+        return Configuration::update_value($key, $values, $html, 0, 0);
     }
-
     /**
      * Update configuration key and value into database (automatically insert if key does not exist)
      *
@@ -703,28 +607,25 @@ class ConfigurationCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function updateValue($key, $values, $html = false, $idShopGroup = null, $idShop = null)
+    public static function update_value($key, $values, $html = false, $id_shop_group = null, $id_shop = null)
     {
         if (!is_array($values)) {
             $values = [$values];
         }
-
         // sanitize values
         foreach ($values as &$value) {
             if (!is_null($value) && !is_numeric($value)) {
                 if ($html) {
                     // if html values are allowed, just purify html code
-                    $value = Tools::purifyHTML($value);
+                    $value = Tools::purify_html($value);
                 } else {
                     // if html values are not allowed, strip tags
                     $value = strip_tags((string) $value);
                 }
             }
         }
-
-        return static::updateValueRaw($key, $values, $idShopGroup, $idShop);
+        return static::update_value_raw($key, $values, $id_shop_group, $id_shop);
     }
-
     /**
      * Update configuration key and value into database and cache
      *
@@ -740,89 +641,55 @@ class ConfigurationCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function updateValueRaw($key, $values, $idShopGroup = null, $idShop = null)
+    public static function update_value_raw($key, $values, $id_shop_group = null, $id_shop = null)
     {
-        static::validateKey($key);
-
-        if ($idShop === null || !Shop::isFeatureActive()) {
-            $idShop = Shop::getContextShopID(true);
+        static::validate_key($key);
+        if ($id_shop === null || !Shop::is_feature_active()) {
+            $id_shop = Shop::get_context_shop_id(true);
         }
-
-        if ($idShopGroup === null || !Shop::isFeatureActive()) {
-            $idShopGroup = Shop::getContextShopGroupID(true);
+        if ($id_shop_group === null || !Shop::is_feature_active()) {
+            $id_shop_group = Shop::get_context_shop_group_id(true);
         }
-
         if (!is_array($values)) {
             $values = [$values];
         }
-
-        $conn = Db::getInstance();
+        $conn = Db::get_instance();
         $result = true;
-        foreach ($values as $lang => $rawValue) {
-            $lang = (int)$lang;
-            $value = pSQL($rawValue, true);
-            if (Configuration::hasKey($key, $lang, $idShopGroup, $idShop)) {
+        foreach ($values as $lang => $raw_value) {
+            $lang = (int) $lang;
+            $value = p_sql($raw_value, true);
+            if (Configuration::has_key($key, $lang, $id_shop_group, $id_shop)) {
                 // If key exists already, update value.
                 if (!$lang) {
                     // Update config not linked to lang
-                    $result = $conn->update(
-                        static::$definition['table'],
-                        [
-                            'value'    => $value,
-                            'date_upd' => date('Y-m-d H:i:s'),
-                        ],
-                        '`name` = \''.$key.'\''.Configuration::sqlRestriction($idShopGroup, $idShop),
-                        1,
-                        true
-                    ) && $result;
+                    $result = $conn->update(static::$definition['table'], ['value' => $value, 'date_upd' => date('Y-m-d H:i:s')], '`name` = \'' . $key . '\'' . Configuration::sql_restriction($id_shop_group, $id_shop), 1, true) && $result;
                 } else {
                     // Update multi lang
-                    $sql = 'UPDATE `'._DB_PREFIX_.static::$definition['table'].'_lang` cl
-                            SET cl.value = \''.$value.'\',
+                    $sql = 'UPDATE `' . _DB_PREFIX_ . static::$definition['table'] . '_lang` cl
+                            SET cl.value = \'' . $value . '\',
                                 cl.date_upd = NOW()
-                            WHERE cl.id_lang = '.(int) $lang.'
-                                AND cl.`'.static::$definition['primary'].'` = (
-                                    SELECT c.`'.static::$definition['primary'].'`
-                                    FROM `'._DB_PREFIX_.static::$definition['table'].'` c
-                                    WHERE c.name = \''.$key.'\''
-                        .Configuration::sqlRestriction($idShopGroup, $idShop)
-                        .')';
+                            WHERE cl.id_lang = ' . (int) $lang . '
+                                AND cl.`' . static::$definition['primary'] . '` = (
+                                    SELECT c.`' . static::$definition['primary'] . '`
+                                    FROM `' . _DB_PREFIX_ . static::$definition['table'] . '` c
+                                    WHERE c.name = \'' . $key . '\'' . Configuration::sql_restriction($id_shop_group, $id_shop) . ')';
                     $result = $conn->execute($sql) && $result;
                 }
             } else {
                 // If key doesn't exist, create it.
-                if (!$configID = Configuration::getIdByName($key, $idShopGroup, $idShop)) {
-                    $data = [
-                        'id_shop_group' => $idShopGroup ? (int) $idShopGroup : null,
-                        'id_shop'       => $idShop ? (int) $idShop : null,
-                        'name'          => $key,
-                        'value'         => $lang ? null : $value,
-                        'date_add'      => ['type' => 'sql', 'value' => 'NOW()'],
-                        'date_upd'      => ['type' => 'sql', 'value' => 'NOW()'],
-                    ];
+                if (!$config_id = Configuration::get_id_by_name($key, $id_shop_group, $id_shop)) {
+                    $data = ['id_shop_group' => $id_shop_group ? (int) $id_shop_group : null, 'id_shop' => $id_shop ? (int) $id_shop : null, 'name' => $key, 'value' => $lang ? null : $value, 'date_add' => ['type' => 'sql', 'value' => 'NOW()'], 'date_upd' => ['type' => 'sql', 'value' => 'NOW()']];
                     $result = $conn->insert(static::$definition['table'], $data, true) && $result;
-                    $configID = $conn->Insert_ID();
+                    $config_id = $conn->Insert_ID();
                 }
-
                 if ($lang) {
-                    $result = $conn->insert(
-                        static::$definition['table'].'_lang',
-                        [
-                            static::$definition['primary'] => $configID,
-                            'id_lang'                    => (int) $lang,
-                            'value'                      => $value,
-                            'date_upd'                   => date('Y-m-d H:i:s'),
-                        ]
-                    ) && $result;
+                    $result = $conn->insert(static::$definition['table'] . '_lang', [static::$definition['primary'] => $config_id, 'id_lang' => (int) $lang, 'value' => $value, 'date_upd' => date('Y-m-d H:i:s')]) && $result;
                 }
             }
         }
-
-        Configuration::set($key, $values, $idShopGroup, $idShop);
-
+        Configuration::set($key, $values, $id_shop_group, $id_shop);
         return $result;
     }
-
     /**
      * Add SQL restriction on shops for configuration table
      *
@@ -831,17 +698,16 @@ class ConfigurationCore extends ObjectModel
      *
      * @return string
      */
-    protected static function sqlRestriction($idShopGroup, $idShop)
+    protected static function sql_restriction($id_shop_group, $id_shop)
     {
-        if ($idShop) {
-            return ' AND id_shop = '.(int) $idShop;
+        if ($id_shop) {
+            return ' AND id_shop = ' . (int) $id_shop;
         }
-        if ($idShopGroup) {
-            return ' AND id_shop_group = '.(int) $idShopGroup.' AND (id_shop IS NULL OR id_shop = 0)';
+        if ($id_shop_group) {
+            return ' AND id_shop_group = ' . (int) $id_shop_group . ' AND (id_shop IS NULL OR id_shop = 0)';
         }
         return ' AND (id_shop_group IS NULL OR id_shop_group = 0) AND (id_shop IS NULL OR id_shop = 0)';
     }
-
     /**
      * Return ID a configuration key
      *
@@ -853,25 +719,21 @@ class ConfigurationCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function getIdByName($key, $idShopGroup = null, $idShop = null)
+    public static function get_id_by_name($key, $id_shop_group = null, $id_shop = null)
     {
-        static::validateKey($key);
-
-        if ($idShop === null) {
-            $idShop = Shop::getContextShopID(true);
+        static::validate_key($key);
+        if ($id_shop === null) {
+            $id_shop = Shop::get_context_shop_id(true);
         }
-        if ($idShopGroup === null) {
-            $idShopGroup = Shop::getContextShopGroupID(true);
+        if ($id_shop_group === null) {
+            $id_shop_group = Shop::get_context_shop_group_id(true);
         }
-
-        $sql = 'SELECT `'.static::$definition['primary'].'`
-                FROM `'._DB_PREFIX_.static::$definition['table'].'`
-                WHERE name = \''.$key.'\'
-                '.Configuration::sqlRestriction($idShopGroup, $idShop);
-
-        return (int) Db::readOnly()->getValue($sql);
+        $sql = 'SELECT `' . static::$definition['primary'] . '`
+                FROM `' . _DB_PREFIX_ . static::$definition['table'] . '`
+                WHERE name = \'' . $key . '\'
+                ' . Configuration::sql_restriction($id_shop_group, $id_shop);
+        return (int) Db::read_only()->get_value($sql);
     }
-
     /**
      * Set TEMPORARY a single configuration value (in one language only)
      *
@@ -888,32 +750,28 @@ class ConfigurationCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function set($key, $values, $idShopGroup = null, $idShop = null): void
+    public static function set($key, $values, $id_shop_group = null, $id_shop = null): void
     {
-        static::validateKey($key);
-
-        if ($idShop === null) {
-            $idShop = Shop::getContextShopID(true);
+        static::validate_key($key);
+        if ($id_shop === null) {
+            $id_shop = Shop::get_context_shop_id(true);
         }
-        if ($idShopGroup === null) {
-            $idShopGroup = Shop::getContextShopGroupID(true);
+        if ($id_shop_group === null) {
+            $id_shop_group = Shop::get_context_shop_group_id(true);
         }
-
         if (!is_array($values)) {
             $values = [$values];
         }
-
         foreach ($values as $lang => $value) {
-            if ($idShop) {
-                static::$_cache[static::$definition['table']][$lang]['shop'][$idShop][$key] = $value;
-            } elseif ($idShopGroup) {
-                static::$_cache[static::$definition['table']][$lang]['group'][$idShopGroup][$key] = $value;
+            if ($id_shop) {
+                static::$_cache[static::$definition['table']][$lang]['shop'][$id_shop][$key] = $value;
+            } elseif ($id_shop_group) {
+                static::$_cache[static::$definition['table']][$lang]['group'][$id_shop_group][$key] = $value;
             } else {
                 static::$_cache[static::$definition['table']][$lang]['global'][$key] = $value;
             }
         }
     }
-
     /**
      * Delete a configuration key in database (with or without language management)
      *
@@ -924,28 +782,21 @@ class ConfigurationCore extends ObjectModel
      * @throws PrestaShopException
      * @throws PrestaShopDatabaseException
      */
-    public static function deleteByName($key)
+    public static function delete_by_name($key)
     {
-        static::validateKey($key);
-
-        $conn = Db::getInstance();
-        $result = $conn->execute(
-            '
-        DELETE FROM `'._DB_PREFIX_.static::$definition['table'].'_lang`
-        WHERE `'.static::$definition['primary'].'` IN (
-            SELECT `'.static::$definition['primary'].'`
-            FROM `'._DB_PREFIX_.static::$definition['table'].'`
-            WHERE `name` = "'.$key.'"
-        )'
-        );
-
-        $result2 = $conn->delete(static::$definition['table'], '`name` = "'.$key.'"');
-
+        static::validate_key($key);
+        $conn = Db::get_instance();
+        $result = $conn->execute('
+        DELETE FROM `' . _DB_PREFIX_ . static::$definition['table'] . '_lang`
+        WHERE `' . static::$definition['primary'] . '` IN (
+            SELECT `' . static::$definition['primary'] . '`
+            FROM `' . _DB_PREFIX_ . static::$definition['table'] . '`
+            WHERE `name` = "' . $key . '"
+        )');
+        $result2 = $conn->delete(static::$definition['table'], '`name` = "' . $key . '"');
         static::$_cache[static::$definition['table']] = null;
-
-        return ($result && $result2);
+        return $result && $result2;
     }
-
     /**
      * Delete configuration key from current context.
      *
@@ -954,32 +805,22 @@ class ConfigurationCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function deleteFromContext($key): void
+    public static function delete_from_context($key): void
     {
-        if (Shop::getContext() == Shop::CONTEXT_ALL) {
+        if (Shop::get_context() == Shop::CONTEXT_ALL) {
             return;
         }
-
-        $idShop = null;
-        $idShopGroup = Shop::getContextShopGroupID(true);
-        if (Shop::getContext() == Shop::CONTEXT_SHOP) {
-            $idShop = Shop::getContextShopID(true);
+        $id_shop = null;
+        $id_shop_group = Shop::get_context_shop_group_id(true);
+        if (Shop::get_context() == Shop::CONTEXT_SHOP) {
+            $id_shop = Shop::get_context_shop_id(true);
         }
-
-        $id = Configuration::getIdByName($key, $idShopGroup, $idShop);
-        $conn = Db::getInstance();
-        $conn->delete(
-            static::$definition['table'],
-            '`'.static::$definition['primary'].'` = '.(int) $id
-        );
-        $conn->delete(
-            static::$definition['table'].'_lang',
-            '`'.static::$definition['primary'].'` = '.(int) $id
-        );
-
+        $id = Configuration::get_id_by_name($key, $id_shop_group, $id_shop);
+        $conn = Db::get_instance();
+        $conn->delete(static::$definition['table'], '`' . static::$definition['primary'] . '` = ' . (int) $id);
+        $conn->delete(static::$definition['table'] . '_lang', '`' . static::$definition['primary'] . '` = ' . (int) $id);
         static::$_cache[static::$definition['table']] = null;
     }
-
     /**
      * @param string $key
      *
@@ -987,26 +828,24 @@ class ConfigurationCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function isOverridenByCurrentContext($key)
+    public static function is_overriden_by_current_context($key)
     {
-        if (! Shop::isFeatureActive()) {
+        if (!Shop::is_feature_active()) {
             return false;
         }
-        if (Shop::getContext() == Shop::CONTEXT_ALL) {
+        if (Shop::get_context() == Shop::CONTEXT_ALL) {
             return false;
         }
-
-        if (static::isLangKey($key)) {
-            foreach (Language::getIDs(false) as $idLang) {
-                if (static::hasContext($key, $idLang, Shop::getContext())) {
+        if (static::is_lang_key($key)) {
+            foreach (Language::get_i_ds(false) as $id_lang) {
+                if (static::has_context($key, $id_lang, Shop::get_context())) {
                     return true;
                 }
             }
             return false;
         }
-        return static::hasContext($key, null, Shop::getContext());
+        return static::has_context($key, null, Shop::get_context());
     }
-
     /**
      * Check if a key was loaded as multi lang
      *
@@ -1016,13 +855,11 @@ class ConfigurationCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function isLangKey($key)
+    public static function is_lang_key($key)
     {
-        static::validateKey($key);
-
+        static::validate_key($key);
         return isset(static::$types[$key]) && static::$types[$key] == 'lang';
     }
-
     /**
      * Check if configuration var is defined in given context
      *
@@ -1035,45 +872,40 @@ class ConfigurationCore extends ObjectModel
      *
      * @return bool
      */
-    public static function hasContext($key, $idLang, $context)
+    public static function has_context($key, $id_lang, $context)
     {
-        if (Shop::getContext() == Shop::CONTEXT_ALL) {
-            $idShop = $idShopGroup = null;
-        } elseif (Shop::getContext() == Shop::CONTEXT_GROUP) {
-            $idShopGroup = Shop::getContextShopGroupID(true);
-            $idShop = null;
+        if (Shop::get_context() == Shop::CONTEXT_ALL) {
+            $id_shop = $id_shop_group = null;
+        } elseif (Shop::get_context() == Shop::CONTEXT_GROUP) {
+            $id_shop_group = Shop::get_context_shop_group_id(true);
+            $id_shop = null;
         } else {
-            $idShopGroup = Shop::getContextShopGroupID(true);
-            $idShop = Shop::getContextShopID(true);
+            $id_shop_group = Shop::get_context_shop_group_id(true);
+            $id_shop = Shop::get_context_shop_id(true);
         }
-        if ($context == Shop::CONTEXT_SHOP && Configuration::hasKey($key, $idLang, null, $idShop)) {
+        if ($context == Shop::CONTEXT_SHOP && Configuration::has_key($key, $id_lang, null, $id_shop)) {
             return true;
         }
-        if ($context == Shop::CONTEXT_GROUP && Configuration::hasKey($key, $idLang, $idShopGroup)) {
+        if ($context == Shop::CONTEXT_GROUP && Configuration::has_key($key, $id_lang, $id_shop_group)) {
             return true;
         }
-
-        if ($context == Shop::CONTEXT_ALL && Configuration::hasKey($key, $idLang)) {
+        if ($context == Shop::CONTEXT_ALL && Configuration::has_key($key, $id_lang)) {
             return true;
         }
-
         return false;
     }
-
     /**
      * @return bool|array Multilingual fields
      *
      * @throws PrestaShopException
      */
-    public function getFieldsLang()
+    public function get_fields_lang()
     {
         if (!is_array($this->value)) {
             return true;
         }
-
-        return parent::getFieldsLang();
+        return parent::get_fields_lang();
     }
-
     /**
      * This method is override to allow TranslatedConfiguration entity
      *
@@ -1087,22 +919,20 @@ class ConfigurationCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function getWebserviceObjectList($sqlJoin, $sqlFilter, $sqlSort, $sqlLimit)
+    public function get_webservice_object_list($sql_join, $sql_filter, $sql_sort, $sql_limit)
     {
         $query = '
-        SELECT DISTINCT main.`'.static::$definition['primary'].'`
-        FROM `'._DB_PREFIX_.static::$definition['table'].'` main
-        '.$sqlJoin.'
-        WHERE `'.static::$definition['primary'].'` NOT IN (
-            SELECT `'.static::$definition['primary'].'`
-            FROM '._DB_PREFIX_.static::$definition['table'].'_lang
-        ) '.$sqlFilter.'
-        '.($sqlSort != '' ? $sqlSort : '').'
-        '.($sqlLimit != '' ? $sqlLimit : '');
-
-        return Db::readOnly()->getArray($query);
+        SELECT DISTINCT main.`' . static::$definition['primary'] . '`
+        FROM `' . _DB_PREFIX_ . static::$definition['table'] . '` main
+        ' . $sql_join . '
+        WHERE `' . static::$definition['primary'] . '` NOT IN (
+            SELECT `' . static::$definition['primary'] . '`
+            FROM ' . _DB_PREFIX_ . static::$definition['table'] . '_lang
+        ) ' . $sql_filter . '
+        ' . ($sql_sort != '' ? $sql_sort : '') . '
+        ' . ($sql_limit != '' ? $sql_limit : '');
+        return Db::read_only()->get_array($query);
     }
-
     /**
      * Validate a configuration key. Throws an exception for invalid keys.
      *
@@ -1110,26 +940,21 @@ class ConfigurationCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    protected static function validateKey($key)
+    protected static function validate_key($key)
     {
-        if (! Validate::isConfigName($key)) {
-            $message = sprintf(
-                Tools::displayError('[%s] is not a valid configuration key'),
-                Tools::htmlentitiesUTF8($key)
-            );
+        if (!Validate::is_config_name($key)) {
+            $message = sprintf(Tools::display_error('[%s] is not a valid configuration key'), Tools::htmlentities_utf8($key));
             trigger_error($message, E_USER_WARNING);
-            throw new PrestaShopException($message);
+            throw new Presta_Shop_Exception($message);
         }
-
-        if (static::$checkDeprecatedKeys && array_key_exists($key, static::DEPRECATED_CONFIG_KEYS)) {
-            $callPoint = Tools::getCallPoint([Configuration::class]);
-            $message = sprintf(Tools::displayError('Configuration key [%s] is deprecated.'), $key) . ' ';
+        if (static::$check_deprecated_keys && array_key_exists($key, static::DEPRECATED_CONFIG_KEYS)) {
+            $call_point = Tools::get_call_point([Configuration::class]);
+            $message = sprintf(Tools::display_error('Configuration key [%s] is deprecated.'), $key) . ' ';
             $message .= trim((string) static::DEPRECATED_CONFIG_KEYS[$key]) . '. ';
-            $message .= 'Called from: ' . $callPoint['description'];
+            $message .= 'Called from: ' . $call_point['description'];
             trigger_error($message, E_USER_DEPRECATED);
         }
     }
-
     /**
      * Returns url to thirty bees api server
      *
@@ -1138,18 +963,17 @@ class ConfigurationCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function getApiServer(): string
+    public static function get_api_server(): string
     {
-        $baseUriOverride = (string)static::getGlobalValue(static::API_SERVER_OVERRIDE);
-        if ($baseUriOverride) {
-            $baseUriOverride = rtrim($baseUriOverride, '/');
-            if (Validate::isAbsoluteUrl($baseUriOverride)) {
-                return $baseUriOverride;
+        $base_uri_override = (string) static::get_global_value(static::API_SERVER_OVERRIDE);
+        if ($base_uri_override) {
+            $base_uri_override = rtrim($base_uri_override, '/');
+            if (Validate::is_absolute_url($base_uri_override)) {
+                return $base_uri_override;
             }
         }
         return 'https://api.thirtybees.com';
     }
-
     /**
      *  Returns url to thirty bees accounts server
      *
@@ -1158,18 +982,17 @@ class ConfigurationCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function getAccountsServer(): string
+    public static function get_accounts_server(): string
     {
-        $baseUriOverride = static::getGlobalValue(static::ACCOUNTS_SERVER_OVERRIDE);
-        if ($baseUriOverride) {
-            $baseUriOverride = rtrim($baseUriOverride, '/');
-            if (Validate::isAbsoluteUrl($baseUriOverride)) {
-                return $baseUriOverride;
+        $base_uri_override = static::get_global_value(static::ACCOUNTS_SERVER_OVERRIDE);
+        if ($base_uri_override) {
+            $base_uri_override = rtrim($base_uri_override, '/');
+            if (Validate::is_absolute_url($base_uri_override)) {
+                return $base_uri_override;
             }
         }
         return 'https://accounts.thirtybees.com';
     }
-
     /**
      * Returns path to trust store that should be used to verify SSL connections.
      *
@@ -1179,9 +1002,9 @@ class ConfigurationCore extends ObjectModel
      * @return string | boolean
      * @throws PrestaShopException
      */
-    public static function getSslTrustStore()
+    public static function get_ssl_trust_store()
     {
-        $type = static::getGlobalValue(static::SSL_TRUST_STORE_TYPE);
+        $type = static::get_global_value(static::SSL_TRUST_STORE_TYPE);
         switch (strtolower($type)) {
             case 'system':
                 return true;
@@ -1189,94 +1012,85 @@ class ConfigurationCore extends ObjectModel
                 return false;
             case 'custom':
             default:
-                $path = static::getGlobalValue(static::SSL_TRUST_STORE);
-                if (! $path) {
-                    return _PS_TOOL_DIR_.'cacert.pem';
+                $path = static::get_global_value(static::SSL_TRUST_STORE);
+                if (!$path) {
+                    return _PS_TOOL_DIR_ . 'cacert.pem';
                 }
                 return $path;
         }
     }
-
     /**
      * Returns unique identifier of this installation, for tracking purposes
      *
      * @return string
      * @throws PrestaShopException
      */
-    public static function getServerTrackingId()
+    public static function get_server_tracking_id()
     {
-        $trackingId = static::getGlobalValue(Configuration::TRACKING_ID);
-        if (! $trackingId) {
-            $trackingId = Tools::passwdGen(40);
-            static::updateGlobalValue(Configuration::TRACKING_ID, $trackingId);
+        $tracking_id = static::get_global_value(Configuration::TRACKING_ID);
+        if (!$tracking_id) {
+            $tracking_id = Tools::passwd_gen(40);
+            static::update_global_value(Configuration::TRACKING_ID, $tracking_id);
         }
-        return $trackingId;
+        return $tracking_id;
     }
-
     /**
      * @return string
      *
      * @throws PrestaShopException
      */
-    public static function getBecomeSupporterUrl()
+    public static function get_become_supporter_url()
     {
-        $url = static::getGlobalValue(static::BECOME_SUPPORTER_URL);
-        if (! $url) {
+        $url = static::get_global_value(static::BECOME_SUPPORTER_URL);
+        if (!$url) {
             $url = 'https://forum.thirtybees.com/support-thirty-bees/?sid=@SID@';
         }
-        return str_replace('@SID@', static::getServerTrackingId(), $url);
+        return str_replace('@SID@', static::get_server_tracking_id(), $url);
     }
-
     /**
      * @return array|null
      *
      * @throws PrestaShopException
      */
-    public static function getSupporterInfo()
+    public static function get_supporter_info()
     {
-        $type = static::getGlobalValue(static::SUPPORTER_TYPE);
+        $type = static::get_global_value(static::SUPPORTER_TYPE);
         if ($type) {
-            return [
-                'type' => $type,
-                'name' => static::getGlobalValue(static::SUPPORTER_TYPE_NAME),
-            ];
+            return ['type' => $type, 'name' => static::get_global_value(static::SUPPORTER_TYPE_NAME)];
         }
         return null;
     }
-
     /**
      * @return int
      *
      * @throws PrestaShopException
      */
-    public static function getCCCAssetsRetentionPeriod()
+    public static function get_ccc_assets_retention_period()
     {
-        $value = (int)static::get(static::CCC_ASSETS_RETENTION_PERIOD);
-        if (! $value) {
+        $value = (int) static::get(static::CCC_ASSETS_RETENTION_PERIOD);
+        if (!$value) {
             // fallback
-            if ((int)static::get('TB_KEEP_CCC_FILES')) {
+            if ((int) static::get('TB_KEEP_CCC_FILES')) {
                 $value = 180;
-                static::updateValue(static::CCC_ASSETS_RETENTION_PERIOD, $value);
+                static::update_value(static::CCC_ASSETS_RETENTION_PERIOD, $value);
             }
         }
         return $value;
     }
-
     /**
      * @return int
      *
      * @throws PrestaShopException
      */
-    public static function getLogsRetentionPeriod()
+    public static function get_logs_retention_period()
     {
-        $value = (int)static::get(static::LOGS_RETENTION_PERIOD);
+        $value = (int) static::get(static::LOGS_RETENTION_PERIOD);
         if ($value <= 0) {
             return 180;
         }
         return $value;
     }
-
-    public static function getValidConfigKey(string $key): string
+    public static function get_valid_config_key(string $key): string
     {
         $str = preg_replace('/[^A-Z0-9_]/', '_', strtoupper($key));
         $str = preg_replace('/_+/', '_', (string) $str);

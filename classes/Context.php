@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,13 +30,11 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
-use Thirtybees\Core\Module\MobileDetectHelper;
-
+use Thirtybees\Core\Module\Mobile_Detect_Helper;
 /**
  * Class ContextCore
  */
-class ContextCore
+class Context_Core
 {
     /** @var int */
     public const DEVICE_COMPUTER = 1;
@@ -96,23 +94,20 @@ class ContextCore
     protected $is_mobile;
     /** @var bool|null */
     protected $is_tablet;
-
     /**
      * @param Context $testInstance Unit testing purpose only
      */
-    public static function setInstanceForTesting($testInstance): void
+    public static function set_instance_for_testing($test_instance): void
     {
-        static::$instance = $testInstance;
+        static::$instance = $test_instance;
     }
-
     /**
      * Unit testing purpose only
      */
-    public static function deleteTestingInstance(): void
+    public static function delete_testing_instance(): void
     {
         static::$instance = null;
     }
-
     /**
      * Sets mobile_device context variable
      *
@@ -120,27 +115,30 @@ class ContextCore
      *
      * @throws PrestaShopException
      */
-    public function getMobileDevice()
+    public function get_mobile_device()
     {
         if ($this->mobile_device === null) {
             $this->mobile_device = false;
-            if ($this->checkMobileContext()) {
-                if (isset(Context::getContext()->cookie->no_mobile) && Context::getContext()->cookie->no_mobile == false && (int) Configuration::get('PS_ALLOW_MOBILE_DEVICE') != 0) {
+            if ($this->check_mobile_context()) {
+                if (isset(Context::get_context()->cookie->no_mobile) && Context::get_context()->cookie->no_mobile == false && (int) Configuration::get('PS_ALLOW_MOBILE_DEVICE') != 0) {
                     $this->mobile_device = true;
                 } else {
                     switch ((int) Configuration::get('PS_ALLOW_MOBILE_DEVICE')) {
-                        case 1: // Only for mobile device
-                            if ($this->isMobile() && !$this->isTablet()) {
+                        case 1:
+                            // Only for mobile device
+                            if ($this->is_mobile() && !$this->is_tablet()) {
                                 $this->mobile_device = true;
                             }
                             break;
-                        case 2: // Only for touchpads
-                            if ($this->isTablet() && !$this->isMobile()) {
+                        case 2:
+                            // Only for touchpads
+                            if ($this->is_tablet() && !$this->is_mobile()) {
                                 $this->mobile_device = true;
                             }
                             break;
-                        case 3: // For touchpad or mobile devices
-                            if ($this->isMobile() || $this->isTablet()) {
+                        case 3:
+                            // For touchpad or mobile devices
+                            if ($this->is_mobile() || $this->is_tablet()) {
                                 $this->mobile_device = true;
                             }
                             break;
@@ -148,107 +146,93 @@ class ContextCore
                 }
             }
         }
-
         return $this->mobile_device;
     }
-
     /**
      * Get a singleton instance of Context object
      *
      * @return Context
      */
-    public static function getContext()
+    public static function get_context()
     {
         if (!isset(static::$instance)) {
             static::$instance = new Context();
         }
-
         return static::$instance;
     }
-
     /**
      * Checks if visitor's device is a mobile device
      *
      * @return bool
      */
-    public function isMobile()
+    public function is_mobile()
     {
         if ($this->is_mobile === null) {
             try {
-                $this->is_mobile = $this->getMobileDetect()->isMobile();
+                $this->is_mobile = $this->get_mobile_detect()->is_mobile();
             } catch (Throwable) {
                 $this->is_mobile = false;
             }
         }
-
         return $this->is_mobile;
     }
-
     /**
      * Sets Mobile_Detect tool object
      *
      * @return MobileDetectHelper
      */
-    public function getMobileDetect()
+    public function get_mobile_detect()
     {
         if ($this->mobile_detect === null) {
-            $this->mobile_detect = new MobileDetectHelper();
+            $this->mobile_detect = new Mobile_Detect_Helper();
         }
-
         return $this->mobile_detect;
     }
-
     /**
      * Checks if visitor's device is a tablet device
      *
      * @return bool
      */
-    public function isTablet()
+    public function is_tablet()
     {
         if ($this->is_tablet === null) {
             try {
-                $this->is_tablet = $this->getMobileDetect()->isTablet();
+                $this->is_tablet = $this->get_mobile_detect()->is_tablet();
             } catch (Throwable) {
                 $this->is_tablet = false;
             }
         }
-
         return $this->is_tablet;
     }
-
     /**
      * Returns mobile device type
      *
      * @return int
      */
-    public function getDevice()
+    public function get_device()
     {
         static $device = null;
-
         if ($device === null) {
-            if ($this->isTablet()) {
+            if ($this->is_tablet()) {
                 $device = Context::DEVICE_TABLET;
-            } elseif ($this->isMobile()) {
+            } elseif ($this->is_mobile()) {
                 $device = Context::DEVICE_MOBILE;
             } else {
                 $device = Context::DEVICE_COMPUTER;
             }
         }
-
         return $device;
     }
-
     /**
      * Clone current context object
      *
      * @return Context
      */
-    public function cloneContext(): static
+    public function clone_context(): static
     {
         /** @var Context $this */
-        return clone($this);
+        return clone $this;
     }
-
     /**
      * Checks if mobile context is possible
      *
@@ -257,9 +241,8 @@ class ContextCore
      *
      * @throws PrestaShopException
      */
-    protected function checkMobileContext(): bool
+    protected function check_mobile_context(): bool
     {
-        return $this->theme->supportsMobileVariant() && !$this->cookie->no_mobile;
+        return $this->theme->supports_mobile_variant() && !$this->cookie->no_mobile;
     }
-
 }

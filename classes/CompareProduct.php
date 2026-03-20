@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,28 +30,15 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class CompareProductCore
  */
-class CompareProductCore extends ObjectModel
+class Compare_Product_Core extends Object_Model
 {
     /**
      * @var array Object model definition
      */
-    public static $definition = [
-        'table'   => 'compare',
-        'primary' => 'id_compare',
-        'fields'  => [
-            'id_compare'  => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedInt', 'required' => true],
-            'id_customer' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedInt', 'required' => true],
-        ],
-        'keys' => [
-            'compare_product' => [
-                'primary' => ['type' => ObjectModel::PRIMARY_KEY, 'columns' => ['id_compare', 'id_product']],
-            ],
-        ],
-    ];
+    public static $definition = ['table' => 'compare', 'primary' => 'id_compare', 'fields' => ['id_compare' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedInt', 'required' => true], 'id_customer' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedInt', 'required' => true]], 'keys' => ['compare_product' => ['primary' => ['type' => Object_Model::PRIMARY_KEY, 'columns' => ['id_compare', 'id_product']]]]];
     /** @var int $id_compare */
     public $id_compare;
     /** @var int $id_customer */
@@ -60,7 +47,6 @@ class CompareProductCore extends ObjectModel
     public $date_add;
     /** @var string $date_upd */
     public $date_upd;
-
     /**
      * Get all compare products of the customer
      *
@@ -71,27 +57,17 @@ class CompareProductCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getCompareProducts($idCompare)
+    public static function get_compare_products($id_compare)
     {
-        $results = Db::readOnly()->getArray(
-            (new DbQuery())
-                ->select('DISTINCT `id_product`')
-                ->from('compare', 'c')
-                ->leftJoin('compare_product', 'cp', 'cp.`id_compare` = c.`id_compare`')
-                ->where('cp.`id_compare` = '.(int) $idCompare)
-        );
-
-        $compareProducts = [];
-
+        $results = Db::read_only()->get_array((new Db_Query())->select('DISTINCT `id_product`')->from('compare', 'c')->left_join('compare_product', 'cp', 'cp.`id_compare` = c.`id_compare`')->where('cp.`id_compare` = ' . (int) $id_compare));
+        $compare_products = [];
         if ($results) {
             foreach ($results as $result) {
-                $compareProducts[] = (int) $result['id_product'];
+                $compare_products[] = (int) $result['id_product'];
             }
         }
-
-        return $compareProducts;
+        return $compare_products;
     }
-
     /**
      * Add a compare product for the customer
      *
@@ -102,51 +78,30 @@ class CompareProductCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function addCompareProduct($idCompare, $idProduct)
+    public static function add_compare_product($id_compare, $id_product)
     {
-        $idCompare = (int)$idCompare;
-
+        $id_compare = (int) $id_compare;
         // Check if compare row exists
-        if ($idCompare) {
-            $idCompare = (int)Db::readOnly()->getValue(
-                (new DbQuery())
-                    ->select('`id_compare`')
-                    ->from('compare')
-                    ->where('`id_compare` = ' . (int)$idCompare)
-            );
+        if ($id_compare) {
+            $id_compare = (int) Db::read_only()->get_value((new Db_Query())->select('`id_compare`')->from('compare')->where('`id_compare` = ' . (int) $id_compare));
         }
-
         // Create new compare record if it does not exists yet
-        $conn = Db::getInstance();
-        if (! $idCompare) {
-            $context = Context::getContext();
+        $conn = Db::get_instance();
+        if (!$id_compare) {
+            $context = Context::get_context();
             $customer = $context->customer;
-            $idCustomer  = Validate::isLoadedObject($customer) ? (int)$customer->id : 0;
-            if (! $conn->insert('compare', [ 'id_customer' => $idCustomer ])) {
+            $id_customer = Validate::is_loaded_object($customer) ? (int) $customer->id : 0;
+            if (!$conn->insert('compare', ['id_customer' => $id_customer])) {
                 return false;
             }
-            $idCompare = (int)$conn->Insert_ID();
-            $context->cookie->id_compare = $idCompare;
+            $id_compare = (int) $conn->Insert_ID();
+            $context->cookie->id_compare = $id_compare;
         }
-
-        if ($idCompare && $idProduct) {
-            return $conn->insert(
-                'compare_product',
-                [
-                    'id_compare' => (int)$idCompare,
-                    'id_product' => (int)$idProduct,
-                    'date_add' => ['type' => 'sql', 'value' => 'NOW()'],
-                    'date_upd' => ['type' => 'sql', 'value' => 'NOW()'],
-                ],
-                false,
-                true,
-                Db::INSERT_IGNORE
-            );
+        if ($id_compare && $id_product) {
+            return $conn->insert('compare_product', ['id_compare' => (int) $id_compare, 'id_product' => (int) $id_product, 'date_add' => ['type' => 'sql', 'value' => 'NOW()'], 'date_upd' => ['type' => 'sql', 'value' => 'NOW()']], false, true, Db::INSERT_IGNORE);
         }
-
         return false;
     }
-
     /**
      * Remove a compare product for the customer
      *
@@ -157,15 +112,14 @@ class CompareProductCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function removeCompareProduct($idCompare, $idProduct)
+    public static function remove_compare_product($id_compare, $id_product)
     {
-        return Db::getInstance()->execute('
-            DELETE cp FROM `'._DB_PREFIX_.'compare_product` cp, `'._DB_PREFIX_.'compare` c
+        return Db::get_instance()->execute('
+            DELETE cp FROM `' . _DB_PREFIX_ . 'compare_product` cp, `' . _DB_PREFIX_ . 'compare` c
             WHERE cp.`id_compare`=c.`id_compare`
-            AND cp.`id_product` = '.(int) $idProduct.'
-            AND c.`id_compare` = '.(int) $idCompare);
+            AND cp.`id_product` = ' . (int) $id_product . '
+            AND c.`id_compare` = ' . (int) $id_compare);
     }
-
     /**
      * Get the number of compare products of the customer
      *
@@ -175,16 +129,10 @@ class CompareProductCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function getNumberProducts($idCompare)
+    public static function get_number_products($id_compare)
     {
-        return (int) Db::readOnly()->getValue(
-            (new DbQuery())
-                ->select('COUNT(`id_compare`)')
-                ->from('compare_product')
-                ->where('`id_compare` = '.(int) $idCompare)
-        );
+        return (int) Db::read_only()->get_value((new Db_Query())->select('COUNT(`id_compare`)')->from('compare_product')->where('`id_compare` = ' . (int) $id_compare));
     }
-
     /**
      * Clean entries which are older than the period
      *
@@ -193,19 +141,15 @@ class CompareProductCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function cleanCompareProducts($period = null): void
+    public static function clean_compare_products($period = null): void
     {
         if ($period !== null) {
-            Tools::displayParameterAsDeprecated('period');
+            Tools::display_parameter_as_deprecated('period');
         }
-
-        Db::getInstance()->execute(
-            '
-        DELETE cp, c FROM `'._DB_PREFIX_.'compare_product` cp, `'._DB_PREFIX_.'compare` c
-        WHERE cp.date_upd < DATE_SUB(NOW(), INTERVAL 1 WEEK) AND c.`id_compare`=cp.`id_compare`'
-        );
+        Db::get_instance()->execute('
+        DELETE cp, c FROM `' . _DB_PREFIX_ . 'compare_product` cp, `' . _DB_PREFIX_ . 'compare` c
+        WHERE cp.date_upd < DATE_SUB(NOW(), INTERVAL 1 WEEK) AND c.`id_compare`=cp.`id_compare`');
     }
-
     /**
      * Get the id_compare by id_customer
      *
@@ -215,13 +159,8 @@ class CompareProductCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function getIdCompareByIdCustomer($idCustomer)
+    public static function get_id_compare_by_id_customer($id_customer)
     {
-        return (int) Db::readOnly()->getValue(
-            (new DbQuery())
-                ->select('`id_compare`')
-                ->from('compare')
-                ->where('`id_customer` = '.(int) $idCustomer)
-        );
+        return (int) Db::read_only()->get_value((new Db_Query())->select('`id_compare`')->from('compare')->where('`id_customer` = ' . (int) $id_customer));
     }
 }

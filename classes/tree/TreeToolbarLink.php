@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,17 +30,15 @@ declare(strict_types=1);
  *  @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class TreeToolbarLinkCore
  */
-class TreeToolbarLinkCore extends TreeToolbarButtonCore implements ITreeToolbarButtonCore
+class Tree_Toolbar_Link_Core extends Tree_Toolbar_Button_Core implements I_Tree_Toolbar_Button_Core
 {
     /**
      * @var string
      */
     protected $_template = 'tree_toolbar_link.tpl';
-
     /**
      * TreeToolbarLinkCore constructor.
      *
@@ -49,66 +47,59 @@ class TreeToolbarLinkCore extends TreeToolbarButtonCore implements ITreeToolbarB
      * @param string|null $action
      * @param string|null $iconClass
      */
-    public function __construct($label, $link, $action = null, $iconClass = null)
+    public function __construct($label, $link, $action = null, $icon_class = null)
     {
         parent::__construct($label);
-
-        $this->setLink($link);
-        $this->setAction($action);
-        $this->setIconClass($iconClass);
+        $this->set_link($link);
+        $this->set_action($action);
+        $this->set_icon_class($icon_class);
     }
-
     /**
      * @param string $value
      *
      * @return static
      */
-    public function setAction($value)
+    public function set_action($value)
     {
-        return $this->setAttribute('action', $value);
+        return $this->set_attribute('action', $value);
     }
-
     /**
      * @return string|null
      */
-    public function getAction()
+    public function get_action()
     {
-        return $this->getAttribute('action');
+        return $this->get_attribute('action');
     }
-
     /**
      * @param string $value
      *
      * @return static
      */
-    public function setIconClass($value)
+    public function set_icon_class($value)
     {
-        return $this->setAttribute('icon_class', $value);
+        return $this->set_attribute('icon_class', $value);
     }
-
     /**
      * @return string|null
      */
-    public function getIconClass()
+    public function get_icon_class()
     {
-        return $this->getAttribute('icon_class');
+        return $this->get_attribute('icon_class');
     }
-
     /**
      * @param string $value
      *
      * @return static
      */
-    public function setLink($value)
+    public function set_link($value)
     {
-        return $this->setAttribute('link', $value);
+        return $this->set_attribute('link', $value);
     }
-
     /**
      * @return string|null
      */
-    public function getLink()
+    public function get_link()
     {
-        return $this->getAttribute('link');
+        return $this->get_attribute('link');
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,17 +30,15 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class TaxManagerFactoryCore
  */
-class TaxManagerFactoryCore
+class Tax_Manager_Factory_Core
 {
     /**
      * @var TaxManagerInterface[]
      */
     protected static $cache_tax_manager;
-
     /**
      * Returns a tax manager able to handle this address
      *
@@ -51,21 +49,19 @@ class TaxManagerFactoryCore
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getManager(Address $address, $taxRuleGroupId)
+    public static function get_manager(Address $address, $tax_rule_group_id)
     {
-        $cacheId = static::getCacheKey($address).'-'.$taxRuleGroupId;
-        if (!isset(static::$cache_tax_manager[$cacheId])) {
-            $taxManager = static::execHookTaxManagerFactory($address, $taxRuleGroupId);
-            if ($taxManager) {
-                static::$cache_tax_manager[$cacheId] = $taxManager;
+        $cache_id = static::get_cache_key($address) . '-' . $tax_rule_group_id;
+        if (!isset(static::$cache_tax_manager[$cache_id])) {
+            $tax_manager = static::exec_hook_tax_manager_factory($address, $tax_rule_group_id);
+            if ($tax_manager) {
+                static::$cache_tax_manager[$cache_id] = $tax_manager;
             } else {
-                static::$cache_tax_manager[$cacheId] = new TaxRulesTaxManager($address, $taxRuleGroupId);
+                static::$cache_tax_manager[$cache_id] = new Tax_Rules_Tax_Manager($address, $tax_rule_group_id);
             }
         }
-
-        return static::$cache_tax_manager[$cacheId];
+        return static::$cache_tax_manager[$cache_id];
     }
-
     /**
      * Check for a tax manager able to handle this type of address in the module list
      *
@@ -76,35 +72,25 @@ class TaxManagerFactoryCore
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function execHookTaxManagerFactory(Address $address, $type): \TaxManagerInterface|false
+    public static function exec_hook_tax_manager_factory(Address $address, $type): \Tax_Manager_Interface|false
     {
-        $hookName = 'taxManager';
-        $modules = Hook::getModulesFromHook(Hook::getIdByName($hookName));
-
+        $hook_name = 'taxManager';
+        $modules = Hook::get_modules_from_hook(Hook::get_id_by_name($hook_name));
         foreach ($modules as $module) {
-            $moduleId = (int)$module['id_module'];
+            $module_id = (int) $module['id_module'];
             /** @var TaxManagerInterface|false|null $taxManager */
-            $taxManager = Hook::getResponse($hookName, $moduleId, [
-                'address' => $address,
-                'params' => $type,
-            ]);
-            if ($taxManager instanceof TaxManagerInterface) {
-                return $taxManager;
+            $tax_manager = Hook::get_response($hook_name, $module_id, ['address' => $address, 'params' => $type]);
+            if ($tax_manager instanceof Tax_Manager_Interface) {
+                return $tax_manager;
             }
         }
-
         return false;
     }
-
     /**
      * Create a unique identifier for the address
      */
-    protected static function getCacheKey(Address $address): string
+    protected static function get_cache_key(Address $address): string
     {
-        return $address->id_country.'-'
-            .(int) $address->id_state.'-'
-            .$address->postcode.'-'
-            .$address->vat_number.'-'
-            .$address->dni;
+        return $address->id_country . '-' . (int) $address->id_state . '-' . $address->postcode . '-' . $address->vat_number . '-' . $address->dni;
     }
 }

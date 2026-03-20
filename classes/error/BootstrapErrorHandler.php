@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace Thirtybees\Core\Error;
 
 /**
@@ -10,16 +9,14 @@ namespace Thirtybees\Core\Error;
  *
  * Important note: No dependency on other classes can be used here. Keep is as simple as possible
  */
-class BootstrapErrorHandler
+class Bootstrap_Error_Handler
 {
     private array $errors;
-
     private bool $collect;
-
     /**
      * @return BootstrapErrorHandler|null
      */
-    public static function getInstance()
+    public static function get_instance()
     {
         static $instance = null;
         if ($instance === null) {
@@ -27,7 +24,6 @@ class BootstrapErrorHandler
         }
         return $instance;
     }
-
     /**
      *  private constructor
      */
@@ -36,14 +32,12 @@ class BootstrapErrorHandler
         $this->collect = true;
         $this->errors = [];
     }
-
-    public function installErrorHandler(): void
+    public function install_error_handler(): void
     {
         @ini_set('display_errors', 'off');
         @error_reporting(E_ALL);
-        set_error_handler($this->errorHandler(...));
+        set_error_handler($this->error_handler(...));
     }
-
     /**
      * Error handler function
      *
@@ -52,23 +46,16 @@ class BootstrapErrorHandler
      * @param string $errfile filename that the error was raised in
      * @param int $errline line number the error was raised at
      */
-    public function errorHandler($errno, $errstr, $errfile, $errline): bool
+    public function error_handler($errno, $errstr, $errfile, $errline): bool
     {
         if ($this->collect) {
-            $this->errors[] = [
-                'errno' => $errno,
-                'errstr' => $errstr,
-                'errfile' => $errfile,
-                'errline' => $errline,
-            ];
+            $this->errors[] = ['errno' => $errno, 'errstr' => $errstr, 'errfile' => $errfile, 'errline' => $errline];
         }
         return false;
     }
-
-    public function getCollectedErrors(): array
+    public function get_collected_errors(): array
     {
         $this->collect = false;
         return $this->errors;
     }
-
 }

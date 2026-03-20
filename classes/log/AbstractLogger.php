@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,32 +30,23 @@ declare(strict_types=1);
  *  @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class AbstractLoggerCore
  */
-abstract class AbstractLoggerCore
+abstract class Abstract_Logger_Core
 {
     /**
      * @var int
      */
     public $level;
-
     /**
      * @var string[]
      */
-    protected $level_value = [
-        0 => 'DEBUG',
-        1 => 'INFO',
-        2 => 'WARNING',
-        3 => 'ERROR',
-    ];
-
+    protected $level_value = [0 => 'DEBUG', 1 => 'INFO', 2 => 'WARNING', 3 => 'ERROR'];
     public const DEBUG = 0;
     public const INFO = 1;
     public const WARNING = 2;
     public const ERROR = 3;
-
     /**
      * AbstractLoggerCore constructor.
      *
@@ -69,7 +60,6 @@ abstract class AbstractLoggerCore
             $this->level = static::INFO;
         }
     }
-
     /**
      * Check the level and log the message if needed
      *
@@ -79,55 +69,50 @@ abstract class AbstractLoggerCore
     public function log($message, $level = self::DEBUG): void
     {
         if ($level >= $this->level) {
-            $this->logMessage($message, $level);
+            $this->log_message($message, $level);
         }
     }
-
     /**
      * Log a debug message
      *
      * @param string $message
      */
-    public function logDebug($message): void
+    public function log_debug($message): void
     {
         $this->log($message, static::DEBUG);
     }
-
     /**
      * Log an info message
      *
      * @param string $message
      */
-    public function logInfo($message): void
+    public function log_info($message): void
     {
         $this->log($message, static::INFO);
     }
-
     /**
      * Log a warning message
      *
      * @param string $message
      */
-    public function logWarning($message): void
+    public function log_warning($message): void
     {
         $this->log($message, static::WARNING);
     }
-
     /**
      * Log an error message
      *
      * @param string $message
      */
-    public function logError($message): void
+    public function log_error($message): void
     {
         $this->log($message, static::ERROR);
     }
-
     /**
      * Log the message
      *
      * @param string $message
      * @param int $level
      */
-    abstract protected function logMessage($message, $level);
+    abstract protected function log_message($message, $level);
 }

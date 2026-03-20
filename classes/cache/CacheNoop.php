@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -18,24 +18,22 @@ declare(strict_types=1);
  * @copyright 2017-2024 thirty bees
  * @license   Open Software License (OSL 3.0)
  */
-
 /**
  * Class CacheNoop
  *
  * Dummy cache implementation
  */
-class CacheNoopCore extends Cache
+class Cache_Noop_Core extends Cache
 {
     /***
      * This cache is never available
      *
      * @return bool
      */
-    public function isAvailable()
+    public function is_available()
     {
         return false;
     }
-
     /**
      * Cache a data
      *
@@ -50,7 +48,6 @@ class CacheNoopCore extends Cache
         // no-op implementation
         return false;
     }
-
     /**
      * Retrieve a cached data by key
      *
@@ -62,7 +59,6 @@ class CacheNoopCore extends Cache
     {
         return null;
     }
-
     /**
      * Check if a data is cached by key
      *
@@ -74,7 +70,6 @@ class CacheNoopCore extends Cache
     {
         return false;
     }
-
     /**
      * Delete a data from the cache by key
      *
@@ -86,17 +81,15 @@ class CacheNoopCore extends Cache
     {
         return false;
     }
-
     /**
      * Write keys index
      *
      * @return void
      */
-    protected function _writeKeys()
+    protected function _write_keys()
     {
         // no-op implementation
     }
-
     /**
      * Clean all cached data
      *

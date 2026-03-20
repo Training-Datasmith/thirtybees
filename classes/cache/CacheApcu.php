@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,50 +30,41 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * This class requires the PECL APC extension or PECL APCu extension to be installed
  */
-class CacheApcuCore extends Cache
+class Cache_Apcu_Core extends Cache
 {
     /**
      * @var bool
      */
     protected $enabled;
-
     /**
      * CacheApcCore constructor.
      */
     public function __construct()
     {
-        $this->enabled = static::checkEnvironment();
-
-        if (! $this->enabled) {
+        $this->enabled = static::check_environment();
+        if (!$this->enabled) {
             trigger_error('APCu cache has been enabled, but the APCu extension is not available', E_USER_WARNING);
         }
     }
-
     /**
      * @return bool returns true, if server supports APCu
      */
-    public static function checkEnvironment()
+    public static function check_environment()
     {
-        return (
-            extension_loaded('apcu') &&
-            apcu_enabled()
-        );
+        return extension_loaded('apcu') && apcu_enabled();
     }
-
     /***
      * Returns true, if apcu extension is loaded and enabled
      *
      * @return bool
      */
-    public function isAvailable()
+    public function is_available()
     {
         return $this->enabled;
     }
-
     /**
      * Delete one or several data from cache (* joker can be used, but avoid it !)
      *    E.g.: delete('*'); delete('my_prefix_*'); delete('my_key_name');
@@ -84,29 +75,25 @@ class CacheApcuCore extends Cache
      */
     public function delete($key)
     {
-        if (! $this->enabled) {
+        if (!$this->enabled) {
             return false;
         }
-
         if ($key == '*') {
             $this->flush();
         } elseif (!str_contains($key, '*')) {
             $this->_delete($key);
         } else {
-            $pattern = str_replace('\\*', '.*', preg_quote($key));
-
-            $cacheInfo = apcu_cache_info(false);
-            foreach ($cacheInfo['cache_list'] as $entry) {
+            $pattern = str_replace('\*', '.*', preg_quote($key));
+            $cache_info = apcu_cache_info(false);
+            foreach ($cache_info['cache_list'] as $entry) {
                 $key = $entry['key'] ?? $entry['info'];
-                if (preg_match('#^'.$pattern.'$#', (string) $key)) {
+                if (preg_match('#^' . $pattern . '$#', (string) $key)) {
                     $this->_delete($key);
                 }
             }
         }
-
         return true;
     }
-
     /**
      * Cache a data
      *
@@ -118,12 +105,11 @@ class CacheApcuCore extends Cache
      */
     protected function _set($key, $value, $ttl = 0)
     {
-        if (! $this->enabled) {
+        if (!$this->enabled) {
             return false;
         }
         return apcu_store($key, $value, $ttl) === true;
     }
-
     /**
      * Retrieve a cached data by key
      *
@@ -133,12 +119,11 @@ class CacheApcuCore extends Cache
      */
     protected function _get($key)
     {
-        if (! $this->enabled) {
+        if (!$this->enabled) {
             return false;
         }
         return apcu_fetch($key);
     }
-
     /**
      * Check if a data is cached by key
      *
@@ -148,12 +133,11 @@ class CacheApcuCore extends Cache
      */
     protected function _exists($key)
     {
-        if (! $this->enabled) {
+        if (!$this->enabled) {
             return false;
         }
         return apcu_exists($key);
     }
-
     /**
      * Delete a data from the cache by key
      *
@@ -163,20 +147,18 @@ class CacheApcuCore extends Cache
      */
     protected function _delete($key)
     {
-        if (! $this->enabled) {
+        if (!$this->enabled) {
             return false;
         }
         return apcu_delete($key);
     }
-
     /**
      * Write keys index
      */
-    protected function _writeKeys()
+    protected function _write_keys()
     {
         // this implementation do not use keys
     }
-
     /**
      * Clean all cached data
      *
@@ -184,12 +166,11 @@ class CacheApcuCore extends Cache
      */
     public function flush()
     {
-        if (! $this->enabled) {
+        if (!$this->enabled) {
             return false;
         }
         return apcu_clear_cache();
     }
-
     /**
      * Store data in the cache
      *
@@ -201,12 +182,11 @@ class CacheApcuCore extends Cache
      */
     public function set($key, $value, $ttl = 0)
     {
-        if (! $this->enabled) {
+        if (!$this->enabled) {
             return false;
         }
         return $this->_set($key, $value, $ttl);
     }
-
     /**
      * Retrieve data from the cache
      *
@@ -216,12 +196,11 @@ class CacheApcuCore extends Cache
      */
     public function get($key)
     {
-        if (! $this->enabled) {
+        if (!$this->enabled) {
             return false;
         }
         return $this->_get($key);
     }
-
     /**
      * Check if data has been cached
      *
@@ -231,7 +210,7 @@ class CacheApcuCore extends Cache
      */
     public function exists($key)
     {
-        if (! $this->enabled) {
+        if (!$this->enabled) {
             return false;
         }
         return $this->_exists($key);

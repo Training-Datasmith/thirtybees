@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,82 +30,66 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class TreeCore
  */
-class TreeCore implements \Stringable
+class Tree_Core implements \Stringable
 {
     public const DEFAULT_TEMPLATE_DIRECTORY = 'helpers/tree';
     public const DEFAULT_TEMPLATE = 'tree.tpl';
     public const DEFAULT_HEADER_TEMPLATE = 'tree_header.tpl';
     public const DEFAULT_NODE_FOLDER_TEMPLATE = 'tree_node_folder.tpl';
     public const DEFAULT_NODE_ITEM_TEMPLATE = 'tree_node_item.tpl';
-
     /**
      * @var array
      */
     protected $_attributes;
-
     /**
      * @var Context
      */
     private $_context;
-
     /**
      * @var array
      */
     protected $_data;
-
     /**
      * @var array
      */
     protected $_data_search;
-
     /**
      * @var string
      */
-    protected $_headerTemplate;
-
+    protected $_header_template;
     /**
      * @var string
      */
     protected $_id_tree;
-
     /**
      * @var int
      */
     private $_id;
-
     /**
      * @var string
      */
     protected $_node_folder_template;
-
     /**
      * @var string
      */
     protected $_node_item_template;
-
     /**
      * @var string
      */
     protected $_template;
-
     /**
      * @var string
      */
     private $_template_directory;
-
     private string $_title = '';
-
     /**
      * @var bool
      */
     private $_no_js;
-
-    private ?\ITreeToolbarCore $_toolbar = null;
-
+    private ?\I_Tree_Toolbar_Core $_toolbar = null;
     /**
      * TreeCore constructor.
      *
@@ -116,13 +100,11 @@ class TreeCore implements \Stringable
      */
     public function __construct($id, $data = null)
     {
-        $this->setId($id);
-
+        $this->set_id($id);
         if (isset($data)) {
-            $this->setData($data);
+            $this->set_data($data);
         }
     }
-
     /**
      *
      * @throws PrestaShopException
@@ -132,424 +114,336 @@ class TreeCore implements \Stringable
     {
         return $this->render();
     }
-
     /**
      * @param ITreeToolbarButtonCore[] $value
      */
-    public function setActions($value): static
+    public function set_actions($value): static
     {
         if (!isset($this->_toolbar)) {
-            $this->setToolbar(new TreeToolbar());
+            $this->set_toolbar(new Tree_Toolbar());
         }
-
-        $this->getToolbar()->setTemplateDirectory($this->getTemplateDirectory())->setActions($value);
-
+        $this->get_toolbar()->set_template_directory($this->get_template_directory())->set_actions($value);
         return $this;
     }
-
     /**
      * @return ITreeToolbarButtonCore[]
      */
-    public function getActions()
+    public function get_actions()
     {
         if (!isset($this->_toolbar)) {
-            $this->setToolbar(new TreeToolbar());
+            $this->set_toolbar(new Tree_Toolbar());
         }
-
-        return $this->getToolbar()->setTemplateDirectory($this->getTemplateDirectory())->getActions();
+        return $this->get_toolbar()->set_template_directory($this->get_template_directory())->get_actions();
     }
-
     /**
      * @param string $name
      * @param mixed $value
      */
-    public function setAttribute($name, $value): static
+    public function set_attribute($name, $value): static
     {
         if (!isset($this->_attributes)) {
             $this->_attributes = [];
         }
-
         $this->_attributes[$name] = $value;
-
         return $this;
     }
-
     /**
      * @param array $value
      *
      * @throws PrestaShopException
      */
-    public function setAttributes($value): static
+    public function set_attributes($value): static
     {
         if (!is_array($value) && !$value instanceof Traversable) {
-            throw new PrestaShopException('Data value must be an traversable array');
+            throw new Presta_Shop_Exception('Data value must be an traversable array');
         }
-
         $this->_attributes = $value;
-
         return $this;
     }
-
     /**
      * @param string $idTree
      */
-    public function setIdTree($idTree): static
+    public function set_id_tree($id_tree): static
     {
-        $this->_id_tree = $idTree;
-
+        $this->_id_tree = $id_tree;
         return $this;
     }
-
     /**
      * @return string
      */
-    public function getIdTree()
+    public function get_id_tree()
     {
         return $this->_id_tree;
     }
-
     /**
      * @return array
      */
-    public function getAttributes()
+    public function get_attributes()
     {
         if (!isset($this->_attributes)) {
             $this->_attributes = [];
         }
-
         return $this->_attributes;
     }
-
     /**
      * @param Context $value
      */
-    public function setContext($value): static
+    public function set_context($value): static
     {
         $this->_context = $value;
-
         return $this;
     }
-
     /**
      * @return Context
      */
-    public function getContext()
+    public function get_context()
     {
         if (!isset($this->_context)) {
-            $this->_context = Context::getContext();
+            $this->_context = Context::get_context();
         }
-
         return $this->_context;
     }
-
     /**
      * @param array $value
      *
      * @throws PrestaShopException
      */
-    public function setDataSearch($value): static
+    public function set_data_search($value): static
     {
         if (!is_array($value) && !$value instanceof Traversable) {
-            throw new PrestaShopException('Data value must be an traversable array');
+            throw new Presta_Shop_Exception('Data value must be an traversable array');
         }
-
         $this->_data_search = $value;
-
         return $this;
     }
-
     /**
      * @return array
      */
-    public function getDataSearch()
+    public function get_data_search()
     {
         if (!isset($this->_data_search)) {
             $this->_data_search = [];
         }
-
         return $this->_data_search;
     }
-
     /**
      * @param array $value
      *
      * @throws PrestaShopException
      */
-    public function setData($value): static
+    public function set_data($value): static
     {
         if (!is_array($value) && !$value instanceof Traversable) {
-            throw new PrestaShopException('Data value must be an traversable array');
+            throw new Presta_Shop_Exception('Data value must be an traversable array');
         }
-
         $this->_data = $value;
-
         return $this;
     }
-
     /**
      * @return array
      */
-    public function getData()
+    public function get_data()
     {
         if (!isset($this->_data)) {
             $this->_data = [];
         }
-
         return $this->_data;
     }
-
     /**
      * @param string $value
      */
-    public function setHeaderTemplate($value): static
+    public function set_header_template($value): static
     {
-        $this->_headerTemplate = $value;
-
+        $this->_header_template = $value;
         return $this;
     }
-
     /**
      * @return string
      */
-    public function getHeaderTemplate()
+    public function get_header_template()
     {
-        if (!isset($this->_headerTemplate)) {
-            $this->setHeaderTemplate(static::DEFAULT_HEADER_TEMPLATE);
+        if (!isset($this->_header_template)) {
+            $this->set_header_template(static::DEFAULT_HEADER_TEMPLATE);
         }
-
-        return $this->_headerTemplate;
+        return $this->_header_template;
     }
-
     /**
      * @param int $value
      */
-    public function setId($value): static
+    public function set_id($value): static
     {
         $this->_id = $value;
-
         return $this;
     }
-
     /**
      * @return int
      */
-    public function getId()
+    public function get_id()
     {
         return $this->_id;
     }
-
     /**
      * @param string $value
      */
-    public function setNodeFolderTemplate($value): static
+    public function set_node_folder_template($value): static
     {
         $this->_node_folder_template = $value;
-
         return $this;
     }
-
     /**
      * @return string
      */
-    public function getNodeFolderTemplate()
+    public function get_node_folder_template()
     {
         if (!isset($this->_node_folder_template)) {
-            $this->setNodeFolderTemplate(static::DEFAULT_NODE_FOLDER_TEMPLATE);
+            $this->set_node_folder_template(static::DEFAULT_NODE_FOLDER_TEMPLATE);
         }
-
         return $this->_node_folder_template;
     }
-
     /**
      * @param string $value
      */
-    public function setNodeItemTemplate($value): static
+    public function set_node_item_template($value): static
     {
         $this->_node_item_template = $value;
-
         return $this;
     }
-
     /**
      * @return string
      */
-    public function getNodeItemTemplate()
+    public function get_node_item_template()
     {
         if (!isset($this->_node_item_template)) {
-            $this->setNodeItemTemplate(static::DEFAULT_NODE_ITEM_TEMPLATE);
+            $this->set_node_item_template(static::DEFAULT_NODE_ITEM_TEMPLATE);
         }
-
         return $this->_node_item_template;
     }
-
     /**
      * @param string $value
      */
-    public function setTemplate($value): static
+    public function set_template($value): static
     {
         $this->_template = $value;
-
         return $this;
     }
-
     /**
      * @return string
      */
-    public function getTemplate()
+    public function get_template()
     {
         if (!isset($this->_template)) {
-            $this->setTemplate(static::DEFAULT_TEMPLATE);
+            $this->set_template(static::DEFAULT_TEMPLATE);
         }
-
         return $this->_template;
     }
-
     /**
      * @param string $value
      */
-    public function setTemplateDirectory($value): static
+    public function set_template_directory($value): static
     {
-        $this->_template_directory = $this->_normalizeDirectory($value);
-
+        $this->_template_directory = $this->_normalize_directory($value);
         return $this;
     }
-
     /**
      * @return string
      */
-    public function getTemplateDirectory()
+    public function get_template_directory()
     {
         if (!isset($this->_template_directory)) {
-            $this->_template_directory = $this->_normalizeDirectory(
-                static::DEFAULT_TEMPLATE_DIRECTORY
-            );
+            $this->_template_directory = $this->_normalize_directory(static::DEFAULT_TEMPLATE_DIRECTORY);
         }
-
         return $this->_template_directory;
     }
-
     /**
      *
      *
      * @throws PrestaShopException
      */
-    public function getTemplateFile(string $template): string
+    public function get_template_file(string $template): string
     {
-        if (preg_match_all('/((?:^|[A-Z])[a-z]+)/', $this->getContext()->controller::class, $matches) !== false) {
-            $controllerName = strtolower($matches[0][1]);
+        if (preg_match_all('/((?:^|[A-Z])[a-z]+)/', $this->get_context()->controller::class, $matches) !== false) {
+            $controller_name = strtolower($matches[0][1]);
         }
-        if ($this->getContext()->controller instanceof ModuleAdminController && isset($controllerName) && file_exists(
-            $this->_normalizeDirectory($this->getContext()->controller->getTemplatePath()).$controllerName.DIRECTORY_SEPARATOR.$this->getTemplateDirectory().$template
-        )) {
-            return $this->_normalizeDirectory($this->getContext()->controller->getTemplatePath()).$controllerName.DIRECTORY_SEPARATOR.$this->getTemplateDirectory().$template;
+        if ($this->get_context()->controller instanceof Module_Admin_Controller && isset($controller_name) && file_exists($this->_normalize_directory($this->get_context()->controller->get_template_path()) . $controller_name . DIRECTORY_SEPARATOR . $this->get_template_directory() . $template)) {
+            return $this->_normalize_directory($this->get_context()->controller->get_template_path()) . $controller_name . DIRECTORY_SEPARATOR . $this->get_template_directory() . $template;
         }
-        if ($this->getContext()->controller instanceof ModuleAdminController && file_exists(
-            $this->_normalizeDirectory(
-                $this->getContext()->controller->getTemplatePath()
-            ).$this->getTemplateDirectory().$template
-        )) {
-            return $this->_normalizeDirectory($this->getContext()->controller->getTemplatePath()).$this->getTemplateDirectory().$template;
+        if ($this->get_context()->controller instanceof Module_Admin_Controller && file_exists($this->_normalize_directory($this->get_context()->controller->get_template_path()) . $this->get_template_directory() . $template)) {
+            return $this->_normalize_directory($this->get_context()->controller->get_template_path()) . $this->get_template_directory() . $template;
         }
-        if ($this->getContext()->controller instanceof AdminController && isset($controllerName)
-            && file_exists($this->_normalizeDirectory($this->getContext()->smarty->getTemplateDir(0)).'controllers'.DIRECTORY_SEPARATOR.$controllerName.DIRECTORY_SEPARATOR.$this->getTemplateDirectory().$template)) {
-            return $this->_normalizeDirectory($this->getContext()->smarty->getTemplateDir(0)).'controllers'
-                .DIRECTORY_SEPARATOR.$controllerName.DIRECTORY_SEPARATOR.$this->getTemplateDirectory().$template;
+        if ($this->get_context()->controller instanceof Admin_Controller && isset($controller_name) && file_exists($this->_normalize_directory($this->get_context()->smarty->get_template_dir(0)) . 'controllers' . DIRECTORY_SEPARATOR . $controller_name . DIRECTORY_SEPARATOR . $this->get_template_directory() . $template)) {
+            return $this->_normalize_directory($this->get_context()->smarty->get_template_dir(0)) . 'controllers' . DIRECTORY_SEPARATOR . $controller_name . DIRECTORY_SEPARATOR . $this->get_template_directory() . $template;
         }
-        if (file_exists(
-            $this->_normalizeDirectory($this->getContext()->smarty->getTemplateDir(1))
-            .$this->getTemplateDirectory().$template
-        )) {
-            return $this->_normalizeDirectory($this->getContext()->smarty->getTemplateDir(1))
-                .$this->getTemplateDirectory().$template;
+        if (file_exists($this->_normalize_directory($this->get_context()->smarty->get_template_dir(1)) . $this->get_template_directory() . $template)) {
+            return $this->_normalize_directory($this->get_context()->smarty->get_template_dir(1)) . $this->get_template_directory() . $template;
         }
-
-        if (file_exists(
-            $this->_normalizeDirectory($this->getContext()->smarty->getTemplateDir(0))
-            .$this->getTemplateDirectory().$template
-        )) {
-            return $this->_normalizeDirectory($this->getContext()->smarty->getTemplateDir(0))
-                .$this->getTemplateDirectory().$template;
+        if (file_exists($this->_normalize_directory($this->get_context()->smarty->get_template_dir(0)) . $this->get_template_directory() . $template)) {
+            return $this->_normalize_directory($this->get_context()->smarty->get_template_dir(0)) . $this->get_template_directory() . $template;
         }
-        return $this->getTemplateDirectory().$template;
+        return $this->get_template_directory() . $template;
     }
-
     /**
      * @param bool $value
      */
-    public function setNoJS($value): static
+    public function set_no_js($value): static
     {
         $this->_no_js = $value;
-
         return $this;
     }
-
     /**
      * @param string $value
      */
-    public function setTitle($value): static
+    public function set_title($value): static
     {
         if ($value) {
             $this->_title = trim($value);
         }
-
         return $this;
     }
-
     /**
      * @return string
      */
-    public function getTitle()
+    public function get_title()
     {
         return $this->_title;
     }
-
-    public function setToolbar(ITreeToolbarCore $value): static
+    public function set_toolbar(I_Tree_Toolbar_Core $value): static
     {
         $this->_toolbar = $value;
         return $this;
     }
-
     /**
      * @return ITreeToolbarCore
      */
-    public function getToolbar()
+    public function get_toolbar()
     {
         if (isset($this->_toolbar)) {
-            if ($this->getDataSearch()) {
-                $this->_toolbar->setData($this->getDataSearch());
+            if ($this->get_data_search()) {
+                $this->_toolbar->set_data($this->get_data_search());
             } else {
-                $this->_toolbar->setData($this->getData());
+                $this->_toolbar->set_data($this->get_data());
             }
         }
-
         return $this->_toolbar;
     }
-
     /**
      * @param ITreeToolbarButtonCore $action
      */
-    public function addAction($action): static
+    public function add_action($action): static
     {
         if (!isset($this->_toolbar)) {
-            $this->setToolbar(new TreeToolbar());
+            $this->set_toolbar(new Tree_Toolbar());
         }
-
-        $this->getToolbar()->setTemplateDirectory($this->getTemplateDirectory())->addAction($action);
-
+        $this->get_toolbar()->set_template_directory($this->get_template_directory())->add_action($action);
         return $this;
     }
-
-    public function removeActions(): static
+    public function remove_actions(): static
     {
         if (!isset($this->_toolbar)) {
-            $this->setToolbar(new TreeToolbar());
+            $this->set_toolbar(new Tree_Toolbar());
         }
-
-        $this->getToolbar()->setTemplateDirectory($this->getTemplateDirectory())->removeActions();
-
+        $this->get_toolbar()->set_template_directory($this->get_template_directory())->remove_actions();
         return $this;
     }
-
     /**
      * @param array|null $data
      *
@@ -560,137 +454,83 @@ class TreeCore implements \Stringable
     public function render($data = null): string
     {
         //Adding tree.js
-        $adminWebpath = str_ireplace(_PS_CORE_DIR_, '', _PS_ADMIN_DIR_);
-        $adminWebpath = preg_replace('/^'.preg_quote(DIRECTORY_SEPARATOR, '/').'/', '', $adminWebpath);
-        $boTheme = ((Validate::isLoadedObject($this->getContext()->employee)
-            && $this->getContext()->employee->bo_theme) ? $this->getContext()->employee->bo_theme : 'default');
-
-        if (!file_exists(_PS_BO_ALL_THEMES_DIR_.$boTheme.DIRECTORY_SEPARATOR.'template')) {
-            $boTheme = 'default';
+        $admin_webpath = str_ireplace(_PS_CORE_DIR_, '', _PS_ADMIN_DIR_);
+        $admin_webpath = preg_replace('/^' . preg_quote(DIRECTORY_SEPARATOR, '/') . '/', '', $admin_webpath);
+        $bo_theme = Validate::is_loaded_object($this->get_context()->employee) && $this->get_context()->employee->bo_theme ? $this->get_context()->employee->bo_theme : 'default';
+        if (!file_exists(_PS_BO_ALL_THEMES_DIR_ . $bo_theme . DIRECTORY_SEPARATOR . 'template')) {
+            $bo_theme = 'default';
         }
-
-        $jsPath = Media::getUriWithVersion(__PS_BASE_URI__.$adminWebpath.'/themes/'.$boTheme.'/js/tree.js');
-        if ($this->getContext()->controller->ajax) {
+        $js_path = Media::get_uri_with_version(__PS_BASE_URI__ . $admin_webpath . '/themes/' . $bo_theme . '/js/tree.js');
+        if ($this->get_context()->controller->ajax) {
             if (!$this->_no_js) {
-                $html = '<script type="text/javascript">$(function(){ $.ajax({url: "'.$jsPath.'",cache:true,dataType: "script"})});</script>';
+                $html = '<script type="text/javascript">$(function(){ $.ajax({url: "' . $js_path . '",cache:true,dataType: "script"})});</script>';
             }
         } else {
-            $this->getContext()->controller->addJs($jsPath);
+            $this->get_context()->controller->add_js($js_path);
         }
-
         //Create Tree Template
-        $template = $this->getContext()->smarty->createTemplate(
-            $this->getTemplateFile($this->getTemplate()),
-            $this->getContext()->smarty
-        );
-
-        if ($this->getTitle() || $this->useToolbar()) {
+        $template = $this->get_context()->smarty->create_template($this->get_template_file($this->get_template()), $this->get_context()->smarty);
+        if ($this->get_title() || $this->use_toolbar()) {
             //Create Tree Header Template
-            $headerTemplate = $this->getContext()->smarty->createTemplate(
-                $this->getTemplateFile($this->getHeaderTemplate()),
-                $this->getContext()->smarty
-            );
-            $headerTemplate->assign($this->getAttributes())
-                ->assign(
-                    [
-                        'title'   => $this->getTitle(),
-                        'toolbar' => $this->useToolbar() ? $this->renderToolbar() : null,
-                    ]
-                );
-            $template->assign('header', $headerTemplate->fetch());
+            $header_template = $this->get_context()->smarty->create_template($this->get_template_file($this->get_header_template()), $this->get_context()->smarty);
+            $header_template->assign($this->get_attributes())->assign(['title' => $this->get_title(), 'toolbar' => $this->use_toolbar() ? $this->render_toolbar() : null]);
+            $template->assign('header', $header_template->fetch());
         }
-
         //Assign Tree nodes
-        $template->assign($this->getAttributes())->assign(
-            [
-                'id'      => $this->getId(),
-                'nodes'   => $this->renderNodes($data),
-                'id_tree' => $this->getIdTree(),
-            ]
-        );
-
-        return ($html ?? '').$template->fetch();
+        $template->assign($this->get_attributes())->assign(['id' => $this->get_id(), 'nodes' => $this->render_nodes($data), 'id_tree' => $this->get_id_tree()]);
+        return ($html ?? '') . $template->fetch();
     }
-
     /**
      * @param array|null $data
      *
      * @throws PrestaShopException
      * @throws SmartyException
      */
-    public function renderNodes($data = null): string
+    public function render_nodes($data = null): string
     {
         if (!isset($data)) {
-            $data = $this->getData();
+            $data = $this->get_data();
         }
-
         if (!is_array($data) && !$data instanceof Traversable) {
-            throw new PrestaShopException('Data value must be an traversable array');
+            throw new Presta_Shop_Exception('Data value must be an traversable array');
         }
-
         $html = '';
-
         foreach ($data as $item) {
-            if (array_key_exists('children', $item)
-                && !empty($item['children'])
-            ) {
-                $html .= $this->getContext()->smarty->createTemplate(
-                    $this->getTemplateFile($this->getNodeFolderTemplate()),
-                    $this->getContext()->smarty
-                )->assign(
-                    [
-                        'children' => $this->renderNodes($item['children']),
-                        'node'     => $item,
-                    ]
-                )->fetch();
+            if (array_key_exists('children', $item) && !empty($item['children'])) {
+                $html .= $this->get_context()->smarty->create_template($this->get_template_file($this->get_node_folder_template()), $this->get_context()->smarty)->assign(['children' => $this->render_nodes($item['children']), 'node' => $item])->fetch();
             } else {
-                $html .= $this->getContext()->smarty->createTemplate(
-                    $this->getTemplateFile($this->getNodeItemTemplate()),
-                    $this->getContext()->smarty
-                )->assign(
-                    [
-                        'node' => $item,
-                    ]
-                )->fetch();
+                $html .= $this->get_context()->smarty->create_template($this->get_template_file($this->get_node_item_template()), $this->get_context()->smarty)->assign(['node' => $item])->fetch();
             }
         }
-
         return $html;
     }
-
     /**
      * @return string
      */
-    public function renderToolbar()
+    public function render_toolbar()
     {
-        return $this->getToolbar()->render();
+        return $this->get_toolbar()->render();
     }
-
-    public function useInput(): bool
+    public function use_input(): bool
     {
         return isset($this->_input_type);
     }
-
-    public function useToolbar(): bool
+    public function use_toolbar(): bool
     {
         return isset($this->_toolbar);
     }
-
     /**
      *
      *
      * @deprecated 2.0.0
      */
-    protected function _normalizeDirectory(string $directory): string
+    protected function _normalize_directory(string $directory): string
     {
         $last = $directory[strlen($directory) - 1];
-
         if (in_array($last, ['/', '\\'])) {
             $directory[strlen($directory) - 1] = DIRECTORY_SEPARATOR;
-
             return $directory;
         }
-
         return $directory . DIRECTORY_SEPARATOR;
     }
 }

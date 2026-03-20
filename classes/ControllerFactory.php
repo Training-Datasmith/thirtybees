@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,31 +30,28 @@ declare(strict_types=1);
  *  @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
-use Thirtybees\Core\DependencyInjection\ServiceLocator;
-
+use Thirtybees\Core\Dependency_Injection\Service_Locator;
 /**
  * Class ControllerFactoryCore
  *
  * @deprecated 1.0.0
  */
-class ControllerFactoryCore
+class Controller_Factory_Core
 {
     /**
      * @deprecated since 1.0.0
      */
-    public static function includeController($className): void
+    public static function include_controller($class_name): void
     {
-        Tools::displayAsDeprecated();
+        Tools::display_as_deprecated();
     }
-
     /**
      * @throws PrestaShopException
      * @deprecated 1.0.0
      */
-    public static function getController($className, $auth = false, $ssl = false)
+    public static function get_controller($class_name, $auth = false, $ssl = false)
     {
-        Tools::displayAsDeprecated();
-        return ServiceLocator::getInstance()->getByServiceName($className);
+        Tools::display_as_deprecated();
+        return Service_Locator::get_instance()->get_by_service_name($class_name);
     }
 }

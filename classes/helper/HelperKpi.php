@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,82 +30,67 @@ declare(strict_types=1);
  *  @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class HelperKpiCore
  */
-class HelperKpiCore extends Helper
+class Helper_Kpi_Core extends Helper
 {
     /**
      * @var string $base_folder
      */
     public $base_folder = 'helpers/kpi/';
-
     /**
      * @var string $base_tpl
      */
     public $base_tpl = 'kpi.tpl';
-
     /**
      * @var string $id
      */
     public $id;
-
     /**
      * @var string
      */
     public $icon;
-
     /**
      * @var bool
      */
     public $chart;
-
     /**
      * @var string
      */
     public $color;
-
     /**
      * @var string
      */
     public $title;
-
     /**
      * @var string
      */
     public $subtitle;
-
     /**
      * @var int|float|string|null
      */
     public $value;
-
     /**
      * @var string
      */
     public $data;
-
     /**
      * @var string
      */
     public $source;
-
     /**
      * @var bool
      */
     public $refresh = true;
-
     /**
      * @var string
      */
     public $href;
-
     /**
      * @var string
      */
     public $tooltip;
-
     /**
      * @return false|string
      *
@@ -114,25 +99,8 @@ class HelperKpiCore extends Helper
      */
     public function generate()
     {
-        $this->tpl = $this->createTemplate($this->base_tpl);
-
-        $this->tpl->assign(
-            [
-                'id'       => $this->id,
-                'icon'     => $this->icon,
-                'chart'    => (bool) $this->chart,
-                'color'    => $this->color,
-                'title'    => $this->title,
-                'subtitle' => $this->subtitle,
-                'value'    => $this->value,
-                'data'     => $this->data,
-                'source'   => $this->source,
-                'refresh'  => $this->refresh,
-                'href'     => $this->href,
-                'tooltip'  => $this->tooltip,
-            ]
-        );
-
+        $this->tpl = $this->create_template($this->base_tpl);
+        $this->tpl->assign(['id' => $this->id, 'icon' => $this->icon, 'chart' => (bool) $this->chart, 'color' => $this->color, 'title' => $this->title, 'subtitle' => $this->subtitle, 'value' => $this->value, 'data' => $this->data, 'source' => $this->source, 'refresh' => $this->refresh, 'href' => $this->href, 'tooltip' => $this->tooltip]);
         return $this->tpl->fetch();
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * Copyright (C) 2017-2024 thirty bees
  *
@@ -18,57 +18,47 @@ declare(strict_types=1);
  * @copyright 2017-2024 thirty bees
  * @license   Open Software License (OSL 3.0)
  */
-
 namespace Thirtybees\Core\Error\Response;
 
-use Thirtybees\Core\Error\ErrorDescription;
-use Thirtybees\Core\Error\ErrorUtils;
-
+use Thirtybees\Core\Error\Error_Description;
+use Thirtybees\Core\Error\Error_Utils;
 /**
  * Class DebugErrorPageCore
  */
-class DebugErrorPageCore extends AbstractErrorPage
+class Debug_Error_Page_Core extends Abstract_Error_Page
 {
     /**
      * Return content type
      * @return string
      */
-    protected function getContentType()
+    protected function get_content_type()
     {
         return 'text/html';
     }
-
     /**
      * @return string
      */
-    protected function renderError(ErrorDescription $errorDescription)
+    protected function render_error(Error_Description $error_description)
     {
-        return static::displayErrorTemplate(
-            _PS_ROOT_DIR_.'/error500_debug.phtml',
-            [
-                'errorDescription' => $errorDescription,
-                'helper' => $this,
-            ]
-        );
+        return static::display_error_template(_PS_ROOT_DIR_ . '/error500_debug.phtml', ['errorDescription' => $error_description, 'helper' => $this]);
     }
-
     /**
      * Helper function to render file lines
      *
      * @param array $lines array of file lines
      * @return string output
      */
-    public function displayLines($lines)
+    public function display_lines($lines)
     {
         $ret = '';
         if ($lines) {
             $ret = '<pre>';
-            foreach ($lines as $currentLine) {
-                if ($currentLine['highlighted']) {
+            foreach ($lines as $current_line) {
+                if ($current_line['highlighted']) {
                     $ret .= "<span class='selected'>";
                 }
-                $ret .= "<span class='line'>" . $currentLine['number'] . ':</span>' . htmlentities((string) $currentLine['line']);
-                if ($currentLine['highlighted']) {
+                $ret .= "<span class='line'>" . $current_line['number'] . ':</span>' . htmlentities((string) $current_line['line']);
+                if ($current_line['highlighted']) {
                     $ret .= '</span>';
                 }
             }
@@ -76,14 +66,13 @@ class DebugErrorPageCore extends AbstractErrorPage
         }
         return $ret;
     }
-
     /**
      * Helper function to escape input
      *
      * @param string|null $input
      * @return string
      */
-    public function displayString($input)
+    public function display_string($input)
     {
         if (is_null($input)) {
             return 'NULL';
@@ -92,19 +81,18 @@ class DebugErrorPageCore extends AbstractErrorPage
             $value = html_entity_decode($input);
             return htmlentities($value);
         }
-        return (string)$input;
+        return (string) $input;
     }
-
     /**
      * @param string|null $filePath
      *
      * @return string
      */
-    public function displayFilePath($filePath)
+    public function display_file_path($file_path)
     {
-        if ($filePath) {
-            $filePath = ErrorUtils::getRelativeFile($filePath);
+        if ($file_path) {
+            $file_path = Error_Utils::get_relative_file($file_path);
         }
-        return $this->displayString($filePath);
+        return $this->display_string($file_path);
     }
 }

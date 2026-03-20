@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,57 +30,48 @@ declare(strict_types=1);
  *  @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class Core_Business_Payment_PaymentOption
  */
-class Core_Business_Payment_PaymentOption
+class Core_business_payment_payment_Option
 {
     /**
      * @var string
      */
-    protected $callToActionText;
-
+    protected $call_to_action_text;
     /**
      * @var string
      */
     protected $logo;
-
     /**
      * @var string
      */
     protected $action;
-
     /**
      * @var string
      */
     protected $method;
-
     /**
      * @var array
      */
     protected $inputs;
-
     /**
      * @var string
      */
     protected $form;
-
     /**
      * @var string
      */
-    protected $moduleName;
-
+    protected $module_name;
     /**
      * Return Call to Action Text
      *
      * @return string
      */
-    public function getCallToActionText()
+    public function get_call_to_action_text()
     {
-        return $this->callToActionText;
+        return $this->call_to_action_text;
     }
-
     /**
      * Set Call To Action Text
      *
@@ -88,23 +79,20 @@ class Core_Business_Payment_PaymentOption
      *
      * @return static
      */
-    public function setCallToActionText($callToActionText)
+    public function set_call_to_action_text($call_to_action_text)
     {
-        $this->callToActionText = $callToActionText;
-
+        $this->call_to_action_text = $call_to_action_text;
         return $this;
     }
-
     /**
      * Return logo path
      *
      * @return string
      */
-    public function getLogo()
+    public function get_logo()
     {
         return $this->logo;
     }
-
     /**
      * Set logo path
      *
@@ -112,23 +100,20 @@ class Core_Business_Payment_PaymentOption
      *
      * @return static
      */
-    public function setLogo($logo)
+    public function set_logo($logo)
     {
         $this->logo = $logo;
-
         return $this;
     }
-
     /**
      * Return action to perform (POST/GET)
      *
      * @return string
      */
-    public function getAction()
+    public function get_action()
     {
         return $this->action;
     }
-
     /**
      * Set action to be performed by this option
      *
@@ -136,43 +121,37 @@ class Core_Business_Payment_PaymentOption
      *
      * @return static
      */
-    public function setAction($action)
+    public function set_action($action)
     {
         $this->action = $action;
-
         return $this;
     }
-
     /**
      * @return string
      */
-    public function getMethod()
+    public function get_method()
     {
         return $this->method;
     }
-
     /**
      * @param string $method
      *
      * @return static
      */
-    public function setMethod($method)
+    public function set_method($method)
     {
         $this->method = $method;
-
         return $this;
     }
-
     /**
      * Return inputs contained in this payment option
      *
      * @return array
      */
-    public function getInputs()
+    public function get_inputs()
     {
         return $this->inputs;
     }
-
     /**
      * Set inputs for this payment option
      *
@@ -180,23 +159,20 @@ class Core_Business_Payment_PaymentOption
      *
      * @return static
      */
-    public function setInputs($inputs)
+    public function set_inputs($inputs)
     {
         $this->inputs = $inputs;
-
         return $this;
     }
-
     /**
      * Get payment option form
      *
      * @return string
      */
-    public function getForm()
+    public function get_form()
     {
         return $this->form;
     }
-
     /**
      * Set payment option form
      *
@@ -204,23 +180,20 @@ class Core_Business_Payment_PaymentOption
      *
      * @return static
      */
-    public function setForm($form)
+    public function set_form($form)
     {
         $this->form = $form;
-
         return $this;
     }
-
     /**
      * Get related module name to this payment option
      *
      * @return string
      */
-    public function getModuleName()
+    public function get_module_name()
     {
-        return $this->moduleName;
+        return $this->module_name;
     }
-
     /**
      * Set related module name to this payment option
      *
@@ -228,13 +201,11 @@ class Core_Business_Payment_PaymentOption
      *
      * @return static
      */
-    public function setModuleName($moduleName)
+    public function set_module_name($module_name)
     {
-        $this->moduleName = $moduleName;
-
+        $this->module_name = $module_name;
         return $this;
     }
-
     /**
      * Legacy options were specified this way:
      * - either an array with a top level property 'cta_text'
@@ -248,40 +219,21 @@ class Core_Business_Payment_PaymentOption
      *
      * @return array|null
      */
-    public static function convertLegacyOption(array $legacyOption)
+    public static function convert_legacy_option(array $legacy_option)
     {
-        if (!$legacyOption) {
+        if (!$legacy_option) {
             return null;
         }
-
-        if (array_key_exists('cta_text', $legacyOption)) {
-            $legacyOption = [$legacyOption];
+        if (array_key_exists('cta_text', $legacy_option)) {
+            $legacy_option = [$legacy_option];
         }
-
-        $newOptions = [];
-
-        $defaults = [
-            'action' => null,
-            'form' => null,
-            'method' => null,
-            'inputs' => [],
-            'logo' => null,
-        ];
-
-        foreach ($legacyOption as $option) {
+        $new_options = [];
+        $defaults = ['action' => null, 'form' => null, 'method' => null, 'inputs' => [], 'logo' => null];
+        foreach ($legacy_option as $option) {
             $option = array_merge($defaults, $option);
-
-            $newOption = (new static())
-                ->setCallToActionText($option['cta_text'])
-                ->setAction($option['action'])
-                ->setForm($option['form'])
-                ->setInputs($option['inputs'])
-                ->setLogo($option['logo'])
-                ->setMethod($option['method']);
-
-            $newOptions[] = $newOption;
+            $new_option = (new static())->set_call_to_action_text($option['cta_text'])->set_action($option['action'])->set_form($option['form'])->set_inputs($option['inputs'])->set_logo($option['logo'])->set_method($option['method']);
+            $new_options[] = $new_option;
         }
-
-        return $newOptions;
+        return $new_options;
     }
 }

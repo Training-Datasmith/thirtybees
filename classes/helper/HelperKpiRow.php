@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,28 +30,23 @@ declare(strict_types=1);
  *  @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class HelperKpiRowCore
  */
-class HelperKpiRowCore extends Helper
+class Helper_Kpi_Row_Core extends Helper
 {
     /**
      * @var string $base_folder
      */
-
     public $base_folder = 'helpers/kpi/';
-
     /**
      * @var string $base_tpl
      */
     public $base_tpl = 'row.tpl';
-
     /**
      * @var array
      */
     public $kpis = [];
-
     /**
      * @return false|string
      *
@@ -60,10 +55,8 @@ class HelperKpiRowCore extends Helper
      */
     public function generate()
     {
-        $this->tpl = $this->createTemplate($this->base_tpl);
-
+        $this->tpl = $this->create_template($this->base_tpl);
         $this->tpl->assign('kpis', $this->kpis);
-
         return $this->tpl->fetch();
     }
 }

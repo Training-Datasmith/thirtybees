@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,47 +30,39 @@ declare(strict_types=1);
  *  @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class ModuleGridEngineCore
  */
-class ModuleGridEngineCore extends Module
+class Module_Grid_Engine_Core extends Module
 {
     /**
      * @var array
      */
     protected $_values;
-
     /**
      * @var int
      */
     protected $_width;
-
     /**
      * @var int
      */
     protected $_height;
-
     /**
      * @var int
      */
     protected $_start;
-
     /**
      * @var int
      */
     protected $_limit;
-
     /**
      * @var int
      */
-    protected $_totalCount;
-
+    protected $_total_count;
     /**
      * @var string
      */
     protected $_title;
-
     /**
      * ModuleGridEngineCore constructor.
      *
@@ -81,7 +73,6 @@ class ModuleGridEngineCore extends Module
     public function __construct(protected $_type)
     {
     }
-
     /**
      * @return bool
      *
@@ -92,52 +83,40 @@ class ModuleGridEngineCore extends Module
         if (!parent::install()) {
             return false;
         }
-
-        return Configuration::updateValue('PS_STATS_GRID_RENDER', $this->name);
+        return Configuration::update_value('PS_STATS_GRID_RENDER', $this->name);
     }
-
     /**
      * @return array
      *
      * @throws PrestaShopException
      */
-    public static function getGridEngines()
+    public static function get_grid_engines()
     {
-        $result = Db::readOnly()->getArray(
-            (new DbQuery())
-                ->select('m.`name`')
-                ->from('module', 'm')
-                ->leftJoin('module', 'm')
-                ->leftJoin('hook', 'h', 'hm.`id_hook` = h.`id_hook`')
-                ->where('h.`name` = \'displayAdminStatsGridEngine\'')
-        );
-
-        $arrayEngines = [];
+        $result = Db::read_only()->get_array((new Db_Query())->select('m.`name`')->from('module', 'm')->left_join('module', 'm')->left_join('hook', 'h', 'hm.`id_hook` = h.`id_hook`')->where('h.`name` = \'displayAdminStatsGridEngine\''));
+        $array_engines = [];
         foreach ($result as $module) {
-            $instance = Module::getInstanceByName($module['name']);
+            $instance = Module::get_instance_by_name($module['name']);
             if (!$instance) {
                 continue;
             }
-            $arrayEngines[$module['name']] = [$instance->displayName, $instance->description];
+            $array_engines[$module['name']] = [$instance->display_name, $instance->description];
         }
-
-        return $arrayEngines;
+        return $array_engines;
     }
-
     /**
      * @param array $params
      * @param string $grider
      * @return string
      */
-    public static function hookGridEngine($params, $grider)
+    public static function hook_grid_engine($params, $grider)
     {
         if (!isset($params['emptyMsg'])) {
             $params['emptyMsg'] = 'Empty';
         }
-        $customParams = '';
+        $custom_params = '';
         if (isset($params['customParams'])) {
             foreach ($params['customParams'] as $name => $value) {
-                $customParams .= '&'.$name.'='.urlencode((string) $value);
+                $custom_params .= '&' . $name . '=' . urlencode((string) $value);
             }
         }
         $html = '
@@ -151,24 +130,24 @@ class ModuleGridEngineCore extends Module
         $html .= '</tr>
 			</thead>
 			<tbody></tbody>
-			<tfoot><tr><th colspan="'.count($params['columns']).'"></th></tr></tfoot>
+			<tfoot><tr><th colspan="' . count($params['columns']) . '"></th></tr></tfoot>
 		</table>
 		</div>
 		<script type="text/javascript">
 			function getGridData(url)
 			{
-				$("#grid_1 tbody").html("<tr><td style=\"text-align:center\" colspan=\"" + '.count($params['columns']).' + "\"><img src=\"../img/loadingAnimation.gif\" /></td></tr>");
+				$("#grid_1 tbody").html("<tr><td style=\"text-align:center\" colspan=\"" + ' . count($params['columns']) . ' + "\"><img src=\"../img/loadingAnimation.gif\" /></td></tr>");
 				$.get(url, "", function(json) {
 					$("#grid_1 tbody").html("");
 					var array = $.parseJSON(json);
-					$("#grid_1 tfoot tr th").html("'.addslashes((string) $params['pagingMessage']).'");
+					$("#grid_1 tfoot tr th").html("' . addslashes((string) $params['pagingMessage']) . '");
 					$("#grid_1 tfoot tr th").html($("#grid_1 tfoot tr th").html().replace("{0}", array["from"]));
 					$("#grid_1 tfoot tr th").html($("#grid_1 tfoot tr th").html().replace("{1}", array["to"]));
 					$("#grid_1 tfoot tr th").html($("#grid_1 tfoot tr th").html().replace("{2}", array["total"]));
 					if (array["from"] > 1)
-						$("#grid_1 tfoot tr th").html($("#grid_1 tfoot tr th").html() + " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a style=\\"cursor:pointer;text-decoration:none\\" onclick=\\"gridPrevPage(\'"+ url +"\');\\">&lt;&lt;</a>");
+						$("#grid_1 tfoot tr th").html($("#grid_1 tfoot tr th").html() + " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a style=\"cursor:pointer;text-decoration:none\" onclick=\"gridPrevPage(\'"+ url +"\');\">&lt;&lt;</a>");
 					if (array["to"] < array["total"])
-						$("#grid_1 tfoot tr th").html($("#grid_1 tfoot tr th").html() + " | <a style=\\"cursor:pointer;text-decoration:none\\" onclick=\\"gridNextPage(\'"+ url +"\');\\">&gt;&gt;</a>");
+						$("#grid_1 tfoot tr th").html($("#grid_1 tfoot tr th").html() + " | <a style=\"cursor:pointer;text-decoration:none\" onclick=\"gridNextPage(\'"+ url +"\');\">&gt;&gt;</a>");
 					var values = array["values"];
 					if (values.length > 0)
 						$.each(values, function(index, row){
@@ -182,10 +161,9 @@ class ModuleGridEngineCore extends Module
         if (!isset($params['defaultSortDirection'])) {
             $params['defaultSortDirection'] = false;
         }
-
         $limit = 40;
-        if (isset($params['limit']) && Validate::isUnsignedInt($params['limit'])) {
-            $limit = (int)$params['limit'];
+        if (isset($params['limit']) && Validate::is_unsigned_int($params['limit'])) {
+            $limit = (int) $params['limit'];
         }
         return $html . ('		$("#grid_1 tbody").append(newLine);
 						});
@@ -221,70 +199,58 @@ class ModuleGridEngineCore extends Module
 				url = url.replace(/&start=[0-9]+/i, "") + from;
 				getGridData(url);
 			}
-			$(document).ready(function(){getGridData("' . $grider . '&sort=' . urlencode((string) $params['defaultSortColumn']) . '&dir=' . urlencode($params['defaultSortDirection']) . $customParams . '");});
+			$(document).ready(function(){getGridData("' . $grider . '&sort=' . urlencode((string) $params['defaultSortColumn']) . '&dir=' . urlencode($params['defaultSortDirection']) . $custom_params . '");});
 		</script>');
     }
-
     /**
      * @param mixed $infos
      * @return void
      */
-    public function setColumnsInfos(&$infos)
+    public function set_columns_infos(&$infos)
     {
     }
-
     /**
      * @param array $values
      */
-    public function setValues($values): void
+    public function set_values($values): void
     {
         $this->_values = $values;
     }
-
     /**
      * @param string $title
      */
-    public function setTitle($title): void
+    public function set_title($title): void
     {
         $this->_title = $title;
     }
-
     /**
      * @param int $width
      * @param int $height
      */
-    public function setSize($width, $height): void
+    public function set_size($width, $height): void
     {
         $this->_width = $width;
         $this->_height = $height;
     }
-
     /**
      * @param int $totalCount
      */
-    public function setTotalCount($totalCount): void
+    public function set_total_count($total_count): void
     {
-        $this->_totalCount = (int)$totalCount;
+        $this->_total_count = (int) $total_count;
     }
-
     /**
      * @param int $start
      * @param int $limit
      */
-    public function setLimit($start, $limit): void
+    public function set_limit($start, $limit): void
     {
-        $this->_start = (int)$start;
-        $this->_limit = (int)$limit;
+        $this->_start = (int) $start;
+        $this->_limit = (int) $limit;
     }
-
     public function render(): void
     {
-        echo json_encode([
-            'total' => $this->_totalCount,
-            'from' => min($this->_start + 1, $this->_totalCount),
-            'to' => min($this->_start + $this->_limit, $this->_totalCount),
-            'values' => $this->_values,
-        ]);
+        echo json_encode(['total' => $this->_total_count, 'from' => min($this->_start + 1, $this->_total_count), 'to' => min($this->_start + $this->_limit, $this->_total_count), 'values' => $this->_values]);
         exit;
     }
 }

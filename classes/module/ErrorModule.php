@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,11 +30,10 @@ declare(strict_types=1);
  *  @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class ErrorModuleCore
  */
-abstract class ErrorModuleCore extends Module
+abstract class Error_Module_Core extends Module
 {
     /**
      * Register the error handlers
@@ -44,5 +43,5 @@ abstract class ErrorModuleCore extends Module
      *
      * @return bool
      */
-    abstract public function hookActionRegisterErrorHandlers();
+    abstract public function hook_action_register_error_handlers();
 }

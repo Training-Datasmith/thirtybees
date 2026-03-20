@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,11 +30,10 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class FeatureValueCore
  */
-class FeatureValueCore extends ObjectModel
+class Feature_Value_Core extends Object_Model
 {
     /** @var int Group id which attribute belongs */
     public $id_feature;
@@ -46,41 +45,21 @@ class FeatureValueCore extends ObjectModel
     public $position;
     /** @var bool Custom */
     public $custom = 0;
-
     /**
      * @var array Object model definition
      */
-    public static $definition = [
-        'table'     => 'feature_value',
-        'primary'   => 'id_feature_value',
-        'multilang' => true,
-        'fields'    => [
-            'id_feature' => ['type' => self::TYPE_INT,  'validate' => 'isUnsignedId', 'required' => true],
-            'custom'     => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbType' => 'tinyint(3) unsigned'],
-            'position'   => ['type' => self::TYPE_INT, 'dbDefault' => '0'],
-
-            /* Lang fields */
-            'value'         => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isGenericName', 'required' => true, 'size' => 255, 'dbNullable' => true],
-            'displayable'   => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isGenericName', 'size' => 255, 'dbNullable' => true],
-        ],
-        'keys' => [
-            'feature_value' => [
-                'feature' => ['type' => ObjectModel::KEY, 'columns' => ['id_feature']],
-            ],
-        ],
-    ];
-
+    public static $definition = ['table' => 'feature_value', 'primary' => 'id_feature_value', 'multilang' => true, 'fields' => [
+        'id_feature' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true],
+        'custom' => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'dbType' => 'tinyint(3) unsigned'],
+        'position' => ['type' => self::TYPE_INT, 'dbDefault' => '0'],
+        /* Lang fields */
+        'value' => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isGenericName', 'required' => true, 'size' => 255, 'dbNullable' => true],
+        'displayable' => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isGenericName', 'size' => 255, 'dbNullable' => true],
+    ], 'keys' => ['feature_value' => ['feature' => ['type' => Object_Model::KEY, 'columns' => ['id_feature']]]]];
     /**
      * @var array Webservice parameters
      */
-    protected $webserviceParameters = [
-        'objectsNodeName' => 'product_feature_values',
-        'objectNodeName'  => 'product_feature_value',
-        'fields'          => [
-            'id_feature' => ['xlink_resource' => 'product_features'],
-        ],
-    ];
-
+    protected $webservice_parameters = ['objectsNodeName' => 'product_feature_values', 'objectNodeName' => 'product_feature_value', 'fields' => ['id_feature' => ['xlink_resource' => 'product_features']]];
     /**
      * Get all values for a given feature
      *
@@ -91,16 +70,10 @@ class FeatureValueCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getFeatureValues($idFeature)
+    public static function get_feature_values($id_feature)
     {
-        return Db::readOnly()->getArray(
-            (new DbQuery())
-                ->select('*')
-                ->from('feature_value')
-                ->where('`id_feature` = '.(int) $idFeature)
-        );
+        return Db::read_only()->get_array((new Db_Query())->select('*')->from('feature_value')->where('`id_feature` = ' . (int) $id_feature));
     }
-
     /**
      * Get all values for a given feature and language
      *
@@ -113,19 +86,10 @@ class FeatureValueCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getFeatureValuesWithLang($idLang, $idFeature, $custom = false)
+    public static function get_feature_values_with_lang($id_lang, $id_feature, $custom = false)
     {
-        return Db::readOnly()->getArray(
-            (new DbQuery())
-                ->select('v.*, vl.*, COALESCE(NULLIF(vl.displayable, ""), vl.value) AS value')
-                ->from('feature_value', 'v')
-                ->leftJoin('feature_value_lang', 'vl', 'v.`id_feature_value` = vl.`id_feature_value` AND vl.`id_lang` = '.(int) $idLang)
-                ->leftJoin('feature_lang', 'fl', 'v.`id_feature` = fl.`id_feature` AND fl.`id_lang` = '.(int) $idLang)
-                ->where('v.`id_feature` = '.(int) $idFeature)
-                ->orderBy('v.`position` ASC')
-        );
+        return Db::read_only()->get_array((new Db_Query())->select('v.*, vl.*, COALESCE(NULLIF(vl.displayable, ""), vl.value) AS value')->from('feature_value', 'v')->left_join('feature_value_lang', 'vl', 'v.`id_feature_value` = vl.`id_feature_value` AND vl.`id_lang` = ' . (int) $id_lang)->left_join('feature_lang', 'fl', 'v.`id_feature` = fl.`id_feature` AND fl.`id_lang` = ' . (int) $id_lang)->where('v.`id_feature` = ' . (int) $id_feature)->order_by('v.`position` ASC'));
     }
-
     /**
      * Get all language for a given value
      *
@@ -137,23 +101,19 @@ class FeatureValueCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getFeatureValueLang($id_feature_value, $id_product = 0)
+    public static function get_feature_value_lang($id_feature_value, $id_product = 0)
     {
-
-        $query = new DbQuery();
+        $query = new Db_Query();
         $query->select('vl.*');
         $query->from('feature_value_lang', 'vl');
-
         if ($id_product > 0) {
             $query->select('pl.displayable');
-            $query->leftJoin('feature_product_lang', 'pl', 'vl.`id_feature_value` = pl.`id_feature_value` AND vl.`id_lang`=pl.`id_lang` AND pl.`id_product`='.$id_product);
+            $query->left_join('feature_product_lang', 'pl', 'vl.`id_feature_value` = pl.`id_feature_value` AND vl.`id_lang`=pl.`id_lang` AND pl.`id_product`=' . $id_product);
         }
-        $query->where('vl.`id_feature_value` = '.(int) $id_feature_value);
-        $query->orderBy('vl.`id_lang`, vl.`id_feature_value`');
-
-        return Db::readOnly()->getArray($query);
+        $query->where('vl.`id_feature_value` = ' . (int) $id_feature_value);
+        $query->order_by('vl.`id_lang`, vl.`id_feature_value`');
+        return Db::read_only()->get_array($query);
     }
-
     /**
      * @param int $idFeature
      * @param string $value
@@ -164,33 +124,20 @@ class FeatureValueCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function addFeatureValueImport($idFeature, $value, $idLang)
+    public static function add_feature_value_import($id_feature, $value, $id_lang)
     {
-
-        $idFeatureValue = Db::readOnly()->getValue(
-            (new DbQuery())
-                ->select('fv.`id_feature_value`')
-                ->from('feature_value', 'fv')
-                ->leftJoin('feature_value_lang', 'fvl', 'fvl.`id_feature_value` = fv.`id_feature_value` AND fvl.`id_lang` = '.(int) $idLang)
-                ->where('fvl.`value` = \''.pSQL($value).'\'')
-                ->where('fv.`id_feature` = '.(int) $idFeature)
-                ->groupBy('fv.`id_feature_value`')
-        );
-
-        if ($idFeatureValue) {
-            return (int) $idFeatureValue;
+        $id_feature_value = Db::read_only()->get_value((new Db_Query())->select('fv.`id_feature_value`')->from('feature_value', 'fv')->left_join('feature_value_lang', 'fvl', 'fvl.`id_feature_value` = fv.`id_feature_value` AND fvl.`id_lang` = ' . (int) $id_lang)->where('fvl.`value` = \'' . p_sql($value) . '\'')->where('fv.`id_feature` = ' . (int) $id_feature)->group_by('fv.`id_feature_value`'));
+        if ($id_feature_value) {
+            return (int) $id_feature_value;
         }
-
         // Feature doesn't exist, create it
-        $featureValue = new FeatureValue();
-        $featureValue->id_feature = (int) $idFeature;
-        $featureValue->custom = false;
-        $featureValue->value = array_fill_keys(Language::getIDs(false), $value);
-        $featureValue->add();
-
-        return (int) $featureValue->id;
+        $feature_value = new Feature_Value();
+        $feature_value->id_feature = (int) $id_feature;
+        $feature_value->custom = false;
+        $feature_value->value = array_fill_keys(Language::get_i_ds(false), $value);
+        $feature_value->add();
+        return (int) $feature_value->id;
     }
-
     /**
      * @param bool $autoDate
      * @param bool $nullValues
@@ -199,20 +146,17 @@ class FeatureValueCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public function add($autoDate = true, $nullValues = false)
+    public function add($auto_date = true, $null_values = false)
     {
         if (!$this->position) {
-            $this->position = static::getHighestPosition($this->id_feature) + 1;
+            $this->position = static::get_highest_position($this->id_feature) + 1;
         }
-
-        $return = parent::add($autoDate, $nullValues);
+        $return = parent::add($auto_date, $null_values);
         if ($return) {
-            Hook::triggerEvent('actionFeatureValueSave', ['id_feature_value' => $this->id]);
+            Hook::trigger_event('actionFeatureValueSave', ['id_feature_value' => $this->id]);
         }
-
         return $return;
     }
-
     /**
      * @return bool
      *
@@ -221,18 +165,14 @@ class FeatureValueCore extends ObjectModel
     public function delete()
     {
         /* Also delete related products */
-        Db::getInstance()->delete('feature_product', '`id_feature_value` = '.(int) $this->id);
+        Db::get_instance()->delete('feature_product', '`id_feature_value` = ' . (int) $this->id);
         $return = parent::delete();
-
         if ($return) {
-            Hook::triggerEvent('actionFeatureValueDelete', ['id_feature_value' => $this->id]);
+            Hook::trigger_event('actionFeatureValueDelete', ['id_feature_value' => $this->id]);
         }
-
-        static::cleanPositions($this->id_feature);
-
+        static::clean_positions($this->id_feature);
         return $return;
     }
-
     /**
      * @param bool $nullValues
      *
@@ -240,16 +180,14 @@ class FeatureValueCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public function update($nullValues = false)
+    public function update($null_values = false)
     {
-        $return = parent::update($nullValues);
+        $return = parent::update($null_values);
         if ($return) {
-            Hook::triggerEvent('actionFeatureValueSave', ['id_feature_value' => $this->id]);
+            Hook::trigger_event('actionFeatureValueSave', ['id_feature_value' => $this->id]);
         }
-
         return $return;
     }
-
     /**
      * Validates that $value is valid feature value
      *
@@ -257,28 +195,23 @@ class FeatureValueCore extends ObjectModel
      * @return string | null
      * @throws PrestaShopException
      */
-    public static function validateFeatureValue($value)
+    public static function validate_feature_value($value)
     {
-        if (! is_string($value)) {
-            return Tools::displayError('Invalid type');
+        if (!is_string($value)) {
+            return Tools::display_error('Invalid type');
         }
-
-        $field = ObjectModel::getDefinition(FeatureValue::class, 'value');
-
+        $field = Object_Model::get_definition(Feature_Value::class, 'value');
         // validate size
         if (isset($field['size']) && mb_strlen($value) > $field['size']) {
-            return sprintf(Tools::displayError('Feature value \'%s\' is too long'), $value);
+            return sprintf(Tools::display_error('Feature value \'%s\' is too long'), $value);
         }
-
         // validate content
         if (isset($field['validate']) && !call_user_func(['Validate', $field['validate']], $value)) {
-            return sprintf(Tools::displayError('Feature value \'%s\' is not valid'), $value);
+            return sprintf(Tools::display_error('Feature value \'%s\' is not valid'), $value);
         }
-
         // this is valid feature value
         return null;
     }
-
     /**
      * Move a featureValue
      *
@@ -289,43 +222,20 @@ class FeatureValueCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public function updatePosition($way, $position)
+    public function update_position($way, $position)
     {
-        if (! isset($position)) {
+        if (!isset($position)) {
             return false;
         }
-
         $id = (int) $this->id;
-        if (!$movedFeatureValue = Db::readOnly()->getRow(
-            (new DbQuery())
-                ->select('`position`, `id_feature_value`')
-                ->from('feature_value')
-                ->where('`id_feature_value` = '.$id)
-                ->orderBy('`position` ASC')
-        )) {
+        if (!$moved_feature_value = Db::read_only()->get_row((new Db_Query())->select('`position`, `id_feature_value`')->from('feature_value')->where('`id_feature_value` = ' . $id)->order_by('`position` ASC'))) {
             return false;
         }
-
         // < and > statements rather than BETWEEN operator
         // since BETWEEN is treated differently according to databases
-        $conn = Db::getInstance();
-        return ($conn->update(
-            'feature_value',
-            [
-                    'position' => ['type' => 'sql', 'value' => '`position` '.($way ? '- 1' : '+ 1')],
-                ],
-            '`position`'.($way ? '> '.(int) $movedFeatureValue['position'].' AND `position` <= '.(int) $position : '< '.(int) $movedFeatureValue['position'].' AND `position` >= '.(int) $position)
-        )
-            && $conn->update(
-                'feature_value',
-                [
-                    'position' => (int) $position,
-                ],
-                '`id_feature_value`='.(int) $movedFeatureValue['id_feature_value']
-            ))
-            && static::cleanPositions($this->id_feature);
+        $conn = Db::get_instance();
+        return $conn->update('feature_value', ['position' => ['type' => 'sql', 'value' => '`position` ' . ($way ? '- 1' : '+ 1')]], '`position`' . ($way ? '> ' . (int) $moved_feature_value['position'] . ' AND `position` <= ' . (int) $position : '< ' . (int) $moved_feature_value['position'] . ' AND `position` >= ' . (int) $position)) && $conn->update('feature_value', ['position' => (int) $position], '`id_feature_value`=' . (int) $moved_feature_value['id_feature_value']) && static::clean_positions($this->id_feature);
     }
-
     /**
      * Reorder featureValue position
      * Call it after deleting a featureValue.
@@ -334,19 +244,18 @@ class FeatureValueCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function cleanPositions($idFeature)
+    public static function clean_positions($id_feature)
     {
-        $conn = Db::getInstance();
+        $conn = Db::get_instance();
         $conn->execute('SET @rank:=-1');
         // reset positions of all featureValues within feature
         return $conn->execute('
-            UPDATE `'._DB_PREFIX_.'feature_value`
+            UPDATE `' . _DB_PREFIX_ . 'feature_value`
             SET position = @rank:=@rank+1
-            WHERE `id_feature` = '.(int)$idFeature.'
+            WHERE `id_feature` = ' . (int) $id_feature . '
             ORDER BY `position`, `id_feature_value`
         ');
     }
-
     /**
      * getHigherPosition
      *
@@ -356,15 +265,9 @@ class FeatureValueCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function getHighestPosition($idFeature)
+    public static function get_highest_position($id_feature)
     {
-        $position = Db::readOnly()->getValue(
-            (new DbQuery())
-                ->select('MAX(`position`)')
-                ->from('feature_value')
-                ->where('id_feature='.(int)$idFeature)
-        );
-
-        return (is_numeric($position)) ? $position : -1;
+        $position = Db::read_only()->get_value((new Db_Query())->select('MAX(`position`)')->from('feature_value')->where('id_feature=' . (int) $id_feature));
+        return is_numeric($position) ? $position : -1;
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,145 +30,116 @@ declare(strict_types=1);
  *  @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /** @noinspection PhpUnhandledExceptionInspection */
-
-use Thirtybees\Core\DependencyInjection\ServiceLocator;
-use Thirtybees\Core\Error\Response\JSendErrorResponse;
-
+use Thirtybees\Core\Dependency_Injection\Service_Locator;
+use Thirtybees\Core\Error\Response\J_Send_Error_Response;
 if (!defined('_PS_ADMIN_DIR_')) {
     define('_PS_ADMIN_DIR_', getcwd());
 }
-include(_PS_ADMIN_DIR_.'/../config/config.inc.php');
-
+include _PS_ADMIN_DIR_ . '/../config/config.inc.php';
 /* Getting cookie or logout */
-require_once(_PS_ADMIN_DIR_.'/init.php');
-
-$context = Context::getContext();
-ServiceLocator::getInstance()->getErrorHandler()->setErrorResponseHandler(new JSendErrorResponse(_PS_MODE_DEV_));
-
-$conn = Db::readOnly();
-if (Tools::isSubmit('ajaxReferrers')) {
-    if (Tools::isSubmit('ajaxProductFilter')) {
-        Referrer::getAjaxProduct(
-            Tools::getIntValue('id_referrer'),
-            Tools::getIntValue('id_product'),
-            new Employee(Tools::getIntValue('id_employee'))
-        );
-    } else {
-        if (Tools::isSubmit('ajaxFillProducts')) {
-            $jsonArray = [];
-            $result = $conn->getArray(
-                '
+require_once _PS_ADMIN_DIR_ . '/init.php';
+$context = Context::get_context();
+Service_Locator::get_instance()->get_error_handler()->set_error_response_handler(new J_Send_Error_Response(_PS_MODE_DEV_));
+$conn = Db::read_only();
+if (Tools::is_submit('ajaxReferrers')) {
+    if (Tools::is_submit('ajaxProductFilter')) {
+        Referrer::get_ajax_product(Tools::get_int_value('id_referrer'), Tools::get_int_value('id_product'), new Employee(Tools::get_int_value('id_employee')));
+    } else if (Tools::is_submit('ajaxFillProducts')) {
+        $json_array = [];
+        $result = $conn->get_array('
 			SELECT p.id_product, pl.name
 			FROM ' . _DB_PREFIX_ . 'product p
 			LEFT JOIN ' . _DB_PREFIX_ . 'product_lang pl
-				ON (p.id_product = pl.id_product AND pl.id_lang = ' . Tools::getIntValue('id_lang') . ')
-			' . (Tools::getValue('filter') != 'undefined' ? 'WHERE name LIKE "%' . pSQL(Tools::getValue('filter')) . '%"' : '')
-            );
-
-            foreach ($result as $row) {
-                $jsonArray[] = '{id_product:' . (int)$row['id_product']
-                    . ',name:\'' . addslashes($row['name']) . '\'}';
-            }
-
-            die('[' . implode(',', $jsonArray) . ']');
+				ON (p.id_product = pl.id_product AND pl.id_lang = ' . Tools::get_int_value('id_lang') . ')
+			' . (Tools::get_value('filter') != 'undefined' ? 'WHERE name LIKE "%' . p_sql(Tools::get_value('filter')) . '%"' : ''));
+        foreach ($result as $row) {
+            $json_array[] = '{id_product:' . (int) $row['id_product'] . ',name:\'' . addslashes($row['name']) . '\'}';
         }
+        die('[' . implode(',', $json_array) . ']');
     }
 }
-
-if (Tools::isSubmit('getAvailableFields') and Tools::isSubmit('entity')) {
-    $jsonArray = [];
-    $import = new AdminImportController();
-
-    $fields = $import->getAvailableFields(true);
+if (Tools::is_submit('getAvailableFields') and Tools::is_submit('entity')) {
+    $json_array = [];
+    $import = new Admin_Import_Controller();
+    $fields = $import->get_available_fields(true);
     foreach ($fields as $field) {
-        $jsonArray[] = '{"field":"'.addslashes($field).'"}';
+        $json_array[] = '{"field":"' . addslashes($field) . '"}';
     }
-    die('['.implode(',', $jsonArray).']');
+    die('[' . implode(',', $json_array) . ']');
 }
-
-if (Tools::isSubmit('ajaxProductPackItems')) {
-    $jsonArray = [];
-    $products = $conn->getArray('
+if (Tools::is_submit('ajaxProductPackItems')) {
+    $json_array = [];
+    $products = $conn->get_array('
 	SELECT p.`id_product`, pl.`name`
-	FROM `'._DB_PREFIX_.'product` p
-	NATURAL LEFT JOIN `'._DB_PREFIX_.'product_lang` pl
-	WHERE pl.`id_lang` = '.Tools::getIntValue('id_lang').'
-	'.Shop::addSqlRestrictionOnLang('pl').'
-	AND NOT EXISTS (SELECT 1 FROM `'._DB_PREFIX_.'pack` WHERE `id_product_pack` = p.`id_product`)
-	AND p.`id_product` != '.Tools::getIntValue('id_product'));
-
-    foreach ($products as $packItem) {
-        $jsonArray[] = '{"value": "'.(int)($packItem['id_product']).'-'.addslashes($packItem['name']).'", "text":"'.(int)($packItem['id_product']).' - '.addslashes($packItem['name']).'"}';
+	FROM `' . _DB_PREFIX_ . 'product` p
+	NATURAL LEFT JOIN `' . _DB_PREFIX_ . 'product_lang` pl
+	WHERE pl.`id_lang` = ' . Tools::get_int_value('id_lang') . '
+	' . Shop::add_sql_restriction_on_lang('pl') . '
+	AND NOT EXISTS (SELECT 1 FROM `' . _DB_PREFIX_ . 'pack` WHERE `id_product_pack` = p.`id_product`)
+	AND p.`id_product` != ' . Tools::get_int_value('id_product'));
+    foreach ($products as $pack_item) {
+        $json_array[] = '{"value": "' . (int) $pack_item['id_product'] . '-' . addslashes($pack_item['name']) . '", "text":"' . (int) $pack_item['id_product'] . ' - ' . addslashes($pack_item['name']) . '"}';
     }
-    die('['.implode(',', $jsonArray).']');
+    die('[' . implode(',', $json_array) . ']');
 }
-
-if (Tools::isSubmit('getChildrenCategories') && Tools::isSubmit('id_category_parent')) {
-    $children_categories = Category::getChildrenWithNbSelectedSubCat(Tools::getIntValue('id_category_parent'), Tools::getValue('selectedCat'), Context::getContext()->language->id, null, Tools::getValue('use_shop_context'));
+if (Tools::is_submit('getChildrenCategories') && Tools::is_submit('id_category_parent')) {
+    $children_categories = Category::get_children_with_nb_selected_sub_cat(Tools::get_int_value('id_category_parent'), Tools::get_value('selectedCat'), Context::get_context()->language->id, null, Tools::get_value('use_shop_context'));
     die(json_encode($children_categories));
 }
-
-if (Tools::isSubmit('getNotifications')) {
-    ShopMaintenance::run();
-    if (! headers_sent()) {
+if (Tools::is_submit('getNotifications')) {
+    Shop_Maintenance::run();
+    if (!headers_sent()) {
         header('Content-Type: application/json');
     }
-    $notification = $context->employee->getNotification();
-    die(json_encode($notification->getNotifications()));
+    $notification = $context->employee->get_notification();
+    die(json_encode($notification->get_notifications()));
 }
-
-if (Tools::isSubmit('markNotificationsRead')) {
-    if (! headers_sent()) {
+if (Tools::is_submit('markNotificationsRead')) {
+    if (!headers_sent()) {
         header('Content-Type: application/json');
     }
-    $notification = $context->employee->getNotification();
-    $type = Tools::getValue('type');
-    $lastId = Tools::getIntValue('lastId');
-    die(json_encode(['success' => $notification->markAsRead($type, $lastId)]));
+    $notification = $context->employee->get_notification();
+    $type = Tools::get_value('type');
+    $last_id = Tools::get_int_value('lastId');
+    die(json_encode(['success' => $notification->mark_as_read($type, $last_id)]));
 }
-
-if (Tools::isSubmit('searchCategory')) {
-    $q = Tools::getValue('q');
-    $limit = Tools::getValue('limit');
-    $results = $conn->getArray('SELECT c.`id_category`, cl.`name`
-		FROM `'._DB_PREFIX_.'category` c
-		LEFT JOIN `'._DB_PREFIX_.'category_lang` cl ON (c.`id_category` = cl.`id_category`'.Shop::addSqlRestrictionOnLang('cl').')
-		WHERE cl.`id_lang` = '.(int)$context->language->id.' AND c.`level_depth` <> 0
-		AND cl.`name` LIKE \'%'.pSQL($q).'%\'
+if (Tools::is_submit('searchCategory')) {
+    $q = Tools::get_value('q');
+    $limit = Tools::get_value('limit');
+    $results = $conn->get_array('SELECT c.`id_category`, cl.`name`
+		FROM `' . _DB_PREFIX_ . 'category` c
+		LEFT JOIN `' . _DB_PREFIX_ . 'category_lang` cl ON (c.`id_category` = cl.`id_category`' . Shop::add_sql_restriction_on_lang('cl') . ')
+		WHERE cl.`id_lang` = ' . (int) $context->language->id . ' AND c.`level_depth` <> 0
+		AND cl.`name` LIKE \'%' . p_sql($q) . '%\'
 		GROUP BY c.id_category
 		ORDER BY c.`position`
-		LIMIT '.(int)$limit);
+		LIMIT ' . (int) $limit);
     if ($results) {
         foreach ($results as $result) {
-            echo trim($result['name']).'|'.(int)$result['id_category']."\n";
+            echo trim($result['name']) . '|' . (int) $result['id_category'] . "\n";
         }
     }
 }
-
-if (Tools::isSubmit('getParentCategoriesId') && $id_category = Tools::getIntValue('id_category')) {
-    $category = new Category((int)$id_category);
-    $results = $conn->getArray('SELECT `id_category` FROM `'._DB_PREFIX_.'category` c WHERE c.`nleft` < '.(int)$category->nleft.' AND c.`nright` > '.(int)$category->nright);
+if (Tools::is_submit('getParentCategoriesId') && $id_category = Tools::get_int_value('id_category')) {
+    $category = new Category((int) $id_category);
+    $results = $conn->get_array('SELECT `id_category` FROM `' . _DB_PREFIX_ . 'category` c WHERE c.`nleft` < ' . (int) $category->nleft . ' AND c.`nright` > ' . (int) $category->nright);
     $output = [];
     foreach ($results as $result) {
         $output[] = $result;
     }
-
     die(json_encode($output));
 }
-
-if (Tools::isSubmit('getZones')) {
+if (Tools::is_submit('getZones')) {
     $html = '<select id="zone_to_affect" name="zone_to_affect">';
-    foreach (Zone::getZones() as $z) {
-        $html .= '<option value="'.$z['id_zone'].'">'.$z['name'].'</option>';
+    foreach (Zone::get_zones() as $z) {
+        $html .= '<option value="' . $z['id_zone'] . '">' . $z['name'] . '</option>';
     }
     $html .= '</select>';
     $array = ['hasError' => false, 'errors' => '', 'data' => $html];
     die(json_encode($array));
 }
-
-if (Tools::isSubmit('getEmailHTML') && $email = Tools::getValue('email')) {
-    $email_html = AdminTranslationsController::getEmailHTML($email);
+if (Tools::is_submit('getEmailHTML') && $email = Tools::get_value('email')) {
+    $email_html = Admin_Translations_Controller::get_email_html($email);
     die($email_html);
 }

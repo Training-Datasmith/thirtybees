@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,17 +30,15 @@ declare(strict_types=1);
  *  @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class TaxManagerModuleCore
  */
-abstract class TaxManagerModuleCore extends Module
+abstract class Tax_Manager_Module_Core extends Module
 {
     /**
      * @var string
      */
     public $tax_manager_class;
-
     /**
      * @return bool
      *
@@ -49,9 +47,8 @@ abstract class TaxManagerModuleCore extends Module
      */
     public function install()
     {
-        return (parent::install() && $this->registerHook('taxManager'));
+        return parent::install() && $this->register_hook('taxManager');
     }
-
     /**
      * @param array $args
      *
@@ -59,25 +56,20 @@ abstract class TaxManagerModuleCore extends Module
      *
      * @throws PrestaShopException
      */
-    public function hookTaxManager($args)
+    public function hook_tax_manager($args)
     {
-        $classFile = _PS_MODULE_DIR_.'/'.$this->name.'/'.$this->tax_manager_class.'.php';
-
-        if (!isset($this->tax_manager_class) || !file_exists($classFile)) {
-            throw new PrestaShopException(sprintf(Tools::displayError('Incorrect Tax Manager class [%s]'), $this->tax_manager_class));
+        $class_file = _PS_MODULE_DIR_ . '/' . $this->name . '/' . $this->tax_manager_class . '.php';
+        if (!isset($this->tax_manager_class) || !file_exists($class_file)) {
+            throw new Presta_Shop_Exception(sprintf(Tools::display_error('Incorrect Tax Manager class [%s]'), $this->tax_manager_class));
         }
-
-        require_once($classFile);
-
+        require_once $class_file;
         if (!class_exists($this->tax_manager_class)) {
-            throw new PrestaShopException(sprintf(Tools::displayError('Tax Manager class not found [%s]'), $this->tax_manager_class));
+            throw new Presta_Shop_Exception(sprintf(Tools::display_error('Tax Manager class not found [%s]'), $this->tax_manager_class));
         }
-
         $class = $this->tax_manager_class;
         if (call_user_func([$class, 'isAvailableForThisAddress'], $args['address'])) {
             return new $class();
         }
-
         return false;
     }
 }

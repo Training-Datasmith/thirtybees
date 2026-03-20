@@ -1,40 +1,33 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace Thirtybees\Core\Mail\Template;
 
 use Mail;
-use PrestaShopException;
-use Thirtybees\Core\Mail\MailTemplate;
-
-class SimpleMailTemplateCore implements MailTemplate
+use Presta_Shop_Exception;
+use Thirtybees\Core\Mail\Mail_Template;
+class Simple_Mail_Template_Core implements Mail_Template
 {
-    public function __construct(protected string $templateName, protected string $contentType, protected string $template)
+    public function __construct(protected string $template_name, protected string $content_type, protected string $template)
     {
     }
-
-    public function getTemplateName(): string
+    public function get_template_name(): string
     {
-        return $this->templateName;
+        return $this->template_name;
     }
-
-    public function getContentType(): string
+    public function get_content_type(): string
     {
-        return $this->contentType;
+        return $this->content_type;
     }
-
-    public function getTemplate(): string
+    public function get_template(): string
     {
         return $this->template;
     }
-
     /**
      * @throws PrestaShopException
      */
-    public function renderTemplate(array $parameters): string
+    public function render_template(array $parameters): string
     {
-        return Mail::substituteTemplateVars($this->getTemplate(), $parameters);
+        return Mail::substitute_template_vars($this->get_template(), $parameters);
     }
-
 }

@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,19 +30,17 @@ declare(strict_types=1);
  *  @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * StockManagerInterface : defines a way to manage stock
  */
-interface StockManagerInterface
+interface Stock_Manager_Interface
 {
     /**
      * Checks if the StockManager is available
      *
      * @return StockManagerInterface
      */
-    public static function isAvailable();
-
+    public static function is_available();
     /**
      * For a given product, adds a given quantity
      *
@@ -55,8 +53,7 @@ interface StockManagerInterface
      * @param int $idSupplyOrder optional
      * @return bool
      */
-    public function addProduct($idProduct, $idProductAttribute, Warehouse $warehouse, $quantity, $idStockMovementReason, $priceTe, $isUsable = true, $idSupplyOrder = null);
-
+    public function add_product($id_product, $id_product_attribute, Warehouse $warehouse, $quantity, $id_stock_movement_reason, $price_te, $is_usable = true, $id_supply_order = null);
     /**
      * For a given product, removes a given quantity
      *
@@ -71,19 +68,7 @@ interface StockManagerInterface
      *
      * @return array|false - empty if an error occurred | details of removed products quantities with corresponding prices otherwise
      */
-    public function removeProduct(
-        $idProduct,
-        $idProductAttribute,
-        Warehouse $warehouse,
-        $quantity,
-        $idStockMovementReason,
-        $isUsable = true,
-        $idOrder = null,
-        $ignorePack = 0,
-        $employee = null,
-        ?Stock $stock = null
-    );
-
+    public function remove_product($id_product, $id_product_attribute, Warehouse $warehouse, $quantity, $id_stock_movement_reason, $is_usable = true, $id_order = null, $ignore_pack = 0, $employee = null, ?Stock $stock = null);
     /**
      * For a given product, returns its physical quantity
      * If the given product has combinations and $id_product_attribute is null, returns the sum for all combinations
@@ -95,8 +80,7 @@ interface StockManagerInterface
      *
      * @return int
      */
-    public function getProductPhysicalQuantities($idProduct, $idProductAttribute, $idsWarehouse = null, $usable = false);
-
+    public function get_product_physical_quantities($id_product, $id_product_attribute, $ids_warehouse = null, $usable = false);
     /**
      * For a given product, returns its real quantity
      * If the given product has combinations and $id_product_attribute is null, returns the sum for all combinations
@@ -110,8 +94,7 @@ interface StockManagerInterface
      *
      * @return int
      */
-    public function getProductRealQuantities($idProduct, $idProductAttribute, $idsWarehouse = null, $usable = false);
-
+    public function get_product_real_quantities($id_product, $id_product_attribute, $ids_warehouse = null, $usable = false);
     /**
      * For a given product, transfers quantities between two warehouses
      * By default, it manages usable quantities
@@ -128,8 +111,7 @@ interface StockManagerInterface
      *
      * @return bool
      */
-    public function transferBetweenWarehouses($idProduct, $idProductAttribute, $quantity, $warehouseFrom, $warehouseTo, $usableFrom = true, $usableTo = true);
-
+    public function transfer_between_warehouses($id_product, $id_product_attribute, $quantity, $warehouse_from, $warehouse_to, $usable_from = true, $usable_to = true);
     /**
      * For a given product, returns the time left before being out of stock.
      * By default, for the given product, it will use sum(quantities removed in all warehouses)
@@ -141,5 +123,5 @@ interface StockManagerInterface
      *
      * @return int time
      */
-    public function getProductCoverage($idProduct, $idProductAttribute, $coverage, $idWarehouse = null);
+    public function get_product_coverage($id_product, $id_product_attribute, $coverage, $id_warehouse = null);
 }

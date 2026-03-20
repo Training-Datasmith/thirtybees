@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,32 +30,27 @@ declare(strict_types=1);
  *  @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Interface WebserviceSpecificManagementInterface
  */
-interface WebserviceSpecificManagementInterface
+interface Webservice_Specific_Management_Interface
 {
     /**
      * @return static
      */
-    public function setObjectOutput(WebserviceOutputBuilderCore $obj);
-
+    public function set_object_output(Webservice_Output_Builder_Core $obj);
     /**
      * @return WebserviceOutputBuilder
      */
-    public function getObjectOutput();
-
+    public function get_object_output();
     /**
      * @return static
      */
-    public function setWsObject(WebserviceRequestCore $obj);
-
+    public function set_ws_object(Webservice_Request_Core $obj);
     /**
      * @return WebserviceRequestCore
      */
-    public function getWsObject();
-
+    public function get_ws_object();
     /**
      * WebserviceRequestCore
      *
@@ -65,7 +60,6 @@ interface WebserviceSpecificManagementInterface
      * @throws WebserviceException
      */
     public function manage();
-
     /**
      * This must be return an array with specific values as WebserviceRequest expects.
      *
@@ -73,5 +67,5 @@ interface WebserviceSpecificManagementInterface
      *
      * @throws WebserviceException
      */
-    public function getContent();
+    public function get_content();
 }

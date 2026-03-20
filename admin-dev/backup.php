@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,64 +30,49 @@ declare(strict_types=1);
  *  @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /** @noinspection PhpUnhandledExceptionInspection */
-
 if (!defined('_PS_ADMIN_DIR_')) {
     define('_PS_ADMIN_DIR_', getcwd());
 }
-include(_PS_ADMIN_DIR_.'/../config/config.inc.php');
-
-$employee = Context::getContext()->employee;
-if (!$employee->isLoggedBack()) {
-    Tools::redirectAdmin(Context::getContext()->link->getAdminLink('AdminLogin'));
+include _PS_ADMIN_DIR_ . '/../config/config.inc.php';
+$employee = Context::get_context()->employee;
+if (!$employee->is_logged_back()) {
+    Tools::redirect_admin(Context::get_context()->link->get_admin_link('AdminLogin'));
 }
-
-if (!$employee->hasAccess(AdminBackupController::class, Profile::PERMISSION_VIEW)) {
-    throw new PrestaShopException(Tools::displayError('You do not have permission to view this.'));
+if (!$employee->has_access(Admin_Backup_Controller::class, Profile::PERMISSION_VIEW)) {
+    throw new Presta_Shop_Exception(Tools::display_error('You do not have permission to view this.'));
 }
-
-$backupdir = realpath(PrestaShopBackup::getBackupPath());
-
+$backupdir = realpath(Presta_Shop_Backup::get_backup_path());
 if ($backupdir === false) {
-    throw new PrestaShopException(Tools::displayError('There is no "/backup" directory.'));
+    throw new Presta_Shop_Exception(Tools::display_error('There is no "/backup" directory.'));
 }
-
-if (!$backupfile = Tools::getValue('filename')) {
-    throw new PrestaShopException(Tools::displayError('No file has been specified.'));
+if (!$backupfile = Tools::get_value('filename')) {
+    throw new Presta_Shop_Exception(Tools::display_error('No file has been specified.'));
 }
-
 // Check the realpath so we can validate the backup file is under the backup directory
-$backupfile = realpath($backupdir.DIRECTORY_SEPARATOR.$backupfile);
-
+$backupfile = realpath($backupdir . DIRECTORY_SEPARATOR . $backupfile);
 if ($backupfile === false or strncmp($backupdir, $backupfile, strlen($backupdir)) != 0) {
-    throw new PrestaShopException('The backup file does not exist.');
+    throw new Presta_Shop_Exception('The backup file does not exist.');
 }
-
 if (substr($backupfile, -4) == '.bz2') {
-    $contentType = 'application/x-bzip2';
+    $content_type = 'application/x-bzip2';
 } elseif (substr($backupfile, -3) == '.gz') {
-    $contentType = 'application/x-gzip';
+    $content_type = 'application/x-gzip';
 } else {
-    $contentType = 'text/x-sql';
+    $content_type = 'text/x-sql';
 }
 $fp = @fopen($backupfile, 'r');
-
 if ($fp === false) {
-    throw new PrestaShopException(Tools::displayError('Unable to open backup file(s).').' "'.addslashes($backupfile).'"');
+    throw new Presta_Shop_Exception(Tools::display_error('Unable to open backup file(s).') . ' "' . addslashes($backupfile) . '"');
 }
-
 // Add the correct headers, this forces the file is saved
-header('Content-Type: '.$contentType);
-header('Content-Disposition: attachment; filename="'.Tools::getValue('filename'). '"');
-
+header('Content-Type: ' . $content_type);
+header('Content-Disposition: attachment; filename="' . Tools::get_value('filename') . '"');
 if (ob_get_level() && ob_get_length() > 0) {
     ob_clean();
 }
 $ret = @fpassthru($fp);
-
 fclose($fp);
-
 if ($ret === false) {
-    throw new PrestaShopException(Tools::displayError('Unable to display backup file(s).').' "'.addslashes($backupfile).'"');
+    throw new Presta_Shop_Exception(Tools::display_error('Unable to display backup file(s).') . ' "' . addslashes($backupfile) . '"');
 }

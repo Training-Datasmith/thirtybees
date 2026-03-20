@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,41 +30,15 @@ declare(strict_types=1);
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class OrderSlipCore
  */
-class OrderSlipCore extends ObjectModel
+class Order_Slip_Core extends Object_Model
 {
     /**
      * @var array Object model definition
      */
-    public static $definition = [
-        'table'   => 'order_slip',
-        'primary' => 'id_order_slip',
-        'fields'  => [
-            'conversion_rate'         => ['type' => self::TYPE_FLOAT, 'validate' => 'isFloat', 'required' => true, 'size' => 13, 'decimals' => 6, 'dbDefault' => '1.000000'],
-            'id_customer'             => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true],
-            'id_order'                => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true],
-            'total_products_tax_excl' => ['type' => self::TYPE_PRICE, 'validate' => 'isPrice', 'required' => true, 'dbNullable' => true],
-            'total_products_tax_incl' => ['type' => self::TYPE_PRICE, 'validate' => 'isPrice', 'required' => true, 'dbNullable' => true],
-            'total_shipping_tax_excl' => ['type' => self::TYPE_PRICE, 'validate' => 'isPrice', 'required' => true, 'dbNullable' => true],
-            'total_shipping_tax_incl' => ['type' => self::TYPE_PRICE, 'validate' => 'isPrice', 'required' => true, 'dbNullable' => true],
-            'shipping_cost'           => ['type' => self::TYPE_INT, 'dbType' => 'tinyint(3) unsigned', 'dbDefault' => '0'],
-            'amount'                  => ['type' => self::TYPE_PRICE, 'validate' => 'isPrice', 'dbNullable' => false],
-            'shipping_cost_amount'    => ['type' => self::TYPE_PRICE, 'validate' => 'isPrice', 'dbNullable' => false],
-            'partial'                 => ['type' => self::TYPE_INT, 'dbType' => 'tinyint(1)', 'dbNullable' => false],
-            'order_slip_type'         => ['type' => self::TYPE_INT, 'validate' => 'isInt', 'size' => 1, 'dbDefault' => '0'],
-            'date_add'                => ['type' => self::TYPE_DATE, 'validate' => 'isDate', 'dbNullable' => false],
-            'date_upd'                => ['type' => self::TYPE_DATE, 'validate' => 'isDate', 'dbNullable' => false],
-        ],
-        'keys' => [
-            'order_slip' => [
-                'id_order'            => ['type' => ObjectModel::KEY, 'columns' => ['id_order']],
-                'order_slip_customer' => ['type' => ObjectModel::KEY, 'columns' => ['id_customer']],
-            ],
-        ],
-    ];
+    public static $definition = ['table' => 'order_slip', 'primary' => 'id_order_slip', 'fields' => ['conversion_rate' => ['type' => self::TYPE_FLOAT, 'validate' => 'isFloat', 'required' => true, 'size' => 13, 'decimals' => 6, 'dbDefault' => '1.000000'], 'id_customer' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true], 'id_order' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true], 'total_products_tax_excl' => ['type' => self::TYPE_PRICE, 'validate' => 'isPrice', 'required' => true, 'dbNullable' => true], 'total_products_tax_incl' => ['type' => self::TYPE_PRICE, 'validate' => 'isPrice', 'required' => true, 'dbNullable' => true], 'total_shipping_tax_excl' => ['type' => self::TYPE_PRICE, 'validate' => 'isPrice', 'required' => true, 'dbNullable' => true], 'total_shipping_tax_incl' => ['type' => self::TYPE_PRICE, 'validate' => 'isPrice', 'required' => true, 'dbNullable' => true], 'shipping_cost' => ['type' => self::TYPE_INT, 'dbType' => 'tinyint(3) unsigned', 'dbDefault' => '0'], 'amount' => ['type' => self::TYPE_PRICE, 'validate' => 'isPrice', 'dbNullable' => false], 'shipping_cost_amount' => ['type' => self::TYPE_PRICE, 'validate' => 'isPrice', 'dbNullable' => false], 'partial' => ['type' => self::TYPE_INT, 'dbType' => 'tinyint(1)', 'dbNullable' => false], 'order_slip_type' => ['type' => self::TYPE_INT, 'validate' => 'isInt', 'size' => 1, 'dbDefault' => '0'], 'date_add' => ['type' => self::TYPE_DATE, 'validate' => 'isDate', 'dbNullable' => false], 'date_upd' => ['type' => self::TYPE_DATE, 'validate' => 'isDate', 'dbNullable' => false]], 'keys' => ['order_slip' => ['id_order' => ['type' => Object_Model::KEY, 'columns' => ['id_order']], 'order_slip_customer' => ['type' => Object_Model::KEY, 'columns' => ['id_customer']]]]];
     /** @var int */
     public $id;
     /** @var int */
@@ -95,31 +69,10 @@ class OrderSlipCore extends ObjectModel
     public $date_upd;
     /** @var int */
     public $order_slip_type = 0;
-
     /**
      * @var array Webservice parameters
      */
-    protected $webserviceParameters = [
-        'objectNodeName'  => 'order_slip',
-        'objectsNodeName' => 'order_slips',
-        'fields'          => [
-            'id_customer' => ['xlink_resource' => 'customers'],
-            'id_order'    => ['xlink_resource' => 'orders'],
-        ],
-        'associations'    => [
-            'order_slip_details' => [
-                'resource' => 'order_slip_detail', 'setter' => false, 'virtual_entity' => true,
-                'fields'   => [
-                    'id'               => [],
-                    'id_order_detail'  => ['required' => true],
-                    'product_quantity' => ['required' => true],
-                    'amount_tax_excl'  => ['required' => true],
-                    'amount_tax_incl'  => ['required' => true],
-                ],
-            ],
-        ],
-    ];
-
+    protected $webservice_parameters = ['objectNodeName' => 'order_slip', 'objectsNodeName' => 'order_slips', 'fields' => ['id_customer' => ['xlink_resource' => 'customers'], 'id_order' => ['xlink_resource' => 'orders']], 'associations' => ['order_slip_details' => ['resource' => 'order_slip_detail', 'setter' => false, 'virtual_entity' => true, 'fields' => ['id' => [], 'id_order_detail' => ['required' => true], 'product_quantity' => ['required' => true], 'amount_tax_excl' => ['required' => true], 'amount_tax_incl' => ['required' => true]]]]];
     /**
      * @param int $customerId
      * @param bool $orderId
@@ -129,18 +82,10 @@ class OrderSlipCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getOrdersSlip($customerId, $orderId = false)
+    public static function get_orders_slip($customer_id, $order_id = false)
     {
-        return Db::readOnly()->getArray(
-            (new DbQuery())
-                ->select(' *')
-                ->from('order_slip')
-                ->where('`id_customer` = '.(int) $customerId)
-                ->where($orderId ? '`id_order` = '.(int) $orderId : '')
-                ->orderBy('`date_add` DESC')
-        );
+        return Db::read_only()->get_array((new Db_Query())->select(' *')->from('order_slip')->where('`id_customer` = ' . (int) $customer_id)->where($order_id ? '`id_order` = ' . (int) $order_id : '')->order_by('`date_add` DESC'));
     }
-
     /**
      * @param int $orderSlipId
      * @param Order $order
@@ -150,27 +95,23 @@ class OrderSlipCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getOrdersSlipProducts($orderSlipId, $order)
+    public static function get_orders_slip_products($order_slip_id, $order)
     {
-        $productsRet = static::getOrdersSlipDetail($orderSlipId);
-        $orderDetails = $order->getProductsDetail();
-
-        $slipQuantity = [];
-        foreach ($productsRet as $slipDetail) {
-            $slipQuantity[$slipDetail['id_order_detail']] = $slipDetail;
+        $products_ret = static::get_orders_slip_detail($order_slip_id);
+        $order_details = $order->get_products_detail();
+        $slip_quantity = [];
+        foreach ($products_ret as $slip_detail) {
+            $slip_quantity[$slip_detail['id_order_detail']] = $slip_detail;
         }
-
         $products = [];
-        foreach ($orderDetails as $key => $product) {
-            if (isset($slipQuantity[$product['id_order_detail']]) && $slipQuantity[$product['id_order_detail']]['product_quantity']) {
+        foreach ($order_details as $key => $product) {
+            if (isset($slip_quantity[$product['id_order_detail']]) && $slip_quantity[$product['id_order_detail']]['product_quantity']) {
                 $products[$key] = $product;
-                $products[$key] = array_merge($products[$key], $slipQuantity[$product['id_order_detail']]);
+                $products[$key] = array_merge($products[$key], $slip_quantity[$product['id_order_detail']]);
             }
         }
-
-        return $order->getProducts($products);
+        return $order->get_products($products);
     }
-
     /**
      * @param bool $idOrderSlip
      * @param bool $idOrderDetail
@@ -180,17 +121,10 @@ class OrderSlipCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getOrdersSlipDetail($idOrderSlip = false, $idOrderDetail = false)
+    public static function get_orders_slip_detail($id_order_slip = false, $id_order_detail = false)
     {
-        return Db::readOnly()->getArray(
-            (new DbQuery())
-                ->select($idOrderDetail ? 'SUM(`product_quantity`) AS `total`' : '*')
-                ->from('order_slip_detail')
-                ->where($idOrderSlip ? '`id_order_slip` = '.(int) $idOrderSlip : '')
-                ->where($idOrderDetail ? '`id_order_detail` = '.(int) $idOrderDetail : '')
-        );
+        return Db::read_only()->get_array((new Db_Query())->select($id_order_detail ? 'SUM(`product_quantity`) AS `total`' : '*')->from('order_slip_detail')->where($id_order_slip ? '`id_order_slip` = ' . (int) $id_order_slip : '')->where($id_order_detail ? '`id_order_detail` = ' . (int) $id_order_detail : ''));
     }
-
     /**
      * Get refund details for one product line
      *
@@ -200,17 +134,10 @@ class OrderSlipCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getProductSlipDetail($idOrderDetail)
+    public static function get_product_slip_detail($id_order_detail)
     {
-        return Db::readOnly()->getArray(
-            (new DbQuery())
-                ->select('`product_quantity`, `amount_tax_excl`, `amount_tax_incl`, `date_add`')
-                ->from('order_slip_detail', 'osd')
-                ->leftJoin('order_slip', 'os', 'os.`id_order_slip` = osd.`id_order_slip`')
-                ->where('osd.`id_order_detail` = '.(int) $idOrderDetail)
-        );
+        return Db::read_only()->get_array((new Db_Query())->select('`product_quantity`, `amount_tax_excl`, `amount_tax_incl`, `date_add`')->from('order_slip_detail', 'osd')->left_join('order_slip', 'os', 'os.`id_order_slip` = osd.`id_order_slip`')->where('osd.`id_order_detail` = ' . (int) $id_order_detail));
     }
-
     /**
      * @param string $dateFrom
      * @param string $dateTo
@@ -220,25 +147,15 @@ class OrderSlipCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getSlipsIdByDate($dateFrom, $dateTo)
+    public static function get_slips_id_by_date($date_from, $date_to)
     {
-        $result = Db::readOnly()->getArray(
-            (new DbQuery())
-                ->select('`id_order_slip`')
-                ->from('order_slip', 'os')
-                ->leftJoin('orders', 'o', 'o.`id_order` = os.`id_order`')
-                ->where('os.`date_add` BETWEEN \''.pSQL($dateFrom).' 00:00:00\' AND \''.pSQL($dateTo).' 23:59:59\' '.Shop::addSqlRestriction(Shop::SHARE_ORDER, 'o'))
-                ->orderBy('os.`date_add` ASC')
-        );
-
+        $result = Db::read_only()->get_array((new Db_Query())->select('`id_order_slip`')->from('order_slip', 'os')->left_join('orders', 'o', 'o.`id_order` = os.`id_order`')->where('os.`date_add` BETWEEN \'' . p_sql($date_from) . ' 00:00:00\' AND \'' . p_sql($date_to) . ' 23:59:59\' ' . Shop::add_sql_restriction(Shop::SHARE_ORDER, 'o'))->order_by('os.`date_add` ASC'));
         $slips = [];
         foreach ($result as $slip) {
             $slips[] = (int) $slip['id_order_slip'];
         }
-
         return $slips;
     }
-
     /**
      * @deprecated 1.0.0 use OrderSlip::create() instead
      *
@@ -253,23 +170,16 @@ class OrderSlipCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function createOrderSlip($order, $selectedOrderLines, $qtyList, $shippingCost = false)
+    public static function create_order_slip($order, $selected_order_lines, $qty_list, $shipping_cost = false)
     {
-        Tools::displayAsDeprecated();
-
-        $newProductList = [];
-        foreach ($selectedOrderLines as $idOrderDetail) {
-            $orderDetail = new OrderDetail((int) $idOrderDetail);
-            $newProductList[$idOrderDetail] = [
-                'id_order_detail' => $idOrderDetail,
-                'quantity'        => $qtyList[$idOrderDetail],
-                'unit_price'      => $orderDetail->unit_price_tax_excl,
-                'amount'          => $orderDetail->unit_price_tax_incl * $qtyList[$idOrderDetail],
-            ];
+        Tools::display_as_deprecated();
+        $new_product_list = [];
+        foreach ($selected_order_lines as $id_order_detail) {
+            $order_detail = new Order_Detail((int) $id_order_detail);
+            $new_product_list[$id_order_detail] = ['id_order_detail' => $id_order_detail, 'quantity' => $qty_list[$id_order_detail], 'unit_price' => $order_detail->unit_price_tax_excl, 'amount' => $order_detail->unit_price_tax_incl * $qty_list[$id_order_detail]];
         }
-        return static::create($order, $newProductList, $shippingCost);
+        return static::create($order, $new_product_list, $shipping_cost);
     }
-
     /**
      * @param Order $order The order this refunding is related to.
      * @param array $productList List of arrays with product descriptions.
@@ -284,114 +194,90 @@ class OrderSlipCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function create(Order $order, $productList, $shippingCost = false, $amount = 0, $amountChoosen = false, $addTax = true)
+    public static function create(Order $order, $product_list, $shipping_cost = false, $amount = 0, $amount_choosen = false, $add_tax = true)
     {
         $currency = new Currency((int) $order->id_currency);
-        $orderSlip = new OrderSlip();
-        $orderSlip->id_customer = (int) $order->id_customer;
-        $orderSlip->id_order = (int) $order->id;
-        $orderSlip->conversion_rate = $currency->conversion_rate;
-
-        $orderSlip->total_shipping_tax_excl = 0;
-        $orderSlip->total_shipping_tax_incl = 0;
+        $order_slip = new Order_Slip();
+        $order_slip->id_customer = (int) $order->id_customer;
+        $order_slip->id_order = (int) $order->id;
+        $order_slip->conversion_rate = $currency->conversion_rate;
+        $order_slip->total_shipping_tax_excl = 0;
+        $order_slip->total_shipping_tax_incl = 0;
         // TODO: deprecate this, nowhere in use.
-        $orderSlip->partial = 0;
-
-        $shippingCost = static::resolveShippingCost($shippingCost, $order, $addTax);
-
-        if ($shippingCost > 0.0) {
-            $orderSlip->shipping_cost = true;
-            $orderSlip->shipping_cost_amount = $shippingCost;
-
+        $order_slip->partial = 0;
+        $shipping_cost = static::resolve_shipping_cost($shipping_cost, $order, $add_tax);
+        if ($shipping_cost > 0.0) {
+            $order_slip->shipping_cost = true;
+            $order_slip->shipping_cost_amount = $shipping_cost;
             // Use taxes from the given order.
             $tax = new Tax();
             $tax->rate = $order->carrier_tax_rate;
-            $taxCalculator = new TaxCalculator([$tax]);
-
-            if ($addTax == true) {
-                $orderSlip->total_shipping_tax_excl = $shippingCost;
-                $orderSlip->total_shipping_tax_incl = $taxCalculator->addTaxes(
-                    $shippingCost
-                );
+            $tax_calculator = new Tax_Calculator([$tax]);
+            if ($add_tax == true) {
+                $order_slip->total_shipping_tax_excl = $shipping_cost;
+                $order_slip->total_shipping_tax_incl = $tax_calculator->add_taxes($shipping_cost);
             } else {
-                $orderSlip->total_shipping_tax_incl = $shippingCost;
-                $orderSlip->total_shipping_tax_excl = $taxCalculator->removeTaxes(
-                    $shippingCost
-                );
+                $order_slip->total_shipping_tax_incl = $shipping_cost;
+                $order_slip->total_shipping_tax_excl = $tax_calculator->remove_taxes($shipping_cost);
             }
         } else {
-            $orderSlip->shipping_cost = false;
-            $orderSlip->shipping_cost_amount = 0;
+            $order_slip->shipping_cost = false;
+            $order_slip->shipping_cost_amount = 0;
         }
-
-        $orderSlip->total_products_tax_excl = 0;
-        $orderSlip->total_products_tax_incl = 0;
-
-        foreach ($productList as &$product) {
-            $orderDetail = new OrderDetail((int) $product['id_order_detail']);
-            $quantity = (int)$product['quantity'];
-            $orderSlipResume = static::getProductSlipResume((int) $orderDetail->id);
-
-            if ($quantity + $orderSlipResume['product_quantity'] > $orderDetail->product_quantity) {
-                $quantity = (int)($orderDetail->product_quantity - $orderSlipResume['product_quantity']);
+        $order_slip->total_products_tax_excl = 0;
+        $order_slip->total_products_tax_incl = 0;
+        foreach ($product_list as &$product) {
+            $order_detail = new Order_Detail((int) $product['id_order_detail']);
+            $quantity = (int) $product['quantity'];
+            $order_slip_resume = static::get_product_slip_resume((int) $order_detail->id);
+            if ($quantity + $order_slip_resume['product_quantity'] > $order_detail->product_quantity) {
+                $quantity = (int) ($order_detail->product_quantity - $order_slip_resume['product_quantity']);
             }
-
-            if (! Tools::isSubmit('cancelProduct') && $quantity !== 0) {
-                $orderDetail->product_quantity_refunded += $quantity;
-                $orderDetail->save();
+            if (!Tools::is_submit('cancelProduct') && $quantity !== 0) {
+                $order_detail->product_quantity_refunded += $quantity;
+                $order_detail->save();
             }
-
             // Use taxes from the given order detail.
             $tax = new Tax();
-            $tax->rate = $orderDetail->tax_rate;
-            $taxCalculator = new TaxCalculator([$tax]);
-
+            $tax->rate = $order_detail->tax_rate;
+            $tax_calculator = new Tax_Calculator([$tax]);
             // In case of a distinction between product value in the order and
             // product value in the refund (choosen by the merchant on refund
             // creation), these prices are reduced already.
-            $unitPrice = (float)$product['unit_price'];
-            if ($addTax == true) {
-                $product['unit_price_tax_excl'] = Tools::roundPrice($unitPrice);
-                $product['unit_price_tax_incl'] = $taxCalculator->addTaxes($unitPrice);
+            $unit_price = (float) $product['unit_price'];
+            if ($add_tax == true) {
+                $product['unit_price_tax_excl'] = Tools::round_price($unit_price);
+                $product['unit_price_tax_incl'] = $tax_calculator->add_taxes($unit_price);
             } else {
-                $product['unit_price_tax_incl'] = Tools::roundPrice($unitPrice);
-                $product['unit_price_tax_excl'] = $taxCalculator->removeTaxes($unitPrice);
+                $product['unit_price_tax_incl'] = Tools::round_price($unit_price);
+                $product['unit_price_tax_excl'] = $tax_calculator->remove_taxes($unit_price);
             }
-
-            $product['total_price_tax_excl'] = Tools::roundPrice($product['unit_price_tax_excl'] * $quantity);
-            $product['total_price_tax_incl'] = Tools::roundPrice($product['unit_price_tax_incl'] * $quantity);
-
-            $orderSlip->total_products_tax_excl += $product['total_price_tax_excl'];
-            $orderSlip->total_products_tax_incl += $product['total_price_tax_incl'];
+            $product['total_price_tax_excl'] = Tools::round_price($product['unit_price_tax_excl'] * $quantity);
+            $product['total_price_tax_incl'] = Tools::round_price($product['unit_price_tax_incl'] * $quantity);
+            $order_slip->total_products_tax_excl += $product['total_price_tax_excl'];
+            $order_slip->total_products_tax_incl += $product['total_price_tax_incl'];
         }
         unset($product);
-
-        if ($addTax == true) {
-            $orderSlip->amount = $orderSlip->total_products_tax_excl;
+        if ($add_tax == true) {
+            $order_slip->amount = $order_slip->total_products_tax_excl;
         } else {
-            $orderSlip->amount = $orderSlip->total_products_tax_incl;
+            $order_slip->amount = $order_slip->total_products_tax_incl;
         }
-
-        if ((float) $amount && !$amountChoosen) {
-            $orderSlip->order_slip_type = 1;
+        if ((float) $amount && !$amount_choosen) {
+            $order_slip->order_slip_type = 1;
         }
-        if (((float) $amount && $amountChoosen) || $orderSlip->shipping_cost_amount > 0) {
-            $orderSlip->order_slip_type = 2;
+        if ((float) $amount && $amount_choosen || $order_slip->shipping_cost_amount > 0) {
+            $order_slip->order_slip_type = 2;
         }
-
-        if (!$orderSlip->add()) {
+        if (!$order_slip->add()) {
             return false;
         }
-
         $res = true;
-
-        foreach ($productList as $product) {
-            $res = $orderSlip->addProductOrderSlip($product) && $res;
+        foreach ($product_list as $product) {
+            $res = $order_slip->add_product_order_slip($product) && $res;
         }
-
         return $res;
     }
-
     /**
      * Get resume of all refund for one product line
      *
@@ -401,18 +287,10 @@ class OrderSlipCore extends ObjectModel
      *
      * @throws PrestaShopException
      */
-    public static function getProductSlipResume($idOrderDetail)
+    public static function get_product_slip_resume($id_order_detail)
     {
-        return Db::readOnly()->getRow(
-            (new DbQuery())
-                ->select('COALESCE(SUM(`product_quantity`), 0) AS `product_quantity`')
-                ->select('COALESCE(SUM(`amount_tax_excl`), 0) AS `amount_tax_excl`')
-                ->select('COALESCE(SUM(`amount_tax_incl`), 0) AS `amount_tax_incl`')
-                ->from('order_slip_detail')
-                ->where('`id_order_detail` = '.(int) $idOrderDetail)
-        );
+        return Db::read_only()->get_row((new Db_Query())->select('COALESCE(SUM(`product_quantity`), 0) AS `product_quantity`')->select('COALESCE(SUM(`amount_tax_excl`), 0) AS `amount_tax_excl`')->select('COALESCE(SUM(`amount_tax_incl`), 0) AS `amount_tax_incl`')->from('order_slip_detail')->where('`id_order_detail` = ' . (int) $id_order_detail));
     }
-
     /**
      * @param Order $order
      * @param float $amount
@@ -424,95 +302,63 @@ class OrderSlipCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function createPartialOrderSlip($order, $amount, $shippingCostAmount, $orderDetailList)
+    public static function create_partial_order_slip($order, $amount, $shipping_cost_amount, $order_detail_list)
     {
-        Tools::displayAsDeprecated();
-
+        Tools::display_as_deprecated();
         $currency = new Currency($order->id_currency);
-        $orderSlip = new OrderSlip();
-        $orderSlip->id_customer = (int) $order->id_customer;
-        $orderSlip->id_order = (int) $order->id;
-        $orderSlip->amount = Tools::roundPrice((float)$amount);
-        $orderSlip->shipping_cost = false;
-        $orderSlip->shipping_cost_amount = Tools::roundPrice((float)$shippingCostAmount);
-        $orderSlip->conversion_rate = $currency->conversion_rate;
-        $orderSlip->partial = 1;
-        if (!$orderSlip->add()) {
+        $order_slip = new Order_Slip();
+        $order_slip->id_customer = (int) $order->id_customer;
+        $order_slip->id_order = (int) $order->id;
+        $order_slip->amount = Tools::round_price((float) $amount);
+        $order_slip->shipping_cost = false;
+        $order_slip->shipping_cost_amount = Tools::round_price((float) $shipping_cost_amount);
+        $order_slip->conversion_rate = $currency->conversion_rate;
+        $order_slip->partial = 1;
+        if (!$order_slip->add()) {
             return false;
         }
-
-        $orderSlip->addPartialSlipDetail($orderDetailList);
-
+        $order_slip->add_partial_slip_detail($order_detail_list);
         return true;
     }
-
     /**
      * @param array $orderDetailList
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function addPartialSlipDetail($orderDetailList): void
+    public function add_partial_slip_detail($order_detail_list): void
     {
-        Tools::displayAsDeprecated();
-
-        foreach ($orderDetailList as $idOrderDetail => $tab) {
-            $orderDetail = new OrderDetail($idOrderDetail);
-            $orderSlipResume = static::getProductSlipResume($idOrderDetail);
-
-            if ($tab['amount'] + $orderSlipResume['amount_tax_incl'] > $orderDetail->total_price_tax_incl) {
-                $tab['amount'] = $orderDetail->total_price_tax_incl - $orderSlipResume['amount_tax_incl'];
+        Tools::display_as_deprecated();
+        foreach ($order_detail_list as $id_order_detail => $tab) {
+            $order_detail = new Order_Detail($id_order_detail);
+            $order_slip_resume = static::get_product_slip_resume($id_order_detail);
+            if ($tab['amount'] + $order_slip_resume['amount_tax_incl'] > $order_detail->total_price_tax_incl) {
+                $tab['amount'] = $order_detail->total_price_tax_incl - $order_slip_resume['amount_tax_incl'];
             }
-
             if ($tab['amount'] == 0) {
                 continue;
             }
-
-            if ($tab['quantity'] + $orderSlipResume['product_quantity'] > $orderDetail->product_quantity) {
-                $tab['quantity'] = $orderDetail->product_quantity - $orderSlipResume['product_quantity'];
+            if ($tab['quantity'] + $order_slip_resume['product_quantity'] > $order_detail->product_quantity) {
+                $tab['quantity'] = $order_detail->product_quantity - $order_slip_resume['product_quantity'];
             }
-
             $tab['amount_tax_excl'] = $tab['amount_tax_incl'] = $tab['amount'];
-
-            $connection = Db::readOnly();
-            $idTax = (int) $connection->getValue(
-                (new DbQuery())
-                    ->select('`id_tax`')
-                    ->from('order_detail_tax')
-                    ->where('`id_order_detail` = '.(int) $idOrderDetail)
-            );
-
-            if ($idTax > 0) {
-                $rate = (float) $connection->getValue(
-                    (new DbQuery())
-                        ->select('`rate`')
-                        ->from('tax')
-                        ->where('`id_tax` = '.$idTax)
-                );
-
+            $connection = Db::read_only();
+            $id_tax = (int) $connection->get_value((new Db_Query())->select('`id_tax`')->from('order_detail_tax')->where('`id_order_detail` = ' . (int) $id_order_detail));
+            if ($id_tax > 0) {
+                $rate = (float) $connection->get_value((new Db_Query())->select('`rate`')->from('tax')->where('`id_tax` = ' . $id_tax));
                 if ($rate > 0) {
-                    $rate = 1 + ($rate / 100);
-                    $tab['amount_tax_excl'] = Tools::roundPrice($tab['amount_tax_excl'] / $rate);
+                    $rate = 1 + $rate / 100;
+                    $tab['amount_tax_excl'] = Tools::round_price($tab['amount_tax_excl'] / $rate);
                 }
             }
-
-            if ($tab['quantity'] > 0 && $tab['quantity'] > $orderDetail->product_quantity_refunded) {
-                $orderDetail->product_quantity_refunded = $tab['quantity'];
-                $orderDetail->save();
+            if ($tab['quantity'] > 0 && $tab['quantity'] > $order_detail->product_quantity_refunded) {
+                $order_detail->product_quantity_refunded = $tab['quantity'];
+                $order_detail->save();
             }
-
-            $insertOrderSlip = [
-                'id_order_slip'    => (int) $this->id,
-                'id_order_detail'  => (int) $idOrderDetail,
-                'product_quantity' => (int) $tab['quantity'],
-                'amount_tax_excl'  => (float) $tab['amount_tax_excl'],
-                'amount_tax_incl'  => (float) $tab['amount_tax_incl'],
-            ];
-
-            Db::getInstance()->insert('order_slip_detail', $insertOrderSlip);
+            $insert_order_slip = ['id_order_slip' => (int) $this->id, 'id_order_detail' => (int) $id_order_detail, 'product_quantity' => (int) $tab['quantity'], 'amount_tax_excl' => (float) $tab['amount_tax_excl'], 'amount_tax_incl' => (float) $tab['amount_tax_incl']];
+            Db::get_instance()->insert('order_slip_detail', $insert_order_slip);
         }
     }
-
     /**
      * @param array $orderDetailList
      * @param array $productQtyList
@@ -520,103 +366,66 @@ class OrderSlipCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function addSlipDetail($orderDetailList, $productQtyList): void
+    public function add_slip_detail($order_detail_list, $product_qty_list): void
     {
-        Tools::displayAsDeprecated();
-
-        foreach ($orderDetailList as $key => $idOrderDetail) {
-            if ($qty = (int) ($productQtyList[$key])) {
-                $orderDetail = new OrderDetail((int) $idOrderDetail);
-
-                if (Validate::isLoadedObject($orderDetail)) {
-                    Db::getInstance()->insert(
-                        'order_slip_detail',
-                        [
-                            'id_order_slip'    => (int) $this->id,
-                            'id_order_detail'  => (int) $idOrderDetail,
-                            'product_quantity' => $qty,
-                            'amount_tax_excl'  => Tools::roundPrice($orderDetail->unit_price_tax_excl * $qty),
-                            'amount_tax_incl'  => Tools::roundPrice($orderDetail->unit_price_tax_incl * $qty),
-                        ]
-                    );
+        Tools::display_as_deprecated();
+        foreach ($order_detail_list as $key => $id_order_detail) {
+            if ($qty = (int) $product_qty_list[$key]) {
+                $order_detail = new Order_Detail((int) $id_order_detail);
+                if (Validate::is_loaded_object($order_detail)) {
+                    Db::get_instance()->insert('order_slip_detail', ['id_order_slip' => (int) $this->id, 'id_order_detail' => (int) $id_order_detail, 'product_quantity' => $qty, 'amount_tax_excl' => Tools::round_price($order_detail->unit_price_tax_excl * $qty), 'amount_tax_incl' => Tools::round_price($order_detail->unit_price_tax_incl * $qty)]);
                 }
             }
         }
     }
-
     /**
      * @return array
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function getProducts()
+    public function get_products()
     {
-        $result = Db::readOnly()->getArray(
-            (new DbQuery())
-                ->select('*')
-                ->from('order_slip_detail', 'osd')
-                ->innerJoin('order_detail', 'od', 'osd.`id_order_detail` = od.`id_order_detail`')
-                ->where('osd.`id_order_slip` = '.(int) $this->id)
-        );
-
+        $result = Db::read_only()->get_array((new Db_Query())->select('*')->from('order_slip_detail', 'osd')->inner_join('order_detail', 'od', 'osd.`id_order_detail` = od.`id_order_detail`')->where('osd.`id_order_slip` = ' . (int) $this->id));
         $order = new Order($this->id_order);
         $products = [];
         foreach ($result as $row) {
-            $order->setProductPrices($row);
+            $order->set_product_prices($row);
             $products[] = $row;
         }
-
         return $products;
     }
-
     /**
      * @return array
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function getEcoTaxTaxesBreakdown()
+    public function get_eco_tax_taxes_breakdown()
     {
-        $ecotaxDetail = [];
-        foreach (static::getOrdersSlipDetail((int) $this->id) as $orderSlipDetails) {
-            $row = Db::readOnly()->getRow(
-                (new DbQuery())
-                    ->select('`ecotax_tax_rate` AS `rate`, `ecotax` AS `ecotax_tax_excl`, `ecotax` AS `ecotax_tax_incl`, `product_quantity`')
-                    ->from('order_detail')
-                    ->where('`id_order_detail` = '.(int) $orderSlipDetails['id_order_detail'])
-            );
-
-            if (!isset($ecotaxDetail[$row['rate']])) {
-                $ecotaxDetail[$row['rate']] = ['ecotax_tax_incl' => 0, 'ecotax_tax_excl' => 0, 'rate' => $row['rate']];
+        $ecotax_detail = [];
+        foreach (static::get_orders_slip_detail((int) $this->id) as $order_slip_details) {
+            $row = Db::read_only()->get_row((new Db_Query())->select('`ecotax_tax_rate` AS `rate`, `ecotax` AS `ecotax_tax_excl`, `ecotax` AS `ecotax_tax_incl`, `product_quantity`')->from('order_detail')->where('`id_order_detail` = ' . (int) $order_slip_details['id_order_detail']));
+            if (!isset($ecotax_detail[$row['rate']])) {
+                $ecotax_detail[$row['rate']] = ['ecotax_tax_incl' => 0, 'ecotax_tax_excl' => 0, 'rate' => $row['rate']];
             }
-
-            $quantity = (int) $orderSlipDetails['product_quantity'];
-            $ecotaxDetail[$row['rate']]['ecotax_tax_incl'] += Tools::roundPrice($row['ecotax_tax_excl'] * $quantity * (1 + $row['rate'] / 100));
-            $ecotaxDetail[$row['rate']]['ecotax_tax_excl'] += Tools::roundPrice($row['ecotax_tax_excl'] * $quantity);
+            $quantity = (int) $order_slip_details['product_quantity'];
+            $ecotax_detail[$row['rate']]['ecotax_tax_incl'] += Tools::round_price($row['ecotax_tax_excl'] * $quantity * (1 + $row['rate'] / 100));
+            $ecotax_detail[$row['rate']]['ecotax_tax_excl'] += Tools::round_price($row['ecotax_tax_excl'] * $quantity);
         }
-
-        return $ecotaxDetail;
+        return $ecotax_detail;
     }
-
     /**
      * @return array
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function getWsOrderSlipDetails()
+    public function get_ws_order_slip_details()
     {
-        Tools::displayAsDeprecated();
-
-        return Db::readOnly()->getArray(
-            (new DbQuery())
-                ->select('`id_order_slip` AS `id`, `id_order_detail`, `product_quantity`, `amount_tax_excl`, `amount_tax_incl`')
-                ->from('order_slip_detail')
-                ->where('`id_order_slip` = '.(int) $this->id)
-        );
+        Tools::display_as_deprecated();
+        return Db::read_only()->get_array((new Db_Query())->select('`id_order_slip` AS `id`, `id_order_detail`, `product_quantity`, `amount_tax_excl`, `amount_tax_incl`')->from('order_slip_detail')->where('`id_order_slip` = ' . (int) $this->id));
     }
-
     /**
      * @param array $values
      *
@@ -625,28 +434,19 @@ class OrderSlipCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function setWsOrderSlipDetails($values)
+    public function set_ws_order_slip_details($values)
     {
-        Tools::displayAsDeprecated();
-
-        $conn = Db::getInstance();
-        if ($conn->delete('order_slip_detail', '`id_order_slip` = '.(int) $this->id)) {
+        Tools::display_as_deprecated();
+        $conn = Db::get_instance();
+        if ($conn->delete('order_slip_detail', '`id_order_slip` = ' . (int) $this->id)) {
             $insert = [];
             foreach ($values as $value) {
-                $insert[] = [
-                    'id_order_slip' => (int) $this->id,
-                    'id_order_detail' => (int) $value['id_order_detail'],
-                    'product_quantity' => (int) $value['product_quantity'],
-                    'amount_tax_excl' => ['type' => 'sql', 'value' => isset($value['amount_tax_excl']) ? (float) $value['amount_tax_excl'] : 'NULL'],
-                    'amount_tax_incl' => ['type' => 'sql', 'value' => isset($value['amount_tax_incl']) ? (float) $value['amount_tax_incl'] : 'NULL'],
-                ];
+                $insert[] = ['id_order_slip' => (int) $this->id, 'id_order_detail' => (int) $value['id_order_detail'], 'product_quantity' => (int) $value['product_quantity'], 'amount_tax_excl' => ['type' => 'sql', 'value' => isset($value['amount_tax_excl']) ? (float) $value['amount_tax_excl'] : 'NULL'], 'amount_tax_incl' => ['type' => 'sql', 'value' => isset($value['amount_tax_incl']) ? (float) $value['amount_tax_incl'] : 'NULL']];
             }
             $conn->insert('order_slip_detail', $insert);
         }
-
         return true;
     }
-
     /**
      * @param array $product
      *
@@ -655,21 +455,10 @@ class OrderSlipCore extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    protected function addProductOrderSlip($product)
+    protected function add_product_order_slip($product)
     {
-        return Db::getInstance()->insert('order_slip_detail', [
-            'id_order_slip'        => (int) $this->id,
-            'id_order_detail'      => (int) $product['id_order_detail'],
-            'product_quantity'     => (int) $product['quantity'],
-            'unit_price_tax_excl'  => Tools::roundPrice((float)$product['unit_price_tax_excl']),
-            'unit_price_tax_incl'  => Tools::roundPrice((float)$product['unit_price_tax_incl']),
-            'total_price_tax_excl' => Tools::roundPrice((float)$product['total_price_tax_excl']),
-            'total_price_tax_incl' => Tools::roundPrice((float)$product['total_price_tax_incl']),
-            'amount_tax_excl'      => Tools::roundPrice((float)$product['total_price_tax_excl']),
-            'amount_tax_incl'      => Tools::roundPrice((float)$product['total_price_tax_incl']),
-        ]);
+        return Db::get_instance()->insert('order_slip_detail', ['id_order_slip' => (int) $this->id, 'id_order_detail' => (int) $product['id_order_detail'], 'product_quantity' => (int) $product['quantity'], 'unit_price_tax_excl' => Tools::round_price((float) $product['unit_price_tax_excl']), 'unit_price_tax_incl' => Tools::round_price((float) $product['unit_price_tax_incl']), 'total_price_tax_excl' => Tools::round_price((float) $product['total_price_tax_excl']), 'total_price_tax_incl' => Tools::round_price((float) $product['total_price_tax_incl']), 'amount_tax_excl' => Tools::round_price((float) $product['total_price_tax_excl']), 'amount_tax_incl' => Tools::round_price((float) $product['total_price_tax_incl'])]);
     }
-
     /**
      * Returns shipping costs for refund
      *
@@ -682,21 +471,18 @@ class OrderSlipCore extends ObjectModel
      *
      * @return float
      */
-    protected static function resolveShippingCost($shippingCost, Order $order, $withoutTax)
+    protected static function resolve_shipping_cost($shipping_cost, Order $order, $without_tax)
     {
-        if ($shippingCost === false) {
+        if ($shipping_cost === false) {
             return 0.0;
         }
-
-        if (! is_numeric($shippingCost)) {
-            if ($withoutTax) {
-                $shippingCost = $order->total_shipping_tax_excl;
+        if (!is_numeric($shipping_cost)) {
+            if ($without_tax) {
+                $shipping_cost = $order->total_shipping_tax_excl;
             } else {
-                $shippingCost = $order->total_shipping_tax_incl;
+                $shipping_cost = $order->total_shipping_tax_incl;
             }
         }
-
-        return Tools::roundPrice((float)$shippingCost);
+        return Tools::round_price((float) $shipping_cost);
     }
-
 }

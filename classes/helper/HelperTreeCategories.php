@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * 2007-2016 PrestaShop
  *
@@ -30,71 +30,58 @@ declare(strict_types=1);
  *  @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  PrestaShop is an internationally registered trademark & property of PrestaShop SA
  */
-
 /**
  * Class HelperTreeCategoriesCore
  */
-class HelperTreeCategoriesCore extends TreeCore
+class Helper_Tree_Categories_Core extends Tree_Core
 {
     public const DEFAULT_TEMPLATE = 'tree_categories.tpl';
     public const DEFAULT_NODE_FOLDER_TEMPLATE = 'tree_node_folder_radio.tpl';
     public const DEFAULT_NODE_ITEM_TEMPLATE = 'tree_node_item_radio.tpl';
-
     /**
      * @var array|null
      */
     protected $_disabled_categories;
-
     /**
      * @var string
      */
     protected $_input_name;
-
     /**
      * @var int $_lang
      */
     protected $_lang;
-
     /**
      * @var int
      */
     protected $_root_category;
-
     /**
      * @var array
      */
     protected $_selected_categories;
-
     /**
      * @var bool
      */
     protected $_full_tree = false;
-
     /**
      * @var Shop
      */
     protected $_shop;
-
     /**
      * @var bool
      */
     protected $_use_checkbox;
-
     /**
      * @var bool
      */
     protected $_use_search;
-
     /**
      * @var bool
      */
     protected $_use_shop_restriction;
-
     /**
      * @var bool
      */
     protected $_children_only = false;
-
     /**
      * HelperTreeCategoriesCore constructor.
      *
@@ -106,25 +93,16 @@ class HelperTreeCategoriesCore extends TreeCore
      *
      * @throws PrestaShopException
      */
-    public function __construct(
-        $id,
-        $title = null,
-        $rootCategory = null,
-        $lang = null,
-        $useShopRestriction = true
-    ) {
+    public function __construct($id, $title = null, $root_category = null, $lang = null, $use_shop_restriction = true)
+    {
         parent::__construct($id);
-
-        $this->setTitle($title);
-
-        if (isset($rootCategory)) {
-            $this->setRootCategory($rootCategory);
+        $this->set_title($title);
+        if (isset($root_category)) {
+            $this->set_root_category($root_category);
         }
-
-        $this->setLang($lang);
-        $this->setUseShopRestriction($useShopRestriction);
+        $this->set_lang($lang);
+        $this->set_use_shop_restriction($use_shop_restriction);
     }
-
     /**
      * @param int $idCategory
      *
@@ -132,337 +110,285 @@ class HelperTreeCategoriesCore extends TreeCore
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    protected function fillTree(array &$categories, $idCategory): array
+    protected function fill_tree(array &$categories, $id_category): array
     {
         $tree = [];
-        foreach ($categories[$idCategory] as $category) {
+        foreach ($categories[$id_category] as $category) {
             $tree[$category['id_category']] = $category;
             if (!empty($categories[$category['id_category']])) {
-                $tree[$category['id_category']]['children'] = $this->fillTree($categories, $category['id_category']);
-            } elseif ($result = Category::hasChildren($category['id_category'], $this->getLang(), false, $this->getShop()->id)) {
+                $tree[$category['id_category']]['children'] = $this->fill_tree($categories, $category['id_category']);
+            } elseif ($result = Category::has_children($category['id_category'], $this->get_lang(), false, $this->get_shop()->id)) {
                 $tree[$category['id_category']]['children'] = [$result[0]['id_category'] => $result[0]];
             }
         }
-
         return $tree;
     }
-
     /**
      * @return array
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public function getData()
+    public function get_data()
     {
         if (!isset($this->_data)) {
-            $shop = $this->getShop();
-            $lang = $this->getLang();
-            $rootCategory = (int) $this->getRootCategory();
+            $shop = $this->get_shop();
+            $lang = $this->get_lang();
+            $root_category = (int) $this->get_root_category();
             if ($this->_full_tree) {
-                $this->setData(Category::getNestedCategories($rootCategory, $lang, false, null, $this->useShopRestriction()));
-                $this->setDataSearch(Category::getAllCategoriesName($rootCategory, $lang, false, null, $this->useShopRestriction()));
+                $this->set_data(Category::get_nested_categories($root_category, $lang, false, null, $this->use_shop_restriction()));
+                $this->set_data_search(Category::get_all_categories_name($root_category, $lang, false, null, $this->use_shop_restriction()));
             } elseif ($this->_children_only) {
-                if (empty($rootCategory)) {
-                    $rootCategory = Category::getRootCategory()->id;
+                if (empty($root_category)) {
+                    $root_category = Category::get_root_category()->id;
                 }
-                $categories[$rootCategory] = Category::getChildren($rootCategory, $lang, false, $shop->id);
-                $children = $this->fillTree($categories, $rootCategory);
-                $this->setData($children);
+                $categories[$root_category] = Category::get_children($root_category, $lang, false, $shop->id);
+                $children = $this->fill_tree($categories, $root_category);
+                $this->set_data($children);
             } else {
-                if (empty($rootCategory)) {
-                    $rootCategory = Category::getRootCategory()->id;
+                if (empty($root_category)) {
+                    $root_category = Category::get_root_category()->id;
                 }
-                $newSelectedCategories = [];
-                $selectedCategories = $this->getSelectedCategories();
-                $categories[$rootCategory] = Category::getChildren($rootCategory, $lang, false, $shop->id);
-                foreach ($selectedCategories as $selectedCategory) {
-                    $category = new Category($selectedCategory, $lang, $shop->id);
-                    $newSelectedCategories[] = $selectedCategory;
-                    $parents = $category->getParentsCategories($lang);
+                $new_selected_categories = [];
+                $selected_categories = $this->get_selected_categories();
+                $categories[$root_category] = Category::get_children($root_category, $lang, false, $shop->id);
+                foreach ($selected_categories as $selected_category) {
+                    $category = new Category($selected_category, $lang, $shop->id);
+                    $new_selected_categories[] = $selected_category;
+                    $parents = $category->get_parents_categories($lang);
                     foreach ($parents as $value) {
-                        $newSelectedCategories[] = $value['id_category'];
+                        $new_selected_categories[] = $value['id_category'];
                     }
                 }
-                $newSelectedCategories = array_unique($newSelectedCategories);
-                foreach ($newSelectedCategories as $selectedCategory) {
-                    $currentCategory = Category::getChildren($selectedCategory, $lang, false, $shop->id);
-                    if (!empty($currentCategory)) {
-                        $categories[$selectedCategory] = $currentCategory;
+                $new_selected_categories = array_unique($new_selected_categories);
+                foreach ($new_selected_categories as $selected_category) {
+                    $current_category = Category::get_children($selected_category, $lang, false, $shop->id);
+                    if (!empty($current_category)) {
+                        $categories[$selected_category] = $current_category;
                     }
                 }
-
-                $tree = Category::getCategoryInformations([$rootCategory], $lang);
-
-                $children = $this->fillTree($categories, $rootCategory);
-
+                $tree = Category::get_category_informations([$root_category], $lang);
+                $children = $this->fill_tree($categories, $root_category);
                 if (!empty($children)) {
-                    $tree[$rootCategory]['children'] = $children;
+                    $tree[$root_category]['children'] = $children;
                 }
-
-                $this->setData($tree);
-                $this->setDataSearch(Category::getAllCategoriesName($rootCategory, $lang, false, null, $this->useShopRestriction()));
+                $this->set_data($tree);
+                $this->set_data_search(Category::get_all_categories_name($root_category, $lang, false, null, $this->use_shop_restriction()));
             }
         }
-
         return $this->_data;
     }
-
     /**
      * @param bool $value
      */
-    public function setChildrenOnly($value): static
+    public function set_children_only($value): static
     {
-        $this->_children_only = (bool)$value;
-
+        $this->_children_only = (bool) $value;
         return $this;
     }
-
     /**
      * @param bool $value
      */
-    public function setFullTree($value): static
+    public function set_full_tree($value): static
     {
-        $this->_full_tree = (bool)$value;
-
+        $this->_full_tree = (bool) $value;
         return $this;
     }
-
     /**
      * @return bool
      */
-    public function getFullTree()
+    public function get_full_tree()
     {
         return $this->_full_tree;
     }
-
     /**
      * @param array|null $value
      */
-    public function setDisabledCategories($value): static
+    public function set_disabled_categories($value): static
     {
         $this->_disabled_categories = $value;
-
         return $this;
     }
-
     /**
      * @return array|null
      */
-    public function getDisabledCategories()
+    public function get_disabled_categories()
     {
         return $this->_disabled_categories;
     }
-
     /**
      * @param string $value
      */
-    public function setInputName($value): static
+    public function set_input_name($value): static
     {
         $this->_input_name = $value;
-
         return $this;
     }
-
     /**
      * @return string
      */
-    public function getInputName()
+    public function get_input_name()
     {
         if (!isset($this->_input_name)) {
-            $this->setInputName('categoryBox');
+            $this->set_input_name('categoryBox');
         }
-
         return $this->_input_name;
     }
-
     /**
      * @param int $value
      */
-    public function setLang($value): static
+    public function set_lang($value): static
     {
         $this->_lang = $value;
-
         return $this;
     }
-
     /**
      * @return int
      */
-    public function getLang()
+    public function get_lang()
     {
         if (!isset($this->_lang)) {
-            $this->setLang($this->getContext()->employee->id_lang);
+            $this->set_lang($this->get_context()->employee->id_lang);
         }
-
         return $this->_lang;
     }
-
     /**
      * @return string
      */
-    public function getNodeFolderTemplate()
+    public function get_node_folder_template()
     {
         if (!isset($this->_node_folder_template)) {
-            $this->setNodeFolderTemplate(static::DEFAULT_NODE_FOLDER_TEMPLATE);
+            $this->set_node_folder_template(static::DEFAULT_NODE_FOLDER_TEMPLATE);
         }
-
         return $this->_node_folder_template;
     }
-
     /**
      * @return string
      */
-    public function getNodeItemTemplate()
+    public function get_node_item_template()
     {
         if (!isset($this->_node_item_template)) {
-            $this->setNodeItemTemplate(static::DEFAULT_NODE_ITEM_TEMPLATE);
+            $this->set_node_item_template(static::DEFAULT_NODE_ITEM_TEMPLATE);
         }
-
         return $this->_node_item_template;
     }
-
     /**
      * @param int $value
      *
      * @throws PrestaShopException
      */
-    public function setRootCategory($value): static
+    public function set_root_category($value): static
     {
-        if (!Validate::isInt($value)) {
-            throw new PrestaShopException('Root category must be an integer value');
+        if (!Validate::is_int($value)) {
+            throw new Presta_Shop_Exception('Root category must be an integer value');
         }
-
         $this->_root_category = $value;
-
         return $this;
     }
-
     /**
      * @return int
      */
-    public function getRootCategory()
+    public function get_root_category()
     {
         return $this->_root_category;
     }
-
     /**
      * @param array $value
      *
      * @throws PrestaShopException
      */
-    public function setSelectedCategories($value): static
+    public function set_selected_categories($value): static
     {
         if (!is_array($value)) {
-            throw new PrestaShopException('Selected categories value must be an array');
+            throw new Presta_Shop_Exception('Selected categories value must be an array');
         }
-
         $this->_selected_categories = $value;
-
         return $this;
     }
-
     /**
      * @return array
      */
-    public function getSelectedCategories()
+    public function get_selected_categories()
     {
         if (!isset($this->_selected_categories)) {
             $this->_selected_categories = [];
         }
-
         return $this->_selected_categories;
     }
-
     /**
      * @param Shop $value
      */
-    public function setShop($value): static
+    public function set_shop($value): static
     {
         $this->_shop = $value;
-
         return $this;
     }
-
     /**
      * @return Shop
      *
      * @throws PrestaShopException
      */
-    public function getShop()
+    public function get_shop()
     {
         if (!isset($this->_shop)) {
-            if (Tools::isSubmit('id_shop')) {
-                $this->setShop(new Shop(Tools::getIntValue('id_shop')));
-            } elseif ($this->getContext()->shop->id) {
-                $this->setShop(new Shop($this->getContext()->shop->id));
-            } elseif (!Shop::isFeatureActive()) {
-                $this->setShop(new Shop(Configuration::get('PS_SHOP_DEFAULT')));
+            if (Tools::is_submit('id_shop')) {
+                $this->set_shop(new Shop(Tools::get_int_value('id_shop')));
+            } elseif ($this->get_context()->shop->id) {
+                $this->set_shop(new Shop($this->get_context()->shop->id));
+            } elseif (!Shop::is_feature_active()) {
+                $this->set_shop(new Shop(Configuration::get('PS_SHOP_DEFAULT')));
             } else {
-                $this->setShop(new Shop(0));
+                $this->set_shop(new Shop(0));
             }
         }
-
         return $this->_shop;
     }
-
     /**
      * @return string
      */
-    public function getTemplate()
+    public function get_template()
     {
         if (!isset($this->_template)) {
-            $this->setTemplate(static::DEFAULT_TEMPLATE);
+            $this->set_template(static::DEFAULT_TEMPLATE);
         }
-
         return $this->_template;
     }
-
     /**
      * @param bool $value
      */
-    public function setUseCheckBox($value): static
+    public function set_use_check_box($value): static
     {
         $this->_use_checkbox = (bool) $value;
-
         return $this;
     }
-
     /**
      * @param bool $value
      */
-    public function setUseSearch($value): static
+    public function set_use_search($value): static
     {
         $this->_use_search = (bool) $value;
-
         return $this;
     }
-
     /**
      * @param bool $value
      */
-    public function setUseShopRestriction($value): static
+    public function set_use_shop_restriction($value): static
     {
         $this->_use_shop_restriction = (bool) $value;
-
         return $this;
     }
-
-    public function useCheckBox(): bool
+    public function use_check_box(): bool
     {
-        return (isset($this->_use_checkbox) && $this->_use_checkbox);
+        return isset($this->_use_checkbox) && $this->_use_checkbox;
     }
-
-    public function useSearch(): bool
+    public function use_search(): bool
     {
-        return (isset($this->_use_search) && $this->_use_search);
+        return isset($this->_use_search) && $this->_use_search;
     }
-
-    public function useShopRestriction(): bool
+    public function use_shop_restriction(): bool
     {
-        return (isset($this->_use_shop_restriction) && $this->_use_shop_restriction);
+        return isset($this->_use_shop_restriction) && $this->_use_shop_restriction;
     }
-
     /**
      * @param array|null $data
      *
@@ -475,130 +401,77 @@ class HelperTreeCategoriesCore extends TreeCore
     public function render($data = null)
     {
         if (!isset($data)) {
-            $data = $this->getData();
+            $data = $this->get_data();
         }
-
-        if (!empty($this->_disabled_categories)
-        ) {
-            $this->_disableCategories($data, $this->getDisabledCategories());
+        if (!empty($this->_disabled_categories)) {
+            $this->_disable_categories($data, $this->get_disabled_categories());
         }
-
-        if (!empty($this->_selected_categories)
-        ) {
-            $this->_getSelectedChildNumbers($data, $this->getSelectedCategories());
+        if (!empty($this->_selected_categories)) {
+            $this->_get_selected_child_numbers($data, $this->get_selected_categories());
         }
-
-        $collapseAll = new TreeToolbarLink(
-            'Collapse All',
-            '#',
-            '$(\'#'.$this->getId().'\').tree(\'collapseAll\');$(\'#collapse-all-'.$this->getId().'\').hide();$(\'#expand-all-'.$this->getId().'\').show(); return false;',
-            'icon-collapse-alt'
-        );
-        $collapseAll->setAttribute('id', 'collapse-all-'.$this->getId());
-        $expandAll = new TreeToolbarLink(
-            'Expand All',
-            '#',
-            '$(\'#'.$this->getId().'\').tree(\'expandAll\');$(\'#collapse-all-'.$this->getId().'\').show();$(\'#expand-all-'.$this->getId().'\').hide(); return false;',
-            'icon-expand-alt'
-        );
-        $expandAll->setAttribute('id', 'expand-all-'.$this->getId());
-        $this->addAction($collapseAll);
-        $this->addAction($expandAll);
-
-        if ($this->useCheckBox()) {
-            $checkAll = new TreeToolbarLink(
-                'Check All',
-                '#',
-                'checkAllAssociatedCategories($(\'#'.$this->getId().'\')); return false;',
-                'icon-check-sign'
-            );
-            $checkAll->setAttribute('id', 'check-all-'.$this->getId());
-            $uncheckAll = new TreeToolbarLink(
-                'Uncheck All',
-                '#',
-                'uncheckAllAssociatedCategories($(\'#'.$this->getId().'\')); return false;',
-                'icon-check-empty'
-            );
-            $uncheckAll->setAttribute('id', 'uncheck-all-'.$this->getId());
-            $this->addAction($checkAll);
-            $this->addAction($uncheckAll);
-            $this->setNodeFolderTemplate('tree_node_folder_checkbox.tpl');
-            $this->setNodeItemTemplate('tree_node_item_checkbox.tpl');
-            $this->setAttribute('use_checkbox', $this->useCheckBox());
+        $collapse_all = new Tree_Toolbar_Link('Collapse All', '#', '$(\'#' . $this->get_id() . '\').tree(\'collapseAll\');$(\'#collapse-all-' . $this->get_id() . '\').hide();$(\'#expand-all-' . $this->get_id() . '\').show(); return false;', 'icon-collapse-alt');
+        $collapse_all->set_attribute('id', 'collapse-all-' . $this->get_id());
+        $expand_all = new Tree_Toolbar_Link('Expand All', '#', '$(\'#' . $this->get_id() . '\').tree(\'expandAll\');$(\'#collapse-all-' . $this->get_id() . '\').show();$(\'#expand-all-' . $this->get_id() . '\').hide(); return false;', 'icon-expand-alt');
+        $expand_all->set_attribute('id', 'expand-all-' . $this->get_id());
+        $this->add_action($collapse_all);
+        $this->add_action($expand_all);
+        if ($this->use_check_box()) {
+            $check_all = new Tree_Toolbar_Link('Check All', '#', 'checkAllAssociatedCategories($(\'#' . $this->get_id() . '\')); return false;', 'icon-check-sign');
+            $check_all->set_attribute('id', 'check-all-' . $this->get_id());
+            $uncheck_all = new Tree_Toolbar_Link('Uncheck All', '#', 'uncheckAllAssociatedCategories($(\'#' . $this->get_id() . '\')); return false;', 'icon-check-empty');
+            $uncheck_all->set_attribute('id', 'uncheck-all-' . $this->get_id());
+            $this->add_action($check_all);
+            $this->add_action($uncheck_all);
+            $this->set_node_folder_template('tree_node_folder_checkbox.tpl');
+            $this->set_node_item_template('tree_node_item_checkbox.tpl');
+            $this->set_attribute('use_checkbox', $this->use_check_box());
         }
-
-        $this->setAttribute('selected_categories', $this->getSelectedCategories());
-        $this->getContext()->smarty->assign('root_category', Configuration::get('PS_ROOT_CATEGORY'));
-        $this->getContext()->smarty->assign('token', Tools::getAdminTokenLite('AdminProducts'));
-
+        $this->set_attribute('selected_categories', $this->get_selected_categories());
+        $this->get_context()->smarty->assign('root_category', Configuration::get('PS_ROOT_CATEGORY'));
+        $this->get_context()->smarty->assign('token', Tools::get_admin_token_lite('AdminProducts'));
         return parent::render($data);
     }
-
     /**
      * @param array|null $data
      *
      * @throws PrestaShopException
      * @throws SmartyException
      */
-    public function renderNodes($data = null): string
+    public function render_nodes($data = null): string
     {
         if (!isset($data)) {
-            $data = $this->getData();
+            $data = $this->get_data();
         }
-
         if (!is_array($data) && !$data instanceof Traversable) {
-            throw new PrestaShopException('Data value must be an traversable array');
+            throw new Presta_Shop_Exception('Data value must be an traversable array');
         }
-
         $html = '';
         foreach ($data as $item) {
-            if (array_key_exists('children', $item)
-                && !empty($item['children'])
-            ) {
-                $html .= $this->getContext()->smarty->createTemplate(
-                    $this->getTemplateFile($this->getNodeFolderTemplate()),
-                    $this->getContext()->smarty
-                )->assign(
-                    [
-                        'input_name' => $this->getInputName(),
-                        'children' => $this->renderNodes($item['children']),
-                        'node' => $item,
-                    ]
-                )->fetch();
+            if (array_key_exists('children', $item) && !empty($item['children'])) {
+                $html .= $this->get_context()->smarty->create_template($this->get_template_file($this->get_node_folder_template()), $this->get_context()->smarty)->assign(['input_name' => $this->get_input_name(), 'children' => $this->render_nodes($item['children']), 'node' => $item])->fetch();
             } else {
-                $html .= $this->getContext()->smarty->createTemplate(
-                    $this->getTemplateFile($this->getNodeItemTemplate()),
-                    $this->getContext()->smarty
-                )->assign(
-                    [
-                        'input_name' => $this->getInputName(),
-                        'node' => $item,
-                    ]
-                )->fetch();
+                $html .= $this->get_context()->smarty->create_template($this->get_template_file($this->get_node_item_template()), $this->get_context()->smarty)->assign(['input_name' => $this->get_input_name(), 'node' => $item])->fetch();
             }
         }
-
         return $html;
     }
-
     /**
      * @param array[] $categories
      * @param array|null $disabledCategories
      */
-    protected function _disableCategories(&$categories, $disabledCategories = null)
+    protected function _disable_categories(&$categories, $disabled_categories = null)
     {
         foreach ($categories as &$category) {
-            if (!isset($disabledCategories) || in_array($category['id_category'], $disabledCategories)) {
+            if (!isset($disabled_categories) || in_array($category['id_category'], $disabled_categories)) {
                 $category['disabled'] = true;
                 if (array_key_exists('children', $category) && is_array($category['children'])) {
-                    static::_disableCategories($category['children']);
+                    static::_disable_categories($category['children']);
                 }
             } elseif (array_key_exists('children', $category) && is_array($category['children'])) {
-                static::_disableCategories($category['children'], $disabledCategories);
+                static::_disable_categories($category['children'], $disabled_categories);
             }
         }
     }
-
     /**
      * @param array[] $categories
      * @param array $selected
@@ -606,26 +479,21 @@ class HelperTreeCategoriesCore extends TreeCore
      *
      * @return int
      */
-    protected function _getSelectedChildNumbers(&$categories, $selected, &$parent = null): float|int
+    protected function _get_selected_child_numbers(&$categories, $selected, &$parent = null): float|int
     {
-        $selectedChilds = 0;
-
+        $selected_childs = 0;
         foreach ($categories as &$category) {
             if (isset($parent) && in_array($category['id_category'], $selected)) {
-                $selectedChilds++;
+                $selected_childs++;
             }
-
             if (!empty($category['children'])) {
-                $selectedChilds += $this->_getSelectedChildNumbers($category['children'], $selected, $category);
+                $selected_childs += $this->_get_selected_child_numbers($category['children'], $selected, $category);
             }
         }
-
         if (!isset($parent['selected_childs'])) {
             $parent['selected_childs'] = 0;
         }
-
-        $parent['selected_childs'] = $selectedChilds;
-
-        return $selectedChilds;
+        $parent['selected_childs'] = $selected_childs;
+        return $selected_childs;
     }
 }
